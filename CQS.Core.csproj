@@ -1,0 +1,336 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{6F5F9358-562B-4150-ACC4-5C220C2C3CEE}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>CQS</RootNamespace>
+    <AssemblyName>CQS.Core</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Win32|AnyCPU'">
+    <OutputPath>bin\Win32\</OutputPath>
+    <DefineConstants>
+    </DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Win32|x64'">
+    <OutputPath>bin\x64\Win32\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="CommandLine, Version=1.9.8.1, Culture=neutral, PublicKeyToken=de6f01bd326f8c32, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\github\commandline\src\libcmdline\bin\Release\CommandLine.dll</HintPath>
+    </Reference>
+    <Reference Include="DigitalRune.Windows.Docking">
+      <HintPath>..\lib\DigitalRune.Windows.Docking.dll</HintPath>
+    </Reference>
+    <Reference Include="HtmlAgilityPack">
+      <HintPath>..\packages\HtmlAgilityPack.1.4.6\lib\Net40\HtmlAgilityPack.dll</HintPath>
+    </Reference>
+    <Reference Include="MathNet.Numerics, Version=2.4.0.26, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\MathNet.Numerics.2.4.0\lib\net40\MathNet.Numerics.dll</HintPath>
+    </Reference>
+    <Reference Include="Meta.Numerics, Version=2.1.0.0, Culture=neutral, PublicKeyToken=67d25c65a6631347, processorArchitecture=MSIL">
+      <HintPath>..\packages\Meta.Numerics.2.1.0\lib\Meta.Numerics.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Office.Interop.Excel, Version=14.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AbstractFile.cs" />
+    <Compile Include="AbstractTableFile.cs" />
+    <Compile Include="Commandline\AbstractOptions.cs" />
+    <Compile Include="CommandConfig.cs" />
+    <Compile Include="ExpressionDataMapReader.cs" />
+    <Compile Include="FileTemplate\HeaderDefinitionBuilderUI.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FileTemplate\HeaderDefinitionBuilderUI.Designer.cs">
+      <DependentUpon>HeaderDefinitionBuilderUI.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FileTemplate\HeaderDefinition.cs" />
+    <Compile Include="BreastCancer\BreastCancerSampleInformationBuilder.cs" />
+    <Compile Include="BreastCancer\BreastCancerSampleInformationBuilderUI.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="BreastCancer\BreastCancerSampleInformationBuilderUI.Designer.cs">
+      <DependentUpon>BreastCancerSampleInformationBuilderUI.cs</DependentUpon>
+    </Compile>
+    <Compile Include="BreastCancer\BreastCancerSampleInformationForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="BreastCancer\BreastCancerSampleInformationForm.Designer.cs">
+      <DependentUpon>BreastCancerSampleInformationForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="BreastCancer\BreastCancerSampleItemExcelFormat.cs" />
+    <Compile Include="BreastCancer\BreastCancerSampleItemHtmlWriter.cs" />
+    <Compile Include="BreastCancer\IBreastCancerSampleInfoParser.cs" />
+    <Compile Include="BreastCancer\parser\EBIDatasetParser.cs" />
+    <Compile Include="BreastCancer\parser\GSE1561Parser.cs" />
+    <Compile Include="BreastCancer\parser\GSE2990Parser.cs" />
+    <Compile Include="BreastCancer\BreastCancerSampleItemDefinitionBuilderUI.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="BreastCancer\BreastCancerSampleItemDefinitionBuilderUI.Designer.cs">
+      <DependentUpon>BreastCancerSampleItemDefinitionBuilderUI.cs</DependentUpon>
+    </Compile>
+    <Compile Include="BreastCancer\parser\PropertyMappingParser.cs" />
+    <Compile Include="BreastCancer\parser\ParserFactory.cs" />
+    <Compile Include="BreastCancer\SampleUtils.cs" />
+    <Compile Include="BreastCancer\StatusConverter.cs" />
+    <Compile Include="Converter\ConverterUtils.cs" />
+    <Compile Include="Converter\DynamicConverterFactory.cs" />
+    <Compile Include="Genome\Annotation\AnnovarExonicVariantItemReader.cs" />
+    <Compile Include="Genome\Annotation\AnnovarExporter.cs" />
+    <Compile Include="Genome\Annotation\AnnovarVariantItemReader.cs" />
+    <Compile Include="Genome\Annotation\AnnovarSummaryItem.cs" />
+    <Compile Include="Genome\Annotation\DeletionDistanceExporter.cs" />
+    <Compile Include="Genome\Annotation\InsertionDistanceExporter.cs" />
+    <Compile Include="Genome\Annotation\AbstractInsertionDeletionDistanceExporter.cs" />
+    <Compile Include="Genome\Annotation\JunctionDistanceExporter.cs" />
+    <Compile Include="Genome\Annotation\IAnnotationCsvExporter.cs" />
+    <Compile Include="Genome\Annotation\RnaeditingExporter.cs" />
+    <Compile Include="Genome\Bed\BedItem.cs" />
+    <Compile Include="Genome\Bed\BedItemFile.cs" />
+    <Compile Include="Genome\Bed\BedStrandMap.cs" />
+    <Compile Include="Genome\Bed\MatchedBedItem.cs" />
+    <Compile Include="Genome\Bed\MatchedBedItemFile.cs" />
+    <Compile Include="Genome\CNV\CGHReader.cs" />
+    <Compile Include="Genome\CNV\CnvnatorItem.cs" />
+    <Compile Include="Genome\CNV\CNVType.cs" />
+    <Compile Include="Genome\CNV\ConiferReader.cs" />
+    <Compile Include="Genome\CNV\CnvnatorReader.cs" />
+    <Compile Include="Genome\CNV\CNVItemReader.cs" />
+    <Compile Include="Genome\CNV\ExomeDepthReader.cs" />
+    <Compile Include="Genome\CNV\ExomeCopyReader.cs" />
+    <Compile Include="Genome\CNV\FreecReader.cs" />
+    <Compile Include="Genome\IChromosomeRegion.cs" />
+    <Compile Include="Genome\CNV\CNVItem.cs" />
+    <Compile Include="Genome\Dbsnp\DbsnpItem.cs" />
+    <Compile Include="Genome\Dbsnp\DbsnpVcfFile.cs" />
+    <Compile Include="Genome\Gtf\GtfItemFile.cs" />
+    <Compile Include="Genome\Gtf\GtfItem.cs" />
+    <Compile Include="Genome\Gtf\GtfTranscriptItemFile.cs" />
+    <Compile Include="Genome\QC\FastQCItemReader.cs" />
+    <Compile Include="Genome\QC\FastQCBasicStatisticItem.cs" />
+    <Compile Include="Genome\QC\FastQCItem.cs" />
+    <Compile Include="Genome\QC\QCSummaryBuilder.cs" />
+    <Compile Include="Genome\QC\RNASeQCItem.cs" />
+    <Compile Include="Genome\QC\RNASeQCItemReader.cs" />
+    <Compile Include="Genome\Tophat\InsertionDeletionDistanceCalculator.cs" />
+    <Compile Include="Genome\MatchExon.cs" />
+    <Compile Include="Genome\Annotation\AnnovarVariantItem.cs" />
+    <Compile Include="Genome\Pileup\PileupItemReadDepthFilter.cs" />
+    <Compile Include="Genome\Pileup\PileupItemGroupTest.cs" />
+    <Compile Include="Genome\Pileup\PileupItemStrandTest.cs" />
+    <Compile Include="Genome\Pileup\EventCount.cs" />
+    <Compile Include="Genome\Pileup\IPileupItemTest.cs" />
+    <Compile Include="Genome\Pileup\PileupItemFile.cs" />
+    <Compile Include="Genome\Pileup\PileupItemPercentageTest.cs" />
+    <Compile Include="Genome\Pileup\PileupItemParser.cs" />
+    <Compile Include="Genome\Pileup\IPileupItemParser.cs" />
+    <Compile Include="Genome\Pileup\PileupBase.cs" />
+    <Compile Include="Genome\Pileup\PileupFile.cs" />
+    <Compile Include="Genome\Pileup\PileupItem.cs" />
+    <Compile Include="Genome\Pileup\PileupItemPositionTest.cs" />
+    <Compile Include="Genome\Rnaediting\DarnedReader.cs" />
+    <Compile Include="Genome\Rnaediting\RnaeditItem.cs" />
+    <Compile Include="AbstractHeaderFile.cs" />
+    <Compile Include="Statistics\FisherExactTestResult.cs" />
+    <Compile Include="Genome\Tophat\InsertionDeletionItem.cs" />
+    <Compile Include="Genome\Tophat\MutationDistanceCalculator.cs" />
+    <Compile Include="Genome\Tophat\JunctionDistanceCalculator.cs" />
+    <Compile Include="Genome\Tophat\MutationRecordFileReader.cs" />
+    <Compile Include="Genome\Gtf\GtfTranscriptItem.cs" />
+    <Compile Include="LinkUtils.cs" />
+    <Compile Include="Location.cs" />
+    <Compile Include="Sample\DataLinkUtils.cs" />
+    <Compile Include="Sample\RawSampleInfoReader.cs" />
+    <Compile Include="Sample\SdrfSampleInfoParser.cs" />
+    <Compile Include="Genome\Tophat\JunctionItem.cs" />
+    <Compile Include="Genome\Tophat\TophatJunctionBedReader.cs" />
+    <Compile Include="Genome\Tophat\MutationItem.cs" />
+    <Compile Include="Genome\Tophat\MutationItemFileReader.cs" />
+    <Compile Include="Ncbi\Geo\GeoUtils.cs" />
+    <Compile Include="Ncbi\Geo\GsmConsts.cs" />
+    <Compile Include="Sample\IRawSampleInfoReader.cs" />
+    <Compile Include="Sample\RawSampleInfoReaderFactory.cs" />
+    <Compile Include="Sample\SampleInfo.cs" />
+    <Compile Include="Statistics\ITestResult.cs" />
+    <Compile Include="StatusValue.cs" />
+    <Compile Include="BreastCancer\BreastCancerSampleItem.cs" />
+    <Compile Include="BreastCancer\BreastCancerSampleItemFormat.cs" />
+    <Compile Include="BreastCancer\BreastCancerSampleItemPropertyFactory.cs" />
+    <Compile Include="ExpressionValue.cs" />
+    <Compile Include="GroSeq\PearsonCorrelationCalculator.cs" />
+    <Compile Include="Ncbi\Geo\GseSeriesMatrixReader.cs" />
+    <Compile Include="Sample\SampleItemPropertyFactory.cs" />
+    <Compile Include="ChipSeq\ChipSeqItem.cs" />
+    <Compile Include="ChipSeq\ChipSeqItemComparisonBuilder.cs" />
+    <Compile Include="ChipSeq\ChipSeqItemFormat.cs" />
+    <Compile Include="ChipSeq\ChipSeqItemUtils.cs" />
+    <Compile Include="ChipSeq\OverlappedChipSeqComparisonItemBuilder.cs" />
+    <Compile Include="ChipSeq\OverlappedChipSeqComparisonItemFormat.cs" />
+    <Compile Include="ChipSeq\OverlappedChipSeqComparisonItem.cs" />
+    <Compile Include="ChipSeq\OverlappedChipSeqItem.cs" />
+    <Compile Include="ChipSeq\OverlappedChipSeqItemFormat.cs" />
+    <Compile Include="Genome\Refseq\GeneLocationItem.cs" />
+    <Compile Include="Genome\Refseq\GeneLocationItemReader.cs" />
+    <Compile Include="GroSeq\PeakAnnotationItem.cs" />
+    <Compile Include="GroSeq\PeakAnnotationItemFormat.cs" />
+    <Compile Include="GroSeq\PeakAnnotationItemPropertyFactory.cs" />
+    <Compile Include="Microarray\Affymatrix\CelFile.cs" />
+    <Compile Include="Microarray\ISummaryFile.cs" />
+    <Compile Include="Ncbi\Geo\GsmFile.cs" />
+    <Compile Include="Microarray\EBIExpressionFile.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Sample\SampleItem.cs" />
+    <Compile Include="Statistics\MyFisherExactTest.cs" />
+    <Compile Include="TCGA\BarInfo.cs" />
+    <Compile Include="TCGA\TCGASampleCode.cs" />
+    <Compile Include="TCGA\DatasetInfo.cs" />
+    <Compile Include="TCGA\ExpressionMatrix.cs" />
+    <Compile Include="ExpressionDataFastFormat.cs" />
+    <Compile Include="TCGA\TCGATechnologyImpl\FindParticipantMicroarray.cs" />
+    <Compile Include="TCGA\TCGATechnologyImpl\FindParticipantRnaSeq.cs" />
+    <Compile Include="TCGA\TCGATechnologyImpl\FindParticipantBySdrfFile.cs" />
+    <Compile Include="TCGA\TCGATechnologyImpl\FindParticipantSNP.cs" />
+    <Compile Include="TCGA\TCGATechnologyImpl\FindParticipantProtein.cs" />
+    <Compile Include="TCGA\IParticipantFinder.cs" />
+    <Compile Include="ExpressionData.cs" />
+    <Compile Include="ExpressionDataFormat.cs" />
+    <Compile Include="TCGA\ManifestReader.cs" />
+    <Compile Include="TCGA\Microarray\Level3MicroarrayDataTxtReader.cs" />
+    <Compile Include="TCGA\Microarray\MicroarrayDataSummaryBuilderUI.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="TCGA\Microarray\MicroarrayDataSummaryBuilderUI.Designer.cs">
+      <DependentUpon>MicroarrayDataSummaryBuilderUI.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ExpressionDataRawReader.cs" />
+    <Compile Include="TCGA\Microarray\MicroarrayDataSummaryBuilder.cs" />
+    <Compile Include="MapReader.cs" />
+    <Compile Include="TCGA\SpiderTreeNode.cs" />
+    <Compile Include="TCGA\SpiderTreeNodeXmlFormat.cs" />
+    <Compile Include="TCGA\TCGAReader.cs" />
+    <Compile Include="TCGA\TCGASpider.cs" />
+    <Compile Include="TCGA\ITCGATechnology.cs" />
+    <Compile Include="TCGA\TCGATechnology.cs" />
+    <Compile Include="TCGA\TCGATechnologyImpl\AbstractTCGATechnology.cs" />
+    <Compile Include="TCGA\TCGATechnologyImpl\TCGATechnologyMirna.cs" />
+    <Compile Include="TCGA\TCGATechnologyImpl\TCGATechnologyMirnaSeq.cs" />
+    <Compile Include="TCGA\TCGATechnologyImpl\TCGATechnologyMicroarray.cs" />
+    <Compile Include="TCGA\TCGATechnologyImpl\TCGATechnologyRNAseqV1.cs" />
+    <Compile Include="TCGA\TCGATechnologyImpl\TCGATechnologyRNAseqV2.cs" />
+    <Compile Include="TCGA\TCGAUtils.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="BreastCancer\BreastCancerSampleInformationBuilderUI.resx">
+      <DependentUpon>BreastCancerSampleInformationBuilderUI.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="BreastCancer\BreastCancerSampleInformationForm.resx">
+      <DependentUpon>BreastCancerSampleInformationForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="BreastCancer\BreastCancerSampleItemDefinitionBuilderUI.resx">
+      <DependentUpon>BreastCancerSampleItemDefinitionBuilderUI.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FileTemplate\HeaderDefinitionBuilderUI.resx">
+      <DependentUpon>HeaderDefinitionBuilderUI.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TCGA\Microarray\MicroarrayDataSummaryBuilderUI.resx">
+      <DependentUpon>MicroarrayDataSummaryBuilderUI.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Properties\DataSources\CQS.BreastCancer.BreastCancerSampleItem.datasource" />
+    <None Include="Properties\DataSources\ProteomicsLib.Format.DefaultValue.datasource" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="BreastCancer\parser\DatasetDefaultValue.txt" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\RCPA.Core\RCPA.Core.csproj">
+      <Project>{594B9AF6-4E27-4230-A60A-1B61FA3171F9}</Project>
+      <Name>RCPA.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RCPA.Proteomics\RCPA.Proteomics.csproj">
+      <Project>{7FF5DF9A-5C66-41A9-A462-65EC502E924F}</Project>
+      <Name>RCPA.Proteomics</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
