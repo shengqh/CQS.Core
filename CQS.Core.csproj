@@ -74,20 +74,20 @@
   <ItemGroup>
     <Reference Include="CommandLine, Version=1.9.8.1, Culture=neutral, PublicKeyToken=de6f01bd326f8c32, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\github\commandline\src\libcmdline\bin\Release\CommandLine.dll</HintPath>
+      <HintPath>..\SQH.Lib\CommandLine.dll</HintPath>
     </Reference>
     <Reference Include="DigitalRune.Windows.Docking">
-      <HintPath>..\lib\DigitalRune.Windows.Docking.dll</HintPath>
+      <HintPath>..\SQH.Lib\DigitalRune.Windows.Docking.dll</HintPath>
     </Reference>
     <Reference Include="HtmlAgilityPack">
-      <HintPath>..\packages\HtmlAgilityPack.1.4.6\lib\Net40\HtmlAgilityPack.dll</HintPath>
+      <HintPath>..\SQH.Lib\HtmlAgilityPack.dll</HintPath>
     </Reference>
     <Reference Include="MathNet.Numerics, Version=2.4.0.26, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\MathNet.Numerics.2.4.0\lib\net40\MathNet.Numerics.dll</HintPath>
+      <HintPath>..\SQH.Lib\MathNet.Numerics.dll</HintPath>
     </Reference>
     <Reference Include="Meta.Numerics, Version=2.1.0.0, Culture=neutral, PublicKeyToken=67d25c65a6631347, processorArchitecture=MSIL">
-      <HintPath>..\packages\Meta.Numerics.2.1.0\lib\Meta.Numerics.dll</HintPath>
+      <HintPath>..\SQH.Lib\Meta.Numerics.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Office.Interop.Excel, Version=14.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
       <EmbedInteropTypes>True</EmbedInteropTypes>
