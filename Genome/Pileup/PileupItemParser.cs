@@ -235,8 +235,6 @@ namespace CQS.Genome.Pileup
 
               var num = ParseInsertionDeletionCount(seq, seqLength, ref baseIndex);
               baseIndex += num;
-
-              pb = null;
             }
             else
             {
@@ -254,6 +252,12 @@ namespace CQS.Genome.Pileup
               baseIndex += num;
 
               pbl.Add(pb);
+            }
+
+            if (baseIndex < seqLength && seq[baseIndex] == '$')
+            {
+              pb.Position = PositionType.END;
+              baseIndex++;
             }
           }
           else
