@@ -16,12 +16,12 @@ namespace CQS.Genome.Annotation
 
     protected override long DoGetDistance(InsertionDeletionItem insDel, long position)
     {
-      return Math.Min(Math.Abs(insDel.ChromStart - position), Math.Abs(insDel.ChromEnd - position));
+      return Math.Min(Math.Abs(insDel.Start - position), Math.Abs(insDel.End - position));
     }
 
     protected override string DoGetPosition(InsertionDeletionItem minInsDel)
     {
-      return string.Format("{0}-{1}", minInsDel.ChromStart, minInsDel.ChromEnd);
+      return string.Format("{0}-{1}", minInsDel.Start, minInsDel.End);
     }
   }
 }

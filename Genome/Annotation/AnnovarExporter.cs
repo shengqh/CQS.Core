@@ -17,7 +17,7 @@ namespace CQS.Genome.Annotation
     {
       this.keyFunc = keyFunc;
       this.annovarItems = new AnnovarSummaryItemListReader().ReadFromFile(fileName);
-      this.annovarMap = annovarItems.ToDictionary(m => keyFunc(m.Chrom, m.ChromStart));
+      this.annovarMap = annovarItems.ToDictionary(m => keyFunc(m.Seqname, m.Start));
       this.emptyStr = new String(',', annovarItems.SummaryHeaderInCsvFormat.Count(m => m == ','));
       this.annovarHeader = (from h in annovarItems.SummaryHeaderInCsvFormat.Split(',')
                             select "annovar_" + h).Merge(',');

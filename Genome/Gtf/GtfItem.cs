@@ -17,7 +17,7 @@ namespace CQS.Genome.Gtf
   /// 381 Twinscan  stop_codon   708   710   .   +   0  gene_id "001"; transcript_id "001.1";
   /// The whitespace in this example is provided only for readability. In GTF, fields must be separated by a single TAB and no white space.
   /// </summary>
-  public class GtfItem
+  public class GtfItem : ISequenceRegion
   {
     private static Regex geneIdReg = new Regex("gene_id\\s\"(.+?)\"");
     private static Regex transcriptIdReg = new Regex("transcript_id\\s\"(.+?)\"");
@@ -69,8 +69,8 @@ namespace CQS.Genome.Gtf
     public string Feature { get; set; }
 
     /// <summary>
-    /// Integer start and end coordinates of the feature relative to the beginning of the sequence named in <seqname>.  
-    /// <start> must be less than or equal to <end>. SEQUENCE NUMBERING STARTS AT 1. Values of <start> and <end> that 
+    /// Integer start and end coordinates of the feature relative to the beginning of the sequence named in <Seqname>.  
+    /// <Start> must be less than or equal to <End>. SEQUENCE NUMBERING STARTS AT 1. Values of <Start> and <End> that 
     /// extend outside the reference sequence are technically acceptable, but they are discouraged.
     /// </summary>
     public long Start { get; set; }
@@ -96,7 +96,7 @@ namespace CQS.Genome.Gtf
     /// 0 indicates that the feature begins with a whole codon at the 5' most base. 
     /// 1 means that there is one extra base (the third base of a codon) before the first whole codon and 
     /// 2 means that there are two extra bases (the second and third bases of the codon) before the first codon. 
-    /// Note that for reverse strand features, the 5' most base is the <end> coordinate.
+    /// Note that for reverse strand features, the 5' most base is the end coordinate.
     /// </summary>
     public char Frame { get; set; }
 
@@ -105,6 +105,15 @@ namespace CQS.Genome.Gtf
     /// gene_id value;     A globally unique identifier for the genomic locus of the transcript. If empty, no gene is associated with this feature.
     /// </summary>
     public string GeneId { get; set; }
+
+    /// <summary>
+    /// alias of GeneId
+    /// </summary>
+    public string Name
+    {
+      get { return GeneId; }
+      set { GeneId = value; }
+    }
 
     /// <summary>
     /// parsing from [Attributes]
@@ -145,18 +154,30 @@ namespace CQS.Genome.Gtf
 
     public GtfItem()
     {
-      Seqname = "";
-      Source = "";
-      Feature = "";
-      Start = -1;
-      End = -1;
-      Score = ".";
-      Strand = '.';
-      Frame = 'x';
-      _attributes = "";
-      GeneId = "";
-      TranscriptId = "";
-      ExonNumber = -1;
+      this.Seqname = string.Empty;
+      this.Source = string.Empty;
+      this.Feature = string.Empty;
+      this.Start = -1;
+      this.End = -1;
+      this.Score = ".";
+      this.Strand = '.';
+      this.Frame = 'x';
+      this._attributes = string.Empty;
+      this.GeneId = "";
+      this.TranscriptId = string.Empty;
+      this.ExonNumber = -1;
+      this.Sequence = string.Empty;
+    }
+
+    public GtfItem(ISequenceRegion source)
+      : this()
+    {
+      this.Name = source.Name;
+      this.Seqname = source.Seqname;
+      this.Start = source.Start;
+      this.End = source.End;
+      this.Strand = source.Strand;
+      this.Sequence = source.Sequence;
     }
 
     public long Length
@@ -167,14 +188,13 @@ namespace CQS.Genome.Gtf
         {
           return 0;
         }
-        else if (this.End > this.Start)
+
+        if (this.End > this.Start)
         {
           return this.End - this.Start + 1;
         }
-        else
-        {
-          return this.Start - this.End + 1;
-        }
+
+        return this.Start - this.End + 1;
       }
     }
 
@@ -210,6 +230,27 @@ namespace CQS.Genome.Gtf
     {
       this.Start -= 1;
       this.End -= 1;
+    }
+
+    public bool Contains(long position)
+    {
+      return position >= this.Start && position <= this.End;
+    }
+
+    public string Sequence { get; set; }
+
+    public override string ToString()
+    {
+      return string.Format("{0}\t{1}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}",
+        Seqname,
+        Source,
+        Feature,
+        Start,
+        End,
+        Score,
+        Strand,
+        Frame,
+        Attributes);
     }
   }
 }

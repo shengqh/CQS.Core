@@ -118,5 +118,10 @@ namespace CQS.TCGA.TCGATechnologyImpl
         //there may be multiple samples from same barcode sample
                    GroupBy(m => m.BarCode).ToDictionary(m => m.Key, m => m.ToList());
     }
+
+    public override string ToString()
+    {
+      return this.NodeName;
+    }
   }
 }

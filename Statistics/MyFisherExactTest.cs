@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using MathNet.Numerics.Distributions;
 using Meta.Numerics.Statistics;
+using CQS.Genome.Statistics;
 
 namespace CQS.Statistics
 {

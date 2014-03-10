@@ -105,6 +105,16 @@ namespace CQS.Ncbi.Geo
             }
             continue;
           }
+
+          if (line.StartsWith(GsmConsts.SampleCharacteristics))
+          {
+            var parts = line.Split('\t');
+            for (int i = 1; i < parts.Length; i++)
+            {
+              result[i - 1].Characteristics.Add(GetString(parts[i]));
+            }
+            continue;
+          }
         }
       }
 

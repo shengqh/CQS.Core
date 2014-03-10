@@ -14,11 +14,13 @@ namespace CQS.Sample
       Sample = StatusValue.NA;
       SourceName = StatusValue.NA;
       SampleTitle = StatusValue.NA;
+      Characteristics = new List<string>();
     }
 
     public string Dataset { get; set; }
     public string Sample { get; set; }
     public string SourceName { get; set; }
     public string SampleTitle { get; set; }
+    public List<string> Characteristics { get; private set; }
   }
 }

@@ -17,7 +17,7 @@ namespace CQS.Genome.Tophat
       List<JunctionItem> result = (from bed in beds
                                    select new JunctionItem()
                {
-                 Chr = bed.Chrom,
+                 Chr = bed.Seqname,
                  Start1 = bed.Blocks[0].ChromStart,
                  End1 = bed.Blocks[0].ChromEnd,
                  Start2 = bed.Blocks[1].ChromStart,

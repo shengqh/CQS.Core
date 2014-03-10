@@ -9,10 +9,28 @@ namespace CQS.Genome.Bed
 {
   public class BedItemFile<T> : AbstractTableFile<T> where T : BedItem, new()
   {
-    public BedItemFile()      : base()    { }
+    public bool HasHeader { get; set; }
 
-    public BedItemFile(string filename)      : base(filename)    { }
+    public BedItemFile()
+      : base()
+    {
+      this.HasHeader = false;
+    }
 
+    public BedItemFile(string filename)
+      : base(filename)
+    {
+      this.HasHeader = false;
+    }
+
+    protected override void DoAfterOpen()
+    {
+      base.DoAfterOpen();
+      if (this.HasHeader)
+      {
+        base.reader.ReadLine();
+      }
+    }
     /// <summary>
     /// at least contains three colomns : chromosome, start and end
     /// </summary>
@@ -40,9 +58,9 @@ namespace CQS.Genome.Bed
     public string GetValue(BedItem item)
     {
       return string.Format("{0}\t{1}\t{2}\t{3}\t{4}\t{5}",
-        item.Chrom,
-        item.ChromStart,
-        item.ChromEnd,
+        item.Seqname,
+        item.Start,
+        item.End,
         item.Name,
         item.Score,
         item.Strand);
@@ -52,9 +70,9 @@ namespace CQS.Genome.Bed
     {
       var result = new Dictionary<int, Action<string, T>>();
 
-      result[0] = (m, n) => n.Chrom = m;
-      result[1] = (m, n) => n.ChromStart = long.Parse(m);
-      result[2] = (m, n) => n.ChromEnd = long.Parse(m);
+      result[0] = (m, n) => n.Seqname = m;
+      result[1] = (m, n) => n.Start = long.Parse(m);
+      result[2] = (m, n) => n.End = long.Parse(m);
       result[3] = (m, n) => n.Name = m;
       result[4] = (m, n) => n.Score = double.Parse(m);
       result[5] = (m, n) => n.Strand = m[0];

@@ -1,23 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using RCPA;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
+using RCPA;
 
 namespace CQS.Genome.Pileup
 {
   /// <summary>
-  /// A class used to read/write PileupItem individual base information.
+  ///   A class used to read/write PileupItem individual base information.
   /// </summary>
   public class PileupItemFile : IFileFormat<PileupItem>
   {
-    private static Regex filenameReg = new Regex(@"(.+?)_(\d+)_(\S)");
+    private static readonly Regex FilenameReg = new Regex(@"(.+?)_(\d+)_(\S)");
 
-    public string GetFilename(PileupItem item)
+    private readonly HashSet<string> _bases;
+
+    public PileupItemFile()
     {
-      return string.Format("{0}_{1}_{2}", item.SequenceIdentifier, item.Position, item.Nucleotide);
+      _bases = new HashSet<string>();
+    }
+
+    public PileupItemFile(HashSet<string> bases)
+    {
+      _bases = bases;
     }
 
     public PileupItem ReadFromFile(string fileName)
@@ -25,7 +29,7 @@ namespace CQS.Genome.Pileup
       var result = new PileupItem();
 
       var fn = Path.GetFileNameWithoutExtension(fileName);
-      var m = filenameReg.Match(fn);
+      var m = FilenameReg.Match(fn);
       if (m.Success)
       {
         result.SequenceIdentifier = m.Groups[1].Value;
@@ -33,27 +37,28 @@ namespace CQS.Genome.Pileup
         result.Nucleotide = m.Groups[3].Value[0];
       }
 
-      using (StreamReader sr = new StreamReader(fileName))
+      using (var sr = new StreamReader(fileName))
       {
-        var line = sr.ReadLine();
+        sr.ReadLine();
+        string line;
         PileupBaseList sample = null;
         while ((line = sr.ReadLine()) != null)
         {
           var parts = line.Split('\t');
           if (sample == null || !parts[0].Equals(sample.SampleName))
           {
-            sample = new PileupBaseList();
-            sample.SampleName = parts[0];
+            sample = new PileupBaseList { SampleName = parts[0] };
             result.Samples.Add(sample);
           }
 
-          var curbase = new PileupBase();
-
-          curbase.Event = parts[1];
-          curbase.Score = int.Parse(parts[2]);
-          curbase.Strand = EnumUtils.StringToEnum<StrandType>(parts[3], StrandType.UNKNOWN);
-          curbase.Position = EnumUtils.StringToEnum<PositionType>(parts[4], PositionType.UNKNOWN);
-          curbase.EventType = EnumUtils.StringToEnum<EventType>(parts[5], EventType.UNKNOWN);
+          var curbase = new PileupBase
+          {
+            Event = parts[1],
+            Score = int.Parse(parts[2]),
+            Strand = EnumUtils.StringToEnum(parts[3], StrandType.UNKNOWN),
+            Position = EnumUtils.StringToEnum(parts[4], PositionType.UNKNOWN),
+            EventType = EnumUtils.StringToEnum(parts[5], AlignedEventType.UNKNOWN)
+          };
 
           sample.Add(curbase);
         }
@@ -61,34 +66,28 @@ namespace CQS.Genome.Pileup
       return result;
     }
 
-    private HashSet<string> bases;
-    public PileupItemFile()
-    {
-      this.bases = new HashSet<string>();
-    }
-
-    public PileupItemFile(HashSet<string> bases)
-    {
-      this.bases = bases;
-    }
-
     public void WriteToFile(string fileName, PileupItem item)
     {
-      using (StreamWriter sw = new StreamWriter(fileName))
+      using (var sw = new StreamWriter(fileName))
       {
-        sw.WriteLine("SAMPLE\tBase\tScore\tStrand\tPosition\tEvent");
+        sw.WriteLine("SAMPLE\tBase\tScore\tStrand\tPosition");
 
         foreach (var sample in item.Samples)
         {
           foreach (var gg in sample)
           {
-            if (bases.Count == 0 || bases.Contains(gg.Event))
+            if (_bases.Count == 0 || _bases.Contains(gg.Event))
             {
-              sw.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}\t{5}", sample.SampleName, gg.Event, gg.Score, gg.Strand, gg.Position, gg.EventType);
+              sw.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}", sample.SampleName, gg.Event, gg.Score, gg.Strand, gg.Position == PositionType.MIDDLE ? "MIDDLE" : "TERMINAL");
             }
           }
         }
       }
+    }
+
+    public string GetFilename(PileupItem item)
+    {
+      return string.Format("{0}_{1}_{2}", item.SequenceIdentifier, item.Position, item.Nucleotide);
     }
   }
 }

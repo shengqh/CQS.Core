@@ -21,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -29,49 +30,23 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x64\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
     <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
-    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <OutputPath>bin\x64\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
-    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Win32|AnyCPU'">
     <OutputPath>bin\Win32\</OutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants>TRACE</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
     <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Win32|x64'">
-    <OutputPath>bin\x64\Win32\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Bio">
+      <HintPath>..\SQH.Lib\Bio.dll</HintPath>
+    </Reference>
     <Reference Include="CommandLine, Version=1.9.8.1, Culture=neutral, PublicKeyToken=de6f01bd326f8c32, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\SQH.Lib\CommandLine.dll</HintPath>
@@ -82,6 +57,9 @@
     <Reference Include="HtmlAgilityPack">
       <HintPath>..\SQH.Lib\HtmlAgilityPack.dll</HintPath>
     </Reference>
+    <Reference Include="LumenWorks.Framework.IO">
+      <HintPath>..\SQH.Lib\LumenWorks.Framework.IO.dll</HintPath>
+    </Reference>
     <Reference Include="MathNet.Numerics, Version=2.4.0.26, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\SQH.Lib\MathNet.Numerics.dll</HintPath>
@@ -91,6 +69,9 @@
     </Reference>
     <Reference Include="Microsoft.Office.Interop.Excel, Version=14.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
       <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="NPOI">
+      <HintPath>..\SQH.Lib\NPOI.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -103,11 +84,191 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AbstractFile.cs" />
+    <Compile Include="Genome\Annotation\AnnovarGenomeSummaryRefinedResultTsvBuilder.cs" />
+    <Compile Include="Genome\Annotation\AnnovarGenomeSummaryRefinedResultBuilderOptions.cs" />
+    <Compile Include="Genome\Annotation\AnnovarResultMultipleToOneBuilder.cs" />
+    <Compile Include="Genome\Annotation\AnnovarResultMultipleToOneBuilderOptions.cs" />
+    <Compile Include="Genome\Annotation\AnnovarResultMultipleToOneBuilderCommand.cs" />
+    <Compile Include="Genome\Annotation\ParalyzerClusterAnnotatorCommand.cs" />
+    <Compile Include="Genome\Annotation\ParalyzerClusterAnnotator.cs" />
+    <Compile Include="Genome\Annotation\ParalyzerClusterAnnotatorOptions.cs" />
+    <Compile Include="Genome\Annotation\FileData.cs" />
+    <Compile Include="Genome\Annotation\FileDataValue.cs" />
+    <Compile Include="Genome\CNV\CNVItemTableBuilder.cs" />
+    <Compile Include="Genome\CNV\CNVItemTableBuilderOptions.cs" />
+    <Compile Include="Genome\Fastq\Bam2PairedFastqNameSortedProcessor.cs" />
+    <Compile Include="Genome\Fastq\Bam2SingleFastqNameSortedProcessor.cs" />
+    <Compile Include="Genome\Fastq\FastqTrimmerCommand.cs" />
+    <Compile Include="Genome\Fastq\FastqTrimmer.cs" />
+    <Compile Include="Genome\Fastq\FastqTrimmerOptions.cs" />
+    <Compile Include="Genome\Fastq\FastqItemSAMParser.cs" />
+    <Compile Include="Genome\Fastq\IFastqItemParser.cs" />
+    <Compile Include="Genome\Fastq\Sam2FastqProcessor.cs" />
+    <Compile Include="Genome\Fastq\Bam2SingleFastqProcessor.cs" />
+    <Compile Include="Genome\Fastq\Bam2PairedFastqProcessor.cs" />
+    <Compile Include="Genome\Fastq\FastqItem.cs" />
+    <Compile Include="Genome\Fastq\FastqItemBAMParser.cs" />
+    <Compile Include="Genome\Fastq\Bam2FastqProcessorUI.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Genome\Fastq\Bam2FastqProcessorUI.Designer.cs">
+      <DependentUpon>Bam2FastqProcessorUI.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Genome\GenomeUtils.cs" />
+    <Compile Include="Genome\Mapping\CountMappingSummaryBuilder.cs" />
+    <Compile Include="Genome\Mapping\CountMappingSummaryBuilderConfiguration.cs" />
+    <Compile Include="Genome\Mapping\CountMappingSummaryBuilderOptions.cs" />
+    <Compile Include="Genome\Mapping\CountUtils.cs" />
+    <Compile Include="Genome\Mapping\MappedItemGroupSequenceWriter.cs" />
+    <Compile Include="Genome\Mapping\DistinctMappedReadProcessorCommand.cs" />
+    <Compile Include="Genome\Mapping\DistinctMappedReadProcessorOptions.cs" />
+    <Compile Include="Genome\Mapping\DistinctMappedReadProcessor.cs" />
+    <Compile Include="Genome\Mapping\MappedItemGroupReadLengthWriter.cs" />
+    <Compile Include="Genome\Pileup\AlignedPositionMapBuilder.cs" />
+    <Compile Include="Genome\Pileup\AlignedPositionMapSamples.cs" />
+    <Compile Include="Genome\Pileup\AlignedPosition.cs" />
+    <Compile Include="Genome\Pileup\AlignedPositionMapList.cs" />
+    <Compile Include="Genome\Pileup\AlignedPositionMap.cs" />
+    <Compile Include="Genome\Pileup\AlignedPositionMapBuilderOptions.cs" />
+    <Compile Include="Genome\Pileup\SomaticMutationPileupBuilderOptions.cs" />
+    <Compile Include="Genome\Pileup\SomaticMutationPileupBuilder.cs" />
+    <Compile Include="Genome\Plink\BedFile.cs" />
+    <Compile Include="Genome\QC\BamSummaryBuilderOptions.cs" />
+    <Compile Include="Genome\QC\BamSummaryBuilder.cs" />
+    <Compile Include="Genome\QC\BamSummaryBuilderCommand.cs" />
+    <Compile Include="Genome\QC\SamToolsStatItem.cs" />
+    <Compile Include="Genome\QC\SamToolsStatItemReader.cs" />
+    <Compile Include="Genome\Sam\AlignmentResultCleanerOptions.cs" />
+    <Compile Include="Genome\Sam\BamSummaryBuilderOptions.cs" />
+    <Compile Include="Genome\Sam\BAMWindowReader.cs" />
+    <Compile Include="Genome\Sam\AbstractBAMParser.cs" />
+    <Compile Include="Genome\Sam\ISAMAlignedItemParserOptions.cs" />
+    <Compile Include="Genome\Sam\SAMAlignedItemParserOptions.cs" />
+    <Compile Include="Genome\Sam\BamSummaryBuilder.cs" />
+    <Compile Include="Genome\Sam\BamSummaryBuilderCommand.cs" />
+    <Compile Include="Genome\Sam\TrimedSAMAlignedItem.cs" />
+    <Compile Include="Genome\Sam\SAMItemSlimFastqBAMParser.cs" />
+    <Compile Include="Genome\Sam\ISAMAlignedItemParser.cs" />
+    <Compile Include="Genome\Sam\SAMAlignedItemBAMParser.cs" />
+    <Compile Include="Genome\Sam\SAMAlignedSequenceBAMParser.cs" />
+    <Compile Include="Genome\Sam\SAMFactory.cs" />
+    <Compile Include="Genome\Sam\BAMFilter.cs" />
+    <Compile Include="Genome\SmallRNA\SmallRNACategoryGroupBuilder.cs" />
+    <Compile Include="Genome\SmallRNA\SmallRNACategoryBuilderCommand.cs" />
+    <Compile Include="Genome\SmallRNA\SmallRNACategoryGroupBuilderOptions.cs" />
+    <Compile Include="Genome\SmallRNA\SmallRNACategoryGroupBuilderCommand.cs" />
+    <Compile Include="Genome\SmallRNA\SmallRNACategoryBuilderOptions.cs" />
+    <Compile Include="Genome\SmallRNA\SmallRNACategoryBuilder.cs" />
+    <Compile Include="Genome\SomaticMutation\AbstractProgramOptions.cs" />
+    <Compile Include="Genome\SomaticMutation\AllOptions.cs" />
+    <Compile Include="Genome\SomaticMutation\AnnotationOptions.cs" />
+    <Compile Include="Genome\SomaticMutation\AnnotationProcessor.cs" />
+    <Compile Include="Genome\SomaticMutation\AbstractPileupProcessor.cs" />
+    <Compile Include="Genome\SomaticMutation\PileupParallelChromosomeProcessor.cs" />
+    <Compile Include="Genome\SomaticMutation\MpileupParseProcessor.cs" />
+    <Compile Include="Genome\SomaticMutation\PileupSingleProcessor.cs" />
+    <Compile Include="Genome\SomaticMutation\FilterOptions.cs" />
+    <Compile Include="Genome\SomaticMutation\FilterProcessor.cs" />
+    <Compile Include="Genome\SomaticMutation\SomaticMutationUtils.cs" />
+    <Compile Include="Genome\SomaticMutation\Options.cs" />
+    <Compile Include="Genome\SomaticMutation\PileupOptions.cs" />
+    <Compile Include="Genome\Tophat\TophatSummaryBuilderCommand.cs" />
+    <Compile Include="Genome\Tophat\TophatSummaryBuilder.cs" />
+    <Compile Include="Genome\Tophat\TophatSummaryBuilderOptions.cs" />
+    <Compile Include="Sample\SampleItemExcelWriter.cs" />
+    <Compile Include="Sample\SampleItemTextWriter.cs" />
+    <Compile Include="Sample\SampleItemHtmlWriter.cs" />
+    <Compile Include="Sample\SampleInfoBuilder.cs" />
+    <Compile Include="Sample\SampleInfoBuilderUI.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Sample\SampleInfoBuilderUI.Designer.cs">
+      <DependentUpon>SampleInfoBuilderUI.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Sample\SampleItemParser.cs" />
+    <Compile Include="Sample\SampleInformationForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Sample\SampleInformationForm.Designer.cs">
+      <DependentUpon>SampleInformationForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Sample\SampleItemDefinitionBuilderUI.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Sample\SampleItemDefinitionBuilderUI.Designer.cs">
+      <DependentUpon>SampleItemDefinitionBuilderUI.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Sample\SampleInfoColumnDefinitionBuilderCommand.cs" />
+    <Compile Include="Sample\SampleInfoColumnDefinitionBuilderUI.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Sample\SampleInfoColumnDefinitionBuilderUI.Designer.cs">
+      <DependentUpon>SampleInfoColumnDefinitionBuilderUI.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Sample\SampleInfoDefinitionItem.cs" />
+    <Compile Include="IInputFileLineReader.cs" />
+    <Compile Include="Genome\Sam\ISAMFile.cs" />
+    <Compile Include="LineFile.cs" />
     <Compile Include="AbstractTableFile.cs" />
     <Compile Include="Commandline\AbstractOptions.cs" />
     <Compile Include="CommandConfig.cs" />
+    <Compile Include="FileDefinitionBuilderOptions.cs" />
+    <Compile Include="Genome\Bed\Bed2FastaProcessor.cs" />
+    <Compile Include="Genome\Bed\Bed2FastaProcessorCommand.cs" />
+    <Compile Include="Genome\Bed\Bed2FastaProcessorOptions.cs" />
+    <Compile Include="Genome\Fastq\Bam2FastqProcessorOptions.cs" />
+    <Compile Include="Genome\Fastq\FastqLengthDistributionBuilderOptions.cs" />
+    <Compile Include="Genome\Fastq\IdenticalQueryBuilder.cs" />
+    <Compile Include="Genome\Fastq\IdenticalQueryBuilderOptions.cs" />
+    <Compile Include="Genome\Gtf\Gtf2BedGeneIdBuilderCommand.cs" />
+    <Compile Include="Genome\Gtf\Gtf2BedGeneIdBuilder.cs" />
+    <Compile Include="Genome\Gtf\Gtf2BedGeneIdBuilderOptions.cs" />
+    <Compile Include="Genome\Gtf\GtfGeneIdGeneNameMapBuilderOptions.cs" />
+    <Compile Include="Genome\Mapping\MappedCountItem.cs" />
+    <Compile Include="Genome\Mapping\MappedPositionBuilderCommand.cs" />
+    <Compile Include="Genome\Mapping\MappedPositionBuilder.cs" />
+    <Compile Include="Genome\Mirna\MappedMirnaGroup.cs" />
+    <Compile Include="Genome\Mirna\MirnaMappedOverlapBuilderOptions.cs" />
+    <Compile Include="Genome\Mirna\SmallRNAUtils.cs" />
+    <Compile Include="Genome\Pileup\PileupCountBuilderOptions.cs" />
+    <Compile Include="ILineFile.cs" />
+    <Compile Include="InputFileLineReader.cs" />
+    <Compile Include="SimpleDataTableBuilderOptions.cs" />
+    <Compile Include="DataTableBuilderOptions.cs" />
+    <Compile Include="FileItem.cs" />
+    <Compile Include="Genome\Mapping\CountProcessorOptions.cs" />
+    <Compile Include="Genome\Mapping\AbstractCountProcessor.cs" />
+    <Compile Include="Genome\Mapping\MappedItemGroup.cs" />
+    <Compile Include="Genome\Mapping\MappedItemGroupXmlFileFormat.cs" />
+    <Compile Include="Genome\Mapping\MappedItem.cs" />
+    <Compile Include="Genome\Mapping\MappedItemUtils.cs" />
+    <Compile Include="Genome\Mapping\MappedItemGroupCountWriter.cs" />
+    <Compile Include="Genome\Mapping\MappedCountTableBuilderCommand.cs" />
+    <Compile Include="Genome\Mapping\MappedCountTableBuilder.cs" />
+    <Compile Include="Genome\Mirna\MirnaCountTableBuilderOptions.cs" />
+    <Compile Include="Genome\Mapping\MappedCountProcessorUI.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Genome\Mapping\MappedCountProcessorUI.Designer.cs">
+      <DependentUpon>MappedCountProcessorUI.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Genome\Mapping\MappedCountProcessorCommand.cs" />
+    <Compile Include="Genome\Pileup\PileupCountList.cs" />
+    <Compile Include="Genome\Pileup\PileupCountListFixed.cs" />
+    <Compile Include="Genome\SequenceRegionMappedXmlFileFormat.cs" />
+    <Compile Include="Genome\SequenceRegionMappedFileWriter.cs" />
+    <Compile Include="Genome\Mapping\MappedCountProcessorOptions.cs" />
+    <Compile Include="Genome\Mapping\MappedCountProcessor.cs" />
+    <Compile Include="Genome\Mirna\MiRBaseGff3SequenceCombiner.cs" />
+    <Compile Include="Genome\Mirna\MiRBaseGff3SequenceCombinerOptions.cs" />
+    <Compile Include="Genome\Mirna\MirnaCountProcessorOptions.cs" />
+    <Compile Include="Genome\Mirna\MirnaCountTableBuilderCommand.cs" />
+    <Compile Include="Genome\Mirna\MirnaCountTableBuilder.cs" />
+    <Compile Include="Genome\Mirna\MismatchPositionTableBuilder.cs" />
+    <Compile Include="Genome\Pileup\PileupCountBuilderCommand.cs" />
+    <Compile Include="MapItemReader.cs" />
     <Compile Include="ExpressionDataMapReader.cs" />
+    <Compile Include="Extensions\ISequenceExtension.cs" />
     <Compile Include="FileTemplate\HeaderDefinitionBuilderUI.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -142,19 +303,31 @@
     </Compile>
     <Compile Include="BreastCancer\parser\PropertyMappingParser.cs" />
     <Compile Include="BreastCancer\parser\ParserFactory.cs" />
-    <Compile Include="BreastCancer\SampleUtils.cs" />
+    <Compile Include="Sample\SampleUtils.cs" />
     <Compile Include="BreastCancer\StatusConverter.cs" />
     <Compile Include="Converter\ConverterUtils.cs" />
     <Compile Include="Converter\DynamicConverterFactory.cs" />
+    <Compile Include="Genome\Affymetrix\AnnotationFile.cs" />
     <Compile Include="Genome\Annotation\AnnovarExonicVariantItemReader.cs" />
     <Compile Include="Genome\Annotation\AnnovarExporter.cs" />
+    <Compile Include="Genome\Annotation\AnnovarGenomeSummaryItem.cs" />
+    <Compile Include="Genome\Annotation\AnnovarGenomeSummaryRefinedResultCsvBuilder.cs" />
     <Compile Include="Genome\Annotation\AnnovarVariantItemReader.cs" />
     <Compile Include="Genome\Annotation\AnnovarSummaryItem.cs" />
+    <Compile Include="Genome\Annotation\AnnovarGenomeSummaryRefinedResultBuilderCommand.cs" />
+    <Compile Include="Genome\Annotation\AnnovarSummaryBamDistiller.cs" />
+    <Compile Include="Genome\Annotation\AnnovarSummaryBamDistillerCommand.cs" />
     <Compile Include="Genome\Annotation\DeletionDistanceExporter.cs" />
     <Compile Include="Genome\Annotation\InsertionDistanceExporter.cs" />
     <Compile Include="Genome\Annotation\AbstractInsertionDeletionDistanceExporter.cs" />
     <Compile Include="Genome\Annotation\JunctionDistanceExporter.cs" />
     <Compile Include="Genome\Annotation\IAnnotationCsvExporter.cs" />
+    <Compile Include="Genome\Annotation\AnnovarGenomeSummaryRefinedResultBuilderUI.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Genome\Annotation\AnnovarGenomeSummaryRefinedResultBuilderUI.Designer.cs">
+      <DependentUpon>AnnovarGenomeSummaryRefinedResultBuilderUI.cs</DependentUpon>
+    </Compile>
     <Compile Include="Genome\Annotation\RnaeditingExporter.cs" />
     <Compile Include="Genome\Bed\BedItem.cs" />
     <Compile Include="Genome\Bed\BedItemFile.cs" />
@@ -170,24 +343,104 @@
     <Compile Include="Genome\CNV\ExomeDepthReader.cs" />
     <Compile Include="Genome\CNV\ExomeCopyReader.cs" />
     <Compile Include="Genome\CNV\FreecReader.cs" />
-    <Compile Include="Genome\IChromosomeRegion.cs" />
+    <Compile Include="Genome\Cuffdiff\ReadGroupTrackingExtractorCommand.cs" />
+    <Compile Include="Genome\Cuffdiff\CuffdiffSignificantFileMerger.cs" />
+    <Compile Include="Genome\Cuffdiff\CuffdiffItem.cs" />
+    <Compile Include="Genome\Cuffdiff\CuffdiffSignificantFileMergerCommand.cs" />
+    <Compile Include="Genome\Cuffdiff\ReadGroupTrackingDirectoryExtractor.cs" />
+    <Compile Include="Genome\Cuffdiff\ReadGroupTrackingExtractor.cs" />
+    <Compile Include="Genome\Cuffdiff\ReadGroupTrackingExtractorUI.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Genome\Cuffdiff\ReadGroupTrackingExtractorUI.Designer.cs">
+      <DependentUpon>ReadGroupTrackingExtractorUI.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Genome\Annotation\GenebankFeature.cs" />
+    <Compile Include="Genome\Annotation\GenebankFormat.cs" />
+    <Compile Include="Genome\Annotation\GenebankItem.cs" />
+    <Compile Include="FileDefinitionBuilderCommand.cs" />
+    <Compile Include="FileDefinitionBuilder.cs" />
+    <Compile Include="Genome\Fastq\Bam2FastqProcessorCommand.cs" />
+    <Compile Include="Genome\Fastq\PairedFastqExtractor.cs" />
+    <Compile Include="Genome\Fastq\FastqExtractorFromBam.cs" />
+    <Compile Include="Genome\Fastq\FastqExtractorFromFastq.cs" />
+    <Compile Include="Genome\Fastq\FastqWriter.cs" />
+    <Compile Include="Genome\Fastq\FastqReader.cs" />
+    <Compile Include="Genome\Fastq\FastqSequence.cs" />
+    <Compile Include="Genome\Fastq\FastqLengthDistributionBuilder.cs" />
+    <Compile Include="Genome\Fastq\FastqLengthDistributionBuilderCommand.cs" />
+    <Compile Include="Genome\Fastq\IFastqExtractor.cs" />
+    <Compile Include="Genome\Fastq\PairedFastqExtractorOptions.cs" />
+    <Compile Include="Genome\Gtf\GtfGeneIdGeneNameMapBuilder.cs" />
+    <Compile Include="Genome\Gtf\GtfGeneIdGeneNameMapBuilderCommand.cs" />
+    <Compile Include="Genome\Gtf\GtfUtils.cs" />
+    <Compile Include="Genome\ISequenceRegion.cs" />
     <Compile Include="Genome\CNV\CNVItem.cs" />
-    <Compile Include="Genome\Dbsnp\DbsnpItem.cs" />
-    <Compile Include="Genome\Dbsnp\DbsnpVcfFile.cs" />
+    <Compile Include="Genome\Cuffdiff\Dbsnp\DbsnpItem.cs" />
+    <Compile Include="Genome\Cuffdiff\Dbsnp\DbsnpVcfFile.cs" />
     <Compile Include="Genome\Gtf\GtfItemFile.cs" />
     <Compile Include="Genome\Gtf\GtfItem.cs" />
     <Compile Include="Genome\Gtf\GtfTranscriptItemFile.cs" />
+    <Compile Include="Genome\Fastq\IdenticalQueryBuilderCommand.cs" />
+    <Compile Include="Genome\Mirna\MappedMirnaGroupXmlFileFormat.cs" />
+    <Compile Include="Genome\Mapping\SAMAlignedItemCandidateBuilder.cs" />
+    <Compile Include="Genome\Mirna\CombinedSequence.cs" />
+    <Compile Include="DataTableBuilder.cs" />
+    <Compile Include="DataTableBuilderCommand.cs" />
+    <Compile Include="Genome\Mirna\MirnaMappedOverlapBuilderUI.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Genome\Mirna\MirnaMappedOverlapBuilderUI.Designer.cs">
+      <DependentUpon>MirnaMappedOverlapBuilderUI.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Genome\Mirna\MappedMirna.cs" />
+    <Compile Include="Genome\Mirna\MappedMirnaRegion.cs" />
+    <Compile Include="Genome\Mirna\MirnaCountFileWriter.cs" />
+    <Compile Include="Genome\Mirna\MirnaMappedOverlapBuilder.cs" />
+    <Compile Include="Genome\Mirna\MirnaMappedOverlapBuilderCommand.cs" />
+    <Compile Include="Genome\Mapping\SAMAlignedItemBestScoreCandidateBuilder.cs" />
+    <Compile Include="Genome\Mirna\MirnaCountProcessor.cs" />
+    <Compile Include="Genome\Mapping\ICandidateBuilder.cs" />
+    <Compile Include="Genome\CountMap.cs" />
+    <Compile Include="Genome\Mirna\MirnaCountProcessorCommand.cs" />
+    <Compile Include="Genome\Mirna\MirnaCountProcessorUI.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Genome\Mirna\MirnaCountProcessorUI.Designer.cs">
+      <DependentUpon>MirnaCountProcessorUI.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Genome\Mirna\MirnaUtils.cs" />
+    <Compile Include="Genome\SequenceRegionMapped.cs" />
+    <Compile Include="Genome\Pileup\PairedEvent.cs" />
+    <Compile Include="Genome\Pileup\PileupCount.cs" />
+    <Compile Include="Genome\Pileup\PileupCountBuilder.cs" />
     <Compile Include="Genome\QC\FastQCItemReader.cs" />
     <Compile Include="Genome\QC\FastQCBasicStatisticItem.cs" />
     <Compile Include="Genome\QC\FastQCItem.cs" />
     <Compile Include="Genome\QC\QCSummaryBuilder.cs" />
     <Compile Include="Genome\QC\RNASeQCItem.cs" />
     <Compile Include="Genome\QC\RNASeQCItemReader.cs" />
+    <Compile Include="Extensions\SAMAlignedSequenceExtension.cs" />
+    <Compile Include="Genome\Sam\AlignmentResultCleaner.cs" />
+    <Compile Include="Genome\Sam\AlignmentResultCleanerCommand.cs" />
+    <Compile Include="Genome\Sam\SAMAlignedItem.cs" />
+    <Compile Include="Genome\Sam\SAMAlignedItemFileFormat.cs" />
+    <Compile Include="Genome\Sam\SAMFormat.cs" />
+    <Compile Include="Genome\Sam\ISAMItem.cs" />
+    <Compile Include="Genome\Sam\SAMLinuxReader.cs" />
+    <Compile Include="Genome\Sam\ISAMFormat.cs" />
+    <Compile Include="Genome\Sam\SAMFormatConst.cs" />
+    <Compile Include="Genome\Sam\SAMItem.cs" />
+    <Compile Include="Genome\Sam\SAMItemList.cs" />
+    <Compile Include="Genome\Sam\SAMItemSlim.cs" />
+    <Compile Include="Genome\Sam\SAMAlignedLocation.cs" />
+    <Compile Include="Genome\Sam\SAMUtils.cs" />
+    <Compile Include="Genome\SequenceRegion.cs" />
+    <Compile Include="Genome\SequenceRegionUtils.cs" />
     <Compile Include="Genome\Tophat\InsertionDeletionDistanceCalculator.cs" />
     <Compile Include="Genome\MatchExon.cs" />
     <Compile Include="Genome\Annotation\AnnovarVariantItem.cs" />
     <Compile Include="Genome\Pileup\PileupItemReadDepthFilter.cs" />
-    <Compile Include="Genome\Pileup\PileupItemGroupTest.cs" />
     <Compile Include="Genome\Pileup\PileupItemStrandTest.cs" />
     <Compile Include="Genome\Pileup\EventCount.cs" />
     <Compile Include="Genome\Pileup\IPileupItemTest.cs" />
@@ -202,13 +455,17 @@
     <Compile Include="Genome\Rnaediting\DarnedReader.cs" />
     <Compile Include="Genome\Rnaediting\RnaeditItem.cs" />
     <Compile Include="AbstractHeaderFile.cs" />
-    <Compile Include="MiRNA\MiRNAToDNAConverterUI.cs">
+    <Compile Include="ICommandLineCommand.cs" />
+    <Compile Include="MapItem.cs" />
+    <Compile Include="Genome\Mirna\MirnaToDNAConverterUI.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MiRNA\MiRNAToDNAConverterUI.Designer.cs">
-      <DependentUpon>MiRNAToDNAConverterUI.cs</DependentUpon>
+    <Compile Include="Genome\Mirna\MirnaToDNAConverterUI.Designer.cs">
+      <DependentUpon>MirnaToDNAConverterUI.cs</DependentUpon>
     </Compile>
-    <Compile Include="MiRNA\MiRNAToDNAConverter.cs" />
+    <Compile Include="Genome\Mirna\MirnaToDNAConverter.cs" />
+    <Compile Include="AbstractProcessReader.cs" />
+    <Compile Include="GzipTextReader.cs" />
     <Compile Include="Statistics\FisherExactTestResult.cs" />
     <Compile Include="Genome\Tophat\InsertionDeletionItem.cs" />
     <Compile Include="Genome\Tophat\MutationDistanceCalculator.cs" />
@@ -228,30 +485,30 @@
     <Compile Include="Ncbi\Geo\GsmConsts.cs" />
     <Compile Include="Sample\IRawSampleInfoReader.cs" />
     <Compile Include="Sample\RawSampleInfoReaderFactory.cs" />
-    <Compile Include="Sample\SampleInfo.cs" />
+    <Compile Include="Sample\SampleInfoAttribute.cs" />
     <Compile Include="Statistics\ITestResult.cs" />
     <Compile Include="StatusValue.cs" />
     <Compile Include="BreastCancer\BreastCancerSampleItem.cs" />
     <Compile Include="BreastCancer\BreastCancerSampleItemFormat.cs" />
     <Compile Include="BreastCancer\BreastCancerSampleItemPropertyFactory.cs" />
     <Compile Include="ExpressionValue.cs" />
-    <Compile Include="GroSeq\PearsonCorrelationCalculator.cs" />
+    <Compile Include="Genome\GroSeq\PearsonCorrelationCalculator.cs" />
     <Compile Include="Ncbi\Geo\GseSeriesMatrixReader.cs" />
     <Compile Include="Sample\SampleItemPropertyFactory.cs" />
-    <Compile Include="ChipSeq\ChipSeqItem.cs" />
-    <Compile Include="ChipSeq\ChipSeqItemComparisonBuilder.cs" />
-    <Compile Include="ChipSeq\ChipSeqItemFormat.cs" />
-    <Compile Include="ChipSeq\ChipSeqItemUtils.cs" />
-    <Compile Include="ChipSeq\OverlappedChipSeqComparisonItemBuilder.cs" />
-    <Compile Include="ChipSeq\OverlappedChipSeqComparisonItemFormat.cs" />
-    <Compile Include="ChipSeq\OverlappedChipSeqComparisonItem.cs" />
-    <Compile Include="ChipSeq\OverlappedChipSeqItem.cs" />
-    <Compile Include="ChipSeq\OverlappedChipSeqItemFormat.cs" />
+    <Compile Include="Genome\ChipSeq\ChipSeqItem.cs" />
+    <Compile Include="Genome\ChipSeq\ChipSeqItemComparisonBuilder.cs" />
+    <Compile Include="Genome\ChipSeq\ChipSeqItemFormat.cs" />
+    <Compile Include="Genome\ChipSeq\ChipSeqItemUtils.cs" />
+    <Compile Include="Genome\ChipSeq\OverlappedChipSeqComparisonItemBuilder.cs" />
+    <Compile Include="Genome\ChipSeq\OverlappedChipSeqComparisonItemFormat.cs" />
+    <Compile Include="Genome\ChipSeq\OverlappedChipSeqComparisonItem.cs" />
+    <Compile Include="Genome\ChipSeq\OverlappedChipSeqItem.cs" />
+    <Compile Include="Genome\ChipSeq\OverlappedChipSeqItemFormat.cs" />
     <Compile Include="Genome\Refseq\GeneLocationItem.cs" />
     <Compile Include="Genome\Refseq\GeneLocationItemReader.cs" />
-    <Compile Include="GroSeq\PeakAnnotationItem.cs" />
-    <Compile Include="GroSeq\PeakAnnotationItemFormat.cs" />
-    <Compile Include="GroSeq\PeakAnnotationItemPropertyFactory.cs" />
+    <Compile Include="Genome\GroSeq\PeakAnnotationItem.cs" />
+    <Compile Include="Genome\GroSeq\PeakAnnotationItemFormat.cs" />
+    <Compile Include="Genome\GroSeq\PeakAnnotationItemPropertyFactory.cs" />
     <Compile Include="Microarray\Affymatrix\CelFile.cs" />
     <Compile Include="Microarray\ISummaryFile.cs" />
     <Compile Include="Ncbi\Geo\GsmFile.cs" />
@@ -260,6 +517,33 @@
     <Compile Include="Sample\SampleItem.cs" />
     <Compile Include="Statistics\MyFisherExactTest.cs" />
     <Compile Include="TCGA\BarInfo.cs" />
+    <Compile Include="TCGA\TCGADataDownloaderOptions.cs" />
+    <Compile Include="TCGA\TCGADatatableBuilderOptions.cs" />
+    <Compile Include="TCGA\TCGADatatableBuilderUI.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="TCGA\TCGADatatableBuilderUI.Designer.cs">
+      <DependentUpon>TCGADatatableBuilderUI.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TCGA\TCGADatatableBuilder.cs" />
+    <Compile Include="TCGA\TCGADataDownloaderUI.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="TCGA\TCGADataDownloaderUI.Designer.cs">
+      <DependentUpon>TCGADataDownloaderUI.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TCGA\TCGADataDownloaderCommand.cs" />
+    <Compile Include="TCGA\TCGADataDownloader.cs" />
+    <Compile Include="TCGA\TCGADatatableBuilderCommand.cs" />
+    <Compile Include="TCGA\TCGATechnologyImpl\TCGATechnologyMutations.cs" />
+    <Compile Include="TCGA\TCGATreeBuilderCommand.cs" />
+    <Compile Include="TCGA\TCGATreeBuilderOptions.cs" />
+    <Compile Include="TCGA\TCGATreeBuilderUI.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="TCGA\TCGATreeBuilderUI.Designer.cs">
+      <DependentUpon>TCGATreeBuilderUI.cs</DependentUpon>
+    </Compile>
     <Compile Include="TCGA\TCGASampleCode.cs" />
     <Compile Include="TCGA\DatasetInfo.cs" />
     <Compile Include="TCGA\ExpressionMatrix.cs" />
@@ -295,7 +579,9 @@
     <Compile Include="TCGA\TCGATechnologyImpl\TCGATechnologyMicroarray.cs" />
     <Compile Include="TCGA\TCGATechnologyImpl\TCGATechnologyRNAseqV1.cs" />
     <Compile Include="TCGA\TCGATechnologyImpl\TCGATechnologyRNAseqV2.cs" />
+    <Compile Include="TCGA\TCGATreeBuilder.cs" />
     <Compile Include="TCGA\TCGAUtils.cs" />
+    <Compile Include="WebUtils.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="BreastCancer\BreastCancerSampleInformationBuilderUI.resx">
@@ -310,9 +596,49 @@
     <EmbeddedResource Include="FileTemplate\HeaderDefinitionBuilderUI.resx">
       <DependentUpon>HeaderDefinitionBuilderUI.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="MiRNA\MiRNAToDNAConverterUI.resx">
-      <DependentUpon>MiRNAToDNAConverterUI.cs</DependentUpon>
+    <EmbeddedResource Include="Genome\Annotation\AnnovarGenomeSummaryRefinedResultBuilderUI.resx">
+      <DependentUpon>AnnovarGenomeSummaryRefinedResultBuilderUI.cs</DependentUpon>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Genome\Cuffdiff\ReadGroupTrackingExtractorUI.resx">
+      <DependentUpon>ReadGroupTrackingExtractorUI.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Genome\Fastq\Bam2FastqProcessorUI.resx">
+      <DependentUpon>Bam2FastqProcessorUI.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Genome\Mapping\MappedCountProcessorUI.resx">
+      <DependentUpon>MappedCountProcessorUI.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Genome\Mirna\MirnaMappedOverlapBuilderUI.resx">
+      <DependentUpon>MirnaMappedOverlapBuilderUI.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Genome\Mirna\MirnaCountProcessorUI.resx">
+      <DependentUpon>MirnaCountProcessorUI.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Genome\Mirna\MirnaToDNAConverterUI.resx">
+      <DependentUpon>MirnaToDNAConverterUI.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Sample\SampleInfoBuilderUI.resx">
+      <DependentUpon>SampleInfoBuilderUI.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Sample\SampleInformationForm.resx">
+      <DependentUpon>SampleInformationForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Sample\SampleItemDefinitionBuilderUI.resx">
+      <DependentUpon>SampleItemDefinitionBuilderUI.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Sample\SampleInfoColumnDefinitionBuilderUI.resx">
+      <DependentUpon>SampleInfoColumnDefinitionBuilderUI.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TCGA\TCGADatatableBuilderUI.resx">
+      <DependentUpon>TCGADatatableBuilderUI.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TCGA\TCGADataDownloaderUI.resx">
+      <DependentUpon>TCGADataDownloaderUI.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TCGA\TCGATreeBuilderUI.resx">
+      <DependentUpon>TCGATreeBuilderUI.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="TCGA\Microarray\MicroarrayDataSummaryBuilderUI.resx">
       <DependentUpon>MicroarrayDataSummaryBuilderUI.cs</DependentUpon>
@@ -324,6 +650,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="BreastCancer\parser\DatasetDefaultValue.txt" />
+    <EmbeddedResource Include="TCGA\tcga_tumor.txt" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

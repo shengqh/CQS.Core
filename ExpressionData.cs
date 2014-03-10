@@ -18,6 +18,10 @@ namespace CQS
 
     public List<ExpressionValue> Values { get; private set; }
 
+    /// <summary>
+    /// Get gene names
+    /// </summary>
+    /// <returns>Gene name list</returns>
     public List<string> GetNames()
     {
       return (from v in Values

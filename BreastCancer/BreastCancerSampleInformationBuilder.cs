@@ -5,6 +5,7 @@ using System.Text;
 using RCPA;
 using CQS.BreastCancer.parser;
 using System.IO;
+using CQS.Sample;
 
 namespace CQS.BreastCancer
 {

@@ -62,7 +62,7 @@ namespace CQS.Genome
 
       if (strand == '-')
       {
-        this.Sequence = SequenceUtils.ToAnotherStrand(this.Sequence);
+        this.Sequence = SequenceUtils.GetReverseComplementedSequence(this.Sequence);
       }
     }
 

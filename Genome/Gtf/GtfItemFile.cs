@@ -1,21 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using RCPA;
+﻿using System.Collections.Generic;
 using System.IO;
 
 namespace CQS.Genome.Gtf
 {
-  public class GtfItemFile : AbstractFile
+  public class GtfItemFile : LineFile
   {
     public GtfItemFile()
-      : base()
-    { }
+    {
+    }
 
     public GtfItemFile(string filename)
       : base(filename)
-    { }
+    {
+    }
 
     public GtfItem Next()
     {
@@ -39,17 +36,18 @@ namespace CQS.Genome.Gtf
 
     private static GtfItem ParseItem(string[] parts)
     {
-      GtfItem result = new GtfItem();
-      result.Seqname = parts[0];
-      result.Source = parts[1];
-      result.Feature = parts[2];
-      result.Start = long.Parse(parts[3]);
-      result.End = long.Parse(parts[4]);
-      result.Score = parts[5];
-      result.Strand = parts[6][0];
-      result.Frame = parts[7][0];
-      result.Attributes = parts[8];
-      return result;
+      return new GtfItem
+      {
+        Seqname = parts[0],
+        Source = parts[1],
+        Feature = parts[2],
+        Start = long.Parse(parts[3]),
+        End = long.Parse(parts[4]),
+        Score = parts[5],
+        Strand = parts[6][0],
+        Frame = parts[7][0],
+        Attributes = parts[8]
+      };
     }
 
     public GtfItem NextExon()
@@ -64,6 +62,31 @@ namespace CQS.Genome.Gtf
         }
       }
       return null;
+    }
+
+    public static List<GtfItem> ReadFromFile(string filename)
+    {
+      var result = new List<GtfItem>();
+      using (var f = new GtfItemFile(filename))
+      {
+        GtfItem item;
+        while ((item = f.Next()) != null)
+        {
+          result.Add(item);
+        }
+      }
+      return result;
+    }
+
+    public static void WriteToFile(string fileName, List<GtfItem> items)
+    {
+      using (var sw = new StreamWriter(fileName))
+      {
+        foreach (var item in items)
+        {
+          sw.WriteLine(item.ToString());
+        }
+      }
     }
   }
 }

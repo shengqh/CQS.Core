@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.IO;
 using System.Xml.Linq;
 
 namespace CQS.FileTemplate
@@ -26,13 +23,13 @@ namespace CQS.FileTemplate
 
     public void Load(string fileName)
     {
-      XElement root = XElement.Load(fileName);
+      var root = XElement.Load(fileName);
       this.Name = root.Element("Name").Value;
-      List<string> headers = new List<string>();
+      var headers = new List<string>();
       foreach (var line in root.Elements("Property"))
       {
         var lt = line.Value.Trim();
-        if (headers.Contains(lt))
+        if (string.IsNullOrEmpty(lt) || headers.Contains(lt))
         {
           continue;
         }
@@ -43,7 +40,7 @@ namespace CQS.FileTemplate
 
     public void Save(string fileName)
     {
-      XElement root = new XElement("FileTemplate",
+      var root = new XElement("FileTemplate",
         new XElement("Name", this.Name),
         from prop in this.Properties
         select new XElement("Property", prop));
@@ -52,7 +49,7 @@ namespace CQS.FileTemplate
 
     public static HeaderDefinition LoadFromFile(string fileName)
     {
-      HeaderDefinition result = new HeaderDefinition();
+      var result = new HeaderDefinition();
       result.Load(fileName);
       return result;
     }

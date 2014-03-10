@@ -7,7 +7,7 @@ using System.IO;
 
 namespace CQS
 {
-  public abstract class AbstractTableFile<T> : AbstractFile where T : new()
+  public abstract class AbstractTableFile<T> : LineFile where T : new()
   {
     private int minLength = 0;
 

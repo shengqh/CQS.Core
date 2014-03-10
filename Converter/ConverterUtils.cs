@@ -119,7 +119,7 @@ namespace CQS.Converter
     {
       if (pi.PropertyType == typeof(string))
       {
-        if (PropertyHasAttribute<StatusInfo>(pi))
+        if (PropertyHasAttribute<StatusInfoAttribute>(pi))
         {
           return new StatusConverter<T>(pi.Name);
         }

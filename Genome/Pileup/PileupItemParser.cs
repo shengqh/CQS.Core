@@ -1,159 +1,89 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 
 namespace CQS.Genome.Pileup
 {
   public class PileupItemParser : IPileupItemParser
   {
-    private static HashSet<char> matches;
-    private static HashSet<char> ignored;
+    private static readonly HashSet<char> Matches;
+    private static readonly HashSet<char> Ignored;
+    private readonly Func<string[], bool> _acceptN;
+    private readonly Func<string[], bool> _acceptReadDepth;
+    private readonly Func<PileupBase, bool> _acceptScore;
+    private readonly Func<PileupBase, bool> _acceptTerminal;
+
+    private readonly bool _ignoreInsertionDeletion;
+    private readonly int _minBaseMappingQuality;
+    private readonly char _minBaseMappingQualityChar;
+    private readonly int _minReadDepth;
 
     static PileupItemParser()
     {
-      matches = new HashSet<char>();
-      matches.Add('.');
-      matches.Add(',');
-      matches.Add('A');
-      matches.Add('T');
-      matches.Add('G');
-      matches.Add('C');
-      matches.Add('N');
-      matches.Add('a');
-      matches.Add('t');
-      matches.Add('g');
-      matches.Add('c');
-      matches.Add('n');
+      Matches = new HashSet<char> {'.', ',', 'A', 'T', 'G', 'C', 'N', 'a', 't', 'g', 'c', 'n'};
 
-      ignored = new HashSet<char>();
-      ignored.Add('>');
-      ignored.Add('<');
-      ignored.Add('*');
+      Ignored = new HashSet<char> {'>', '<', '*'};
     }
-
-    private int minReadDepth;
-    private int minBaseMappingQuality;
-    private bool ignoreInsertionDeletion;
-    private bool ignoreN;
-    private bool ignoreTerminal;
-    private char minBaseMappingQualityChar;
-
-    private bool DoAcceptReadDepthByScore(string[] parts)
-    {
-      if (!DoAcceptReadDepth(parts))
-      {
-        return false;
-      }
-
-      for (int scoreIndex = 5; scoreIndex < parts.Length; scoreIndex += 3)
-      {
-        int count = parts[scoreIndex].Count(m => m >= this.minBaseMappingQualityChar);
-        if (count < minReadDepth)
-        {
-          return false;
-        }
-      }
-
-      return true;
-    }
-
-    private bool DoAcceptReadDepth(string[] parts)
-    {
-      for (int scoreIndex = 5; scoreIndex < parts.Length; scoreIndex += 3)
-      {
-        if (parts[scoreIndex].Length < minReadDepth)
-        {
-          return false;
-        }
-
-        var ignoredCount = parts[scoreIndex - 2].Count(m => ignored.Contains(m));
-        if (parts[scoreIndex].Length - ignoredCount < minReadDepth)
-        {
-          return false;
-        }
-      }
-
-      return true;
-    }
-
-    private Func<string[], bool> acceptReadDepth;
-    private Func<string[], bool> acceptN;
-    private Func<PileupBase, bool> acceptTerminal;
-    private Func<PileupBase, bool> acceptScore;
 
     /// <summary>
-    /// Construction of PileupItemParser
+    ///   Construction of PileupItemParser
     /// </summary>
     /// <param name="minReadDepth">After all other criteria, the minimum read depth for each sample</param>
     /// <param name="minBaseMappingQuality">Minimum base mapping quality</param>
     /// <param name="ignoreInsertionDeletion">Is insertion/deletion ignored?</param>
     /// <param name="ignoreN">Is reference N ignored?</param>
     /// <param name="ignoreTerminal">Is terminal base ignored?</param>
-    public PileupItemParser(int minReadDepth, int minBaseMappingQuality, bool ignoreInsertionDeletion, bool ignoreN, bool ignoreTerminal)
+    public PileupItemParser(int minReadDepth, int minBaseMappingQuality, bool ignoreInsertionDeletion, bool ignoreN,
+      bool ignoreTerminal)
     {
-      this.minBaseMappingQuality = minBaseMappingQuality;
+      _minBaseMappingQuality = minBaseMappingQuality;
       if (minBaseMappingQuality > 0)
       {
-        this.minBaseMappingQualityChar = (char)(this.minBaseMappingQuality + 33);
-        acceptScore = m => m.Score >= this.minBaseMappingQuality;
+        _minBaseMappingQualityChar = (char) (_minBaseMappingQuality + 33);
+        _acceptScore = m => m.Score >= _minBaseMappingQuality;
       }
       else
       {
-        this.minBaseMappingQualityChar = (char)0;
-        acceptScore = m => true;
+        _minBaseMappingQualityChar = (char) 0;
+        _acceptScore = m => true;
       }
 
-      this.minReadDepth = minReadDepth;
+      _minReadDepth = minReadDepth;
       if (minReadDepth > 0)
       {
         if (minBaseMappingQuality > 0)
         {
-          acceptReadDepth = DoAcceptReadDepthByScore;
+          _acceptReadDepth = DoAcceptReadDepthByScore;
         }
         else
         {
-          acceptReadDepth = DoAcceptReadDepth;
+          _acceptReadDepth = DoAcceptReadDepth;
         }
       }
       else
       {
-        acceptReadDepth = m => true;
+        _acceptReadDepth = m => true;
       }
 
-      this.ignoreInsertionDeletion = ignoreInsertionDeletion;
-      this.ignoreN = ignoreN;
+      _ignoreInsertionDeletion = ignoreInsertionDeletion;
 
-      if (this.ignoreN)
+      if (ignoreN)
       {
-        acceptN = m => m[2][0] != 'N' && m[2][0] != 'n';
+        _acceptN = m => m[2][0] != 'N' && m[2][0] != 'n';
       }
       else
       {
-        acceptN = m => true;
+        _acceptN = m => true;
       }
-
-      this.ignoreTerminal = ignoreTerminal;
 
       if (ignoreTerminal)
       {
-        acceptTerminal = m => m.Position == PositionType.MIDDLE;
+        _acceptTerminal = m => m.Position == PositionType.MIDDLE;
       }
       else
       {
-        acceptTerminal = m => true;
+        _acceptTerminal = m => true;
       }
-    }
-
-    protected bool Accept(string[] parts)
-    {
-      if (parts.Length < 6)
-      {
-        return false;
-      }
-
-      return acceptN(parts) && acceptReadDepth(parts);
     }
 
     public PileupItem GetSequenceIdentifierAndPosition(string line)
@@ -165,10 +95,11 @@ namespace CQS.Genome.Pileup
         return null;
       }
 
-      PileupItem result = new PileupItem();
-
-      result.SequenceIdentifier = parts[0];
-      result.Position = long.Parse(parts[1]);
+      var result = new PileupItem
+      {
+        SequenceIdentifier = parts[0],
+        Position = long.Parse(parts[1])
+      };
 
       return result;
     }
@@ -182,23 +113,24 @@ namespace CQS.Genome.Pileup
         return null;
       }
 
-      PileupItem result = new PileupItem();
-
-      result.SequenceIdentifier = parts[0];
-      result.Position = long.Parse(parts[1]);
-      result.Nucleotide = parts[2][0];
-
-      int sampleIndex = 0;
-      for (int countIndex = 3; countIndex < parts.Length; countIndex += 3)
+      var result = new PileupItem
       {
-        PileupBaseList pbl = new PileupBaseList();
+        SequenceIdentifier = parts[0],
+        Position = long.Parse(parts[1]),
+        Nucleotide = parts[2][0]
+      };
 
-        string seq = parts[countIndex + 1];
-        string scores = parts[countIndex + 2];
-        int seqLength = seq.Length;
+      var sampleIndex = 0;
+      for (var countIndex = 3; countIndex < parts.Length; countIndex += 3)
+      {
+        var pbl = new PileupBaseList();
 
-        int baseIndex = 0;
-        int scoreIndex = 0;
+        var seq = parts[countIndex + 1];
+        var scores = parts[countIndex + 2];
+        var seqLength = seq.Length;
+
+        var baseIndex = 0;
+        var scoreIndex = 0;
         while (baseIndex < seqLength)
         {
           //A ’>’ or ’<’ for a reference skip.
@@ -210,7 +142,7 @@ namespace CQS.Genome.Pileup
             continue;
           }
 
-          PileupBase pb = new PileupBase();
+          var pb = new PileupBase();
 
           //Is it the start of read?
           if (seq[baseIndex] == '^')
@@ -220,15 +152,15 @@ namespace CQS.Genome.Pileup
             baseIndex += 2;
             ParseMatchBase(result, pbl, pb, seq, scores, seqLength, ref baseIndex, ref scoreIndex);
           }
-          else if (matches.Contains(seq[baseIndex]))
+          else if (Matches.Contains(seq[baseIndex]))
           {
             pb.Position = PositionType.MIDDLE;
             ParseMatchBase(result, pbl, pb, seq, scores, seqLength, ref baseIndex, ref scoreIndex);
           }
-          //A pattern ‘\+[0-9]+[ACGTNacgtn]+’ indicates there is an insertion between this reference position and the next reference position. The length of the insertion is given by the integer in the pattern, followed by the inserted sequence. Similarly, a pattern ‘-[0-9]+[ACGTNacgtn]+’ represents a deletion from the reference.
+            //A pattern ‘\+[0-9]+[ACGTNacgtn]+’ indicates there is an insertion between this reference position and the next reference position. The length of the insertion is given by the integer in the pattern, followed by the inserted sequence. Similarly, a pattern ‘-[0-9]+[ACGTNacgtn]+’ represents a deletion from the reference.
           else if (seq[baseIndex] == '+' || seq[baseIndex] == '-')
           {
-            if (ignoreInsertionDeletion)
+            if (_ignoreInsertionDeletion)
             {
               //ignore and move to next base
               baseIndex++;
@@ -241,7 +173,7 @@ namespace CQS.Genome.Pileup
               pb.Position = PositionType.MIDDLE;
 
               var id = seq[baseIndex];
-              pb.EventType = id == '+' ? EventType.INSERTION : EventType.DELETION;
+              pb.EventType = id == '+' ? AlignedEventType.INSERTION : AlignedEventType.DELETION;
               baseIndex++;
 
               //get the sequence of insertion/deletion
@@ -266,46 +198,93 @@ namespace CQS.Genome.Pileup
           }
         }
 
-        if (pbl.Count < this.minReadDepth)
+        if (pbl.Count < _minReadDepth)
         {
           return null;
         }
 
         sampleIndex++;
-        pbl.SampleName = "S" + sampleIndex.ToString();
+        pbl.SampleName = "S" + sampleIndex;
         result.Samples.Add(pbl);
       }
 
       return result;
     }
 
-    private void ParseMatchBase(PileupItem result, PileupBaseList pbl, PileupBase pb, string seq, string scores, int seqLength, ref int baseIndex, ref int scoreIndex)
+    private bool DoAcceptReadDepthByScore(string[] parts)
+    {
+      if (!DoAcceptReadDepth(parts))
+      {
+        return false;
+      }
+
+      for (var scoreIndex = 5; scoreIndex < parts.Length; scoreIndex += 3)
+      {
+        var count = parts[scoreIndex].Count(m => m >= _minBaseMappingQualityChar);
+        if (count < _minReadDepth)
+        {
+          return false;
+        }
+      }
+
+      return true;
+    }
+
+    private bool DoAcceptReadDepth(string[] parts)
+    {
+      for (var scoreIndex = 5; scoreIndex < parts.Length; scoreIndex += 3)
+      {
+        if (parts[scoreIndex].Length < _minReadDepth)
+        {
+          return false;
+        }
+
+        var ignoredCount = parts[scoreIndex - 2].Count(m => Ignored.Contains(m));
+        if (parts[scoreIndex].Length - ignoredCount < _minReadDepth)
+        {
+          return false;
+        }
+      }
+
+      return true;
+    }
+
+    protected bool Accept(string[] parts)
+    {
+      if (parts.Length < 6)
+      {
+        return false;
+      }
+
+      return _acceptN(parts) && _acceptReadDepth(parts);
+    }
+
+    private void ParseMatchBase(PileupItem result, PileupBaseList pbl, PileupBase pb, string seq, string scores,
+      int seqLength, ref int baseIndex, ref int scoreIndex)
     {
       pb.Score = scores[scoreIndex] - 33;
       scoreIndex++;
 
       //Only the base whose quality passed the criteria will be parsed.
-      bool bScorePassed = acceptScore(pb);
+      bool bScorePassed = _acceptScore(pb);
       if (bScorePassed)
       {
         //A dot stands for a match to the reference base on the forward strand, 
-        if (seq[baseIndex] == '.')
+        switch (seq[baseIndex])
         {
-          pb.Strand = StrandType.FORWARD;
-          AssignMatch(result, pb);
-        }
-        //A comma for a match on the reverse strand
-        else if (seq[baseIndex] == ',')
-        {
-          pb.Strand = StrandType.REVERSE;
-          AssignMatch(result, pb);
-        }
-        //‘ACGTN’ for a mismatch on the forward strand and ‘acgtn’ for a mismatch on the reverse strand.
-        else
-        {
-          pb.Strand = char.IsUpper(seq[baseIndex]) ? StrandType.FORWARD : StrandType.REVERSE;
-          pb.EventType = EventType.MISMATCH;
-          pb.Event = seq[baseIndex].ToString().ToUpper();
+          case '.':
+            pb.Strand = StrandType.FORWARD;
+            AssignMatch(result, pb);
+            break;
+          case ',':
+            pb.Strand = StrandType.REVERSE;
+            AssignMatch(result, pb);
+            break;
+          default:
+            pb.Strand = char.IsUpper(seq[baseIndex]) ? StrandType.FORWARD : StrandType.REVERSE;
+            pb.EventType = AlignedEventType.MISMATCH;
+            pb.Event = seq[baseIndex].ToString().ToUpper();
+            break;
         }
       }
       baseIndex++;
@@ -317,7 +296,7 @@ namespace CQS.Genome.Pileup
         baseIndex++;
       }
 
-      if (bScorePassed && acceptTerminal(pb))
+      if (bScorePassed && _acceptTerminal(pb))
       {
         pbl.Add(pb);
       }
@@ -325,30 +304,8 @@ namespace CQS.Genome.Pileup
 
     private static void AssignMatch(PileupItem result, PileupBase pb)
     {
-      pb.EventType = EventType.MATCH;
+      pb.EventType = AlignedEventType.MATCH;
       pb.Event = result.UpperNucleotide;
-    }
-
-    private static int CheckIsEnd(PileupBase pb, string seq, int seqLength, int baseIndex)
-    {
-      if (baseIndex < seqLength - 1 && seq[baseIndex + 1] == '$')
-      {
-        pb.Position = PositionType.END;
-        baseIndex++;
-      }
-      return baseIndex;
-    }
-
-    private StrandType GetStrand(char strand)
-    {
-      if (strand == '.')
-      {
-        return StrandType.FORWARD;
-      }
-      else
-      {
-        return StrandType.REVERSE;
-      }
     }
 
     private static int ParseInsertionDeletionCount(string seq, int seqLength, ref int baseIndex)

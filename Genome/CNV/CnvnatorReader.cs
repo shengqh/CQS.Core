@@ -38,9 +38,9 @@ namespace CQS.Genome.CNV
         {
           throw new ArgumentException(string.Format("Unknown chromosome definition : {0}", m));
         }
-        n.Chrom = match.Groups[1].Value;
-        n.ChromStart = long.Parse(match.Groups[2].Value);
-        n.ChromEnd = long.Parse(match.Groups[3].Value);
+        n.Seqname = match.Groups[1].Value;
+        n.Start = long.Parse(match.Groups[2].Value);
+        n.End = long.Parse(match.Groups[3].Value);
       };
 
       result[2] = CNVItemUtils.FuncNothing;

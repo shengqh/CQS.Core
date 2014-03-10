@@ -19,7 +19,7 @@ using RCPA.Gui;
 
 namespace CQS.BreastCancer
 {
-  public partial class BreastCancerSampleItemDefinitionBuilderUI : Form
+  public partial class BreastCancerSampleItemDefinitionBuilderUI : ComponentUI
   {
     private List<FileDefinitionItem> headers;
 
@@ -29,9 +29,11 @@ namespace CQS.BreastCancer
 
     private List<string> propertyNames;
 
+    [RcpaOption("LastDirectory", RcpaOptionType.String)]
     private string lastDirectory = String.Empty;
 
     public static string title = "Breast Cancer Sample Info Definition Builder";
+    public static string version = "1.0.0";
 
     private FolderBrowser dlgOpenDirectory = new FolderBrowser();
 
@@ -39,7 +41,7 @@ namespace CQS.BreastCancer
     {
       InitializeComponent();
 
-      headers = ConverterUtils.GetItems<BreastCancerSampleItem, SampleInfo>();
+      headers = ConverterUtils.GetItems<BreastCancerSampleItem, SampleInfoAttribute>();
 
       propertyNames = (from h in headers
                        orderby h.PropertyName
@@ -57,16 +59,7 @@ namespace CQS.BreastCancer
 
       colPropertyName.Items.AddRange(propertyNames.ToArray());
 
-      if (Directory.Exists(@"d:\projects\breastcancer\dataset"))
-      {
-        lastDirectory = @"d:\projects\breastcancer\dataset";
-      }
-      else
-      {
-        lastDirectory = FileUtils.GetTemplateDir().FullName;
-      }
-
-      this.Text = title;
+      this.Text = Constants.GetSqhVanderbiltTitle(title, version);
     }
 
     private void btnInit_Click(object sender, EventArgs e)
@@ -210,7 +203,7 @@ namespace CQS.BreastCancer
 
       public void Run()
       {
-        new BreastCancerSampleItemDefinitionBuilderUI().Show();
+        new BreastCancerSampleItemDefinitionBuilderUI().MyShow();
       }
 
       #endregion
@@ -218,6 +211,7 @@ namespace CQS.BreastCancer
 
     private void btnClose_Click(object sender, EventArgs e)
     {
+      SaveOption();
       Close();
     }
 
@@ -280,14 +274,17 @@ namespace CQS.BreastCancer
     {
       FormToDefinition();
 
-      if (File.Exists(lastFile) && !File.Exists(dlgSaveFormatFile.FileName))
+      if (!dlgSaveFormatFile.FileName.Equals(lastFile))
       {
-        dlgSaveFormatFile.FileName = lastFile;
-      }
-      else
-      {
-        dlgSaveFormatFile.FileName = Path.Combine(lastDirectory, Path.GetFileName(lastDirectory) + ".siformat");
-        dlgSaveFormatFile.InitialDirectory = lastDirectory;
+        if (File.Exists(lastFile) && !File.Exists(dlgSaveFormatFile.FileName))
+        {
+          dlgSaveFormatFile.FileName = lastFile;
+        }
+        else
+        {
+          dlgSaveFormatFile.FileName = Path.Combine(lastDirectory, Path.GetFileName(lastDirectory) + ".siformat");
+          dlgSaveFormatFile.InitialDirectory = lastDirectory;
+        }
       }
 
       if (dlgSaveFormatFile.ShowDialog() == System.Windows.Forms.DialogResult.OK)

@@ -6,7 +6,7 @@ using System.Diagnostics;
 
 namespace CQS.Genome.Pileup
 {
-  public class PileupFile : AbstractFile
+  public class PileupFile : LineFile
   {
     public Process Samtools { get; set; }
 

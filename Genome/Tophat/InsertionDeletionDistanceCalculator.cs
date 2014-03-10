@@ -12,13 +12,13 @@ namespace CQS.Genome.Tophat
   {
     public static void Calculate(List<MutationItem> mutations, string insertionDeletionFile, Action<MutationItem, long> setDistanceValue, Action<MutationItem, InsertionDeletionItem> setItemValue)
     {
-      var insdels = CollectionUtils.ToGroupDictionary(new BedItemFile<InsertionDeletionItem>().ReadFromFile(insertionDeletionFile), m => m.Chrom);
+      var insdels = CollectionUtils.ToGroupDictionary(new BedItemFile<InsertionDeletionItem>().ReadFromFile(insertionDeletionFile), m => m.Seqname);
 
       foreach (var m in mutations)
       {
         var values = insdels[m.Chr];
 
-        values.ForEach(n => n.Distance = Math.Abs(n.ChromStart - m.Position));
+        values.ForEach(n => n.Distance = Math.Abs(n.Start - m.Position));
 
         var minDistance = values.Min(n => n.Distance);
         var minInsDel = values.Find(n => n.Distance == minDistance);

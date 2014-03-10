@@ -11,10 +11,16 @@ namespace CQS.BreastCancer
   {
     public void WriteToFile(string fileName, List<BreastCancerSampleItem> t)
     {
-      var headers = BreastCancerSampleItemFormat.DefaultHeader.Split('\t');
       var factory = new BreastCancerSampleItemPropertyFactory();
-      var converters = (from header in headers
+      var headers1 = BreastCancerSampleItemFormat.DefaultHeader.Split('\t');
+      var converters1 = (from header in headers1
                         select factory.FindConverter(header)).ToArray();
+
+      var filtered = (from index in Enumerable.Range(0, headers1.Length)
+                      let oldheader = headers1[index]
+                      let oldconverter = converters1[index]
+                      where t.Any(m => !string.IsNullOrEmpty(oldconverter.GetProperty(m)))
+                      select new { Header = oldheader, Converter = oldconverter }).ToArray();
 
       var xlApp = new Microsoft.Office.Interop.Excel.Application();
       xlApp.Visible = false;
@@ -25,9 +31,11 @@ namespace CQS.BreastCancer
         {
           Worksheet workSheet = workbook.Worksheets[1];
 
-          for (int j = 0; j < headers.Length; j++)
+          for (int j = 0; j < filtered.Length; j++)
           {
-            workSheet.Cells[1, j + 1] = headers[j];
+            workSheet.Cells[1, j + 1] = filtered[j].Header;
+            Range r = (Microsoft.Office.Interop.Excel.Range)workSheet.Cells[1,j+1];
+            r.EntireColumn.NumberFormat = "@";
           }
 
           for (int i = 0; i < t.Count; i++)
@@ -35,9 +43,9 @@ namespace CQS.BreastCancer
             var row = i + 2;
             try
             {
-              for (int j = 0; j < headers.Length; j++)
+              for (int j = 0; j < filtered.Length; j++)
               {
-                workSheet.Cells[row, j + 1] = converters[j].GetProperty(t[i]);
+                workSheet.Cells[row, j + 1] = filtered[j].Converter.GetProperty(t[i]);
               }
             }
             catch (Exception ex)

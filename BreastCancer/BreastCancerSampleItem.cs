@@ -45,92 +45,97 @@ namespace CQS.BreastCancer
     public string Patient { get; set; }
     public string Disease { get; set; }
 
-    [SampleInfo]
+    [SampleInfoAttribute]
     public string Age { get; set; }
-    [SampleInfo]
+    [SampleInfoAttribute]
     public string Sex { get; set; }
-    [SampleInfo]
+    [SampleInfoAttribute]
     public string Race { get; set; }
-    [SampleInfo]
+    [SampleInfoAttribute]
     public string Stage { get; set; }
-    [SampleInfo]
+    [SampleInfoAttribute]
+    public string DukeStage { get; set; }
+    [SampleInfoAttribute]
     public string TumorStatus { get; set; }
-    [SampleInfo]
+    [SampleInfoAttribute]
     public string TumorSize { get; set; }
-    [SampleInfo]
+    [SampleInfoAttribute]
     public string Grade { get; set; }
-    [SampleInfo]
+    [SampleInfoAttribute]
     public string NodalStatus { get; set; }
-    [SampleInfo]
+    [SampleInfoAttribute]
     public string DFS { get; set; }
-    [SampleInfo]
+    [SampleInfoAttribute]
     public string DFSTime { get; set; }
-    [SampleInfo]
+    [SampleInfoAttribute]
     public string RFS { get; set; }
-    [SampleInfo]
+    [SampleInfoAttribute]
     public string RFSTime { get; set; }
-    [SampleInfo]
+    [SampleInfoAttribute]
     public string DMFS { get; set; }
-    [SampleInfo]
+    [SampleInfoAttribute]
     public string DMFSTime { get; set; }
-    [SampleInfo]
+    [SampleInfoAttribute]
     public string OverallSurvival { get; set; }
-    [SampleInfo]
+    [SampleInfoAttribute]
     public string OverallSurvivalTime { get; set; }
-    [SampleInfo]
+    [SampleInfoAttribute]
     public string Dead { get; set; }
-    [SampleInfo]
+    [SampleInfoAttribute]
     public string DeadOfDisease { get; set; }
-    [SampleInfo]
+    [SampleInfoAttribute]
     public string DiagnosisDate { get; set; }
-    [SampleInfo]
-    [StatusInfo]
+    [SampleInfoAttribute]
+    [StatusInfoAttribute]
     public string ER { get; set; }
-    [SampleInfo]
-    [StatusInfo]
+    [SampleInfoAttribute]
+    [StatusInfoAttribute]
     public string PR { get; set; }
-    [SampleInfo]
-    [StatusInfo]
+    [SampleInfoAttribute]
+    [StatusInfoAttribute]
     public string HER2 { get; set; }
 
-    [SampleInfo]
+    [SampleInfoAttribute]
     public string IntrinsicSubtype { get; set; }
-    [SampleInfo]
+    [SampleInfoAttribute]
     public string TimeToDeath { get; set; }
 
-    [SampleInfo]
+    [SampleInfoAttribute]
     public string P53 { get; set; }
-    [SampleInfo]
+    [SampleInfoAttribute]
     public string Histology { get; set; }
-    [SampleInfo]
+    [SampleInfoAttribute]
     public string MetastasisStatus { get; set; }
-    [SampleInfo]
+    [SampleInfoAttribute]
     public string MetastasisDate { get; set; }
 
-    [SampleInfo]
+    [SampleInfoAttribute]
     public string BoneMet { get; set; }
 
-    [SampleInfo]
+    [SampleInfoAttribute]
     public string BrainMet { get; set; }
-    [SampleInfo]
+    [SampleInfoAttribute]
     public string LiverMet { get; set; }
-    [SampleInfo]
+    [SampleInfoAttribute]
     public string LungMet { get; set; }
 
-    [SampleInfo]
+    [SampleInfoAttribute]
     public string FollowupTime { get; set; }
 
-    [SampleInfo]
+    [SampleInfoAttribute]
     public string HormonalTherapy { get; set; }
-    [SampleInfo]
+    [SampleInfoAttribute]
     public string ChemotherapyTreatment { get; set; }
-    [SampleInfo]
+    [SampleInfoAttribute]
     public string RadiationTreatment { get; set; }
-    [SampleInfo]
+    [SampleInfoAttribute]
     public string AliveAtEndpoint { get; set; }
 
     public string PCR { get; set; }
     public string Recurrence { get; set; }
     public string FamilyHistory { get; set; }
+
+    [SampleInfoAttribute]
+    public string Comment { get; set; }
   }
 }

@@ -28,13 +28,13 @@ namespace CQS.Genome.Bed
     {
       long before = (length - this.Length) / 2;
 
-      if (this.ChromStart < this.ChromEnd)
+      if (this.Start < this.End)
       {
-        this.ExpectStart = this.ChromStart - before;
+        this.ExpectStart = this.Start - before;
       }
       else
       {
-        this.ExpectStart = this.ChromEnd - before;
+        this.ExpectStart = this.End - before;
       }
       this.ExpectEnd = this.ExpectStart + length - 1;
     }
@@ -112,7 +112,7 @@ namespace CQS.Genome.Bed
 
     public void MatchGtfTranscriptItem(GtfTranscriptItem gtItem)
     {
-      int index = gtItem.FindItemIndex(this.ChromStart, this.ChromEnd - 1);
+      int index = gtItem.FindItemIndex(this.Start, this.End - 1);
       if (-1 == index)
       {
         return;
@@ -127,13 +127,13 @@ namespace CQS.Genome.Bed
 
       Location ml = new Location();
       exon.Add(ml);
-      if (gitem.Start > this.ChromStart)
+      if (gitem.Start > this.Start)
       {
         //if the peak range is out of the exon range, that peak range may be potential exon which
         //is detected by RNASeq data, so just extend the peak range to expect length rather than
         //extend by prior exon range
         ml.Start = this.ExpectStart;
-        exon.IntronSize = gitem.Start - this.ChromStart;
+        exon.IntronSize = gitem.Start - this.Start;
         exon.RetainedIntron = true;
       }
       else if (gitem.Start <= this.ExpectStart)
@@ -168,10 +168,10 @@ namespace CQS.Genome.Bed
         }
       }
 
-      if (gitem.End < this.ChromEnd - 1)
+      if (gitem.End < this.End - 1)
       {
         ml.End = this.ExpectEnd;
-        exon.IntronSize = this.ChromEnd - 1 - gitem.End;
+        exon.IntronSize = this.End - 1 - gitem.End;
         exon.RetainedIntron = true;
       }
       else if (gitem.End >= this.ExpectEnd)
@@ -214,7 +214,7 @@ namespace CQS.Genome.Bed
       this.DirectExpectSequence = seq.SeqString.Substring((int)this.ExpectStart, (int)(this.ExpectEnd - this.ExpectStart + 1)).ToUpper();
       if (this.Strand == '-')
       {
-        this.DirectExpectSequence = SequenceUtils.ToAnotherStrand(this.DirectExpectSequence);
+        this.DirectExpectSequence = SequenceUtils.GetReverseComplementedSequence(this.DirectExpectSequence);
       }
     }
   }

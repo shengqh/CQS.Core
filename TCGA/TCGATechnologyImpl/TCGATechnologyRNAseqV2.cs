@@ -49,5 +49,6 @@ namespace CQS.TCGA.TCGATechnologyImpl
     {
       return m => m.ToLower().EndsWith(".genes.normalized_results");
     }
+
   }
 }

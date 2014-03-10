@@ -1,43 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using RCPA.Gui;
-using RCPA.Utils;
 using System.IO;
-using System.Reflection;
+using System.Linq;
+using System.Windows.Forms;
 using System.Xml.Linq;
+using RCPA.Utils;
 
 namespace CQS
 {
   public class ParameterConfig
   {
+    public ParameterConfig(string name)
+    {
+      Name = name;
+      Parameters = new Dictionary<string, string>();
+    }
+
     public string Name { get; set; }
 
     public Dictionary<string, string> Parameters { get; set; }
-
-    public ParameterConfig(string name)
-    {
-      this.Name = name;
-      this.Parameters = new Dictionary<string, string>();
-    }
 
     public string GetParameter(string name, string value)
     {
       if (!string.IsNullOrEmpty(value))
       {
-        this.Parameters[name] = value;
+        Parameters[name] = value;
         return value;
       }
 
-      if (this.Parameters.ContainsKey(name))
+      if (Parameters.ContainsKey(name))
       {
-        return this.Parameters[name];
+        return Parameters[name];
       }
-      else
-      {
-        return null;
-      }
+      return null;
     }
   }
 
@@ -45,18 +40,18 @@ namespace CQS
   {
     public ProgramConfig()
     {
-      this.Name = string.Empty;
-      this.Command = string.Empty;
-      this.ParameterSet = new Dictionary<string, ParameterConfig>();
-      this.DefaultParameterSet = string.Empty;
+      Name = string.Empty;
+      Command = string.Empty;
+      ParameterSet = new Dictionary<string, ParameterConfig>();
+      DefaultParameterSet = string.Empty;
     }
 
     public ProgramConfig(string name, string command)
     {
-      this.Name = name;
-      this.Command = command;
-      this.ParameterSet = new Dictionary<string, ParameterConfig>();
-      this.DefaultParameterSet = string.Empty;
+      Name = name;
+      Command = command;
+      ParameterSet = new Dictionary<string, ParameterConfig>();
+      DefaultParameterSet = string.Empty;
     }
 
     public string Name { get; set; }
@@ -69,16 +64,16 @@ namespace CQS
 
     public ParameterConfig FindOrCreate(string name)
     {
-      if (!this.ParameterSet.ContainsKey(name))
+      if (!ParameterSet.ContainsKey(name))
       {
-        this.ParameterSet[name] = new ParameterConfig(name);
+        ParameterSet[name] = new ParameterConfig(name);
       }
-      return this.ParameterSet[name];
+      return ParameterSet[name];
     }
 
     public bool HasParameterSet(string name)
     {
-      return this.ParameterSet.ContainsKey(name);
+      return ParameterSet.ContainsKey(name);
     }
   }
 
@@ -86,39 +81,36 @@ namespace CQS
   {
     private string _configFilename;
 
+    public CommandConfig()
+    {
+      Programs = new Dictionary<string, ProgramConfig>();
+    }
+
     public string ConfigFilename
     {
       get
       {
-        if (string.IsNullOrEmpty(this._configFilename))
+        if (string.IsNullOrEmpty(_configFilename))
         {
           if (SystemUtils.IsLinux)
           {
-            this._configFilename = Path.ChangeExtension(System.Windows.Forms.Application.ExecutablePath, ".linux");
+            _configFilename = Path.ChangeExtension(Application.ExecutablePath, ".linux");
           }
           else
           {
-            this._configFilename = Path.ChangeExtension(System.Windows.Forms.Application.ExecutablePath, ".win");
+            _configFilename = Path.ChangeExtension(Application.ExecutablePath, ".win");
           }
         }
-        return this._configFilename;
+        return _configFilename;
       }
-      set
-      {
-        this._configFilename = value;
-      }
-    }
-
-    public CommandConfig()
-    {
-      this.Programs = new Dictionary<string, ProgramConfig>();
+      set { _configFilename = value; }
     }
 
     public Dictionary<string, ProgramConfig> Programs { get; private set; }
 
     public bool Load()
     {
-      return Load(this.ConfigFilename);
+      return Load(ConfigFilename);
     }
 
     public bool Load(string filename)
@@ -128,23 +120,26 @@ namespace CQS
         if (File.Exists(filename))
         {
           XElement root = XElement.Load(filename);
-          this.Programs = (from pro in root.Elements("program")
-                           select new ProgramConfig(pro.Attribute("name").Value, pro.Attribute("command").Value)
-                           {
-                             DefaultParameterSet = pro.Element("defaultparameterset") == null ? string.Empty : pro.Element("defaultparameterset").Value,
-                             ParameterSet = (from paramset in pro.Elements("parameterset")
-                                             select new ParameterConfig(paramset.Attribute("name").Value)
-                                             {
-                                               Parameters = (from param in paramset.Elements("parameter")
-                                                             select new KeyValuePair<string, string>(param.Attribute("name").Value, param.Attribute("default").Value)).ToDictionary(m => m.Key, m => m.Value)
-                                             }).ToDictionary(m => m.Name)
-                           }).ToDictionary(m => m.Name);
+          Programs = (from pro in root.Elements("program")
+            select new ProgramConfig(pro.Attribute("name").Value, pro.Attribute("command").Value)
+            {
+              DefaultParameterSet =
+                pro.Element("defaultparameterset") == null ? string.Empty : pro.Element("defaultparameterset").Value,
+              ParameterSet = (from paramset in pro.Elements("parameterset")
+                select new ParameterConfig(paramset.Attribute("name").Value)
+                {
+                  Parameters = (from param in paramset.Elements("parameter")
+                    select
+                      new KeyValuePair<string, string>(param.Attribute("name").Value, param.Attribute("default").Value))
+                    .ToDictionary(m => m.Key, m => m.Value)
+                }).ToDictionary(m => m.Name)
+            }).ToDictionary(m => m.Name);
         }
         else
         {
-          this.Programs = new Dictionary<string, ProgramConfig>();
+          Programs = new Dictionary<string, ProgramConfig>();
         }
-        this.ConfigFilename = filename;
+        ConfigFilename = filename;
         return true;
       }
       catch (Exception ex)
@@ -156,16 +151,16 @@ namespace CQS
 
     public bool Save()
     {
-      return Save(this.ConfigFilename);
+      return Save(ConfigFilename);
     }
 
     public bool Save(string filename)
     {
       try
       {
-        XElement root = new XElement("config",
-          from proKey in this.Programs.Keys.OrderBy(m => m)
-          let pro = this.Programs[proKey]
+        var root = new XElement("config",
+          from proKey in Programs.Keys.OrderBy(m => m)
+          let pro = Programs[proKey]
           select new XElement("program",
             new XAttribute("name", pro.Name),
             new XAttribute("command", pro.Command),
@@ -190,16 +185,13 @@ namespace CQS
 
     public ProgramConfig FindOrCreate(string name, string defaultCommand)
     {
-      if (this.Programs.ContainsKey(name))
+      if (Programs.ContainsKey(name))
       {
-        return this.Programs[name];
+        return Programs[name];
       }
-      else
-      {
-        ProgramConfig result = new ProgramConfig(name, defaultCommand);
-        this.Programs[name] = result;
-        return result;
-      }
+      var result = new ProgramConfig(name, defaultCommand);
+      Programs[name] = result;
+      return result;
     }
   }
 }

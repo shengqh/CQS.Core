@@ -18,10 +18,14 @@ namespace CQS.Genome.CNV
       var result = new Dictionary<string, Action<string, CNVItem>>();
 
       result["sample"] = CNVItemUtils.FuncFileName;
+      result["sampleID"] = CNVItemUtils.FuncFileName;
       result["chr"] = CNVItemUtils.FuncChrom;
+      result["chromosome"] = CNVItemUtils.FuncChrom;
       result["start"] = CNVItemUtils.FuncChromStart;
       result["end"] = CNVItemUtils.FuncChromEnd;
-      result["type"] = (m, n) => n.ItemType = EnumUtils.StringToEnum<CNVType>(m, CNVType.UNKNOWN);
+      result["stop"] = CNVItemUtils.FuncChromEnd;
+      result["type"] = CNVItemUtils.FuncItemType;
+      result["state"] = CNVItemUtils.FuncItemType;
 
       return result;
     }

@@ -16,7 +16,7 @@ namespace CQS.BreastCancer
     {
       get
       {
-        var headers = ConverterUtils.GetItems<BreastCancerSampleItem, SampleInfo>();
+        var headers = ConverterUtils.GetItems<BreastCancerSampleItem, SampleInfoAttribute>();
 
         var propertyNames = (from h in headers
                          orderby h.PropertyName

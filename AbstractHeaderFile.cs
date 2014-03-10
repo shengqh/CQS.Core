@@ -1,39 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using RCPA;
 using System.IO;
 
 namespace CQS
 {
   public abstract class AbstractHeaderFile<T> : AbstractTableFile<T> where T : new()
   {
-    private Dictionary<string, Action<string, T>> headerActionMap = null;
+    private Dictionary<string, Action<string, T>> _headerActionMap;
 
     protected abstract Dictionary<string, Action<string, T>> GetHeaderActionMap();
 
-    public AbstractHeaderFile() : base() { }
+    protected AbstractHeaderFile()
+    {
+    }
 
-    public AbstractHeaderFile(string filename) : base(filename) { }
+    protected AbstractHeaderFile(string filename) : base(filename)
+    {
+    }
 
     protected override Dictionary<int, Action<string, T>> GetIndexActionMap()
     {
-      if (headerActionMap == null)
+      if (_headerActionMap == null)
       {
-        headerActionMap = GetHeaderActionMap();
+        _headerActionMap = GetHeaderActionMap();
       }
 
-      var line = FindHeader(this.reader);
-      var headers = line.Split('\t');
+      string line = FindHeader(reader);
+      string[] headers = line.Split('\t');
 
       var result = new Dictionary<int, Action<string, T>>();
       for (int i = 0; i < headers.Length; i++)
       {
-        var part = headers[i];
-        if (headerActionMap.ContainsKey(part))
+        string part = headers[i];
+        if (_headerActionMap.ContainsKey(part))
         {
-          result[i] = headerActionMap[part];
+          result[i] = _headerActionMap[part];
         }
       }
 
@@ -41,7 +42,7 @@ namespace CQS
     }
 
     /// <summary>
-    /// Get header from file. Default is the next line of stream
+    ///   Get header from file. Default is the next line of stream
     /// </summary>
     /// <param name="sr">data stream</param>
     /// <returns>header line</returns>

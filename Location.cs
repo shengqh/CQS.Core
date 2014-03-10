@@ -110,5 +110,9 @@ namespace CQS
     {
       return string.Format("{0}-{1}", this.Start, this.End);
     }
+
+    public void UnionWith(Location loc)
+    {
+    }
   }
 }

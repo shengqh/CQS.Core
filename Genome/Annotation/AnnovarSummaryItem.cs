@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 
 namespace CQS.Genome.Annotation
 {
-  public class AnnovarSummaryItem : ChromosomeRegion
+  public class AnnovarSummaryItem : SequenceRegion
   {
     public string SummaryInCsvFormat { get; set; }
   }
@@ -40,9 +40,9 @@ namespace CQS.Genome.Annotation
           {
             var item = new AnnovarSummaryItem();
             item.SummaryInCsvFormat = v.Groups[1].Value;
-            item.Chrom = v.Groups[2].Value;
-            item.ChromStart = long.Parse(v.Groups[3].Value);
-            item.ChromEnd = long.Parse(v.Groups[4].Value);
+            item.Seqname = v.Groups[2].Value;
+            item.Start = long.Parse(v.Groups[3].Value);
+            item.End = long.Parse(v.Groups[4].Value);
             result.Add(item);
           }
         }

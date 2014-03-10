@@ -6,7 +6,7 @@ using System.IO;
 
 namespace CQS.Genome.Bed
 {
-  public class MatchedBedItemFile : AbstractFile
+  public class MatchedBedItemFile : LineFile
   {
     public MatchedBedItemFile() : base() { }
 
@@ -50,9 +50,9 @@ namespace CQS.Genome.Bed
 
           var result = new MatchedBedItem();
 
-          result.Chrom = parts[0];
-          result.ChromStart = chromstart;
-          result.ChromEnd = long.Parse(parts[2]);
+          result.Seqname = parts[0];
+          result.Start = chromstart;
+          result.End = long.Parse(parts[2]);
           result.Name = parts[3];
           result.Score = double.Parse(parts[4]);
           result.Strand = parts[5][0];

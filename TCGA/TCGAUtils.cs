@@ -7,6 +7,7 @@ using System.IO;
 using RCPA;
 using RCPA.Utils;
 using CQS.TCGA.Microarray;
+using System.Reflection;
 
 namespace CQS.TCGA
 {
@@ -116,20 +117,39 @@ namespace CQS.TCGA
         return new Dictionary<string, List<BarInfo>>();
       }
 
-      var finder = TCGATechnology.RNAseq_RSEM.GetFinder(null, dir);
-      if (filePattern == null)
+      Dictionary<string, List<BarInfo>> result = new Dictionary<string, List<BarInfo>>();
+      foreach (var platformDir in Directory.GetDirectories(dir))
       {
-        filePattern = DefaultV2Pattern;
+        var finder = TCGATechnology.RNAseq_RSEM.GetFinder(null, platformDir);
+        if (filePattern == null)
+        {
+          filePattern = DefaultV2Pattern;
+        }
+
+        Dictionary<string, List<BarInfo>> cur;
+        if (allFilePattern)
+        {
+          cur = GetAllSampleMap(platformDir, filePattern, finder);
+        }
+        else
+        {
+          cur = GetSampleMap(platformDir, filePattern, finder, paired);
+        }
+
+        foreach (var bar in cur)
+        {
+          if (result.ContainsKey(bar.Key))
+          {
+            result[bar.Key].AddRange(bar.Value);
+          }
+          else
+          {
+            result[bar.Key] = bar.Value;
+          }
+        }
       }
 
-      if (allFilePattern)
-      {
-        return GetAllSampleMap(dir, filePattern, finder);
-      }
-      else
-      {
-        return GetSampleMap(dir, filePattern, finder, paired);
-      }
+      return result;
     }
 
     public static Dictionary<string, List<BarInfo>> GetRnaseqV1Files(string dir, bool paired, string[] filePattern = null, bool allFilePattern = false)
@@ -139,21 +159,39 @@ namespace CQS.TCGA
         return new Dictionary<string, List<BarInfo>>();
       }
 
-      var reader = TCGATechnology.RNAseq_RPKM.GetReader();
-      var finder = TCGATechnology.RNAseq_RSEM.GetFinder(null, dir);
-      if (filePattern == null)
+      Dictionary<string, List<BarInfo>> result = new Dictionary<string, List<BarInfo>>();
+      foreach (var platformDir in Directory.GetDirectories(dir))
       {
-        filePattern = DefaultV1Pattern;
+        var finder = TCGATechnology.RNAseq_RPKM.GetFinder(null, platformDir);
+        if (filePattern == null)
+        {
+          filePattern = DefaultV1Pattern;
+        }
+
+        Dictionary<string, List<BarInfo>> cur;
+        if (allFilePattern)
+        {
+          cur = GetAllSampleMap(platformDir, filePattern, finder);
+        }
+        else
+        {
+          cur = GetSampleMap(platformDir, filePattern, finder, paired);
+        }
+
+        foreach (var bar in cur)
+        {
+          if (result.ContainsKey(bar.Key))
+          {
+            result[bar.Key].AddRange(bar.Value);
+          }
+          else
+          {
+            result[bar.Key] = bar.Value;
+          }
+        }
       }
 
-      if (allFilePattern)
-      {
-        return GetAllSampleMap(dir, filePattern, finder);
-      }
-      else
-      {
-        return GetSampleMap(dir, filePattern, finder, paired);
-      }
+      return result;
     }
 
     public static Dictionary<string, List<BarInfo>> GetMicroarrayFiles(string dir, bool paired)
@@ -683,6 +721,71 @@ namespace CQS.TCGA
         result[Path.GetFileName(dir)] = datasets.ToDictionary(m => m.Tec, m => m.Dataset.BarInfoListMap.ToDictionary(n => n.Key, n => n.Value.First()));
       }
       return result;
+    }
+
+    public static string GetClinicPatientFile(string tcgaRootDir, string tumor)
+    {
+      return new FileInfo(string.Format("{0}/{1}/data/clin/clinical_patient_{1}.txt", tcgaRootDir, tumor)).FullName;
+    }
+
+    public static Dictionary<string, BarInfo> GetBarcodeFileMap(string tcgaRootDir, ITCGATechnology tec, string tumor, TCGASampleCode[] sampleTypes = null)
+    {
+      Func<string, bool> acceptBarcode = null;
+      HashSet<int> sampleCodes = null;
+      if (sampleTypes != null)
+      {
+        sampleCodes = new HashSet<int>(sampleTypes.ToList().ConvertAll(m => m.Code));
+        acceptBarcode = m => sampleCodes.Contains(new BarInfo(m, null).Sample);
+      }
+
+      tumor = tumor.ToLower();
+      var dir = tcgaRootDir + "/" + tumor;
+      if (!Directory.Exists(dir))
+      {
+        return new Dictionary<string, BarInfo>();
+      }
+
+      if (!Directory.Exists(tec.GetTechnologyDirectory(dir)))
+      {
+        return new Dictionary<string, BarInfo>();
+      }
+
+      var dataset = tec.GetDataset(dir, null);
+      if (acceptBarcode != null)
+      {
+        var barcodes = dataset.GetBarCodes();
+        foreach (var barcode in barcodes)
+        {
+          if (!acceptBarcode(barcode))
+          {
+            dataset.BarInfoListMap.Remove(barcode);
+          }
+        }
+      }
+
+      return dataset.BarInfoListMap.ToDictionary(n => n.Key, n => n.Value.First());
+    }
+
+    public static Dictionary<string, string> GetTumorDescriptionMap()
+    {
+      var assembly = Assembly.GetExecutingAssembly();
+      var resourceName = "CQS.TCGA.tcga_tumor.txt";
+
+      List<string> result = new List<string>();
+      using (Stream stream = assembly.GetManifestResourceStream(resourceName))
+      using (StreamReader reader = new StreamReader(stream))
+      {
+        string line;
+        while ((line = reader.ReadLine()) != null)
+        {
+          result.Add(line);
+        }
+      }
+      var reg = new Regex(@"(.+)\[(.+)\]");
+      return (from l in result
+              let m = reg.Match(l)
+              where m.Success
+              select new { Description = m.Groups[1].Value, Name = m.Groups[2].Value }).ToDictionary(m => m.Name, m => m.Description.Trim());
     }
   }
 

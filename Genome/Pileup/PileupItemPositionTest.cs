@@ -12,53 +12,33 @@ namespace CQS.Genome.Pileup
     public PileupItemPositionTest()
     { }
 
-    public FisherExactTestResult Test(PileupItem item)
+    public FisherExactTestResult Test(PileupItem item, PairedEvent paired)
     {
       var result = new FisherExactTestResult();
 
-      var bases = (from sample in item.Samples
-                   from b in sample
-                   select b).ToList();
-      var allevents = bases.GetEventCountList();
+      result.Sample1.Name = PositionType.MIDDLE.ToString();
+      result.Sample2.Name = "TERMINAL";
+      result.SucceedName = paired.MajorEvent;
+      result.FailedName = paired.MinorEvent;
 
-      if (allevents.Count < 2)
+      foreach (var s in item.Samples)
       {
-        return result;
-      }
-
-      result.Name1 = PositionType.MIDDLE.ToString();
-      result.Name2 = "TERMINAL";
-      result.SucceedName = allevents[0].Event;
-      result.FailedName = allevents[1].Event;
-
-      foreach (var b in bases)
-      {
-        if (b.Position.Equals(PositionType.MIDDLE))
+        foreach (var b in s)
         {
+          var sample = b.Position == PositionType.MIDDLE ? result.Sample1 : result.Sample2;
+
           if (b.Event.Equals(result.SucceedName))
           {
-            result.SucceedCount1++;
+            sample.Succeed++;
           }
           else
           {
-            result.FailedCount1++;
-          }
-        }
-        else
-        {
-          if (b.Event.Equals(result.SucceedName))
-          {
-            result.SucceedCount2++;
-          }
-          else
-          {
-            result.FailedCount2++;
+            sample.Failed++;
           }
         }
       }
 
-      result.PValue = MyFisherExactTest.TwoTailPValue(result.SucceedCount1, result.FailedCount1,
-        result.SucceedCount2, result.FailedCount2);
+      result.CalculateTwoTailPValue();
 
       return result;
     }

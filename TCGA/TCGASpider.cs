@@ -8,6 +8,9 @@ using HtmlAgilityPack;
 using RCPA;
 using System.Xml.Linq;
 using System.Text.RegularExpressions;
+using RCPA.Utils;
+using System.ComponentModel;
+using System.Threading;
 
 namespace CQS.TCGA
 {
@@ -60,7 +63,7 @@ namespace CQS.TCGA
         return;
       }
 
-      var content = DownloadHtml(node.Uri);
+      var content = WebUtils.DownloadHtml(node.Uri);
 
       //Console.WriteLine(content);
 
@@ -116,7 +119,7 @@ namespace CQS.TCGA
     {
       List<DownloadItem> result = new List<DownloadItem>();
 
-      var content = DownloadHtml(node.Uri);
+      var content = WebUtils.DownloadHtml(node.Uri);
 
       HtmlDocument doc = new HtmlDocument();
       doc.LoadHtml(content);
@@ -161,50 +164,17 @@ namespace CQS.TCGA
       return result;
     }
 
-    public static void DownloadFiles(SpiderTreeNode node, string targetDir, Action<List<DownloadItem>> filterFile)
+    public static void DownloadFiles(SpiderTreeNode node, string targetDir, Action<List<DownloadItem>> filterFile, IProgressCallback callback = null)
     {
       List<DownloadItem> items = GetDownloadFiles(node, targetDir, filterFile);
 
       foreach (var item in items)
       {
-        if (!DownloadFile(item.Url, item.TargetFile))
+        if (!WebUtils.DownloadFile(item.Url, item.TargetFile, callback))
         {
           throw new Exception(string.Format("Download {0} to {1} failed!", item.Url, item.TargetFile));
         }
       }
-    }
-
-    public static string DownloadHtml(string uri)
-    {
-      WebRequest http = HttpWebRequest.Create(uri);
-      HttpWebResponse response = (HttpWebResponse)http.GetResponse();
-      var responseStream = response.GetResponseStream();
-
-      StreamReader reader = new StreamReader(responseStream);
-      return reader.ReadToEnd();
-    }
-
-    public static bool DownloadFile(string uri, string targetFile)
-    {
-      if (!File.Exists(targetFile))
-      {
-        var tempFile = new FileInfo(targetFile).DirectoryName + "\\" + Path.GetFileName(Path.GetTempFileName());
-        var webClient = new WebClient();
-
-        Console.WriteLine("        " + Path.GetFileName(uri) + " ...");
-        webClient.DownloadFile(uri, tempFile);
-        if (File.Exists(tempFile))
-        {
-          Console.WriteLine("        " + Path.GetFileName(uri) + " ... done.");
-          File.Move(tempFile, targetFile);
-        }
-        else
-        {
-          Console.WriteLine("        " + Path.GetFileName(uri) + " ... failed.");
-        }
-      }
-
-      return File.Exists(targetFile);
     }
   }
 }

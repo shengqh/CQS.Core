@@ -19,7 +19,7 @@ namespace CQS.BreastCancer
     {
       InitializeComponent();
 
-      var headers = ConverterUtils.GetItems<BreastCancerSampleItem, SampleInfo>();
+      var headers = ConverterUtils.GetItems<BreastCancerSampleItem, SampleInfoAttribute>();
       foreach (var header in headers)
       {
         var column = new DataGridViewTextBoxColumn();

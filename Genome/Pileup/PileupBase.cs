@@ -7,7 +7,7 @@ using CQS.Genome.Statistics;
 namespace CQS.Genome.Pileup
 {
   public enum StrandType { UNKNOWN, FORWARD, REVERSE };
-  public enum EventType { UNKNOWN, MATCH, MISMATCH, INSERTION, DELETION };
+  public enum AlignedEventType { UNKNOWN, MATCH, MISMATCH, INSERTION, DELETION };
   public enum PositionType { UNKNOWN, START, MIDDLE, END };
 
   public class PileupBase
@@ -15,7 +15,7 @@ namespace CQS.Genome.Pileup
     public PileupBase()
     {
       this.Strand = StrandType.UNKNOWN;
-      this.EventType = EventType.UNKNOWN;
+      this.EventType = AlignedEventType.UNKNOWN;
       this.Position = PositionType.UNKNOWN;
       this.Event = string.Empty;
       this.Score = 0;
@@ -30,7 +30,7 @@ namespace CQS.Genome.Pileup
     /// <summary>
     /// EventType { UNKNOWN, MATCH, MISMATCH, INSERTION, DELETION }
     /// </summary>
-    public EventType EventType { get; set; }
+    public AlignedEventType EventType { get; set; }
 
     /// <summary>
     /// PositionType { UNKNOWN, START, MIDDLE, END }
@@ -46,8 +46,8 @@ namespace CQS.Genome.Pileup
     public bool PassScoreFilter(int minimumMappingQuality)
     {
       return this.Score >= minimumMappingQuality ||
-        this.EventType == Pileup.EventType.INSERTION ||
-        this.EventType == Pileup.EventType.DELETION;
+        this.EventType == Pileup.AlignedEventType.INSERTION ||
+        this.EventType == Pileup.AlignedEventType.DELETION;
     }
   }
 
@@ -90,7 +90,6 @@ namespace CQS.Genome.Pileup
   {
     public static List<EventCount> GetEventCountList(this IEnumerable<PileupBase> bases)
     {
-      var result = new List<EventCount>();
       var map = new Dictionary<string, EventCount>();
       foreach (var e in bases)
       {
@@ -106,11 +105,9 @@ namespace CQS.Genome.Pileup
         }
       }
 
-      result = (from ec in map.Values
-                orderby ec.Count descending
-                select ec).ToList();
-
-      return result;
+      return (from ec in map.Values
+              orderby ec.Count descending
+              select ec).ToList();
     }
 
     public static List<EventCount> GetEventCountList(this IEnumerable<PileupBase> bases, int minimumMappingQuality)

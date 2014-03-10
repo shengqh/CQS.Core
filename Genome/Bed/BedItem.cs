@@ -5,7 +5,7 @@ using System.Text;
 
 namespace CQS.Genome.Bed
 {
-  public class BedItem : IChromosomeRegion
+  public class BedItem : ISequenceRegion
   {
     public class Block
     {
@@ -24,7 +24,7 @@ namespace CQS.Genome.Bed
       {
         get
         {
-          return parent.ChromStart + this.Start;
+          return parent.Start + this.Start;
         }
       }
 
@@ -41,20 +41,20 @@ namespace CQS.Genome.Bed
     /// Required field.
     /// The name of the chromosome (e.g. chr3, chrY, chr2_random) or scaffold (e.g. scaffold10671).
     /// </summary>
-    public string Chrom { get; set; }
+    public string Seqname { get; set; }
 
     /// <summary>
     /// Required field.
     /// The starting position of the feature in the chromosome or scaffold. The first base in a chromosome is numbered 0.
     /// </summary>
-    public long ChromStart { get; set; }
+    public long Start { get; set; }
 
     /// <summary>
     /// Required field.
     /// The ending position of the feature in the chromosome or scaffold. The chromEnd base is not included in the display 
     /// of the feature. For example, the first 100 bases of a chromosome are defined as chromStart=0, chromEnd=100, and span the bases numbered 0-99.
     /// </summary>
-    public long ChromEnd { get; set; }
+    public long End { get; set; }
 
     /// <summary>
     /// Optional field.
@@ -161,7 +161,7 @@ namespace CQS.Genome.Bed
       }
       set
       {
-        SetBlockValue(value,  (m, n) => n.Size = long.Parse(m));
+        SetBlockValue(value, (m, n) => n.Size = long.Parse(m));
       }
     }
 
@@ -184,32 +184,40 @@ namespace CQS.Genome.Bed
 
     public BedItem()
     {
-      Chrom = String.Empty;
-      ChromStart = -1;
-      ChromEnd = -1;
-      Name = String.Empty;
-      Score = 0;
-      Strand = '.';
-      ThickStart = -1;
-      ThickEnd = -1;
-      ItemRgb = String.Empty;
-      Blocks = new List<Block>();
-      BlockCount = 0;
-      BlockSizes = String.Empty;
-      BlockStarts = String.Empty;
+      this.Seqname = String.Empty;
+      this.Start = -1;
+      this.End = -1;
+      this.Name = String.Empty;
+      this.Score = 0;
+      this.Strand = '.';
+      this.ThickStart = -1;
+      this.ThickEnd = -1;
+      this.ItemRgb = String.Empty;
+      this.Blocks = new List<Block>();
+      this.BlockCount = 0;
+      this.BlockSizes = String.Empty;
+      this.BlockStarts = String.Empty;
+      this.Sequence = string.Empty;
     }
 
     public long Length
     {
       get
       {
-        if (this.ChromStart == -1 || this.ChromEnd == -1)
+        if (this.Start == -1 || this.End == -1)
         {
           return 0;
         }
 
-        return Math.Abs(this.ChromEnd - this.ChromStart);
+        return Math.Abs(this.End - this.Start);
       }
     }
+
+    public bool Contains(long position)
+    {
+      return position >= this.Start && position < this.End;
+    }
+
+    public string Sequence { get; set; }
   }
 }

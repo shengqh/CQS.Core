@@ -54,6 +54,20 @@ namespace CQS.TCGA
       }
     }
 
+    public static TCGASampleCode Find(string shortCode)
+    {
+      var upper = shortCode.ToUpper();
+      foreach (var code in _codeMap.Values)
+      {
+        if (code.ShortLetterCode.Equals(upper))
+        {
+          return code;
+        }
+      }
+
+      return null;
+    }
+
     public static TCGASampleCode PrimarySolidTumor = new TCGASampleCode(01, "Primary solid Tumor", "TP");
     public static TCGASampleCode RecurrentSolidTumor = new TCGASampleCode(02, "Recurrent Solid Tumor", "TR");
     public static TCGASampleCode PrimaryBloodDerivedCancer_PeripheralBlood = new TCGASampleCode(03, "Primary Blood Derived Cancer - Peripheral Blood", "TB");
@@ -73,5 +87,10 @@ namespace CQS.TCGA
     public static TCGASampleCode CellLines = new TCGASampleCode(50, "Cell Lines", "CELL");
     public static TCGASampleCode PrimaryXenograftTissue = new TCGASampleCode(60, "Primary Xenograft Tissue", "XP");
     public static TCGASampleCode CellLineDerivedXenograftTissue = new TCGASampleCode(61, "Cell Line Derived Xenograft Tissue", "XCL");
+
+    public static TCGASampleCode[] GetSampleCodes()
+    {
+      return _codeMap.Values.ToArray();
+    }
   }
 }
