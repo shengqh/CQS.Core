@@ -61,29 +61,29 @@ namespace CQS.Genome.Mapping
       return result;
     }
 
-    public void WriteToFile(string fileName, List<MappedItemGroup> items)
+    public void WriteToFile(string fileName, List<MappedItemGroup> groups)
     {
-      List<SAMAlignedItem> queries = items.GetQueries();
+      List<SAMAlignedItem> queries = groups.GetQueries();
 
       var xml = new XElement("root",
         queries.ToXElement(),
         new XElement("subjectResult",
-          from mirnagroup in items
+          from itemgroup in groups
           select new XElement("subjectGroup",
-            from mirna in mirnagroup
+            from item in itemgroup
             select new XElement("subject",
-              new XAttribute("name", mirna.Name),
-              from region in mirna.MappedRegions
+              new XAttribute("name", item.Name),
+              from region in item.MappedRegions
               select new XElement("region",
                 new XAttribute("seqname", region.Region.Seqname),
                 new XAttribute("start", region.Region.Start),
                 new XAttribute("end", region.Region.End),
                 new XAttribute("strand", region.Region.Strand),
                 new XAttribute("sequence", XmlUtils.ToXml(region.Region.Sequence)),
-                from item in region.AlignedLocations
+                from loc in region.AlignedLocations
                 select new XElement("query",
-                  new XAttribute("qname", item.Parent.Qname),
-                  new XAttribute("loc", item.GetLocation())))))));
+                  new XAttribute("qname", loc.Parent.Qname),
+                  new XAttribute("loc", loc.GetLocation())))))));
       xml.Save(fileName);
     }
   }

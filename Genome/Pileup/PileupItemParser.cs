@@ -121,16 +121,18 @@ namespace CQS.Genome.Pileup
       };
 
       var sampleIndex = 0;
-      for (var countIndex = 3; countIndex < parts.Length; countIndex += 3)
+      for (var countIndex = 3; countIndex < parts.Length; countIndex += 4)
       {
         var pbl = new PileupBaseList();
 
         var seq = parts[countIndex + 1];
         var scores = parts[countIndex + 2];
+        var positions = parts[countIndex + 3].Split(',');
         var seqLength = seq.Length;
 
         var baseIndex = 0;
         var scoreIndex = 0;
+        var positionIndex = 0;
         while (baseIndex < seqLength)
         {
           //A ’>’ or ’<’ for a reference skip.
@@ -139,6 +141,7 @@ namespace CQS.Genome.Pileup
           {
             baseIndex++;
             scoreIndex++;
+            positionIndex++;
             continue;
           }
 
@@ -150,12 +153,12 @@ namespace CQS.Genome.Pileup
             pb.Position = PositionType.START;
             pb.ReadMappingQuality = seq[baseIndex + 1] - 33;
             baseIndex += 2;
-            ParseMatchBase(result, pbl, pb, seq, scores, seqLength, ref baseIndex, ref scoreIndex);
+            ParseMatchBase(result, pbl, pb, seq, scores, positions, seqLength, ref baseIndex, ref scoreIndex);
           }
           else if (Matches.Contains(seq[baseIndex]))
           {
             pb.Position = PositionType.MIDDLE;
-            ParseMatchBase(result, pbl, pb, seq, scores, seqLength, ref baseIndex, ref scoreIndex);
+            ParseMatchBase(result, pbl, pb, seq, scores, positions, seqLength, ref baseIndex, ref scoreIndex);
           }
             //A pattern ‘\+[0-9]+[ACGTNacgtn]+’ indicates there is an insertion between this reference position and the next reference position. The length of the insertion is given by the integer in the pattern, followed by the inserted sequence. Similarly, a pattern ‘-[0-9]+[ACGTNacgtn]+’ represents a deletion from the reference.
           else if (seq[baseIndex] == '+' || seq[baseIndex] == '-')
@@ -205,6 +208,7 @@ namespace CQS.Genome.Pileup
 
         sampleIndex++;
         pbl.SampleName = "S" + sampleIndex;
+        pbl.InitEventCountList();
         result.Samples.Add(pbl);
       }
 
@@ -218,7 +222,7 @@ namespace CQS.Genome.Pileup
         return false;
       }
 
-      for (var scoreIndex = 5; scoreIndex < parts.Length; scoreIndex += 3)
+      for (var scoreIndex = 5; scoreIndex < parts.Length; scoreIndex += 4)
       {
         var count = parts[scoreIndex].Count(m => m >= _minBaseMappingQualityChar);
         if (count < _minReadDepth)
@@ -232,7 +236,7 @@ namespace CQS.Genome.Pileup
 
     private bool DoAcceptReadDepth(string[] parts)
     {
-      for (var scoreIndex = 5; scoreIndex < parts.Length; scoreIndex += 3)
+      for (var scoreIndex = 5; scoreIndex < parts.Length; scoreIndex += 4)
       {
         if (parts[scoreIndex].Length < _minReadDepth)
         {
@@ -259,10 +263,11 @@ namespace CQS.Genome.Pileup
       return _acceptN(parts) && _acceptReadDepth(parts);
     }
 
-    private void ParseMatchBase(PileupItem result, PileupBaseList pbl, PileupBase pb, string seq, string scores,
+    private void ParseMatchBase(PileupItem result, PileupBaseList pbl, PileupBase pb, string seq, string scores, string[] positions,
       int seqLength, ref int baseIndex, ref int scoreIndex)
     {
       pb.Score = scores[scoreIndex] - 33;
+      pb.PositionInRead = positions[scoreIndex];
       scoreIndex++;
 
       //Only the base whose quality passed the criteria will be parsed.

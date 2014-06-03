@@ -94,10 +94,21 @@
     <Compile Include="Genome\Annotation\ParalyzerClusterAnnotatorOptions.cs" />
     <Compile Include="Genome\Annotation\FileData.cs" />
     <Compile Include="Genome\Annotation\FileDataValue.cs" />
+    <Compile Include="Genome\Bacteria\Rockhopper\RockhopperSummaryBuilderCommand.cs" />
+    <Compile Include="Genome\Bacteria\Rockhopper\RockhopperMappingResult.cs" />
+    <Compile Include="Genome\Bacteria\Rockhopper\RockhopperSummary.cs" />
+    <Compile Include="Genome\Bacteria\Rockhopper\RockhopperSummaryBuilder.cs" />
+    <Compile Include="Genome\Bacteria\Rockhopper\RockhopperSummaryBuilderOptions.cs" />
+    <Compile Include="Genome\Bacteria\Rockhopper\RockhopperSummaryReader.cs" />
+    <Compile Include="Genome\Bacteria\Rockhopper\RockhopperTranscript.cs" />
+    <Compile Include="Genome\Bacteria\Rockhopper\RockhopperTranscriptResult.cs" />
     <Compile Include="Genome\CNV\CNVItemTableBuilder.cs" />
     <Compile Include="Genome\CNV\CNVItemTableBuilderOptions.cs" />
     <Compile Include="Genome\Fastq\Bam2PairedFastqNameSortedProcessor.cs" />
     <Compile Include="Genome\Fastq\Bam2SingleFastqNameSortedProcessor.cs" />
+    <Compile Include="Genome\Fastq\FastqDemultiplexProcessor.cs" />
+    <Compile Include="Genome\Fastq\FastqDemultiplexProcessorCommand.cs" />
+    <Compile Include="Genome\Fastq\FastqDemultiplexProcessorOptions.cs" />
     <Compile Include="Genome\Fastq\FastqTrimmerCommand.cs" />
     <Compile Include="Genome\Fastq\FastqTrimmer.cs" />
     <Compile Include="Genome\Fastq\FastqTrimmerOptions.cs" />
@@ -114,6 +125,7 @@
     <Compile Include="Genome\Fastq\Bam2FastqProcessorUI.Designer.cs">
       <DependentUpon>Bam2FastqProcessorUI.cs</DependentUpon>
     </Compile>
+    <Compile Include="Genome\Feature\GenomeFeature.cs" />
     <Compile Include="Genome\GenomeUtils.cs" />
     <Compile Include="Genome\Mapping\CountMappingSummaryBuilder.cs" />
     <Compile Include="Genome\Mapping\CountMappingSummaryBuilderConfiguration.cs" />
@@ -124,6 +136,7 @@
     <Compile Include="Genome\Mapping\DistinctMappedReadProcessorOptions.cs" />
     <Compile Include="Genome\Mapping\DistinctMappedReadProcessor.cs" />
     <Compile Include="Genome\Mapping\MappedItemGroupReadLengthWriter.cs" />
+    <Compile Include="Genome\Mirna\MirnaT2CMutationBuilder.cs" />
     <Compile Include="Genome\Pileup\AlignedPositionMapBuilder.cs" />
     <Compile Include="Genome\Pileup\AlignedPositionMapSamples.cs" />
     <Compile Include="Genome\Pileup\AlignedPosition.cs" />
@@ -153,6 +166,7 @@
     <Compile Include="Genome\Sam\SAMAlignedSequenceBAMParser.cs" />
     <Compile Include="Genome\Sam\SAMFactory.cs" />
     <Compile Include="Genome\Sam\BAMFilter.cs" />
+    <Compile Include="Genome\SingleNucleotidePolymorphism.cs" />
     <Compile Include="Genome\SmallRNA\SmallRNACategoryGroupBuilder.cs" />
     <Compile Include="Genome\SmallRNA\SmallRNACategoryBuilderCommand.cs" />
     <Compile Include="Genome\SmallRNA\SmallRNACategoryGroupBuilderOptions.cs" />
@@ -164,11 +178,20 @@
     <Compile Include="Genome\SomaticMutation\AnnotationOptions.cs" />
     <Compile Include="Genome\SomaticMutation\AnnotationProcessor.cs" />
     <Compile Include="Genome\SomaticMutation\AbstractPileupProcessor.cs" />
-    <Compile Include="Genome\SomaticMutation\PileupParallelChromosomeProcessor.cs" />
+    <Compile Include="Genome\SomaticMutation\PileupParallelChromosomeProcessorByTask.cs" />
+    <Compile Include="Genome\SomaticMutation\PileupParallelProcessor.cs" />
+    <Compile Include="Genome\SomaticMutation\MpileupPositionParser.cs" />
     <Compile Include="Genome\SomaticMutation\MpileupParseProcessor.cs" />
+    <Compile Include="Genome\SomaticMutation\MpileupResult.cs" />
+    <Compile Include="Genome\SomaticMutation\MpileupResultCountFormat.cs" />
+    <Compile Include="Genome\SomaticMutation\MpileupFisherResult.cs" />
+    <Compile Include="Genome\SomaticMutation\MpileupFisherResultFileFormat.cs" />
+    <Compile Include="Genome\SomaticMutation\PileupParallelChromosomeProcessor.cs" />
+    <Compile Include="Genome\SomaticMutation\MpileupParser.cs" />
     <Compile Include="Genome\SomaticMutation\PileupSingleProcessor.cs" />
     <Compile Include="Genome\SomaticMutation\FilterOptions.cs" />
     <Compile Include="Genome\SomaticMutation\FilterProcessor.cs" />
+    <Compile Include="Genome\SomaticMutation\PileupSummary.cs" />
     <Compile Include="Genome\SomaticMutation\SomaticMutationUtils.cs" />
     <Compile Include="Genome\SomaticMutation\Options.cs" />
     <Compile Include="Genome\SomaticMutation\PileupOptions.cs" />

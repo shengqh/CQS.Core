@@ -14,7 +14,7 @@ namespace CQS.BreastCancer.parser
 
     public void ParseDataset(string datasetDirectory, Dictionary<string, BreastCancerSampleItem> sampleMap)
     {
-      var files = GeoUtils.GetGsmNames(datasetDirectory);
+      var files = GeoUtils.GetGsmNameFileMap(datasetDirectory);
 
       var dirname = Path.GetFileName(datasetDirectory);
 
@@ -23,7 +23,7 @@ namespace CQS.BreastCancer.parser
       foreach (var a in samples)
       {
         var filename = a.Key.ToLower();
-        if (files.Contains(filename.ToLower()))
+        if (files.ContainsKey(filename.ToLower()))
         {
           var title = a.Value[GsmConsts.SampleTitle];
           var m = r.Match(title.First());

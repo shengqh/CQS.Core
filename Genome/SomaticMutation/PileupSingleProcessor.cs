@@ -15,12 +15,12 @@ namespace CQS.Genome.SomaticMutation
   {
     public PileupSingleProcessor(PileupOptions options)
       : base(options)
-    {
-    }
+    { }
 
-    protected override List<MpileupFisherResult> GetFisherFilterResults()
+    protected override MpileupResult GetMpileupResult()
     {
-      var result = new List<MpileupFisherResult>();
+      var result = new MpileupResult(string.Empty, _options.CandidatesDirectory);
+
       Console.WriteLine("Single thread mode ...");
       var parser = _options.GetPileupItemParser();
       var pfile = new PileupFile(parser);
@@ -30,7 +30,7 @@ namespace CQS.Genome.SomaticMutation
           pfile.Open(_options.MpileupFile);
           break;
         case PileupOptions.DataSourceType.BAM:
-          var proc = ExecuteSamtools(_options.GetSamtoolsCommand(), _options.GetMpileupChromosomes());
+          var proc = new MpileupParseProcessor(_options).ExecuteSamtools(_options.GetMpileupChromosomes());
           if (proc == null)
           {
             return null;
@@ -48,13 +48,13 @@ namespace CQS.Genome.SomaticMutation
       {
         try
         {
-          var proc = new MpileupParseProcessor(_options);
+          var proc = new MpileupParser(_options, result);
 
           string line;
           while ((line = pfile.ReadLine()) != null)
           //while ((item = pfile.Next("1", 48901870)) != null)
           {
-            _totalCount++;
+            result.TotalCount++;
 
             try
             {
@@ -64,7 +64,7 @@ namespace CQS.Genome.SomaticMutation
                 continue;
               }
 
-              result.Add(item);
+              result.Results.Add(item);
             }
             catch (Exception ex)
             {
@@ -72,8 +72,6 @@ namespace CQS.Genome.SomaticMutation
               return null;
             }
           }
-
-          CopyCountInfo(proc);
         }
         finally
         {
@@ -90,6 +88,7 @@ namespace CQS.Genome.SomaticMutation
           }
         }
       }
+
       return result;
     }
   }

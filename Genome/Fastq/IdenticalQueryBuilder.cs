@@ -22,6 +22,10 @@ namespace CQS.Genome.Fastq
       var result = new List<string>();
 
       var fastqFile = options.OutputFile;
+      if (!options.Gunzipped && !fastqFile.ToLower().EndsWith(".gz"))
+      {
+        fastqFile = fastqFile + ".gz";
+      }
       result.Add(fastqFile);
 
       Dictionary<string, FastqSequence> queries = new Dictionary<string, FastqSequence>();
@@ -32,7 +36,7 @@ namespace CQS.Genome.Fastq
       int readcount = 0;
       using (var sr = StreamUtils.GetReader(options.InputFile))
       {
-        using (var sw = StreamUtils.GetWriter(fastqFile, options.Gzipped))
+        using (var sw = StreamUtils.GetWriter(fastqFile, !options.Gunzipped))
         {
           foreach (FastqSequence seq in parser.Parse(sr))
           {
@@ -51,7 +55,7 @@ namespace CQS.Genome.Fastq
             if (queries.TryGetValue(seq.SeqString, out count))
             {
               count.RepeatCount++;
-              if (!options.NotOutputScores)
+              if (options.OutputScores)
               {
                 count.RepeatScores.Add(seq.Score);
               }
@@ -59,7 +63,7 @@ namespace CQS.Genome.Fastq
             }
 
             queries[seq.SeqString] = seq;
-            if (!options.NotOutputScores)
+            if (options.OutputScores)
             {
               seq.RepeatScores.Add(seq.Score);
             }
@@ -86,7 +90,7 @@ namespace CQS.Genome.Fastq
         }
       }
 
-      if (!options.NotOutputScores)
+      if (options.OutputScores)
       {
         Progress.SetMessage("writing score ...");
         var scoreFile = Path.ChangeExtension(fastqFile, ".scores");

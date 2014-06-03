@@ -9,7 +9,8 @@ namespace CQS.Genome.Mapping
 {
   public class MappedCountProcessor : AbstractCountProcessor<MappedCountProcessorOptions>
   {
-    public MappedCountProcessor(MappedCountProcessorOptions options) : base(options)
+    public MappedCountProcessor(MappedCountProcessorOptions options)
+      : base(options)
     {
     }
 
@@ -34,7 +35,7 @@ namespace CQS.Genome.Mapping
       int mappedReadCount;
       var reads = ParseCandidates(fileName, resultFilename, out totalReadCount, out mappedReadCount);
 
-      var regions = srItems.ConvertAll(m => new SequenceRegionMapped {Region = m});
+      var regions = srItems.ConvertAll(m => new SequenceRegionMapped { Region = m });
 
       Progress.SetMessage("mapping reads to sequence regions...");
       MapReadToSequenceRegion(regions, reads);
@@ -73,21 +74,24 @@ namespace CQS.Genome.Mapping
         result.Add(seqfile);
       }
 
-      Progress.SetMessage("output unmapped query...");
-      var unmappedFile = Path.ChangeExtension(resultFilename, ".unmapped.fastq");
-      var except = new HashSet<string>(from r in reads
-        where r.Locations.Count > 0
-        select r.Qname);
+      if (options.UnmappedFastq)
+      {
+        Progress.SetMessage("output unmapped query...");
+        var unmappedFile = Path.ChangeExtension(resultFilename, ".unmapped.fastq.gz");
+        var except = new HashSet<string>(from r in reads
+                                         where r.Locations.Count > 0
+                                         select r.Qname);
 
-      if (File.Exists(options.FastqFile))
-      {
-        new FastqExtractorFromFastq {Progress = Progress}.Extract(options.FastqFile, unmappedFile, except);
+        if (File.Exists(options.FastqFile))
+        {
+          new FastqExtractorFromFastq { Progress = Progress }.Extract(options.FastqFile, unmappedFile, except);
+        }
+        else
+        {
+          new FastqExtractorFromBam(options.Samtools) { Progress = Progress }.Extract(fileName, unmappedFile, except);
+        }
+        result.Add(unmappedFile);
       }
-      else
-      {
-        new FastqExtractorFromBam(options.Samtools) {Progress = Progress}.Extract(fileName, unmappedFile, except);
-      }
-      result.Add(unmappedFile);
 
       Progress.SetMessage("summarizing ...");
       var infoFile = Path.ChangeExtension(resultFilename, ".info");

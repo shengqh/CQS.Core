@@ -124,7 +124,7 @@ namespace CQS.Genome.Sam
               select fea).Count();
     }
 
-    public double EsminatedCount
+    public double EstimatedCount
     {
       get
       {

@@ -20,7 +20,7 @@ namespace CQS.Genome.Fastq
 
       var except = new HashSet<string>(exceptQueryNames);
 
-      using (var sw = new StreamWriter(targetFile))
+      using (var sw = StreamUtils.GetWriter(targetFile, targetFile.ToLower().EndsWith(".gz")))
       {
         using (var sr = StreamUtils.GetReader(sourceFile))
         {

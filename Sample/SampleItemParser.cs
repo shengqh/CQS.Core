@@ -32,7 +32,7 @@ namespace CQS.Sample
                  where !string.IsNullOrEmpty(m.Value)
                  select m).ToList();
 
-      var files = GeoUtils.GetGsmNames(datasetDirectory);
+      var files = GeoUtils.GetGsmNameFileMap(datasetDirectory);
 
       var datasetName = Path.GetFileName(datasetDirectory);
 
@@ -40,12 +40,14 @@ namespace CQS.Sample
 
       foreach (var sampleName in dataMap.Keys)
       {
-        if (files.Contains(sampleName.ToLower()))
+        string filename;
+        if (files.TryGetValue(sampleName.ToLower(), out filename))
         {
           var sample = new SampleItem()
           {
             Dataset = datasetName,
-            Sample = sampleName
+            Sample = sampleName,
+            SampleFile = filename
           };
 
           result[sampleName] = sample;

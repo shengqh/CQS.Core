@@ -58,7 +58,7 @@ namespace CQS.Genome.Mirna
 
     public double EstimateCount
     {
-      get { return MappedRegions.Sum(m => m.Mapped.Sum(n => n.Value.EsminatedCount)); }
+      get { return MappedRegions.Sum(m => m.Mapped.Sum(n => n.Value.EstimatedCount)); }
     }
 
     public double GetEstimatedCount(int index)
@@ -67,7 +67,7 @@ namespace CQS.Genome.Mirna
       {
         if (m.Mapped.ContainsKey(index))
         {
-          return m.Mapped[index].AlignedLocations.Sum(n => n.Parent.EsminatedCount);
+          return m.Mapped[index].AlignedLocations.Sum(n => n.Parent.EstimatedCount);
         }
         else
         {
@@ -104,5 +104,17 @@ namespace CQS.Genome.Mirna
                 select loc.Region.GetLocation()).Merge(",");
       }
     }
+
+    ///// <summary>
+    ///// Get mutated string, the mutated position will be marked by uppercase letter.
+    ///// </summary>
+    ///// <returns></returns>
+    //public string GetMutationString()
+    //{
+    //  var result = new StringBuilder(this.Sequence.ToLower());
+    //  foreach (var region in this.MappedRegions)
+    //  {
+    //  }
+    //}
   }
 }

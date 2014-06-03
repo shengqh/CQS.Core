@@ -5,6 +5,7 @@ using System.Linq;
 using CommandLine;
 using CQS.Genome.Pileup;
 using RCPA.Seq;
+using System.Windows.Forms;
 
 namespace CQS.Genome.SomaticMutation
 {
@@ -21,14 +22,14 @@ namespace CQS.Genome.SomaticMutation
 
     private const int DefaultMinimumReadDepth = 10;
     private const int DefaultMpileupMinimumReadQuality = 20;
-    private const double DefaultMaximumPercentageOfMinorAllele = 0.1;
-    private const double DefaultMinimumPercentageOfMinorAllele = 0.1;
-    //private const bool DefaultNotFilterPosition = false;
-    //private const bool DefaultNotFilterStrand = false;
+    private const double DEFAULT_MaximumPercentageOfMinorAlleleInNormal = 0.05;
+    private const int DEFAULT_MinimumReadsOfMinorAlleleInTumor = 3;
+    private const double DEFAULT_MinimumPercentageOfMinorAlleleInTumor = 0.1;
     private const int DefaultThreadCount = 1;
 
     public PileupOptions()
     {
+      From = DataSourceType.BAM;
       IgnoreInsertionDeletion = true;
       IgnoreTerminalBase = false;
       IgnoreN = true;
@@ -36,10 +37,10 @@ namespace CQS.Genome.SomaticMutation
       MinimumReadDepth = DefaultMinimumReadDepth;
       MpileupMinimumReadQuality = DefaultMpileupMinimumReadQuality;
       MinimumBaseQuality = DefaultMinimumBaseQuality;
-      MaximumPercentageOfMinorAllele = DefaultMaximumPercentageOfMinorAllele;
-      MinimumPercentageOfMinorAllele = DefaultMinimumPercentageOfMinorAllele;
-      //NotFilterPosition = DefaultNotFilterPosition;
-      //NotFilterStrand = DefaultNotFilterStrand;
+
+      MaximumPercentageOfMinorAlleleInNormal = DEFAULT_MaximumPercentageOfMinorAlleleInNormal;
+      MinimumReadsOfMinorAlleleInTumor = DEFAULT_MinimumReadsOfMinorAlleleInTumor;
+      MinimumPercentageOfMinorAlleleInTumor = DEFAULT_MinimumPercentageOfMinorAlleleInTumor;
       PValue = DefaultPValue;
       ThreadCount = DefaultThreadCount;
     }
@@ -50,14 +51,13 @@ namespace CQS.Genome.SomaticMutation
 
     public bool IgnoreN { get; set; }
 
-    [Option('t', "type", MetaValue = "STRING", Required = true,
-      HelpText = "Where to read/generate mpileup result file (bam/mpileup/console)")]
+    [Option('t', "type", MetaValue = "STRING", Required = true, HelpText = "Where to read/generate mpileup result file (bam/mpileup/console)")]
     public DataSourceType From { get; set; }
 
-    [Option("normal", MetaValue = "FILE", Required = true, HelpText = "Bam file from normal sample")]
+    [Option("normal", MetaValue = "FILE", Required = false, HelpText = "Bam file from normal sample")]
     public string NormalBam { get; set; }
 
-    [Option("tumor", MetaValue = "FILE", Required = true, HelpText = "Bam file from tumor sample")]
+    [Option("tumor", MetaValue = "FILE", Required = false, HelpText = "Bam file from tumor sample")]
     public string TumorBam { get; set; }
 
     [Option('f', "fasta", MetaValue = "FILE", Required = false, HelpText = "Genome fasta file for samtools mpileup")]
@@ -82,25 +82,21 @@ namespace CQS.Genome.SomaticMutation
       HelpText = "Minimum base quality for mpileup result filter")]
     public int MinimumBaseQuality { get; set; }
 
-    [Option("max_normal_percentage", MetaValue = "DOUBLE", DefaultValue = DefaultMaximumPercentageOfMinorAllele,
+    [Option("max_normal_percentage", MetaValue = "DOUBLE", DefaultValue = DEFAULT_MaximumPercentageOfMinorAlleleInNormal,
       HelpText = "Maximum percentage of minor allele at normal sample")]
-    public double MaximumPercentageOfMinorAllele { get; set; }
+    public double MaximumPercentageOfMinorAlleleInNormal { get; set; }
 
-    [Option('g', "percentage", MetaValue = "DOUBLE", DefaultValue = DefaultMinimumPercentageOfMinorAllele,
+    [Option("min_read_tumor", MetaValue = "INT", DefaultValue = DEFAULT_MinimumReadsOfMinorAlleleInTumor,
+      HelpText = "Minimum read count of minor allele at tumor sample")]
+    public int MinimumReadsOfMinorAlleleInTumor { get; set; }
+
+    [Option('g', "percentage", MetaValue = "DOUBLE", DefaultValue = DEFAULT_MinimumPercentageOfMinorAlleleInTumor,
       HelpText = "Minimum percentage of minor allele at tumor sample")]
-    public double MinimumPercentageOfMinorAllele { get; set; }
+    public double MinimumPercentageOfMinorAlleleInTumor { get; set; }
 
     [Option('d', "read_depth", MetaValue = "INT", DefaultValue = DefaultMinimumReadDepth,
       HelpText = "Minimum read depth of base passed mapping quality filter in each sample")]
     public int MinimumReadDepth { get; set; }
-
-    //[Option("not_filter_position", DefaultValue = DefaultNotFilterPosition,
-    //  HelpText = "Do not filter mpileup result based on position bias by fisher exact test")]
-    //public bool NotFilterPosition { get; set; }
-
-    //[Option("not_filter_strand", DefaultValue = DefaultNotFilterStrand,
-    //  HelpText = "Do not filter mpileup result based on strand bias by fisher exact test")]
-    //public bool NotFilterStrand { get; set; }
 
     [Option('c', "thread_count", MetaValue = "INT", DefaultValue = DefaultThreadCount, HelpText = "Number of thread, only valid when type is bam")]
     public int ThreadCount { get; set; }
@@ -110,7 +106,16 @@ namespace CQS.Genome.SomaticMutation
 
     public string CandidatesDirectory
     {
-      get { return Path.GetDirectoryName(OutputSuffix) + "/temp"; }
+      get { return GetOutputDirectory() + "/temp"; }
+    }
+
+    private string GetOutputDirectory()
+    {
+      if (!OutputSuffix.Contains('/') && !OutputSuffix.Contains('\\'))
+      {
+        return Path.GetDirectoryName(new FileInfo("./" + OutputSuffix).FullName);
+      }
+      return Path.GetDirectoryName(new FileInfo(OutputSuffix).FullName);
     }
 
     public PileupItemParser GetPileupItemParser()
@@ -121,7 +126,7 @@ namespace CQS.Genome.SomaticMutation
 
     public string GetSamtoolsCommand()
     {
-      return Config.FindOrCreate("samtools", "samtools").Command;
+      return new FileInfo(Application.ExecutablePath).DirectoryName + "/samtools";
     }
 
     public override bool PrepareOptions()
@@ -156,9 +161,21 @@ namespace CQS.Genome.SomaticMutation
             Config.Save();
           }
 
+          if (null == NormalBam)
+          {
+            ParsingErrors.Add("Bam file for normal sample not defined.");
+            return false;
+          }
+
+          if (null == TumorBam)
+          {
+            ParsingErrors.Add("Bam file for tumor sample not defined.");
+            return false;
+          }
+
           if (!File.Exists(NormalBam))
           {
-            ParsingErrors.Add(string.Format("Bam file for normal sample is not exists {0}", NormalBam));
+            ParsingErrors.Add(string.Format("Bam file for normal sample not exists {0}", NormalBam));
             return false;
           }
 
@@ -258,7 +275,7 @@ namespace CQS.Genome.SomaticMutation
 
     private bool PrepareOutputDirectory()
     {
-      var outputdir = Path.GetDirectoryName(OutputSuffix);
+      var outputdir = GetOutputDirectory();
 
       if (!Directory.Exists(outputdir))
       {
@@ -291,12 +308,30 @@ namespace CQS.Genome.SomaticMutation
 
     public AbstractPileupProcessor GetProcessor()
     {
-      if (this.From != PileupOptions.DataSourceType.BAM || this.ThreadCount < 2)
-      {
+      if (this.ThreadCount < 2)
         return new PileupSingleProcessor(this);
-      }
+      else
+        return new PileupParallelChromosomeProcessor(this);
 
-      return new PileupParallelChromosomeProcessor(this);
+      //if (this.From != PileupOptions.DataSourceType.BAM || this.ThreadCount < 2)
+      //{
+      //  return new PileupSingleProcessor(this);
+      //}
+
+      //return new PileupParallelChromosomeProcessor(this);
+    }
+
+    public void PrintParameter()
+    {
+      Console.Out.WriteLine("#output directory: " + this.OutputSuffix);
+      Console.Out.WriteLine("#minimum count: " + this.MinimumReadDepth);
+      Console.Out.WriteLine("#minimum read quality: " + this.MpileupMinimumReadQuality);
+      Console.Out.WriteLine("#minimum base quality: " + this.MinimumBaseQuality);
+      Console.Out.WriteLine("#maximum percentage of minor allele in normal: " + this.MaximumPercentageOfMinorAlleleInNormal);
+      Console.Out.WriteLine("#minimum percentage of minor allele in tumor: " + this.MinimumPercentageOfMinorAlleleInTumor);
+      Console.Out.WriteLine("#minimum reads of minor allele in tumor: " + this.MinimumReadsOfMinorAlleleInTumor);
+      Console.Out.WriteLine("#pvalue: " + this.PValue);
+      Console.Out.WriteLine("#thread count: " + this.ThreadCount);
     }
   }
 }

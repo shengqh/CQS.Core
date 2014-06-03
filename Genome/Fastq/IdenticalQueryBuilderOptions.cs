@@ -11,13 +11,14 @@ namespace CQS.Genome.Fastq
   public class IdenticalQueryBuilderOptions : AbstractOptions
   {
     private const int DEFAULT_MinimumReadLength = 12;
-    private const bool DEFAULT_NotOutputScores = false;
-    private const bool DEFAULT_Gzipped = false;
+    private const bool DEFAULT_OutputScores = false;
+    private const bool DEFAULT_Gunzipped = false;
 
     public IdenticalQueryBuilderOptions()
     {
       this.MinimumReadLength = DEFAULT_MinimumReadLength;
-      this.NotOutputScores = DEFAULT_NotOutputScores;
+      this.OutputScores = DEFAULT_OutputScores;
+      this.Gunzipped = DEFAULT_Gunzipped;
     }
 
     [Option('i', "inputFile", Required = true, MetaValue = "FILE", HelpText = "Fastq file")]
@@ -29,11 +30,11 @@ namespace CQS.Genome.Fastq
     [Option('o', "outputFile", Required = false, MetaValue = "FILE", HelpText = "Output fastq file")]
     public string OutputFile { get; set; }
 
-    [Option('n', "notOutputScore", DefaultValue = DEFAULT_NotOutputScores, HelpText = "Do not output score file")]
-    public bool NotOutputScores { get; set; }
+    [Option('s', "outputScore", DefaultValue = DEFAULT_OutputScores, HelpText = "Output score file")]
+    public bool OutputScores { get; set; }
 
-    [Option('z', "gzipped", DefaultValue = DEFAULT_Gzipped, HelpText = "Output file gzipped")]
-    public bool Gzipped { get; set; }
+    [Option('u', "unzip", DefaultValue = DEFAULT_Gunzipped, HelpText = "Do not compress output file")]
+    public bool Gunzipped { get; set; }
 
     public override bool PrepareOptions()
     {

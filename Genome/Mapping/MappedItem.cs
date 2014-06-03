@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CQS.Genome.Sam;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -18,7 +19,12 @@ namespace CQS.Genome.Mapping
 
     public double EstimateCount
     {
-      get { return MappedRegions.Sum(m => m.EsminatedCount); }
+      get { return GetEstimateCount(m => true); }
+    }
+
+    public double GetEstimateCount(Func<SAMAlignedLocation, bool> func)
+    {
+      return MappedRegions.Sum(m => m.GetEstimatedCount(func));
     }
 
     public double QueryCount
@@ -52,6 +58,20 @@ namespace CQS.Genome.Mapping
     public override string ToString()
     {
       return Name;
+    }
+
+    public void FilterLocations(HashSet<long> allowedOffsets)
+    {
+      foreach (var region in MappedRegions)
+      {
+        region.AlignedLocations.RemoveAll(loc =>
+        {
+          var offset = loc.Offset(region.Region);
+          return !allowedOffsets.Contains(offset);
+        });
+      }
+
+      MappedRegions.RemoveAll(region => region.AlignedLocations.Count == 0);
     }
   }
 

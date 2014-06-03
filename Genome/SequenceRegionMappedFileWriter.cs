@@ -23,7 +23,7 @@ namespace CQS.Genome
         foreach (var g in groups)
         {
           var queryCount = g.Sum(m => m.AlignedLocations.Sum(n => n.Parent.QueryCount));
-          var estimateCount = g.Sum(m => m.EsminatedCount);
+          var estimateCount = g.Sum(m => m.EstimatedCount);
 
           var otherlocation = (from vv in g.Skip(1)
                                select vv.Region.GetLocation()).Merge(";");

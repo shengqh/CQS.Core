@@ -11,16 +11,20 @@ namespace CQS.Genome.Bed
   {
     public bool HasHeader { get; set; }
 
-    public BedItemFile()
+    public int MaxColumn { get; set; }
+
+    public BedItemFile(int maxColumn = int.MaxValue)
       : base()
     {
       this.HasHeader = false;
+      this.MaxColumn = maxColumn;
     }
 
-    public BedItemFile(string filename)
+    public BedItemFile(string filename, int maxColumn = int.MaxValue)
       : base(filename)
     {
       this.HasHeader = false;
+      this.MaxColumn = maxColumn;
     }
 
     protected override void DoAfterOpen()
@@ -55,7 +59,7 @@ namespace CQS.Genome.Bed
       return "chrom\tstart\tend\tname\tscore\tstrand";
     }
 
-    public string GetValue(BedItem item)
+    public string GetValue(T item)
     {
       return string.Format("{0}\t{1}\t{2}\t{3}\t{4}\t{5}",
         item.Seqname,
@@ -64,6 +68,17 @@ namespace CQS.Genome.Bed
         item.Name,
         item.Score,
         item.Strand);
+    }
+
+    public void WriteToFile(string filename, IList<T> items)
+    {
+      using (var sw = new StreamWriter(filename))
+      {
+        foreach (var item in items)
+        {
+          sw.WriteLine(GetValue(item));
+        }
+      }
     }
 
     protected override Dictionary<int, Action<string, T>> GetIndexActionMap()
@@ -82,6 +97,15 @@ namespace CQS.Genome.Bed
       result[9] = (m, n) => n.BlockCount = int.Parse(m);
       result[10] = (m, n) => n.BlockSizes = m;
       result[11] = (m, n) => n.BlockStarts = m;
+
+      if (this.MaxColumn != int.MaxValue)
+      {
+        var resultcount = result.Keys.Max();
+        for (int i = MaxColumn; i <= resultcount; i++)
+        {
+          result.Remove(i);
+        }
+      }
 
       return result;
     }

@@ -139,7 +139,7 @@ namespace CQS.Genome.Pileup
       if (_samples.Count == 1)
       {
         //both major and minor are defined by the only sample
-        var sampleEvents = _samples[0].GetEventCountList();
+        var sampleEvents = _samples[0].EventCountList;
         if (sampleEvents.Count > 1)
         {
           return new PairedEvent(sampleEvents[0].Event, sampleEvents[1].Event);
@@ -149,11 +149,11 @@ namespace CQS.Genome.Pileup
       else
       {
         //major are defined by normal sample
-        var sampleEvents = _samples[0].GetEventCountList();
+        var sampleEvents = _samples[0].EventCountList;
         var majorEvent = sampleEvents[0].Event;
 
         //minor are defined by tumor sample
-        var tumorEvents = _samples[1].GetEventCountList();
+        var tumorEvents = _samples[1].EventCountList;
         foreach (var e in tumorEvents)
         {
           if (!e.Event.Equals(majorEvent))

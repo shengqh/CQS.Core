@@ -8,10 +8,10 @@ using CQS.Genome.Statistics;
 
 namespace CQS.Genome.Pileup
 {
-  public class PileupItemNormalPercentageTest
+  public class PileupItemNormalTest
   {
     private double maxPrecentage;
-    public PileupItemNormalPercentageTest(double maxPrecentage)
+    public PileupItemNormalTest(double maxPrecentage)
     {
       this.maxPrecentage = maxPrecentage;
     }
@@ -22,17 +22,20 @@ namespace CQS.Genome.Pileup
     }
   }
 
-  public class PileupItemTumorPercentageTest
+  public class PileupItemTumorTest
   {
-    private double minPrecentage;
-    public PileupItemTumorPercentageTest(double minPrecentage)
+    private int _minReads;
+    private double _minPrecentage;
+   
+    public PileupItemTumorTest(int minReads, double minPrecentage)
     {
-      this.minPrecentage = minPrecentage;
+      this._minReads = minReads;
+      this._minPrecentage = minPrecentage;
     }
 
     public bool Accept(FisherExactTestResult result)
     {
-      return result.Sample2.FailedPercentage >= this.minPrecentage;
+      return result.Sample2.Failed >= _minReads && result.Sample2.FailedPercentage >= _minPrecentage;
     }
   }
 }

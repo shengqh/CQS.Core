@@ -60,6 +60,11 @@ namespace CQS.Genome.Pileup
             EventType = EnumUtils.StringToEnum(parts[5], AlignedEventType.UNKNOWN)
           };
 
+          if (parts.Length > 6)
+          {
+            curbase.PositionInRead = parts[6];
+          }
+
           sample.Add(curbase);
         }
       }
@@ -70,7 +75,7 @@ namespace CQS.Genome.Pileup
     {
       using (var sw = new StreamWriter(fileName))
       {
-        sw.WriteLine("SAMPLE\tBase\tScore\tStrand\tPosition");
+        sw.WriteLine("SAMPLE\tBase\tScore\tStrand\tPosition\tPositionInRead");
 
         foreach (var sample in item.Samples)
         {
@@ -78,7 +83,7 @@ namespace CQS.Genome.Pileup
           {
             if (_bases.Count == 0 || _bases.Contains(gg.Event))
             {
-              sw.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}", sample.SampleName, gg.Event, gg.Score, gg.Strand, gg.Position == PositionType.MIDDLE ? "MIDDLE" : "TERMINAL");
+              sw.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}\t{5}", sample.SampleName, gg.Event, gg.Score, gg.Strand, gg.Position == PositionType.MIDDLE ? "MIDDLE" : "TERMINAL", gg.PositionInRead);
             }
           }
         }

@@ -37,6 +37,11 @@ namespace CQS.Genome.Pileup
     /// </summary>
     public PositionType Position { get; set; }
 
+    /// <summary>
+    /// The position of base in the read
+    /// </summary>
+    public string PositionInRead { get; set; }
+
     public string Event { get; set; }
 
     public int Score { get; set; }
@@ -55,9 +60,33 @@ namespace CQS.Genome.Pileup
   {
     public string SampleName { get; set; }
 
-    public List<EventCount> GetEventCountList(int minimumMappingQuality)
+    public List<EventCount> EventCountList { get; set; }
+
+
+    public void InitEventCountList()
     {
-      var result = new List<EventCount>();
+      var map = new Dictionary<string, EventCount>();
+      foreach (var e in this)
+      {
+        EventCount ec;
+        if (map.TryGetValue(e.Event, out ec))
+        {
+          ec.Count++;
+        }
+        else
+        {
+          ec = new EventCount(e.Event, 1);
+          map[e.Event] = ec;
+        }
+      }
+
+      this.EventCountList = (from ec in map.Values
+                             orderby ec.Count descending
+                             select ec).ToList();
+    }
+
+    public void InitEventCountList(int minimumMappingQuality)
+    {
       var map = new Dictionary<string, EventCount>();
       foreach (var e in this)
       {
@@ -78,54 +107,9 @@ namespace CQS.Genome.Pileup
         }
       }
 
-      result = (from ec in map.Values
-                orderby ec.Count descending
-                select ec).ToList();
-
-      return result;
+      this.EventCountList = (from ec in map.Values
+                             orderby ec.Count descending
+                             select ec).ToList();
     }
-  }
-
-  public static class PileupBaseExtension
-  {
-    public static List<EventCount> GetEventCountList(this IEnumerable<PileupBase> bases)
-    {
-      var map = new Dictionary<string, EventCount>();
-      foreach (var e in bases)
-      {
-        EventCount ec;
-        if (map.TryGetValue(e.Event, out ec))
-        {
-          ec.Count++;
-        }
-        else
-        {
-          ec = new EventCount(e.Event, 1);
-          map[e.Event] = ec;
-        }
-      }
-
-      return (from ec in map.Values
-              orderby ec.Count descending
-              select ec).ToList();
-    }
-
-    public static List<EventCount> GetEventCountList(this IEnumerable<PileupBase> bases, int minimumMappingQuality)
-    {
-      IEnumerable<PileupBase> filtered;
-      if (minimumMappingQuality == 0)
-      {
-        filtered = bases;
-      }
-      else
-      {
-        filtered = from b in bases
-                   where b.PassScoreFilter(minimumMappingQuality)
-                   select b;
-      }
-
-      return GetEventCountList(filtered);
-    }
-
   }
 }

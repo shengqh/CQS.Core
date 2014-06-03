@@ -58,7 +58,7 @@ namespace CQS.Genome.Mapping
                   {
                     v = 0;
                   }
-                  positionCount[offset] = v + loc.Parent.EsminatedCount;
+                  positionCount[offset] = v + loc.Parent.EstimatedCount;
                 }
               }
             }

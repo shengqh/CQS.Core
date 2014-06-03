@@ -61,6 +61,12 @@ namespace CQS.Sample
       {
         columns.Insert(0, "Dataset");
       }
+
+      if (!columns.Contains("SampleFile"))
+      {
+        columns.Add("SampleFile");
+      }
+
       return columns;
     }
   }

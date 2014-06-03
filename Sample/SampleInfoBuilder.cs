@@ -50,13 +50,16 @@ namespace CQS.Sample
         format.WriteToFile(sampleFile, flist.Values.ToList());
       }
 
-      var htmlFile = rootDirectory + "\\" + Path.GetFileNameWithoutExtension(rootDirectory) + "_SampleInformation.html";
+      var tsvFile = rootDirectory + "\\" + Path.GetFileNameWithoutExtension(rootDirectory) + "_SampleInformation.tsv";
+      format.WriteToFile(tsvFile, total);
+
+      var htmlFile = Path.ChangeExtension(tsvFile, ".html");
       new SampleItemHtmlWriter(this.properties).WriteToFile(htmlFile, total);
 
       var excelFile = Path.ChangeExtension(htmlFile, ".xls");
       new SampleItemExcelWriter(this.properties).WriteToFile(excelFile, total);
 
-      return new string[] { htmlFile, excelFile };
+      return new string[] { tsvFile, htmlFile, excelFile };
     }
   }
 }

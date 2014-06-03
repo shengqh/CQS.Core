@@ -8,10 +8,18 @@ namespace CQS.Ncbi.Geo
 {
   public static class GeoUtils
   {
-    public static HashSet<string> GetGsmNames(string directory)
+    public static Dictionary<string, string> GetGsmNameFileMap(string directory)
     {
-      return new HashSet<string>(from cel in Directory.GetFiles(directory, "*.CEL")
-                                 select GeoUtils.GetGsmName(cel));
+      Console.WriteLine(directory);
+      var files = Directory.GetFiles(directory, "*.CEL");
+      var groups = files.GroupBy(m => GetGsmName(m));
+      foreach(var group in groups){
+        if(group.Count() > 1){
+          Console.WriteLine("{0} : {1}", group.Key, group.ToList().ConvertAll(m => Path.GetFileName(m)).Merge(", "));
+        }
+      }
+
+      return groups.ToDictionary(m => m.Key, m => m.First());
     }
 
     public static string GetGsmName(string cel)

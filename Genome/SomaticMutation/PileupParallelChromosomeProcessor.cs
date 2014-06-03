@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using CQS.Genome.Pileup;
 using CQS.Genome.Statistics;
 using RCPA.Seq;
@@ -13,172 +14,90 @@ namespace CQS.Genome.SomaticMutation
 {
   public class PileupParallelChromosomeProcessor : AbstractPileupProcessor
   {
-    private int _startedThreadCount;
-    private int _threadFailed;
-    private int _threadcount;
-
     public PileupParallelChromosomeProcessor(PileupOptions options)
       : base(options)
     { }
 
-    private class ChromosomeResult
+    private int _threadCount;
+
+    protected override MpileupResult GetMpileupResult()
     {
-      public ChromosomeResult(string chromosome)
+      Console.WriteLine("Multiple thread mode, parallel by chromosome ...");
+
+      _threadCount = 0;
+
+      var chromosomes = new ConcurrentQueue<string>();
+      foreach (var chr in _options.ChromosomeNames)
       {
-        this.Name = chromosome;
-        this.Result = new List<MpileupFisherResult>();
+        chromosomes.Enqueue(chr);
       }
 
-      public string Name { get; private set; }
-      public List<MpileupFisherResult> Result { get; private set; }
+      var cts = new CancellationTokenSource();
+
+      var maxThreadCount = Math.Min(_options.ThreadCount, _options.ChromosomeNames.Count);
+      for (int i = 0; i < maxThreadCount; i++)
+      {
+        ThreadPool.QueueUserWorkItem(ParallelChromosome, new Tuple<CancellationTokenSource, ConcurrentQueue<string>>(cts, chromosomes));
+      }
+
+      Thread.Sleep(5000);
+
+      while (_threadCount > 0)
+      {
+        Thread.Sleep(100);
+      }
+
+      Console.WriteLine("After thread finished ...");
+      var result = new MpileupResult(string.Empty, _options.CandidatesDirectory);
+
+      Console.WriteLine("Merging summary information ...");
+      foreach (var chr in _options.ChromosomeNames)
+      {
+        var summaryFile = new MpileupResult(chr, _options.CandidatesDirectory).CandidateSummary;
+        var summary = new MpileupResultCountFormat().ReadFromFile(summaryFile);
+        result.MergeWith(summary);
+      }
+
+      Console.WriteLine("Loading candidates ...");
+      foreach (var file in Directory.GetFiles(_options.CandidatesDirectory, "*.wsm"))
+      {
+        var res = new MpileupFisherResult();
+        res.ParseString(Path.GetFileNameWithoutExtension(file));
+        res.CandidateFile = file;
+        result.Results.Add(res);
+      }
+
+      return result;
     }
 
     private void ParallelChromosome(Object stateInfo)
     {
-      var chromosomes = stateInfo as ConcurrentQueue<ChromosomeResult>;
+      var param = stateInfo as Tuple<CancellationTokenSource, ConcurrentQueue<string>>;
 
+      var cts = param.Item1;
+      var chromosomes = param.Item2;
 
-      Interlocked.Increment(ref _startedThreadCount);
-
-      int mythreadindex = Interlocked.Increment(ref _threadcount);
-      Console.WriteLine("Start sub thread {0}", mythreadindex);
+      Interlocked.Increment(ref _threadCount);
+      Console.WriteLine("Sub thread {0} started.", Thread.CurrentThread.ManagedThreadId);
       try
       {
-        var proc = new MpileupParseProcessor(_options);
-        var parser = _options.GetPileupItemParser();
-
-        var localTotalCount = 0;
-
         while (!chromosomes.IsEmpty)
         {
-          ChromosomeResult chromosome;
-          if (!chromosomes.TryDequeue(out chromosome))
+          string chromosomeName;
+          if (!chromosomes.TryDequeue(out chromosomeName))
           {
             Thread.Sleep(10);
             continue;
           }
 
-          Console.WriteLine("Processing chromosome {0} in thread {1}", chromosome.Name, mythreadindex);
-          var process = ExecuteSamtools(_options.GetSamtoolsCommand(), chromosome.Name);
-          if (process == null)
-          {
-            return;
-          }
-
-          try
-          {
-            using (var pfile = new PileupFile(parser))
-            {
-              pfile.Open(process.StandardOutput);
-              string line;
-              while ((line = pfile.ReadLine()) != null)
-              {
-                localTotalCount++;
-
-                if (_threadFailed > 0)
-                {
-                  process.Kill();
-                  return;
-                }
-
-                try
-                {
-                  var item = proc.Parse(line);
-                  if (item == null)
-                  {
-                    continue;
-                  }
-
-                  chromosome.Result.Add(item);
-                }
-                catch (Exception ex)
-                {
-                  Console.WriteLine("Parsing mpileup result error : {0}\n{1}", ex.Message, line);
-                  Interlocked.Increment(ref _threadFailed);
-                  return;
-                }
-              }
-            }
-          }
-          finally
-          {
-            try
-            {
-              process.Kill();
-            }
-            // ReSharper disable once EmptyGeneralCatchClause
-            catch
-            {
-            }
-          }
+          new MpileupParseProcessor(_options).RunTask(chromosomeName, cts);
         }
-
-        Interlocked.Add(ref _totalCount, localTotalCount);
-        CopyCountInfo(proc);
       }
       finally
       {
-        Interlocked.Decrement(ref _threadcount);
-        Console.WriteLine("Finished sub thread {0}", mythreadindex);
+        Interlocked.Decrement(ref _threadCount);
+        Console.WriteLine("Sub thread {0} finished.", Thread.CurrentThread.ManagedThreadId);
       }
-    }
-
-    protected override List<MpileupFisherResult> GetFisherFilterResults()
-    {
-      Console.WriteLine("Multiple thread mode, parallel by chromosome ...");
-      _startedThreadCount = 0;
-      _threadFailed = 0;
-      _threadcount = 0;
-
-      var totalThread = _options.ThreadCount - 1;
-      var chromosomes = new ConcurrentQueue<ChromosomeResult>();
-      List<ChromosomeResult> results = new List<ChromosomeResult>();
-      foreach (var chr in _options.ChromosomeNames)
-      {
-        var res = new ChromosomeResult(chr);
-        results.Add(res);
-        chromosomes.Enqueue(res);
-      }
-
-      _samtoolsOk = null;
-      ThreadPool.QueueUserWorkItem(ParallelChromosome, chromosomes);
-      while (_samtoolsOk == null)
-      {
-        Thread.Sleep(100);
-      }
-
-      if (_samtoolsOk == false)
-      {
-        return null;
-      }
-
-      for (var i = 0; i < totalThread - 1; i++)
-      {
-        ThreadPool.QueueUserWorkItem(ParallelChromosome, chromosomes);
-      }
-
-      while (_startedThreadCount == 0)
-      {
-        Thread.Sleep(100);
-      }
-
-      while (_threadcount > 0)
-      {
-        Thread.Sleep(100);
-      }
-
-      if (_threadFailed > 0)
-      {
-        return null;
-      }
-
-      var result = new List<MpileupFisherResult>();
-      foreach (var res in results)
-      {
-        result.AddRange(res.Result);
-      }
-
-      return result;
     }
   }
 }

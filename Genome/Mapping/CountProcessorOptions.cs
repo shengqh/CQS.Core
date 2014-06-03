@@ -60,11 +60,14 @@ namespace CQS.Genome.Mapping
     [Option("bed_as_gtf", DefaultValue = false, HelpText = "Consider bed coordinate (zero-based) as gtf format (one-based)")]
     public bool BedAsGtf { get; set; }
 
-    [Option("no_matched_file", DefaultValue = false, HelpText = "Don't output detail matched information to file")]
-    public bool NoMatchedFile { get; set; }
+    [Option("matched_file", DefaultValue = false, HelpText = "Output detail matched information to file")]
+    public bool MatchedFile { get; set; }
 
     [Option("no_mapped_file", DefaultValue = false, HelpText = "Don't output detail mapped information to file")]
     public bool NoMappedFile { get; set; }
+
+    [Option("unmapped_fastq", DefaultValue = false, HelpText = "Output unmapped reads to fastq")]
+    public bool UnmappedFastq { get; set; }
 
     public override bool PrepareOptions()
     {

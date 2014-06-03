@@ -18,14 +18,21 @@ namespace CQS.Genome
 
     public int Offset { get; set; }
 
-    public double EsminatedCount
+    public double EstimatedCount
     {
       get
       {
-        return this.AlignedLocations.Sum(m => m.Parent.EsminatedCount);
+        return this.AlignedLocations.Sum(m => m.Parent.EstimatedCount);
       }
     }
 
     public List<SAMAlignedLocation> AlignedLocations { get; private set; }
+
+    public double GetEstimatedCount(Func<SAMAlignedLocation, bool> func)
+    {
+      return (from loc in this.AlignedLocations
+              where func(loc)
+              select loc.Parent.EstimatedCount).Sum();
+    }
   }
 }

@@ -42,7 +42,7 @@ namespace CQS.Genome.Mapping
         m.SortLocations();
       });
 
-      if (!options.NoMatchedFile)
+      if (options.MatchedFile)
       {
         Progress.SetMessage("output matched query details...");
         new SAMAlignedItemFileFormat().WriteToFile(outputFile + ".matched", result);

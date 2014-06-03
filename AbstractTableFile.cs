@@ -11,7 +11,7 @@ namespace CQS
   {
     private int minLength = 0;
 
-    private List<int> actionIndecies = new List<int>();
+    protected List<int> actionIndecies = new List<int>();
 
     private Dictionary<int, Action<string, T>> indexActionMap = null;
 

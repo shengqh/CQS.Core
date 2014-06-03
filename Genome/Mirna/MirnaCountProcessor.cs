@@ -18,7 +18,7 @@ namespace CQS.Genome.Mirna
 {
   public class MirnaCountProcessor : AbstractCountProcessor<MirnaCountProcessorOptions>
   {
-    public MirnaCountProcessor(MirnaCountProcessorOptions options):base(options){}
+    public MirnaCountProcessor(MirnaCountProcessorOptions options) : base(options) { }
 
     public override IEnumerable<string> Process(string fileName)
     {
@@ -65,21 +65,6 @@ namespace CQS.Genome.Mirna
       Progress.SetMessage("write result ...");
       new MirnaCountFileWriter(options.Offsets).WriteToFile(result, mirnas);
 
-      Progress.SetMessage("output unmapped query...");
-      var unmappedFile = Path.ChangeExtension(result, ".unmapped.fastq");
-      HashSet<string> except = new HashSet<string>(from g in mirnas
-                                                   from loc in g.GetAlignedLocations()
-                                                   select loc.Parent.Qname);
-      int failedCount;
-      if (File.Exists(options.FastqFile))
-      {
-        failedCount = new FastqExtractorFromFastq() { Progress = this.Progress }.Extract(options.FastqFile, unmappedFile, except);
-      }
-      else
-      {
-        failedCount = new FastqExtractorFromBam(options.Samtools) { Progress = this.Progress }.Extract(fileName, unmappedFile, except);
-      }
-
       Progress.SetMessage("summarizing ...");
       var infoFile = Path.ChangeExtension(result, ".info");
       using (StreamWriter sw = new StreamWriter(infoFile))
@@ -93,14 +78,34 @@ namespace CQS.Genome.Mirna
           sw.WriteLine("#countFile\t{0}", options.CountFile);
         }
         sw.WriteLine("TotalReads\t{0}", totalReadCount);
-        sw.WriteLine("MappedReads\t{0}", mappedReadCount );
+        sw.WriteLine("MappedReads\t{0}", mappedReadCount);
         sw.WriteLine("MultipleMappedReads\t{0}", reads.Where(m => m.Locations.Count > 1).Sum(m => m.QueryCount));
         sw.WriteLine("FeatureReads\t{0}", featureReadCount);
       }
 
+      var results = new string[] { result, infoFile }.ToList();
+      if (options.UnmappedFastq)
+      {
+        Progress.SetMessage("output unmapped query...");
+        var unmappedFile = Path.ChangeExtension(result, ".unmapped.fastq.gz");
+        HashSet<string> except = new HashSet<string>(from g in mirnas
+                                                     from loc in g.GetAlignedLocations()
+                                                     select loc.Parent.Qname);
+        if (File.Exists(options.FastqFile))
+        {
+          new FastqExtractorFromFastq() { Progress = this.Progress }.Extract(options.FastqFile, unmappedFile, except);
+        }
+        else
+        {
+          new FastqExtractorFromBam(options.Samtools) { Progress = this.Progress }.Extract(fileName, unmappedFile, except);
+        }
+
+        results.Add(unmappedFile);
+      }
+
       Progress.End();
 
-      return new[] { result, infoFile, unmappedFile };
+      return results;
     }
 
     private List<MappedMirnaGroup> GetMirnaResult(Dictionary<ISequenceRegion, Dictionary<int, SequenceRegionMapped>> srMapped)
@@ -133,8 +138,8 @@ namespace CQS.Genome.Mirna
       if (result.Count > 0 && !string.IsNullOrEmpty(result[0][0].Sequence))
       {
         var sequenceGrp = result.GroupBy(m => m[0].Sequence).ToList().ConvertAll(m => (from n in m
-                                                                                    orderby n.DisplayName
-                                                                                    select n).ToList()).ToList();
+                                                                                       orderby n.DisplayName
+                                                                                       select n).ToList()).ToList();
         Console.WriteLine("There are {0}/{1} distinct miRNAs quantified!", sequenceGrp.Count, result.Count);
 
         result = new List<MappedMirnaGroup>();

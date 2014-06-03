@@ -29,7 +29,7 @@ namespace CQS.Genome.Mirna
 
     public double GetTotalReadCount()
     {
-      return this.Mapped.Sum(n => n.Value.AlignedLocations.Sum(l => l.Parent.EsminatedCount));
+      return this.Mapped.Sum(n => n.Value.AlignedLocations.Sum(l => l.Parent.EstimatedCount));
     }
   }
 }

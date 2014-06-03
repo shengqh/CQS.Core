@@ -12,7 +12,7 @@ namespace CQS.BreastCancer.parser
   {
     public void ParseDataset(string datasetDirectory, Dictionary<string, BreastCancerSampleItem> sampleMap)
     {
-      var files = GeoUtils.GetGsmNames(datasetDirectory);
+      //var files = GeoUtils.GetGsmNameFileMap(datasetDirectory);
 
       var dirname = Path.GetFileName(datasetDirectory);
 
