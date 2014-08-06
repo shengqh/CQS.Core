@@ -18,6 +18,8 @@ namespace CQS.Genome.Pileup
     private readonly char _minBaseMappingQualityChar;
     private readonly int _minReadDepth;
 
+    private static int ColumnEachSample = 4;
+
     static PileupItemParser()
     {
       Matches = new HashSet<char> {'.', ',', 'A', 'T', 'G', 'C', 'N', 'a', 't', 'g', 'c', 'n'};
@@ -121,7 +123,7 @@ namespace CQS.Genome.Pileup
       };
 
       var sampleIndex = 0;
-      for (var countIndex = 3; countIndex < parts.Length; countIndex += 4)
+      for (var countIndex = 3; countIndex < parts.Length; countIndex += ColumnEachSample)
       {
         var pbl = new PileupBaseList();
 
@@ -222,7 +224,7 @@ namespace CQS.Genome.Pileup
         return false;
       }
 
-      for (var scoreIndex = 5; scoreIndex < parts.Length; scoreIndex += 4)
+      for (var scoreIndex = 5; scoreIndex < parts.Length; scoreIndex += ColumnEachSample)
       {
         var count = parts[scoreIndex].Count(m => m >= _minBaseMappingQualityChar);
         if (count < _minReadDepth)
@@ -236,7 +238,7 @@ namespace CQS.Genome.Pileup
 
     private bool DoAcceptReadDepth(string[] parts)
     {
-      for (var scoreIndex = 5; scoreIndex < parts.Length; scoreIndex += 4)
+      for (var scoreIndex = 5; scoreIndex < parts.Length; scoreIndex += ColumnEachSample)
       {
         if (parts[scoreIndex].Length < _minReadDepth)
         {

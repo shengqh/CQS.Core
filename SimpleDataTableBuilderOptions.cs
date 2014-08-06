@@ -23,10 +23,10 @@ namespace CQS
     [Option('l', "list", Required = false, MetaValue = "FILE", HelpText = "File contains count files, one file per line")]
     public string ListFile { get; set; }
 
-    [Option('d', "directoryPattern", DefaultValue = "", MetaValue = "PATTERN", HelpText = "MutectPattern of data directory")]
+    [Option('d', "directoryPattern", DefaultValue = "", MetaValue = "PATTERN", HelpText = "Pattern of data directory")]
     public string DirectoryPattern { get; set; }
 
-    [Option('f', "filePattern", DefaultValue = DEFAULT_FILE_PATTERN, MetaValue = "PATTERN", HelpText = "MutectPattern of data file")]
+    [Option('f', "filePattern", DefaultValue = DEFAULT_FILE_PATTERN, MetaValue = "PATTERN", HelpText = "Pattern of data file")]
     public string FilePattern { get; set; }
 
     [Option('o', "output", Required = true, MetaValue = "FILE", HelpText = "Sample mapped file")]

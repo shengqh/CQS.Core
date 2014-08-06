@@ -49,6 +49,10 @@ namespace CQS.Genome.Annotation
       return true;
     }
 
+    /// <summary>
+    /// Get File/Name map
+    /// </summary>
+    /// <returns></returns>
     public Dictionary<string, string> GetAnnovarFiles()
     {
       return (from line in File.ReadAllLines(this.InputFile)

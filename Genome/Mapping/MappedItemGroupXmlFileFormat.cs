@@ -9,6 +9,13 @@ namespace CQS.Genome.Mapping
 {
   public class MappedItemGroupXmlFileFormat : IFileFormat<List<MappedItemGroup>>
   {
+    private bool exportPValue;
+
+    public MappedItemGroupXmlFileFormat(bool exportPValue = false)
+    {
+      this.exportPValue = exportPValue;
+    }
+
     public List<MappedItemGroup> ReadFromFile(string fileName)
     {
       Console.WriteLine("read file {0} ...", fileName);
@@ -42,6 +49,16 @@ namespace CQS.Genome.Mapping
             if (regionEle.Attribute("sequence") != null)
             {
               region.Region.Sequence = regionEle.Attribute("sequence").Value;
+            }
+
+            if (regionEle.Attribute("query_count_before_filter") != null)
+            {
+              region.QueryCountBeforeFilter = int.Parse(regionEle.Attribute("query_count_before_filter").Value);
+            }
+
+            if (regionEle.Attribute("pvalue") != null)
+            {
+              region.PValue = double.Parse(regionEle.Attribute("pvalue").Value);
             }
 
             foreach (XElement queryEle in regionEle.Elements("query"))
@@ -80,10 +97,15 @@ namespace CQS.Genome.Mapping
                 new XAttribute("end", region.Region.End),
                 new XAttribute("strand", region.Region.Strand),
                 new XAttribute("sequence", XmlUtils.ToXml(region.Region.Sequence)),
+                this.exportPValue ? new XAttribute("query_count_before_filter", region.QueryCountBeforeFilter) : null,
+                this.exportPValue ? new XAttribute("query_count", region.QueryCount) : null,
+                this.exportPValue ? new XAttribute("pvalue", region.PValue) : null,
                 from loc in region.AlignedLocations
                 select new XElement("query",
                   new XAttribute("qname", loc.Parent.Qname),
-                  new XAttribute("loc", loc.GetLocation())))))));
+                  new XAttribute("loc", loc.GetLocation()),
+                  this.exportPValue ? new XAttribute("query_count", loc.Parent.QueryCount) : null
+                  ))))));
       xml.Save(fileName);
     }
   }

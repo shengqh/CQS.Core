@@ -18,11 +18,37 @@ namespace CQS.Genome
 
     public int Offset { get; set; }
 
+    public int _queryCountBeforeFilter;
+
+    public int QueryCountBeforeFilter
+    {
+      get
+      {
+        if (_queryCountBeforeFilter == 0)
+        {
+          return QueryCount;
+        }
+        return _queryCountBeforeFilter;
+      }
+      set
+      {
+        _queryCountBeforeFilter = value;
+      }
+    }
+
     public double EstimatedCount
     {
       get
       {
         return this.AlignedLocations.Sum(m => m.Parent.EstimatedCount);
+      }
+    }
+
+    public int QueryCount
+    {
+      get
+      {
+        return this.AlignedLocations.Sum(m => m.Parent.QueryCount);
       }
     }
 
@@ -34,5 +60,7 @@ namespace CQS.Genome
               where func(loc)
               select loc.Parent.EstimatedCount).Sum();
     }
+
+    public double PValue { get; set; }
   }
 }

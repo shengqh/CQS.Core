@@ -40,6 +40,7 @@
       this.cbCount = new RCPA.Gui.RcpaCheckField();
       this.rootDir = new RCPA.Gui.DirectoryField();
       this.targetFile = new RCPA.Gui.FileField();
+      this.cbClinicalOnly = new RCPA.Gui.RcpaCheckField();
       ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
       this.splitContainer1.Panel1.SuspendLayout();
       this.splitContainer1.Panel2.SuspendLayout();
@@ -215,16 +216,29 @@
       this.targetFile.Location = new System.Drawing.Point(24, 24);
       this.targetFile.Name = "targetFile";
       this.targetFile.OpenButtonText = "Browse All File ...";
-      this.targetFile.WidthOpenButton = 341;
       this.targetFile.PreCondition = null;
       this.targetFile.Size = new System.Drawing.Size(1116, 23);
       this.targetFile.TabIndex = 18;
+      this.targetFile.WidthOpenButton = 341;
+      // 
+      // cbClinicalOnly
+      // 
+      this.cbClinicalOnly.AutoSize = true;
+      this.cbClinicalOnly.Key = "cbClinicalOnly";
+      this.cbClinicalOnly.Location = new System.Drawing.Point(160, 522);
+      this.cbClinicalOnly.Name = "cbClinicalOnly";
+      this.cbClinicalOnly.PreCondition = null;
+      this.cbClinicalOnly.Size = new System.Drawing.Size(165, 17);
+      this.cbClinicalOnly.TabIndex = 19;
+      this.cbClinicalOnly.Text = "With clinical information only?";
+      this.cbClinicalOnly.UseVisualStyleBackColor = true;
       // 
       // TCGADatatableBuilderUI
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.ClientSize = new System.Drawing.Size(1166, 653);
+      this.Controls.Add(this.cbClinicalOnly);
       this.Controls.Add(this.targetFile);
       this.Controls.Add(this.rootDir);
       this.Controls.Add(this.cbCount);
@@ -241,6 +255,7 @@
       this.Controls.SetChildIndex(this.cbCount, 0);
       this.Controls.SetChildIndex(this.rootDir, 0);
       this.Controls.SetChildIndex(this.targetFile, 0);
+      this.Controls.SetChildIndex(this.cbClinicalOnly, 0);
       this.splitContainer1.Panel1.ResumeLayout(false);
       this.splitContainer1.Panel2.ResumeLayout(false);
       ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
@@ -268,6 +283,7 @@
     private RCPA.Gui.RcpaCheckField cbCount;
     private RCPA.Gui.DirectoryField rootDir;
     private RCPA.Gui.FileField targetFile;
+    private RCPA.Gui.RcpaCheckField cbClinicalOnly;
 
   }
 }

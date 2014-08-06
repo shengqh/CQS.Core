@@ -98,7 +98,7 @@ namespace CQS.Genome.SomaticMutation
       HelpText = "Minimum read depth of base passed mapping quality filter in each sample")]
     public int MinimumReadDepth { get; set; }
 
-    [Option('c', "thread_count", MetaValue = "INT", DefaultValue = DefaultThreadCount, HelpText = "Number of thread, only valid when type is bam")]
+    //[Option('c', "thread_count", MetaValue = "INT", DefaultValue = DefaultThreadCount, HelpText = "Number of thread, only valid when type is bam")]
     public int ThreadCount { get; set; }
 
     [Option('o', "output", MetaValue = "STRING", Required = true, HelpText = "Output file suffix")]

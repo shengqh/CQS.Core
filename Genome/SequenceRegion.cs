@@ -50,6 +50,22 @@ namespace CQS.Genome
       return position >= this.Start && position <= this.End;
     }
 
+    public bool HasOverlap(ISequenceRegion loc)
+    {
+      if (loc == null)
+      {
+        return false;
+      }
+
+      return this.Contains(loc.Start) || loc.Contains(this.Start);
+    }
+
+    public void Union(ISequenceRegion loc)
+    {
+      this.Start = Math.Min(this.Start, loc.Start);
+      this.End = Math.Max(this.End, loc.End);
+    }
+
     public string Sequence { get; set; }
   }
 }

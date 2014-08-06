@@ -111,8 +111,25 @@ namespace CQS
       return string.Format("{0}-{1}", this.Start, this.End);
     }
 
-    public void UnionWith(Location loc)
+    public bool Contains(long position)
     {
+      return (this.Start <= position && this.End >= position);
+    }
+
+    public bool HasOverlap(Location loc)
+    {
+      if (loc == null)
+      {
+        return false;
+      }
+
+      return this.Contains(loc.Start) || loc.Contains(this.Start);
+    }
+
+    public void Union(Location loc)
+    {
+      this.Start = Math.Min(this.Start, loc.Start);
+      this.End = Math.Max(this.End, loc.End);
     }
   }
 }

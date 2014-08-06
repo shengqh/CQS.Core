@@ -15,6 +15,11 @@ namespace CQS.Genome.Sam
     {
       this._locations = new List<SAMAlignedLocation>();
     }
+    
+    /// <summary>
+    /// The sample name that this mapped result from 
+    /// </summary>
+    public string Sample { get; set; }
 
     public string Qname { get; set; }
 
@@ -32,6 +37,14 @@ namespace CQS.Genome.Sam
       {
         this._locations.Add(loc);
       }
+    }
+
+    public void RemoveLocation(Func<SAMAlignedLocation, bool> func)
+    {
+      var locs = (from l in _locations
+                  where func(l)
+                  select l).ToList();
+      locs.ForEach(l => RemoveLocation(l));
     }
 
     public void RemoveLocation(SAMAlignedLocation loc)
@@ -58,7 +71,7 @@ namespace CQS.Genome.Sam
     /// <summary>
     /// The locations that query sequence mapped to.
     /// </summary>
-    public List<SAMAlignedLocation> _locations;
+    private List<SAMAlignedLocation> _locations;
     public ReadOnlyCollection<SAMAlignedLocation> Locations
     {
       get

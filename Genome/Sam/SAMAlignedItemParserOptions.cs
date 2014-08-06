@@ -6,7 +6,14 @@ namespace CQS.Genome.Mapping
 {
   public class SAMAlignedItemParserOptions : ISAMAlignedItemParserOptions
   {
+    public SAMAlignedItemParserOptions()
+    {
+      MaximumReadLength = int.MaxValue;
+    }
+
     public int MinimumReadLength { get; set; }
+
+    public int MaximumReadLength { get; set; }
 
     public int MaximumMismatchCount { get; set; }
 

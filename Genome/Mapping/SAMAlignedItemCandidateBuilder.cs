@@ -75,6 +75,12 @@ namespace CQS.Genome.Mapping
             continue;
           }
 
+          //too long
+          if (seq.Length > options.MaximumReadLength)
+          {
+            continue;
+          }
+
           SAMFlags flag = (SAMFlags)int.Parse(parts[SAMFormatConst.FLAG_INDEX]);
           //unmatched
           if (flag.HasFlag(SAMFlags.UnmappedQuery))

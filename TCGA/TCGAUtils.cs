@@ -725,7 +725,7 @@ namespace CQS.TCGA
 
     public static string GetClinicPatientFile(string tcgaRootDir, string tumor)
     {
-      return new FileInfo(string.Format("{0}/{1}/data/clin/clinical_patient_{1}.txt", tcgaRootDir, tumor)).FullName;
+      return new FileInfo(string.Format("{0}/{1}/data/clin/nationwidechildrens.org_clinical_patient_{1}.txt", tcgaRootDir, tumor)).FullName;
     }
 
     public static Dictionary<string, BarInfo> GetBarcodeFileMap(string tcgaRootDir, ITCGATechnology tec, string tumor, TCGASampleCode[] sampleTypes = null)

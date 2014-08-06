@@ -46,6 +46,8 @@ namespace CQS.Genome.Mapping
       var mappedItems = MappedItemUtils.GroupByName(regions);
       mappedItems.RemoveAll(m => m.EstimateCount == 0);
 
+      mappedItems.ForEach(m => MappedItemUtils.FilterMappedRegion(m));
+
       var mappedGroups = mappedItems.GroupByIdenticalQuery();
 
       //group by miRNA name
@@ -162,6 +164,7 @@ namespace CQS.Genome.Mapping
           curmapped.AlignedLocations.Add(m);
         }
       }
+
     }
   }
 }

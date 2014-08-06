@@ -11,6 +11,8 @@ namespace CQS.Genome.Sam
 
     int MinimumReadLength { get; set; }
 
+    int MaximumReadLength { get; set; }
+
     int MaximumMismatchCount { get; set; }
 
     int EngineType { get; set; }

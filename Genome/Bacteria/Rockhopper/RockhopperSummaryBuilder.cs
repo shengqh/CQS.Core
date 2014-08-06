@@ -44,7 +44,7 @@ namespace CQS.Genome.Bacteria.Rockhopper
         sw.Write("Gene,Product");
         foreach (var d in data)
         {
-          sw.Write(",{0}_log2(FoldChange),{0}_qValue", d.ComparisonName);
+          sw.Write(",{0}_RPKM_{1},{0}_RPKM_{2},{0}_log2({1}/{2}),{0}_qValue", d.ComparisonName, d.Group1, d.Group2);
         }
         sw.WriteLine(",Significant");
 
@@ -59,7 +59,7 @@ namespace CQS.Genome.Bacteria.Rockhopper
             if (d.UnpredictedMap.ContainsKey(synonym))
             {
               var entry = d.UnpredictedMap[synonym];
-              sw.Write(",{0:0.00},{1}", entry.FoldChange, entry.Qvalue);
+              sw.Write(",{0},{1},{2:0.00},{3}", entry.RPKM1, entry.RPKM2, entry.FoldChange, entry.Qvalue);
               if (significantFilter(entry))
               {
                 significant.Add(d.ComparisonName);
@@ -67,7 +67,7 @@ namespace CQS.Genome.Bacteria.Rockhopper
             }
             else
             {
-              sw.Write(",0,1");
+              sw.Write(",0,0,0,1");
             }
           }
 
@@ -76,6 +76,25 @@ namespace CQS.Genome.Bacteria.Rockhopper
       }
     }
 
+    private double GetLogFoldChange(double rpkm1, double rpkm2){
+      if (rpkm1 == 0 && rpkm2 == 0)
+      {
+        return 0;
+      }
+
+      if (rpkm1 == 0)
+      {
+        return -50;
+      }
+
+      if (rpkm2 == 0)
+      {
+        return 50;
+      }
+
+      return Math.Log(rpkm1 / rpkm2, 2);
+
+    }
     public override IEnumerable<string> Process()
     {
       List<string> result = new List<string>();
@@ -143,7 +162,7 @@ namespace CQS.Genome.Bacteria.Rockhopper
                                      where parts.Length > 8
                                      let rpkm1value = double.Parse(parts[rpkm1])
                                      let rpkm2value = double.Parse(parts[rpkm2])
-                                     let foldchange = rpkm2value == 0.0 ? (rpkm1value == 0.0 ? 0 : 50) : (rpkm1value == 0.0 ? -50 : Math.Log(rpkm1value / rpkm2value, 2))
+                                     let foldchange = GetLogFoldChange(rpkm1value, rpkm2value)
                                      select new RockhopperTranscript()
                                      {
                                        TranscriptionStart = parts[0],

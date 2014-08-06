@@ -13,6 +13,30 @@ namespace CQS.Genome
     private static readonly Regex Reg = new Regex("(.+?):(.+?)-(.+?):([+-])");
     private static readonly Regex Namereg = new Regex(@"\((.+?)\)(.+?):(.+?)-(.+?):([+-])");
 
+    /// <summary>
+    /// Check if two regions are container-containee
+    /// </summary>
+    /// <param name="one">first region</param>
+    /// <param name="two">second region</param>
+    /// <returns>If one contains two, return 1. If two contains one, return -1. Otherwise return 0.</returns>
+    public static int Contains(this ISequenceRegion one, ISequenceRegion two)
+    {
+      if (one.Length >= two.Length)
+      {
+        if (one.Start <= two.Start && one.End >= two.End)
+        {
+          return 1;
+        }
+        return 0;
+      }
+
+      if (two.Start <= one.Start && two.End >= one.End)
+      {
+        return -1;
+      }
+      return 0;
+    }
+
     public static bool Overlap(this ISequenceRegion one, ISequenceRegion two, double minPercentage)
     {
       if (!one.Seqname.Equals(two.Seqname))

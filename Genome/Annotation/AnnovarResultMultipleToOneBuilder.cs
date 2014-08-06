@@ -64,9 +64,22 @@ namespace CQS.Genome.Annotation
         foreach (var file in filelist)
         {
           var lines = File.ReadAllLines(file);
-          var mutect = lines.First(m => m.StartsWith("##MuTect="));
-          var normal = mutect.StringAfter("normal_sample_name=").StringBefore(" ");
-          var tumor = mutect.StringAfter("tumor_sample_name=").StringBefore(" ");
+          var mutect = lines.FirstOrDefault(m => m.StartsWith("##MuTect="));
+          string normal, tumor, normalName, tumorName;
+          if (mutect != null)
+          {
+            normal = mutect.StringAfter("normal_sample_name=").StringBefore(" ");
+            tumor = mutect.StringAfter("tumor_sample_name=").StringBefore(" ");
+            normalName = normal;
+            tumorName = tumor;
+          }
+          else
+          {
+            normal = "NORMAL";
+            tumor = "TUMOR";
+            normalName = Path.GetFileName(file).StringBefore(".") + "_normal";
+            tumorName = Path.GetFileName(file).StringBefore(".") + "_tumor";
+          }
           var header = lines.First(m => !m.StartsWith("#"));
           var headers = header.Split('\t');
           var infoIndex = Array.IndexOf(headers, "INFO");
@@ -97,8 +110,8 @@ namespace CQS.Genome.Annotation
           data.Add(new FileData()
           {
             File = file,
-            Normal = normal,
-            Tumor = tumor,
+            Normal = normalName,
+            Tumor = tumorName,
             Headers = headers,
             InfoIndex = infoIndex,
             FormatIndex = formatIndex,

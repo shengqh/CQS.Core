@@ -94,12 +94,13 @@ namespace CQS.Genome.Sam
       }
 
       var seq = isPositiveStrand ? querySequence : SequenceUtils.GetReversedSequence(querySequence);
-      var detectedChr = seq[int.Parse(m.Groups[1].Value)];
+      var pos = int.Parse(m.Groups[1].Value);
+      var detectedChr = seq[pos];
 
       var chr = m.Groups[2].Value.First();
       chr = isPositiveStrand ? chr : SequenceUtils.GetComplementAllele(chr);
 
-      return new SingleNucleotidePolymorphism(chr, detectedChr);
+      return new SingleNucleotidePolymorphism(pos, chr, detectedChr);
     }
   }
 
@@ -109,13 +110,14 @@ namespace CQS.Genome.Sam
     {
       var items = root.ToSAMAlignedItems();
 
-      //(from item in items
-      // from loc in item.Locations
-      // select loc).GroupBy(m => m.GetKey()).Where(m => m.Count() > 1).ToList().ForEach(m => Console.WriteLine(m.First().GetKey()));
-
       return (from item in items
               from loc in item.Locations
               select loc).ToDictionary(m => m.GetKey());
+    }
+
+    public static Dictionary<string, SAMAlignedItem> ToSAMAlignedItemMap(this XElement root)
+    {
+      return root.ToSAMAlignedItems().ToDictionary(m => m.Qname);
     }
   }
 }

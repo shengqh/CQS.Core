@@ -49,8 +49,14 @@ namespace CQS
 
       var map = files.GroupBy(m =>
       {
-        var file = Path.GetFileName(m);
-        return nameFunc(file);
+        if (_options.Recursion && _options.UseDirName)
+        {
+          return nameFunc(Path.GetFileName(Path.GetDirectoryName(m)));
+        }
+        else
+        {
+          return nameFunc(Path.GetFileName(m));
+        }
       }).ToDictionary(n => n.Key);
 
       var names = (from k in map.Keys

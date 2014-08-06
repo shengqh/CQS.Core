@@ -19,6 +19,7 @@ namespace CQS.Genome.Mapping
     public CountProcessorOptions()
     {
       MinimumReadLength = DEFAULT_MinimumReadLength;
+      MaximumReadLength = int.MaxValue;
       MaximumMismatchCount = DEFAULT_MaximumMismatchCount;
       IgnoreScore = DEFAULT_IgnoreScore;
       EngineType = DefaultEngineType;
@@ -44,6 +45,9 @@ namespace CQS.Genome.Mapping
 
     [Option('l', "minlen", MetaValue = "INT", DefaultValue = DEFAULT_MinimumReadLength, HelpText = "Minimum read length")]
     public int MinimumReadLength { get; set; }
+
+    [Option("maxlen", MetaValue = "INT", DefaultValue = int.MaxValue, HelpText = "Maximum read length")]
+    public int MaximumReadLength { get; set; }
 
     [Option('m', "maxMismatch", MetaValue = "INT", DefaultValue = DEFAULT_MaximumMismatchCount, HelpText = "Maximum mismatch count")]
     public int MaximumMismatchCount { get; set; }

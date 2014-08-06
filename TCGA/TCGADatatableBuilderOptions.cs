@@ -1,5 +1,6 @@
 ﻿using CommandLine;
 using CQS.Commandline;
+using RCPA;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -24,6 +25,9 @@ namespace CQS.TCGA
 
     [Option('c', "count", DefaultValue = false, HelpText = "Extract count data or normal value")]
     public bool IsCount { get; set; }
+
+    [Option('p', "patient", DefaultValue = false, HelpText = "With clinical information only")]
+    public bool WithClinicalInformationOnly { get; set; }
 
     [OptionList('s', "sampleCodes", MetaValue = "STRINGS", Separator = ',', HelpText = "TCGA sample types, separated by ',', for example 'TP,NT', TP is Primary solid Tumor, NT is Solid Tissue Normal")]
     public IList<string> TCGASampleCodeStrings { get; set; }
@@ -105,6 +109,14 @@ namespace CQS.TCGA
       }
 
       return true;
+    }
+
+    public string DesignFile
+    {
+      get
+      {
+        return FileUtils.ChangeExtension(this.OutputFile, ".design.tsv");
+      }
     }
   }
 }

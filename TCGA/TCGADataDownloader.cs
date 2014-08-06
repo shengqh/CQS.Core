@@ -143,6 +143,14 @@ namespace CQS.TCGA
             }
 
             WebUtils.DownloadFile(uri + ".md5", compressedMd5);
+
+            var downloadedMD5 = FileUtils.GetMd5HashForFile(compressed);
+            var trueMD5 = File.ReadAllText(compressedMd5).Split(new[] { '\t', ' ' })[0];
+
+            if (!downloadedMD5.Equals(trueMD5))
+            {
+              throw new Exception(string.Format("MD5 of file {0} doesn't equal to server provided MD5, downloading failed!\nYou may consider to delete the file and try again, or you may download and de-compress it by youself.", compressed));
+            }
           }
 
           UncompressFile(currDir, fDir, compressed, bTar);
@@ -152,19 +160,20 @@ namespace CQS.TCGA
 
     public void DownloadClinicalData(string tumor, SpiderTreeNode node, string targetDir, IProgressCallback callback = null)
     {
-      var gzfile = string.Format("clinical_{0}.tar.gz", tumor);
-      var uri = string.Format("{0}/{1}", node.Uri, gzfile);
-      var targetFile = string.Format("{0}/{1}", targetDir, gzfile);
+      TCGASpider.DownloadFiles(node, targetDir, null, callback);
+      //var gzfile = string.Format("clinical_{0}.tar.gz", tumor);
+      //var uri = string.Format("{0}/{1}", node.Uri, gzfile);
+      //var targetFile = string.Format("{0}/{1}", targetDir, gzfile);
 
-      if (!WebUtils.DownloadFile(uri, targetFile, callback))
-      {
-        TCGASpider.DownloadFiles(node, targetDir, null, callback);
-        return;
-      }
-      else
-      {
-        UncompressFile(targetDir, targetDir, targetFile, true);
-      }
+      //if (!WebUtils.DownloadFile(uri, targetFile, callback))
+      //{
+      //  TCGASpider.DownloadFiles(node, targetDir, null, callback);
+      //  return;
+      //}
+      //else
+      //{
+      //  UncompressFile(targetDir, targetDir, targetFile, true);
+      //}
     }
 
     private void UncompressFile(string currDir, string targetDir, string tarGzFile, bool bTar)

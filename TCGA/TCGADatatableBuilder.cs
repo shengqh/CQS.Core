@@ -20,10 +20,10 @@ namespace CQS.TCGA
       out Func<double, double> getValue)
     {
       Func<string, string> getFilename;
-      IFileReader<ExpressionData> reader;
+      IFileReader<ExpressionData> reader = null;
 
       ITCGATechnology tec = _options.GetTechnology();
-      if (_options.IsCount)
+      if (_options.IsCount && null != tec.GetCountReader())
       {
         reader = tec.GetCountReader();
         getFilename = tec.GetCountFilename;
@@ -55,11 +55,16 @@ namespace CQS.TCGA
 
     public override IEnumerable<string> Process()
     {
-      var barMap = new Dictionary<string, BarInfo>();
+      var result = new List<string>();
+
+      Dictionary<string, BarInfo> barMap;
+
+      barMap = new Dictionary<string, BarInfo>();
       foreach (var tumor in _options.TumorTypes)
       {
         var curMap = TCGAUtils.GetBarcodeFileMap(_options.TCGADirectory,
           _options.GetTechnology(), tumor, _options.GetTCGASampleCodes().ToArray());
+
         foreach (var v in curMap)
         {
           barMap[GetSampleKey(tumor, v.Key)] = v.Value;
@@ -67,17 +72,26 @@ namespace CQS.TCGA
       }
 
       var headers = new List<string>();
-      var clindata = new Dictionary<string, Dictionary<string, string>>();
+      var clindata = new Dictionary<string, IAnnotation>();
       foreach (var tumor in _options.TumorTypes)
       {
         ReadClinData(clindata, tumor, headers);
       }
+      Console.WriteLine("{0} patient clinical information readed", clindata.Count);
 
-      foreach (var bm in barMap)
+      List<string> noclinical = new List<string>();
+      var keyvalues = barMap.ToList();
+      foreach (var bm in keyvalues)
       {
         if (!clindata.ContainsKey(GetSampleKey(GetTumorType(bm.Key), bm.Value.Paticipant)))
         {
+          noclinical.Add(bm.Key);
+
           Console.Error.WriteLine(string.Format("Cannot find clinical data for patient {0}", bm.Value.Paticipant));
+          if (_options.WithClinicalInformationOnly)
+          {
+            barMap.Remove(bm.Key);
+          }
         }
       }
 
@@ -89,57 +103,129 @@ namespace CQS.TCGA
       var samples = valueMap.Keys.OrderBy(m => m).ToList();
 
       Progress.SetMessage("Saving data ...");
-      using (var sw = new StreamWriter(_options.OutputFile))
+
+      result.Add(_options.OutputFile);
+      result.Add(_options.DesignFile);
+      if (_options.TumorTypes.Count > 1)
       {
-        sw.WriteLine("Gene\t{0}", samples.Merge("\t"));
-        foreach (var gene in genes)
+        using (var sw = new StreamWriter(_options.OutputFile))
         {
-          sw.Write(gene);
-          foreach (var sample in samples)
+          sw.WriteLine("Gene\t{0}", samples.Merge("\t"));
+          foreach (var gene in genes)
           {
-            sw.Write("\t{0}", getValue(valueMap[sample][gene]));
+            sw.Write(gene);
+            foreach (var sample in samples)
+            {
+              sw.Write("\t{0}", getValue(valueMap[sample][gene]));
+            }
+            sw.WriteLine();
           }
-          sw.WriteLine();
+        }
+
+        using (var sw = new StreamWriter(_options.DesignFile))
+        {
+          sw.Write("Sample\tBarcode\tPatient\tTumorType\tSampleType\tSampleTypeDescription");
+          if (headers.Count > 0)
+          {
+            sw.WriteLine("\t{0}", headers.Merge("\t"));
+          }
+          else
+          {
+            sw.WriteLine();
+          }
+
+          foreach (var entry in barMap)
+          {
+            var tumor = GetTumorType(entry.Key);
+            var type = TCGASampleCode.Find(entry.Value.Sample);
+            sw.Write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}", entry.Key, entry.Value.BarCode, entry.Value.Paticipant, tumor, type.ShortLetterCode,
+              type.Definition);
+            var key = GetSampleKey(tumor, entry.Value.Paticipant);
+            var vdata = clindata.ContainsKey(key) ? clindata[key] : new Annotation();
+            foreach (var header in headers)
+            {
+              if (vdata.Annotations.ContainsKey(header))
+              {
+                sw.Write("\t{0}", vdata.Annotations[header]);
+              }
+              else
+              {
+                sw.Write("\t");
+              }
+            }
+            sw.WriteLine();
+          }
         }
       }
-
-      using (var sw = new StreamWriter(_options.OutputFile + ".design"))
+      else
       {
-        sw.Write("Sample\tBarcode\tPatient\tTumorType\tSampleType\tSampleTypeDescription");
-        if (headers.Count > 0)
+        using (var sw = new StreamWriter(_options.OutputFile))
         {
-          sw.WriteLine("\t{0}", headers.Merge("\t"));
-        }
-        else
-        {
-          sw.WriteLine();
+          sw.WriteLine("Gene\t{0}", (from s in samples select s.StringAfter("_")).Merge("\t"));
+          foreach (var gene in genes)
+          {
+            sw.Write(gene);
+            foreach (var sample in samples)
+            {
+              sw.Write("\t{0}", getValue(valueMap[sample][gene]));
+            }
+            sw.WriteLine();
+          }
         }
 
-        foreach (var entry in barMap)
+        using (var sw = new StreamWriter(_options.DesignFile))
         {
-          var tumor = GetTumorType(entry.Key);
-          var type = TCGASampleCode.Find(entry.Value.Sample);
-          sw.Write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}", entry.Key, entry.Value.BarCode, entry.Value.Paticipant, tumor, type.ShortLetterCode,
-            type.Definition);
-          var key = GetSampleKey(tumor, entry.Value.Paticipant);
-          var vdata = clindata.ContainsKey(key) ? clindata[key] : new Dictionary<string, string>();
-          foreach (var header in headers)
+          sw.Write("Sample\tBarcode\tPatient\tTumorType\tSampleType\tSampleTypeDescription");
+          if (headers.Count > 0)
           {
-            if (vdata.ContainsKey(header))
-            {
-              sw.Write("\t{0}", vdata[header]);
-            }
-            else
-            {
-              sw.Write("\t");
-            }
+            sw.WriteLine("\t{0}", headers.Merge("\t"));
           }
-          sw.WriteLine();
+          else
+          {
+            sw.WriteLine();
+          }
+
+          foreach (var entry in barMap)
+          {
+            var tumor = _options.TumorTypes.First();
+            var type = TCGASampleCode.Find(entry.Value.Sample);
+            sw.Write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}", entry.Key.StringAfter("_"), entry.Value.BarCode, entry.Value.Paticipant, tumor, type.ShortLetterCode,
+              type.Definition);
+            var key = GetSampleKey(tumor, entry.Value.Paticipant);
+            var vdata = clindata.ContainsKey(key) ? clindata[key] : new Annotation();
+            foreach (var header in headers)
+            {
+              if (vdata.Annotations.ContainsKey(header))
+              {
+                sw.Write("\t{0}", vdata.Annotations[header]);
+              }
+              else
+              {
+                sw.Write("\t");
+              }
+            }
+            sw.WriteLine();
+          }
         }
+
+        var clinicalOptions = new TCGAClinicalInformationBuilderOptions()
+        {
+          ClinicalFile = TCGAUtils.GetClinicPatientFile(_options.TCGADirectory, _options.TumorTypes.First()),
+          DataFile = _options.OutputFile,
+          ThrowException = false,
+        };
+        result.AddRange(new TCGAClinicalInformationBuilder(clinicalOptions) { Progress = this.Progress }.Process());
       }
       Progress.End();
 
-      return new[] { _options.OutputFile, _options.OutputFile + ".design" };
+      if (noclinical.Count == 0)
+      {
+        return result.ToArray();
+      }
+      else
+      {
+        return new[] { string.Format("There are {0} samples without patient information:\n  {1}\n\nResult have been saved to:\n  {2}", noclinical.Count, noclinical.Merge("\n  "), result.Merge("\n  ")) };
+      }
     }
 
     private static string GetTumorType(string sample)
@@ -160,7 +246,7 @@ namespace CQS.TCGA
     /// <param name="clinicalData"></param>
     /// <param name="tumorType"></param>
     /// <param name="queryHeaders"></param>
-    private void ReadClinData(IDictionary<string, Dictionary<string, string>> clinicalData, string tumorType,
+    private void ReadClinData(IDictionary<string, IAnnotation> clinicalData, string tumorType,
       ICollection<string> queryHeaders)
     {
       var clinfile = TCGAUtils.GetClinicPatientFile(_options.TCGADirectory, tumorType);
@@ -169,30 +255,10 @@ namespace CQS.TCGA
         return;
       }
 
-      using (var sr = new StreamReader(clinfile))
+      var data = new TCGAClinicalInformationFormat().ReadFromFile(clinfile);
+      foreach (var entry in data)
       {
-        var header = sr.ReadLine();
-        var headers = header.Split('\t');
-        string line;
-
-        while ((line = sr.ReadLine()) != null)
-        {
-          if (string.IsNullOrEmpty(line))
-          {
-            continue;
-          }
-          var parts = line.Split('\t');
-          if (parts.Length != headers.Length)
-          {
-            continue;
-          }
-          var data = new Dictionary<string, string>();
-          for (var i = 0; i < parts.Length; i++)
-          {
-            data[headers[i]] = parts[i];
-          }
-          clinicalData[GetSampleKey(tumorType, data["bcr_patient_barcode"])] = data;
-        }
+        clinicalData[GetSampleKey(tumorType, entry.BarCode())] = entry;
       }
 
       string configheader = FileUtils.GetTemplateDir() + "/" + Path.GetFileNameWithoutExtension(clinfile) + ".header.xml";

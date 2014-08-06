@@ -77,14 +77,14 @@ namespace CQS.Genome.SmallRNA
             var others = new MappedItemGroupXmlFileFormat().ReadFromFile(entry.SmallRNAFile);
 
             var otherQueries = (from g in others
-                                 from m in g
-                                 from mr in m.MappedRegions
-                                 from loc in mr.AlignedLocations
-                                 select new QueryRecord(loc.Parent.Qname,
-                                   m.Name.StringBefore(":"),
-                                   m.Name.StringAfter(":").StringBefore(":"),
-                                   m.Name.StringAfter(":").StringAfter(":"),
-                                   loc.Parent.QueryCount)).ToGroupDictionary(m => m.Query);
+                                from m in g
+                                from mr in m.MappedRegions
+                                from loc in mr.AlignedLocations
+                                select new QueryRecord(loc.Parent.Qname,
+                                  m.Name.StringBefore(":"),
+                                  m.Name.StringAfter(":").StringBefore(":"),
+                                  m.Name.StringAfter(":").StringAfter(":"),
+                                  loc.Parent.QueryCount)).ToGroupDictionary(m => m.Query);
             Progress.SetMessage("Reading smallRNA mapped file finished, {0} queries mapped.", otherQueries.Count);
 
             if (File.Exists(entry.MiRNAFile))
@@ -92,15 +92,15 @@ namespace CQS.Genome.SmallRNA
               Progress.SetMessage("Reading miRNA mapped file " + entry.MiRNAFile + " ...");
               var mirnas = new MappedMirnaGroupXmlFileFormat().ReadFromFile(entry.MiRNAFile);
               var mirnaQueries = (from g in mirnas
-                                   from m in g
-                                   from mr in m.MappedRegions
-                                   from mapped in mr.Mapped.Values
-                                   from loc in mapped.AlignedLocations
-                                   select new QueryRecord(loc.Parent.Qname,
-                                     "miRNA",
-                                     "miRNA",
-                                     m.Name,
-                                     loc.Parent.QueryCount)).ToGroupDictionary(m => m.Query);
+                                  from m in g
+                                  from mr in m.MappedRegions
+                                  from mapped in mr.Mapped.Values
+                                  from loc in mapped.AlignedLocations
+                                  select new QueryRecord(loc.Parent.Qname,
+                                    "miRNA",
+                                    "miRNA",
+                                    m.Name,
+                                    loc.Parent.QueryCount)).ToGroupDictionary(m => m.Query);
               Progress.SetMessage("Reading miRNA mapped file finished, {0} queries mapped.", mirnaQueries.Count);
 
               foreach (var q in mirnaQueries)
@@ -165,36 +165,79 @@ namespace CQS.Genome.SmallRNA
             }
           }
         }
+
+        var data = (from line in File.ReadAllLines(catfile).Skip(1)
+                    where !string.IsNullOrWhiteSpace(line)
+                    let parts = line.Split('\t')
+                    let level = double.Parse(parts[2])
+                    where !(parts[1].Equals("small RNA") && level == 1)
+                    select new
+                    {
+                      SampleName = parts[0],
+                      Category = parts[1],
+                      Level = level,
+                      Count = int.Parse(parts[3])
+                    }).ToList();
+
+        var tablefile = catfile + ".table";
+        result.Add(tablefile);
+        using (var sw = new StreamWriter(tablefile))
+        {
+          var samples = (from d in data
+                         select d.SampleName).Distinct().OrderBy(m => m).ToList();
+          sw.WriteLine("Category\t{0}", samples.Merge("\t"));
+
+          var categories = (from d in data
+                            where d.Level == 2
+                            select d.Category).Distinct().OrderBy(m => m).ToList();
+          categories.Insert(0, "small RNA");
+          categories.Insert(0, "Other Mapped");
+          categories.Insert(0, "Unmapped");
+          categories.Insert(0, "Mapped Reads");
+          categories.Insert(0, "Total Reads");
+
+          Console.WriteLine(categories.Merge("\n"));
+
+          var map = data.ToDoubleDictionary(m => m.SampleName, m => m.Category);
+          foreach (var cat in categories)
+          {
+            sw.WriteLine("{0}\t{1}", cat,
+              (from sample in samples
+               let dic = map[sample]
+               select dic.ContainsKey(cat) ? dic[cat].Count.ToString() : "").Merge("\t"));
+          }
+        }
+
         var rfile = new FileInfo(FileUtils.GetTemplateDir() + "/smallrna_category_group.r").FullName;
         if (File.Exists(rfile))
         {
-            var targetrfile = catfile + ".r";
-            using (var sw = new StreamWriter(targetrfile))
+          var targetrfile = catfile + ".r";
+          using (var sw = new StreamWriter(targetrfile))
+          {
+            sw.WriteLine("catfile<-\"{0}\"", catfile);
+            sw.WriteLine("outputdir<-\"{0}\"", options.OutputDirectory);
+            sw.WriteLine("ispdf<-{0}", options.PdfGraph ? "1" : "0");
+            string line = File.ReadAllText(rfile);
+            using (var sr = new StreamReader(rfile))
             {
-              sw.WriteLine("catfile<-\"{0}\"", catfile);
-              sw.WriteLine("outputdir<-\"{0}\"", options.OutputDirectory);
-              sw.WriteLine("ispdf<-{0}", options.PdfGraph ? "1" : "0");
-              string line = File.ReadAllText(rfile);
-              using (var sr = new StreamReader(rfile))
+              if (line.Contains("#predefine_end"))
               {
-                if (line.Contains("#predefine_end"))
-                {
-                  while ((line = sr.ReadLine()) != null)
-                  {
-                    if (line.Contains("#predefine_end"))
-                    {
-                      break;
-                    }
-                  }
-                }
-
                 while ((line = sr.ReadLine()) != null)
                 {
-                  sw.WriteLine(line);
+                  if (line.Contains("#predefine_end"))
+                  {
+                    break;
+                  }
                 }
               }
+
+              while ((line = sr.ReadLine()) != null)
+              {
+                sw.WriteLine(line);
+              }
             }
-            SystemUtils.Execute("R", "--vanilla --slave -f \"" + targetrfile + "\"");
+          }
+          SystemUtils.Execute("R", "--vanilla --slave -f \"" + targetrfile + "\"");
         }
       }
       return result;
@@ -209,7 +252,7 @@ namespace CQS.Genome.SmallRNA
         foreach (var key in keys)
         {
           var lst = otherQueries[key];
-          if (!lst.Any(m => m.Biotype.Equals(category))) 
+          if (!lst.Any(m => m.Biotype.Equals(category)))
             continue;
 
           count += lst[0].QueryCount;

@@ -17,7 +17,7 @@ namespace CQS.TCGA
   public partial class TCGADatatableBuilderUI : AbstractProcessorUI
   {
     public static readonly string title = " TCGA Data Table Builder";
-    public static readonly string version = "1.0.0";
+    public static readonly string version = "1.0.1";
 
     private List<object> tumors = new List<object>();
 
@@ -46,6 +46,7 @@ namespace CQS.TCGA
       options.OutputFile = targetFile.FullName;
       options.IsCount = cbCount.Checked;
       options.TCGASampleCodeStrings = GetSampleCodes();
+      options.WithClinicalInformationOnly = cbClinicalOnly.Checked;
 
       return new TCGADatatableBuilder(options);
     }
