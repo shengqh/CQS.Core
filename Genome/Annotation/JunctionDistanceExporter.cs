@@ -8,7 +8,7 @@ using RCPA;
 
 namespace CQS.Genome.Annotation
 {
-  public class JunctionDistanceExporter : IAnnotationCsvExporter
+  public class JunctionDistanceExporter : IAnnotationTsvExporter
   {
     private Dictionary<string, List<JunctionItem>> maps;
     private string header = null;

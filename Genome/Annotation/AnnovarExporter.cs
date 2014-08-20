@@ -5,7 +5,7 @@ using System.Text;
 
 namespace CQS.Genome.Annotation
 {
-  public class AnnovarExporter : IAnnotationCsvExporter
+  public class AnnovarExporter : IAnnotationTsvExporter
   {
     AnnovarSummaryItemList annovarItems;
     Dictionary<string, AnnovarSummaryItem> annovarMap;
@@ -18,8 +18,8 @@ namespace CQS.Genome.Annotation
       this.keyFunc = keyFunc;
       this.annovarItems = new AnnovarSummaryItemListReader().ReadFromFile(fileName);
       this.annovarMap = annovarItems.ToDictionary(m => keyFunc(m.Seqname, m.Start));
-      this.emptyStr = new String(',', annovarItems.SummaryHeaderInCsvFormat.Count(m => m == ','));
-      this.annovarHeader = (from h in annovarItems.SummaryHeaderInCsvFormat.Split(',')
+      this.emptyStr = new String(',', annovarItems.Headers.Count());
+      this.annovarHeader = (from h in annovarItems.Headers
                             select "annovar_" + h).Merge(',');
     }
 
@@ -33,7 +33,7 @@ namespace CQS.Genome.Annotation
       var key = keyFunc(chrom, start);
       if (annovarMap.ContainsKey(key))
       {
-        return annovarMap[key].SummaryInCsvFormat;
+        return annovarMap[key].Values.Merge(",");
       }
       else
       {

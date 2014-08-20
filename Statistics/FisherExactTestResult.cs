@@ -25,6 +25,7 @@ namespace CQS.Genome.Statistics
 
     public double CalculateTwoTailPValue()
     {
+      //When sample size < 20
       PValue = MyFisherExactTest.TwoTailPValue(Sample1.Succeed, Sample1.Failed, Sample2.Succeed, Sample2.Failed);
       return PValue;
     }

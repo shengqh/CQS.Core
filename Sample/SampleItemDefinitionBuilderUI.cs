@@ -110,80 +110,87 @@ namespace CQS.Sample
 
     public void NewFromData(string subdir)
     {
-      var siformat = Directory.GetFiles(subdir, "*.siformat");
-
-      TextFileDefinition prefile = new TextFileDefinition();
-      if (siformat.Length > 0)
+      try
       {
-        prefile.ReadFromFile(siformat[0]);
-      }
+        var siformat = Directory.GetFiles(subdir, "*.siformat");
 
-      var map = RawSampleInfoReaderFactory.GetReader(subdir).ReadDescriptionFromDirectory(subdir);
-
-      lastDirectory = subdir;
-      lastFile = String.Empty;
-
-      var files = new HashSet<string>(from f in Directory.GetFiles(subdir, "*.CEL")
-                                      select GeoUtils.GetGsmName(f));
-
-      Dictionary<string, HashSet<string>> headers = new Dictionary<string, HashSet<string>>();
-      foreach (var m in map)
-      {
-        var gsm = m.Key.ToLower();
-
-        if (!files.Contains(gsm))
+        TextFileDefinition prefile = new TextFileDefinition();
+        if (siformat.Length > 0)
         {
-          continue;
+          prefile.ReadFromFile(siformat[0]);
         }
 
-        var curmap = m.Value;
+        var map = RawSampleInfoReaderFactory.GetReader(subdir).ReadDescriptionFromDirectory(subdir);
 
-        foreach (var entry in curmap)
+        lastDirectory = subdir;
+        lastFile = String.Empty;
+
+        var files = new HashSet<string>(from f in Directory.GetFiles(subdir, "*.CEL")
+                                        select GeoUtils.GetGsmName(f));
+
+        Dictionary<string, HashSet<string>> headers = new Dictionary<string, HashSet<string>>();
+        foreach (var m in map)
         {
-          if (!headers.ContainsKey(entry.Key))
+          var gsm = m.Key.ToLower();
+
+          if (!files.Contains(gsm))
           {
-            headers[entry.Key] = new HashSet<string>();
+            continue;
           }
-          headers[entry.Key].UnionWith(entry.Value);
-        }
-      }
 
-      ClearDataSource();
+          var curmap = m.Value;
 
-      items.Clear();
-      foreach (var part in headers)
-      {
-        items.Add(new FileDefinitionItem()
-        {
-          AnnotationName = part.Key,
-          Example = (from v in part.Value
-                     orderby v
-                     select v).Merge(";")
-        });
-      }
-
-      foreach (var olditem in prefile)
-      {
-        if (!string.IsNullOrEmpty(olditem.PropertyName))
-        {
-          var newitem = items.Find(m => m.AnnotationName.Equals(olditem.AnnotationName));
-          if (newitem != null)
+          foreach (var entry in curmap)
           {
-            newitem.PropertyName = olditem.PropertyName;
+            if (!headers.ContainsKey(entry.Key))
+            {
+              headers[entry.Key] = new HashSet<string>();
+            }
+            headers[entry.Key].UnionWith(entry.Value);
           }
         }
+
+        ClearDataSource();
+
+        items.Clear();
+        foreach (var part in headers)
+        {
+          items.Add(new FileDefinitionItem()
+          {
+            AnnotationName = part.Key,
+            Example = (from v in part.Value
+                       orderby v
+                       select v).Merge(";")
+          });
+        }
+
+        foreach (var olditem in prefile)
+        {
+          if (!string.IsNullOrEmpty(olditem.PropertyName))
+          {
+            var newitem = items.Find(m => m.AnnotationName.Equals(olditem.AnnotationName));
+            if (newitem != null)
+            {
+              newitem.PropertyName = olditem.PropertyName;
+            }
+          }
+        }
+
+        items.DefaultValues.Clear();
+
+        items.Sort((m1, m2) => m1.AnnotationName.CompareTo(m2.AnnotationName));
+
+        UpdateDataSource();
+
+        label1.Text = "Annotation/property mapping - " + Path.GetFileName(subdir);
+
+        dlgOpenDirectory.SelectedPath = subdir;
+        dlgSaveFormatFile.FileName = Path.Combine(subdir, Path.GetFileName(subdir) + ".siformat");
       }
-
-      items.DefaultValues.Clear();
-
-      items.Sort((m1, m2) => m1.AnnotationName.CompareTo(m2.AnnotationName));
-
-      UpdateDataSource();
-
-      label1.Text = "Annotation/property mapping - " + Path.GetFileName(subdir);
-
-      dlgOpenDirectory.SelectedPath = subdir;
-      dlgSaveFormatFile.FileName = Path.Combine(subdir, Path.GetFileName(subdir) + ".siformat");
+      catch (Exception ex)
+      {
+        MessageBox.Show(this, ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+      }
     }
 
     public class Command : IToolCommand

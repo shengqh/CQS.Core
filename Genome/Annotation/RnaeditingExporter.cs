@@ -7,7 +7,7 @@ using RCPA;
 
 namespace CQS.Genome.Annotation
 {
-  public class RnaeditingExporter : IAnnotationCsvExporter
+  public class RnaeditingExporter : IAnnotationTsvExporter
   {
     private List<RnaeditItem> items;
     private Dictionary<string, List<RnaeditItem>> maps;

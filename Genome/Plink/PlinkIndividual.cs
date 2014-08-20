@@ -15,6 +15,11 @@ namespace CQS.Genome.Plink
     public string Sexcode { get; set; }
     public double Phenotype { get; set; }
 
+    /// <summary>
+    /// Read individual from fam file of bed format, or from ped file of ped format
+    /// </summary>
+    /// <param name="fileName">fam/ped file</param>
+    /// <returns>list of PlinkIndividual</returns>
     public static List<PlinkIndividual> ReadFromFile(string fileName)
     {
       var result = new List<PlinkIndividual>();
@@ -50,6 +55,5 @@ namespace CQS.Genome.Plink
 
       return result;
     }
-
   }
 }

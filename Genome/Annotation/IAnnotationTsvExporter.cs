@@ -5,7 +5,7 @@ using System.Text;
 
 namespace CQS.Genome.Annotation
 {
-  public interface IAnnotationCsvExporter
+  public interface IAnnotationTsvExporter
   {
     string GetHeader();
 

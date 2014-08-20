@@ -90,7 +90,7 @@ namespace CQS.Genome.Plink
 
       Data = new PlinkData();
       Data.Individual = PlinkIndividual.ReadFromFile(famFile);
-      Data.Locus = PlinkLocus.ReadFromFile(bimFile);
+      Data.Locus = PlinkLocus.ReadFromBimFile(bimFile);
       Data.Locus.ForEach(m => m.Name = m.Name.ToLower());
       Data.BuildMap();
 

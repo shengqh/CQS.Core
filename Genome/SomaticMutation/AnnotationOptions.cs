@@ -13,26 +13,22 @@ namespace CQS.Genome.SomaticMutation
     [Option("annovar", HelpText = "Annotation by annovar.")]
     public bool Annovar { get; set; }
 
+    public string AnnovarCommand { get; private set; }
+
     [Option("annovar_set_default", DefaultValue = false, HelpText = "Set current setting as annovar default setting")]
     public bool AnnovarSetDefault { get; set; }
+
+    [Option("annovar_buildver", MetaValue = "STRING", HelpText = "Annovar database version, for example: hg19)")]
+    public string AnnovarBuildVersion { get; set; }
 
     [Option("annovar_db", MetaValue = "DIRECTORY", HelpText = "The directory contains annovar databases")]
     public string AnnovarDatabaseDirectory { get; set; }
 
-    [Option("annovar_buildver", MetaValue = "STRING", HelpText = "Annovar database version (such as hg19, mm10)")]
-    public string AnnovarBuildVersion { get; set; }
+    [Option("annovar_protocol", MetaValue = "STRING", HelpText = "Annovar protocols, for example: refGene,snp138,cosmic68")]
+    public string AnnovarProtocol { get; set; }
 
-    [Option("annovar_verdbsnp", MetaValue = "STRING", HelpText = "dbSNP version to use")]
-    public string AnnovarVerdbsnp { get; set; }
-
-    [Option("annovar_ver1000g", MetaValue = "STRING", HelpText = "1000G version")]
-    public string AnnovarVer1000g { get; set; }
-
-    [Option("annovar_veresp", MetaValue = "STRING", HelpText = "ESP version")]
-    public string AnnovarVeresp { get; set; }
-
-    [Option("annovar_genetype", MetaValue = "STRING", DefaultValue = "refgene", HelpText = "gene definition can be refgene , knowngene, ensgene")]
-    public string AnnovarGenetype { get; set; }
+    [Option("annovar_operation", MetaValue = "STRING", HelpText = "Annovar operation, must match with annovar protocols, for example: g,f,f")]
+    public string AnnovarOperation { get; set; }
 
     [Option("distance", HelpText = "Annotation by distance to entries from assigned bed files.")]
     public bool Distance { get; set; }
@@ -80,15 +76,13 @@ namespace CQS.Genome.SomaticMutation
     {
       get
       {
-        return string.Format("--buildver {0} --verdbsnp {1} --ver1000g {2} --veresp {3} --genetype {4} --alltranscript --remove --outfile {5} {6} {7}",
-          this.AnnovarBuildVersion,
-          this.AnnovarVerdbsnp,
-          this.AnnovarVer1000g,
-          this.AnnovarVeresp,
-          this.AnnovarGenetype,
-          this.AnnovarOutputFile,
+        return string.Format("{0} {1} --buildver {2} --protocol {3} --operation {4} --remove --outfile {5}",
           this.AnnovarInputFile,
-          this.AnnovarDatabaseDirectory);
+          this.AnnovarDatabaseDirectory,
+          this.AnnovarBuildVersion,
+          this.AnnovarProtocol,
+          this.AnnovarOperation,
+          this.AnnovarOutputFile);
       }
     }
 
@@ -102,38 +96,31 @@ namespace CQS.Genome.SomaticMutation
           return false;
         }
 
-        var annovar = this.Config.FindOrCreate("annovar", "summarize_annovar.pl");
+        var annovar = this.Config.FindOrCreate("annovar", "table_annovar.pl");
+
+        this.AnnovarCommand = annovar.Command;
+
         if (!annovar.HasParameterSet(this.AnnovarBuildVersion))
         {
           var paramset = new ParameterConfig(this.AnnovarBuildVersion);
-          paramset.Parameters["verdbsnp"] = string.IsNullOrEmpty(this.AnnovarVerdbsnp) ? string.Empty : this.AnnovarVerdbsnp;
-          paramset.Parameters["ver1000g"] = string.IsNullOrEmpty(this.AnnovarVer1000g) ? string.Empty : this.AnnovarVer1000g;
-          paramset.Parameters["veresp"] = string.IsNullOrEmpty(this.AnnovarVeresp) ? string.Empty : this.AnnovarVeresp;
-          paramset.Parameters["genetype"] = string.IsNullOrEmpty(this.AnnovarGenetype) ? string.Empty : this.AnnovarGenetype;
           paramset.Parameters["databasedir"] = string.IsNullOrEmpty(this.AnnovarDatabaseDirectory) ? string.Empty : this.AnnovarDatabaseDirectory;
+          paramset.Parameters["protocol"] = string.IsNullOrEmpty(this.AnnovarProtocol) ? string.Empty : this.AnnovarProtocol;
+          paramset.Parameters["operation"] = string.IsNullOrEmpty(this.AnnovarOperation) ? string.Empty : this.AnnovarOperation;
           annovar.ParameterSet[paramset.Name] = paramset;
           this.Config.Save();
           Console.WriteLine(string.Format("annovar buildver {0} is not defined at configuration file {1}, you can modify the configuration file for default parameters!", paramset.Name, this.Config.ConfigFilename));
         }
 
         var set = annovar.ParameterSet[this.AnnovarBuildVersion];
-        if (!CheckParameter("annovar_verdbsnp", annovar, set, "verdbsnp", m => m.AnnovarVerdbsnp, (m, n) => m.AnnovarVerdbsnp = n))
-        {
-          return false;
-        }
-        if (!CheckParameter("annovar_ver1000g", annovar, set, "ver1000g", m => m.AnnovarVer1000g, (m, n) => m.AnnovarVer1000g = n))
-        {
-          return false;
-        }
-        if (!CheckParameter("annovar_veresp", annovar, set, "veresp", m => m.AnnovarVeresp, (m, n) => m.AnnovarVeresp = n))
-        {
-          return false;
-        }
-        if (!CheckParameter("annovar_genetype", annovar, set, "genetype", m => m.AnnovarGenetype, (m, n) => m.AnnovarGenetype = n))
-        {
-          return false;
-        }
         if (!CheckParameter("annovar_databasedir", annovar, set, "databasedir", m => m.AnnovarDatabaseDirectory, (m, n) => m.AnnovarDatabaseDirectory = n))
+        {
+          return false;
+        }
+        if (!CheckParameter("annovar_protocol", annovar, set, "protocol", m => m.AnnovarProtocol, (m, n) => m.AnnovarProtocol = n))
+        {
+          return false;
+        }
+        if (!CheckParameter("annovar_operation", annovar, set, "operation", m => m.AnnovarOperation, (m, n) => m.AnnovarOperation = n))
         {
           return false;
         }
@@ -152,11 +139,9 @@ namespace CQS.Genome.SomaticMutation
 
         if (this.AnnovarSetDefault)
         {
-          set.Parameters["verdbsnp"] = this.AnnovarVerdbsnp;
-          set.Parameters["ver1000g"] = this.AnnovarVer1000g;
-          set.Parameters["veresp"] = this.AnnovarVeresp;
-          set.Parameters["genetype"] = this.AnnovarGenetype;
           set.Parameters["databasedir"] = this.AnnovarDatabaseDirectory;
+          set.Parameters["protocol"] = this.AnnovarProtocol;
+          set.Parameters["operation"] = this.AnnovarOperation;
           annovar.DefaultParameterSet = this.AnnovarBuildVersion;
           this.Config.Save();
         }

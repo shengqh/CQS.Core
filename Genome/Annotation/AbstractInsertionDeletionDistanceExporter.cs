@@ -8,7 +8,7 @@ using RCPA;
 
 namespace CQS.Genome.Annotation
 {
-  public abstract class AbstractInsertionDeletionDistanceExporter : IAnnotationCsvExporter
+  public abstract class AbstractInsertionDeletionDistanceExporter : IAnnotationTsvExporter
   {
     private Dictionary<string, List<InsertionDeletionItem>> maps;
     private string header = null;
@@ -17,8 +17,8 @@ namespace CQS.Genome.Annotation
     public AbstractInsertionDeletionDistanceExporter(string insdelBedFile, string name)
     {
       this.maps = CollectionUtils.ToGroupDictionary(new BedItemFile<InsertionDeletionItem>().ReadFromFile(insdelBedFile), m => m.Seqname);
-      this.header = string.Format("distance_{0},distance_{0}_position", name);
-      this.emptyStr = ",";
+      this.header = string.Format("distance_{0}\tdistance_{0}_position", name);
+      this.emptyStr = "\t";
     }
 
     public string GetHeader()

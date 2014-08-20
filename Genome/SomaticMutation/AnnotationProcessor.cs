@@ -22,7 +22,7 @@ namespace CQS.Genome.SomaticMutation
       var watch = new Stopwatch();
       watch.Start();
 
-      var exporters = new List<IAnnotationCsvExporter>();
+      var exporters = new List<IAnnotationTsvExporter>();
 
       if (_options.Annovar)
       {
@@ -48,7 +48,7 @@ namespace CQS.Genome.SomaticMutation
             string line;
             while ((line = sr.ReadLine()) != null)
             {
-              var parts = line.Split(',');
+              var parts = line.Split('\t');
               if (parts.Length > 4)
               {
                 sw.WriteLine(parts.Take(5).Merge('\t'));
@@ -61,7 +61,7 @@ namespace CQS.Genome.SomaticMutation
         {
           StartInfo = new ProcessStartInfo
           {
-            FileName = "summarize_annovar.pl",
+            FileName = _options.AnnovarCommand,
             Arguments = _options.AnnovarParameter,
             UseShellExecute = false,
             RedirectStandardOutput = true,
@@ -98,7 +98,7 @@ namespace CQS.Genome.SomaticMutation
           return false;
         }
 
-        var annovarResultFile = _options.AnnovarOutputFile + ".genome_summary.csv";
+        var annovarResultFile = _options.AnnovarOutputFile + "." + _options.AnnovarBuildVersion + "_multianno.txt";
         if (!File.Exists(annovarResultFile))
         {
           Console.Out.WriteLine("Annovar might be failed: cannot find annovar result {0}", annovarResultFile);

@@ -86,6 +86,8 @@
     <Compile Include="Genome\Annotation\AnnovarResultMultipleToOneBuilder.cs" />
     <Compile Include="Genome\Annotation\AnnovarResultMultipleToOneBuilderOptions.cs" />
     <Compile Include="Genome\Annotation\AnnovarResultMultipleToOneBuilderCommand.cs" />
+    <Compile Include="Genome\Annotation\AnnovarSummaryItemList.cs" />
+    <Compile Include="Genome\Annotation\AnnovarSummaryItemListReader.cs" />
     <Compile Include="Genome\Annotation\ParalyzerClusterAnnotatorCommand.cs" />
     <Compile Include="Genome\Annotation\ParalyzerClusterAnnotator.cs" />
     <Compile Include="Genome\Annotation\ParalyzerClusterAnnotatorOptions.cs" />
@@ -155,6 +157,7 @@
     <Compile Include="Genome\Pileup\AlleleCountBuilder.cs" />
     <Compile Include="Genome\Pileup\SomaticMutationPileupBuilderOptions.cs" />
     <Compile Include="Genome\Pileup\SomaticMutationPileupBuilder.cs" />
+    <Compile Include="Genome\Plink\PlinkPedFile.cs" />
     <Compile Include="Genome\Plink\PlinkBedRandomFile.cs" />
     <Compile Include="Genome\Plink\PlinkBedFile.cs" />
     <Compile Include="Genome\Plink\PlinkData.cs" />
@@ -363,7 +366,7 @@
     <Compile Include="Genome\Annotation\InsertionDistanceExporter.cs" />
     <Compile Include="Genome\Annotation\AbstractInsertionDeletionDistanceExporter.cs" />
     <Compile Include="Genome\Annotation\JunctionDistanceExporter.cs" />
-    <Compile Include="Genome\Annotation\IAnnotationCsvExporter.cs" />
+    <Compile Include="Genome\Annotation\IAnnotationTsvExporter.cs" />
     <Compile Include="Genome\Annotation\AnnovarGenomeSummaryRefinedResultBuilderUI.cs">
       <SubType>Form</SubType>
     </Compile>

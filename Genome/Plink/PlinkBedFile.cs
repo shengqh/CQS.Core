@@ -34,7 +34,7 @@ namespace CQS.Genome.Plink
 
       var result = new PlinkData();
       result.Individual = PlinkIndividual.ReadFromFile(famFile);
-      result.Locus = PlinkLocus.ReadFromFile(bimFile);
+      result.Locus = PlinkLocus.ReadFromBimFile(bimFile);
       result.AllocateDataMemory();
 
       OpenBinaryFile(fileName);
@@ -45,15 +45,14 @@ namespace CQS.Genome.Plink
           for (int i = 0; i < result.Locus.Count; i++)
           {
             int j = 0;
-            Console.WriteLine("Locus {0} : {1}", i, _reader.BaseStream.Position);
             while (j < result.Individual.Count)
             {
               var b = ReadByte();
               int c = 0;
               while (c < 7 && j < result.Individual.Count)
               {
-                result.One[i, j] = b[c++];
-                result.Two[i, j] = b[c++];
+                result.IsOneMinor[i, j] = b[c++];
+                result.IsTwoMinor[i, j] = b[c++];
                 j++;
               }
             }
@@ -70,8 +69,8 @@ namespace CQS.Genome.Plink
               int c = 0;
               while (c < 7 && j < result.Locus.Count)
               {
-                result.One[j, i] = b[c++];
-                result.Two[j, i] = b[c++];
+                result.IsOneMinor[j, i] = b[c++];
+                result.IsTwoMinor[j, i] = b[c++];
                 j++;
               }
             }

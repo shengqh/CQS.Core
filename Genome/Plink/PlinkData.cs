@@ -17,15 +17,43 @@ namespace CQS.Genome.Plink
     /// </summary>
     public List<PlinkIndividual> Individual { get; set; }
 
+    //From plink/input.cpp
+    //// 00 hom
+    //if (one==loc->allele1 && two==loc->allele1)
+    //  {
+    //    person->one[k]=false;
+    //    person->two[k]=false;
+    //  }
+    //// 01 het
+    //else if (one!=par::missing_genotype &&
+    //         two!=par::missing_genotype &&
+    //         one!=two)
+    //  {
+    //    person->one[k]=false;
+    //    person->two[k]=true;
+    //  }
+    //// 11 hom
+    //else if (one==loc->allele2 && two==loc->allele2)
+    //  {
+    //    person->one[k]=true;
+    //    person->two[k]=true;
+    //  }
+    //// 10 missing
+    //else if (one==par::missing_genotype || two==par::missing_genotype)
+    //  {
+    //    person->one[k]=true;
+    //    person->two[k]=false;
+    //  }
+
     /// <summary>
     /// First allele matrix of [locus, individual]
     /// </summary>
-    public bool[,] One { get; set; }
+    public bool[,] IsOneMinor { get; set; }
 
     /// <summary>
     /// Second allele matrix of [locus, individual]
     /// </summary>
-    public bool[,] Two { get; set; }
+    public bool[,] IsTwoMinor { get; set; }
 
     public Dictionary<string, int> LocusMap { get; private set; }
 
@@ -36,8 +64,8 @@ namespace CQS.Genome.Plink
     /// </summary>
     public void AllocateDataMemory()
     {
-      this.One = new bool[Locus.Count, Individual.Count];
-      this.Two = new bool[Locus.Count, Individual.Count];
+      this.IsOneMinor = new bool[Locus.Count, Individual.Count];
+      this.IsTwoMinor = new bool[Locus.Count, Individual.Count];
     }
 
     public void BuildMap()
@@ -60,12 +88,10 @@ namespace CQS.Genome.Plink
     /// </summary>
     /// <param name="locus">locus (zero based)</param>
     /// <param name="individual">individual (zero based)</param>
-    /// <returns>geno type, 0:normal-normal, 1:normal-mutation, 2:mutation-mutation</returns>
+    /// <returns>geno type, 0:major-major, 1:major-minor, 2:minor-minor, 3:missing</returns>
     public int GenoType(int locus, int individual)
     {
-      int g1 = One[locus, individual] ? 1 : 0;
-      int g2 = Two[locus, individual] ? 1 : 0;
-      return g1 + g2;
+      return GetGenoType(IsOneMinor[locus, individual], IsTwoMinor[locus, individual]);
     }
 
     /// <summary>
@@ -76,7 +102,22 @@ namespace CQS.Genome.Plink
     /// <returns>first allele</returns>
     public string Allele1(int locus, int individual)
     {
-      return One[locus, individual] ? Locus[locus].Allele2 : Locus[locus].Allele1;
+      if (IsMissing(locus, individual))
+      {
+        return "0";
+      }
+
+      return IsOneMinor[locus, individual] ? Locus[locus].Allele2 : Locus[locus].Allele1;
+    }
+
+    public static bool IsMissing(bool isOneMinor, bool isTwoMinor)
+    {
+      return isOneMinor && !isTwoMinor;
+    }
+
+    public bool IsMissing(int locus, int individual)
+    {
+      return IsMissing(IsOneMinor[locus, individual], IsTwoMinor[locus, individual]);
     }
 
     /// <summary>
@@ -87,7 +128,12 @@ namespace CQS.Genome.Plink
     /// <returns>second allele</returns>
     public string Allele2(int locus, int individual)
     {
-      return Two[locus, individual] ? Locus[locus].Allele2 : Locus[locus].Allele1;
+      if (IsMissing(locus, individual))
+      {
+        return "0";
+      }
+
+      return IsTwoMinor[locus, individual] ? Locus[locus].Allele2 : Locus[locus].Allele1;
     }
 
     private string DoAllele(int locus, string delimiter, Func<int, int, string> func)
@@ -149,19 +195,30 @@ namespace CQS.Genome.Plink
       return LocusAllele2(this.LocusMap[locusName], delimiter);
     }
 
-    public static int GetGenoType(bool snp1, bool snp2)
+    public static int GetGenoType(bool isAllele1Minor, bool isAllele2Minor)
     {
-      if (snp1)
+      if (isAllele1Minor)
       {
-        return 2;
+        if (isAllele2Minor)
+        {
+          return 2;//minor-minor
+        }
+        else
+        {
+          return 3; //missing value
+        }
       }
-
-      if (snp2)
+      else
       {
-        return 1;
+        if (isAllele2Minor)
+        {
+          return 1;//major-minor
+        }
+        else
+        {
+          return 0;//major-major
+        }
       }
-
-      return 0;
     }
 
     /// <summary>
@@ -179,7 +236,7 @@ namespace CQS.Genome.Plink
         {
           sb.Append(delimiter);
         }
-        sb.Append(GetGenoType(One[locus, j], Two[locus, j]));
+        sb.Append(GetGenoType(IsOneMinor[locus, j], IsTwoMinor[locus, j]));
       }
       return sb.ToString();
     }
