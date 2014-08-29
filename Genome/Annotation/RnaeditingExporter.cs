@@ -25,8 +25,8 @@ namespace CQS.Genome.Annotation
       Console.WriteLine("rnaediting directionary built.");
       this.header = (from m in new string[] { "strand", "inchr", "inrna", "gene", "seqReg", "exReg", "source", "PubMedID" }
                      let n = "rnaediting_" + m
-                     select n).Merge(",");
-      this.emptyStr = new String(',', header.Count(m => m == ','));
+                     select n).Merge("\t");
+      this.emptyStr = new String('\t', header.Count(m => m == '\t'));
     }
 
     public string GetHeader()
@@ -40,7 +40,7 @@ namespace CQS.Genome.Annotation
       if (maps.ContainsKey(key))
       {
         var items = maps[key];
-        return string.Format("{0},{1},{2},{3},{4},{5},{6},{7}",
+        return string.Format("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}",
            GetValue(items, m => m.Strand.ToString()),
            GetValue(items, m => m.NucleotideInChromosome.ToString()),
            GetValue(items, m => m.NucleotideInRNA.ToString()),
@@ -59,7 +59,7 @@ namespace CQS.Genome.Annotation
     private string GetValue(List<RnaeditItem> items, Func<RnaeditItem, string> func)
     {
       var strs = (from item in items
-                  select func(item).Trim().Replace(',',':')).ToList();
+                  select func(item).Trim().Replace('\t',' ')).ToList();
 
       if (strs.All(m => string.IsNullOrEmpty(m)))
       {

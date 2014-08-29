@@ -18,9 +18,9 @@ namespace CQS.Genome.Annotation
       this.keyFunc = keyFunc;
       this.annovarItems = new AnnovarSummaryItemListReader().ReadFromFile(fileName);
       this.annovarMap = annovarItems.ToDictionary(m => keyFunc(m.Seqname, m.Start));
-      this.emptyStr = new String(',', annovarItems.Headers.Count());
+      this.emptyStr = new String('\t', annovarItems.Headers.Count());
       this.annovarHeader = (from h in annovarItems.Headers
-                            select "annovar_" + h).Merge(',');
+                            select "annovar_" + h).Merge('\t');
     }
 
     public string GetHeader()
@@ -33,7 +33,7 @@ namespace CQS.Genome.Annotation
       var key = keyFunc(chrom, start);
       if (annovarMap.ContainsKey(key))
       {
-        return annovarMap[key].Values.Merge(",");
+        return annovarMap[key].Values.Merge("\t");
       }
       else
       {

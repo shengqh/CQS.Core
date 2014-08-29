@@ -32,12 +32,47 @@ namespace CQS.Genome.Mapping
         });
       }
 
+      var removedReads = string.IsNullOrEmpty(options.PerfectMappedNameFile) ? new HashSet<string>() : new HashSet<string>(File.ReadAllLines(options.PerfectMappedNameFile));
+
       var cm = options.GetCountMap();
+      if (!string.IsNullOrEmpty(options.PerferPrefix))
+      {
+        samitems.ForEach(m =>
+        {
+          if (m.Locations.Any(l => IsPerferPrefix(l)))
+          {
+            m.RemoveLocation(l => !IsPerferPrefix(l));
+          }
+        });
+      }
+
+      if (removedReads.Count > 0)
+      {
+        if (!string.IsNullOrEmpty(options.PerferPrefix))
+        {
+          //keep all reads with perferName
+          samitems.RemoveAll(m =>
+          {
+            if (!m.Locations.Any(l => IsPerferPrefix(l)))
+            {
+              if (removedReads.Contains(m.Qname))
+              {
+                return true;
+              }
+            }
+
+            return false;
+          });
+        }
+        else
+        {
+          //remove all perfect mapped 
+          samitems.RemoveAll(m => removedReads.Contains(m.Qname));
+        }
+      }
+
       samitems.ForEach(m =>
       {
-        if(m.Locations.Any(l => IsHuman(l))){
-          m.RemoveLocation(l => !IsHuman(l));
-        }
         m.QueryCount = cm.GetCount(m.Qname);
         m.SortLocations();
       });
@@ -58,14 +93,20 @@ namespace CQS.Genome.Mapping
       chroms.Sort((m1, m2) => m2.QueryCount.CompareTo(m1.QueryCount));
       using (var sw = new StreamWriter(options.OutputFile))
       {
+        if (!string.IsNullOrEmpty(options.PerferPrefix))
+        {
+          foreach (var mirna in chroms)
+          {
+            if (mirna.Names.Any(m => m.StartsWith(options.PerferPrefix)))
+            {
+              mirna.Names.RemoveWhere(m => !m.StartsWith(options.PerferPrefix));
+            }
+          }
+        }
+
         sw.WriteLine("Name\tQueryCount");
         foreach (var mirna in chroms)
         {
-          if (mirna.Names.Any(m => m.StartsWith("hsa")))
-          {
-            mirna.Names.RemoveWhere(m => !m.StartsWith("hsa"));
-          }
-
           sw.WriteLine((from m in mirna.Names orderby m select m).Merge(";") + "\t" + mirna.QueryCount);
         }
       }
@@ -76,9 +117,9 @@ namespace CQS.Genome.Mapping
     }
 
 
-    private static bool IsHuman(SAMAlignedLocation l)
+    private bool IsPerferPrefix(SAMAlignedLocation l)
     {
-      return l.Seqname.StartsWith("hsa");
+      return l.Seqname.StartsWith(options.PerferPrefix);
     }
   }
 }

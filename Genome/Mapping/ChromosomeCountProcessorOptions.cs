@@ -35,6 +35,12 @@ namespace CQS.Genome.Mapping
     [Option('c', "countFile", Required = false, MetaValue = "FILE", HelpText = "Sequence/count file")]
     public string CountFile { get; set; }
 
+    [Option('n', "perferName", Required = false, DefaultValue="hsa", MetaValue = "String", HelpText = "The prefer name that kept for multiple mapped reads")]
+    public string PerferPrefix { get; set; }
+
+    [Option('p', "perfectMappedNameFile", Required = false, MetaValue = "FILE", HelpText = "The name of reads that perfect mapped to genome")]
+    public string PerfectMappedNameFile { get; set; }
+
     [Option('o', "outputFile", Required = false, MetaValue = "FILE", HelpText = "Output count file")]
     public string OutputFile { get; set; }
 
@@ -64,6 +70,12 @@ namespace CQS.Genome.Mapping
       if (!string.IsNullOrEmpty(this.CountFile) && !File.Exists(this.CountFile))
       {
         ParsingErrors.Add(string.Format("Count file not exists {0}.", this.CountFile));
+        return false;
+      }
+
+      if (!string.IsNullOrEmpty(this.PerfectMappedNameFile) && !File.Exists(this.PerfectMappedNameFile))
+      {
+        ParsingErrors.Add(string.Format("Perfect mapped name file not exists {0}.", this.PerfectMappedNameFile));
         return false;
       }
 

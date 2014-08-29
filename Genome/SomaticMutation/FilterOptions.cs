@@ -7,16 +7,22 @@ namespace CQS.Genome.SomaticMutation
 {
   public class FilterOptions : AbstractProgramOptions
   {
+    public const double DEFAULT_ErrorRate = 0.01;
+
     public FilterOptions()
     {
       SourceRFile = FileUtils.GetTemplateDir() + "/rsmc.r";
+      ErrorRate = DEFAULT_ErrorRate;
       PValue = PileupOptions.DefaultPValue;
       MinimumBaseQuality = PileupOptions.DefaultMinimumBaseQuality;
     }
 
     public string SourceRFile { get; set; }
 
-    [Option('v', "pvalue", MetaValue = "DOUBLE", DefaultValue = PileupOptions.DefaultPValue, HelpText = "pvalue used for significance test")]
+    [Option("error_rate", MetaValue = "DOUBLE", DefaultValue = DEFAULT_ErrorRate, HelpText = "Sequencing error rate for normal sample test")]
+    public double ErrorRate { get; set; }
+
+    [Option('e', "pvalue", MetaValue = "DOUBLE", DefaultValue = PileupOptions.DefaultPValue, HelpText = "pvalue used for significance test")]
     public double PValue { get; set; }
 
     [Option('q', "base_quality", MetaValue = "INT", DefaultValue = PileupOptions.DefaultMinimumBaseQuality,
@@ -73,6 +79,7 @@ namespace CQS.Genome.SomaticMutation
             sw.WriteLine("outputfile<-\"{0}\"", Path.GetFullPath(OutputFile).Replace("\\", "/"));
           }
           sw.WriteLine("pvalue<-{0}", PValue);
+          sw.WriteLine("errorrate<-{0}", ErrorRate);
 
           var inpredefined = true;
           foreach (var line in lines)

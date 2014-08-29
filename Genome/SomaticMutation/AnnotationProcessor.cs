@@ -129,19 +129,19 @@ namespace CQS.Genome.SomaticMutation
         }
       }
 
-      var resultfile = Path.ChangeExtension(_options.InputFile, ".annotation.csv");
+      var resultfile = Path.ChangeExtension(_options.InputFile, ".annotation.tsv");
       Console.WriteLine("writing merged result " + resultfile + " ...");
       using (var sw = new StreamWriter(resultfile))
       {
         using (var sr = new StreamReader(_options.InputFile))
         {
           var line = sr.ReadLine();
-          var parts = line.Split('\t');
-
-          sw.WriteLine("{0},{1}", parts.Merge(','), (from exporter in exporters
-            select exporter.GetHeader()).Merge(','));
-
           var delimiter = _options.InputFile.EndsWith(".tsv") ? '\t' : ',';
+
+          var parts = line.Split(delimiter);
+
+          sw.WriteLine("{0}\t{1}", parts.Merge('\t'), (from exporter in exporters
+            select exporter.GetHeader()).Merge('\t'));
 
           while ((line = sr.ReadLine()) != null)
           {
@@ -149,8 +149,8 @@ namespace CQS.Genome.SomaticMutation
             var chr = parts[0];
             var position = long.Parse(parts[1]);
             //Console.WriteLine("{0}\t{1}", chr, position);
-            sw.WriteLine("{0},{1}", parts.Merge(','), (from exporter in exporters
-              select exporter.GetValue(chr, position, position)).Merge(','));
+            sw.WriteLine("{0}\t{1}", parts.Merge('\t'), (from exporter in exporters
+              select exporter.GetValue(chr, position, position)).Merge('\t'));
           }
         }
       }

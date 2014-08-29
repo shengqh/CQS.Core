@@ -74,8 +74,7 @@ namespace CQS.Genome.SomaticMutation
     [Option('m', "mpileup", MetaValue = "FILE", Required = false, HelpText = "Samtools mpileup result file")]
     public string MpileupFile { get; set; }
 
-    [Option('e', "pvalue", MetaValue = "DOUBLE", DefaultValue = DefaultPValue,
-      HelpText = "pvalue used for significance test")]
+    [Option('e', "pvalue", MetaValue = "DOUBLE", DefaultValue = DefaultPValue,  HelpText = "pvalue used for significance test")]
     public double PValue { get; set; }
 
     [Option('q', "base_quality", MetaValue = "INT", DefaultValue = DefaultMinimumBaseQuality,

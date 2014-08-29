@@ -19,8 +19,8 @@ namespace CQS.Genome.Annotation
       this.maps = CollectionUtils.ToGroupDictionary(new TophatJunctionBedReader().ReadFromFile(junctionBedFile), m => m.Chr);
       this.header = (from h in new string[] { "junction", "junction_name", "junction_position", "terminal", "terminal_name", "terminal_position" }
                      let t = "distance_" + h
-                     select t).Merge(",");
-      this.emptyStr = new String(',', header.Count(m => m == ','));
+                     select t).Merge("\t");
+      this.emptyStr = new String('\t', header.Count(m => m == '\t'));
     }
 
     public string GetHeader()
@@ -51,7 +51,7 @@ namespace CQS.Genome.Annotation
       var terminalDistance = minDistance;
       var terminalItem = minJunction;
 
-      return string.Format("{0},{1},{2}-{3}:{4}-{5},{6},{7},{8}-{9}:{10}-{11}",
+      return string.Format("{0}\t{1}\t{2}-{3}:{4}-{5}\t{6}\t{7}\t{8}-{9}:{10}-{11}",
         junctionDistance, junctionItem.Name, junctionItem.Start1, junctionItem.End1, junctionItem.Start2, junctionItem.End2,
           terminalDistance, terminalItem.Name, terminalItem.Start1, terminalItem.End1, terminalItem.Start2, terminalItem.End2);
     }

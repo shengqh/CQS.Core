@@ -6,6 +6,9 @@ namespace CQS.Genome.SomaticMutation
 {
   public class AllOptions : PileupOptions
   {
+    [Option("error_rate", MetaValue = "DOUBLE", DefaultValue = FilterOptions.DEFAULT_ErrorRate, HelpText = "Sequencing error rate for normal sample test")]
+    public double ErrorRate { get; set; }
+
     [Option("annovar", HelpText = "Annotation by annovar.")]
     public bool Annovar { get; set; }
 
@@ -51,14 +54,14 @@ namespace CQS.Genome.SomaticMutation
 
     public FilterOptions GetFilterOptions()
     {
-      var result = new FilterOptions
-      {
-        Config = Config,
-        IsPileup = true,
-        InputFile = BaseFilename,
-        OutputFile = FilterResultFile,
-        PValue = PValue
-      };
+      var result = new FilterOptions();
+
+      result.Config = Config;
+      result.IsPileup = true;
+      result.InputFile = BaseFilename;
+      result.OutputFile = FilterResultFile;
+      result.PValue = PValue;
+      result.ErrorRate = ErrorRate;
 
       return result;
     }
