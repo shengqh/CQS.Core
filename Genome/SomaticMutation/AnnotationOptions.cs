@@ -42,6 +42,9 @@ namespace CQS.Genome.SomaticMutation
     [Option("distance_junction_bed", MetaValue = "FILE", HelpText = "Junction bed file for distance calculation.")]
     public string DistanceJunctionBed { get; set; }
 
+    [Option("distance_exon_gtf", MetaValue = "FILE", HelpText = "Exon gtf file for distance calculation.")]
+    public string GtfFile { get; set; }
+
     [Option("rnaediting", HelpText = "Annotation by rna editing database.")]
     public bool Rnaediting { get; set; }
 
@@ -186,6 +189,17 @@ namespace CQS.Genome.SomaticMutation
           if (!File.Exists(this.DistanceInsertionBed))
           {
             ParsingErrors.Add(string.Format("--distance_junction_bed : file not exists : {0}", this.DistanceJunctionBed));
+            return false;
+          }
+
+          count++;
+        }
+
+        if (!string.IsNullOrEmpty(this.GtfFile))
+        {
+          if (!File.Exists(this.GtfFile))
+          {
+            ParsingErrors.Add(string.Format("--distance_exon_gtf : file not exists : {0}", this.GtfFile));
             return false;
           }
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CQS.Genome.Feature;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,7 +10,7 @@ namespace CQS.Genome.Mapping
   {
     public string ItemName { get; set; }
 
-    public Dictionary<string, MappedItemGroup> NameGroupMap { get; set; }
+    public Dictionary<string, FeatureItemGroup> NameGroupMap { get; set; }
 
     public HashSet<string> DisplayNames { get; set; }
 
@@ -19,7 +20,7 @@ namespace CQS.Genome.Mapping
                                               select d.DisplayName);
     }
 
-    public Dictionary<string, MappedItemGroup> DisplayNameGroupMap { get; set; }
+    public Dictionary<string, FeatureItemGroup> DisplayNameGroupMap { get; set; }
 
     public void InitializeDisplayNameMap()
     {
@@ -39,7 +40,7 @@ namespace CQS.Genome.Mapping
     {
       Clear();
 
-      var format = new MappedItemGroupXmlFileFormat();
+      var format = new FeatureItemGroupXmlFormat();
 
       this.AddRange(from file in options.GetCountFiles()
                     let xmlfile = file.File.EndsWith(".xml") ? file.File : file.File + ".mapped.xml"
@@ -48,7 +49,7 @@ namespace CQS.Genome.Mapping
                       ItemName = file.Name,
                       NameGroupMap = (from m in format.ReadFromFile(xmlfile)
                                       from n in m
-                                      select new MappedItemGroup(n)).ToDictionary(m => m.Name)
+                                      select new FeatureItemGroup(n)).ToDictionary(m => m.Name)
                     });
 
       var names = (from countItem in this
@@ -82,7 +83,7 @@ namespace CQS.Genome.Mapping
       return result;
     }
 
-    private void MergeGroup(Dictionary<string, MappedItemGroup> m, string namej, string namei)
+    private void MergeGroup(Dictionary<string, FeatureItemGroup> m, string namej, string namei)
     {
       var gi = m[namei];
       var gj = m[namej];
@@ -90,7 +91,7 @@ namespace CQS.Genome.Mapping
       m.Remove(namei);
     }
 
-    private bool HasSameQuery(Dictionary<string, MappedItemGroup> m, string namej, string namei)
+    private bool HasSameQuery(Dictionary<string, FeatureItemGroup> m, string namej, string namei)
     {
       if (m.ContainsKey(namei) && m.ContainsKey(namej))
       {

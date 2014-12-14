@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CQS.Genome.Gtf;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -219,5 +220,12 @@ namespace CQS.Genome.Bed
     }
 
     public string Sequence { get; set; }
+
+    public GtfItem ToGtfItem()
+    {
+      var result = new GtfItem(this);
+      result.Start = result.Start + 1;
+      return result;
+    }
   }
 }

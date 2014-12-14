@@ -1,0 +1,124 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Xml.Linq;
+using CQS.Genome.Sam;
+using RCPA;
+
+namespace CQS.Genome.Feature
+{
+  public class FeatureItemGroupXmlFormat : IFileFormat<List<FeatureItemGroup>>
+  {
+    private bool exportPValue;
+
+    public FeatureItemGroupXmlFormat(bool exportPValue = false)
+    {
+      this.exportPValue = exportPValue;
+    }
+
+    public List<FeatureItemGroup> ReadFromFile(string fileName)
+    {
+      Console.WriteLine("read file {0} ...", fileName);
+      var result = new List<FeatureItemGroup>();
+
+      XElement root = XElement.Load(fileName);
+
+      //Console.WriteLine("read locations ...");
+      Dictionary<string, SamAlignedLocation> qmmap = root.ToSAMAlignedLocationMap();
+
+      //Console.WriteLine("read mapped items ...");
+      foreach (XElement groupEle in root.Element("subjectResult").Elements("subjectGroup"))
+      {
+        var group = new FeatureItemGroup();
+        result.Add(group);
+
+        foreach (XElement featureEle in groupEle.Elements("subject"))
+        {
+          var item = new FeatureItem();
+          group.Add(item);
+          item.Name = featureEle.Attribute("name").Value;
+
+          foreach (XElement locEle in featureEle.Elements("region"))
+          {
+            var fl = new FeatureLocation();
+            item.Mapped.Add(fl);
+
+            fl.Name = item.Name;
+            fl.ParseLocation(locEle);
+
+            if (locEle.Attribute("sequence") != null)
+            {
+              fl.Sequence = locEle.Attribute("sequence").Value;
+            }
+
+            if (locEle.Attribute("query_count_before_filter") != null)
+            {
+              fl.QueryCountBeforeFilter = int.Parse(locEle.Attribute("query_count_before_filter").Value);
+            }
+
+            if (locEle.Attribute("pvalue") != null)
+            {
+              fl.PValue = double.Parse(locEle.Attribute("pvalue").Value);
+            }
+
+            foreach (XElement queryEle in locEle.Elements("query"))
+            {
+              string qname = queryEle.Attribute("qname").Value;
+              string loc = queryEle.Attribute("loc").Value;
+              string key = SamAlignedLocation.GetKey(qname, loc);
+              SamAlignedLocation query = qmmap[key];
+
+              FeatureSamLocation fsl = new FeatureSamLocation(fl);
+              fsl.SamLocation = query;
+              var attr = queryEle.FindAttribute("overlap");
+              if (attr == null)
+              {
+                fsl.OverlapPercentage = query.OverlapPercentage(fl);
+              }
+              else
+              {
+                fsl.OverlapPercentage = double.Parse(attr.Value);
+              }
+            }
+          }
+        }
+      }
+      qmmap.Clear();
+
+      return result;
+    }
+
+    public void WriteToFile(string fileName, List<FeatureItemGroup> groups)
+    {
+      List<SAMAlignedItem> queries = groups.GetQueries();
+
+      var xml = new XElement("root",
+        queries.ToXElement(),
+        new XElement("subjectResult",
+          from itemgroup in groups
+          select new XElement("subjectGroup",
+            from item in itemgroup
+            select new XElement("subject",
+              new XAttribute("name", item.Name),
+              from region in item.Mapped
+              select new XElement("region",
+                new XAttribute("seqname", region.Seqname),
+                new XAttribute("start", region.Start),
+                new XAttribute("end", region.End),
+                new XAttribute("strand", region.Strand),
+                new XAttribute("sequence", XmlUtils.ToXml(region.Sequence)),
+                this.exportPValue ? new XAttribute("query_count_before_filter", region.QueryCountBeforeFilter) : null,
+                this.exportPValue ? new XAttribute("query_count", region.QueryCount) : null,
+                this.exportPValue ? new XAttribute("pvalue", region.PValue) : null,
+                from sl in region.SamLocations
+                let loc = sl.SamLocation
+                select new XElement("query",
+                  new XAttribute("qname", loc.Parent.Qname),
+                  new XAttribute("loc", loc.GetLocation()),
+                  new XAttribute("overlap", string.Format("{0:0.##}", sl.OverlapPercentage)),
+                  this.exportPValue ? new XAttribute("query_count", loc.Parent.QueryCount) : null
+                  ))))));
+      xml.Save(fileName);
+    }
+  }
+}

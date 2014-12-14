@@ -22,6 +22,9 @@ namespace CQS.TCGA
       }
     }
 
+    /// <summary>
+    /// TCGA_Barcode / Files map
+    /// </summary>
     public Dictionary<string, List<BarInfo>> BarInfoListMap { get; set; }
 
     public string Name { get; set; }

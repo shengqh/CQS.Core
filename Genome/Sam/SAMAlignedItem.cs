@@ -13,9 +13,9 @@ namespace CQS.Genome.Sam
   {
     public SAMAlignedItem()
     {
-      this._locations = new List<SAMAlignedLocation>();
+      this._locations = new List<SamAlignedLocation>();
     }
-    
+
     /// <summary>
     /// The sample name that this mapped result from 
     /// </summary>
@@ -25,7 +25,33 @@ namespace CQS.Genome.Sam
 
     public string Sequence { get; set; }
 
-    public void AddLocation(SAMAlignedLocation loc)
+    private string _clippedNTA;
+    public string ClippedNTA
+    {
+      get
+      {
+        if (_clippedNTA == null)
+        {
+          var index = Qname.IndexOf("CLIP_");
+          if (index == -1)
+          {
+            _clippedNTA = string.Empty;
+          }
+          else
+          {
+            _clippedNTA = Qname.Substring(index + 5);
+          }
+        }
+
+        return _clippedNTA;
+      }
+      set
+      {
+        _clippedNTA = value;
+      }
+    }
+
+    public void AddLocation(SamAlignedLocation loc)
     {
       if (loc.Parent != this && loc.Parent != null)
       {
@@ -39,7 +65,7 @@ namespace CQS.Genome.Sam
       }
     }
 
-    public void RemoveLocation(Func<SAMAlignedLocation, bool> func)
+    public void RemoveLocation(Func<SamAlignedLocation, bool> func)
     {
       var locs = (from l in _locations
                   where func(l)
@@ -47,7 +73,7 @@ namespace CQS.Genome.Sam
       locs.ForEach(l => RemoveLocation(l));
     }
 
-    public void RemoveLocation(SAMAlignedLocation loc)
+    public void RemoveLocation(SamAlignedLocation loc)
     {
       if (this._locations.Contains(loc))
       {
@@ -59,9 +85,9 @@ namespace CQS.Genome.Sam
       }
     }
 
-    public void AddLocations(IEnumerable<SAMAlignedLocation> locs)
+    public void AddLocations(IEnumerable<SamAlignedLocation> locs)
     {
-      var temps = new List<SAMAlignedLocation>(locs);
+      var temps = new List<SamAlignedLocation>(locs);
       foreach (var loc in temps)
       {
         AddLocation(loc);
@@ -71,8 +97,8 @@ namespace CQS.Genome.Sam
     /// <summary>
     /// The locations that query sequence mapped to.
     /// </summary>
-    private List<SAMAlignedLocation> _locations;
-    public ReadOnlyCollection<SAMAlignedLocation> Locations
+    private List<SamAlignedLocation> _locations;
+    public ReadOnlyCollection<SamAlignedLocation> Locations
     {
       get
       {
@@ -441,7 +467,7 @@ namespace CQS.Genome.Sam
         result.Add(query);
         foreach (var locEle in queryEle.Elements("location"))
         {
-          var loc = new SAMAlignedLocation(query);
+          var loc = new SamAlignedLocation(query);
           loc.ParseLocation(locEle);
           loc.Cigar = locEle.Attribute("cigar").Value;
           loc.AlignmentScore = int.Parse(locEle.Attribute("score").Value);

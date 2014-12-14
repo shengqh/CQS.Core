@@ -35,10 +35,10 @@ namespace CQS.Genome.Mapping
     [Option('c', "countFile", Required = false, MetaValue = "FILE", HelpText = "Sequence/count file")]
     public string CountFile { get; set; }
 
-    [Option('n', "perferName", Required = false, DefaultValue="hsa", MetaValue = "String", HelpText = "The prefer name that kept for multiple mapped reads")]
+    [Option('p', "perferPrefix", Required = false, DefaultValue = "hsa", MetaValue = "String", HelpText = "The prefer prefix of chromosome name (miRNA name) that kept for multiple mapped reads")]
     public string PerferPrefix { get; set; }
 
-    [Option('p', "perfectMappedNameFile", Required = false, MetaValue = "FILE", HelpText = "The name of reads that perfect mapped to genome")]
+    [Option('n', "perfectMappedNameFile", Required = false, MetaValue = "FILE", HelpText = "The name of reads that perfect mapped to genome")]
     public string PerfectMappedNameFile { get; set; }
 
     [Option('o', "outputFile", Required = false, MetaValue = "FILE", HelpText = "Output count file")]

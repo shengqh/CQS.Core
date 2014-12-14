@@ -35,7 +35,7 @@ namespace CQS.Genome
         {
           var qname = queryEle.Attribute("qname").Value;
           var loc = queryEle.Attribute("loc").Value;
-          var key = SAMAlignedLocation.GetKey(qname, loc);
+          var key = SamAlignedLocation.GetKey(qname, loc);
           var query = qmmap[key];
           position.AlignedLocations.Add(query);
           query.Features.Add(position.Region);

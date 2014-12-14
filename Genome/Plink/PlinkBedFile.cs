@@ -51,8 +51,8 @@ namespace CQS.Genome.Plink
               int c = 0;
               while (c < 7 && j < result.Individual.Count)
               {
-                result.IsOneMinor[i, j] = b[c++];
-                result.IsTwoMinor[i, j] = b[c++];
+                result.IsHaplotype1Allele2[i, j] = b[c++];
+                result.IsHaplotype2Allele2[i, j] = b[c++];
                 j++;
               }
             }
@@ -69,8 +69,8 @@ namespace CQS.Genome.Plink
               int c = 0;
               while (c < 7 && j < result.Locus.Count)
               {
-                result.IsOneMinor[j, i] = b[c++];
-                result.IsTwoMinor[j, i] = b[c++];
+                result.IsHaplotype1Allele2[j, i] = b[c++];
+                result.IsHaplotype2Allele2[j, i] = b[c++];
                 j++;
               }
             }
@@ -86,7 +86,7 @@ namespace CQS.Genome.Plink
       return result;
     }
 
-    public void OpenBinaryFile(string fileName)
+    protected void OpenBinaryFile(string fileName)
     {
       DoOpenFile(fileName);
 
@@ -162,6 +162,15 @@ namespace CQS.Genome.Plink
     {
       var magic = _reader.ReadByte();
       return new BitArray(new byte[] { magic });
+    }
+
+    public void Close()
+    {
+      if (_reader != null)
+      {
+        _reader.Close();
+        _reader = null;
+      }
     }
   }
 }

@@ -12,10 +12,10 @@ using RCPA.Gui.FileArgument;
 
 namespace CQS.Genome.Mapping
 {
-  public partial class MappedCountProcessorUI : AbstractFileProcessorUI
+  public partial class MappedCountProcessorUI : AbstractProcessorUI
   {
     public static string title = "Mapped Count Processor";
-    public static string version = "1.0.0";
+    public static string version = "1.0.1";
 
     private RcpaComboBox<string> engines;
 
@@ -23,7 +23,7 @@ namespace CQS.Genome.Mapping
     {
       InitializeComponent();
 
-      SetFileArgument("SamFile", new OpenFileArgument("BAM/SAM", new[] { "bam", "sam" }));
+      bamFile.FileArgument = new OpenFileArgument("BAM/SAM", new string[] { "bam", "sam" });
       gffFile.FileArgument = new OpenFileArgument("GFF", new string[] { "gff3", "bed" });
       fileFastq.FileArgument = new OpenFileArgument("FASTQ", new string[] { "fastq", "fq" });
       countFile.FileArgument = new OpenFileArgument("Count", "dupcount");
@@ -34,10 +34,11 @@ namespace CQS.Genome.Mapping
       this.Text = Constants.GetSqhVanderbiltTitle(title, version);
     }
 
-    protected override RCPA.IFileProcessor GetFileProcessor()
+    protected override RCPA.IProcessor GetProcessor()
     {
       MappedCountProcessorOptions options = new MappedCountProcessorOptions()
       {
+        InputFile = bamFile.FullName,
         CoordinateFile = gffFile.FullName,
         FastqFile = fileFastq.FullName,
         EngineType = engines.SelectedIndex + 1,

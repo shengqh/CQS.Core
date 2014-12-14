@@ -17,7 +17,7 @@ namespace CQS.TCGA
   public partial class TCGADataDownloaderUI : AbstractProcessorUI
   {
     public static readonly string Title = " TCGA Data Downloader";
-    public static readonly string Version = "1.0.0";
+    public static readonly string Version = "1.0.1";
 
     private string _lastXml = null;
 

@@ -24,7 +24,7 @@ namespace CQS.Genome.Mapping
       XElement root = XElement.Load(fileName);
 
       //Console.WriteLine("read locations ...");
-      Dictionary<string, SAMAlignedLocation> qmmap = root.ToSAMAlignedLocationMap();
+      Dictionary<string, SamAlignedLocation> qmmap = root.ToSAMAlignedLocationMap();
 
       //Console.WriteLine("read mapped items ...");
       foreach (XElement groupEle in root.Element("subjectResult").Elements("subjectGroup"))
@@ -65,8 +65,8 @@ namespace CQS.Genome.Mapping
             {
               string qname = queryEle.Attribute("qname").Value;
               string loc = queryEle.Attribute("loc").Value;
-              string key = SAMAlignedLocation.GetKey(qname, loc);
-              SAMAlignedLocation query = qmmap[key];
+              string key = SamAlignedLocation.GetKey(qname, loc);
+              SamAlignedLocation query = qmmap[key];
               region.AlignedLocations.Add(query);
               query.Features.Add(region.Region);
             }

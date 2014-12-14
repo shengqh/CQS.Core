@@ -89,11 +89,11 @@ namespace CQS.Genome.Mapping
           }
 
           var cigar = parts[SAMFormatConst.CIGAR_INDEX];
-          //insertion/deletion
-          if (cigar.Any(m => m == 'I' || m == 'D'))
-          {
-            continue;
-          }
+          ////insertion/deletion
+          //if (cigar.Any(m => m == 'I' || m == 'D'))
+          //{
+          //  continue;
+          //}
 
           //too many mismatchs
           var mismatchCount = format.GetNumberOfMismatch(parts);
@@ -121,13 +121,13 @@ namespace CQS.Genome.Mapping
             Sequence = seq
           };
 
-          var loc = new SAMAlignedLocation(sam)
+          var loc = new SamAlignedLocation(sam)
           {
             Seqname = parts[SAMFormatConst.RNAME_INDEX].StringAfter("chr"),
             Start = int.Parse(parts[SAMFormatConst.POS_INDEX]),
             Strand = strand,
             Cigar = parts[SAMFormatConst.CIGAR_INDEX],
-            NumberOfMismatch = format.GetNumberOfMismatch(parts),
+            NumberOfMismatch = mismatchCount,
             AlignmentScore = score,
             MismatchPositions = format.GetMismatchPositions(parts)
           };

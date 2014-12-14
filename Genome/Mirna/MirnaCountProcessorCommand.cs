@@ -68,7 +68,7 @@ namespace CQS.Genome.Mirna
           }
           else
           {
-            var files = new MirnaCountProcessor(options).Process(options.InputFile);
+            var files = new MirnaCountProcessor(options).Process();
             Console.WriteLine("File saved to :\n" + files.Merge("\n"));
           }
         }

@@ -67,6 +67,11 @@ namespace CQS.Genome.Fastq
               }
             }
 
+            if (options.MinimumLength > 0 && seq.SeqString.Length < options.MinimumLength)
+            {
+              continue;
+            }
+
             writer.Write(sw, seq);
           }
         }

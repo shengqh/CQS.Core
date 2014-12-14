@@ -119,13 +119,20 @@ namespace CQS.Genome.SomaticMutation
         {
           exporters.Add(new JunctionDistanceExporter(_options.DistanceJunctionBed));
         }
+
         if (!string.IsNullOrEmpty(_options.DistanceInsertionBed))
         {
           exporters.Add(new InsertionDistanceExporter(_options.DistanceInsertionBed));
         }
+
         if (!string.IsNullOrEmpty(_options.DistanceDeletionBed))
         {
           exporters.Add(new DeletionDistanceExporter(_options.DistanceDeletionBed));
+        }
+
+        if (!string.IsNullOrEmpty(_options.GtfFile))
+        {
+          exporters.Add(new GtfDistanceExporter(_options.GtfFile));
         }
       }
 

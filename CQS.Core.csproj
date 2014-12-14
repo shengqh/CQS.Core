@@ -12,6 +12,12 @@
     <AssemblyName>CQS.Core</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+    <SccProjectName>Svn</SccProjectName>
+    <SccLocalPath>Svn</SccLocalPath>
+    <SccAuxPath>Svn</SccAuxPath>
+    <SccProvider>SubversionScc</SccProvider>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -43,12 +49,65 @@
     <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Win32|x64'">
+    <OutputPath>bin\x64\Win32\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Win32|x86'">
+    <OutputPath>bin\x86\Win32\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Bio">
       <HintPath>..\SQH.Lib\Bio.dll</HintPath>
     </Reference>
-    <Reference Include="CommandLine, Version=1.9.8.1, Culture=neutral, PublicKeyToken=de6f01bd326f8c32, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="CommandLine">
       <HintPath>..\SQH.Lib\CommandLine.dll</HintPath>
     </Reference>
     <Reference Include="DigitalRune.Windows.Docking">
@@ -60,12 +119,13 @@
     <Reference Include="LumenWorks.Framework.IO">
       <HintPath>..\SQH.Lib\LumenWorks.Framework.IO.dll</HintPath>
     </Reference>
-    <Reference Include="MathNet.Numerics, Version=2.4.0.26, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="MathNet.Numerics, Version=3.2.3.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\SQH.Lib\MathNet.Numerics.dll</HintPath>
+      <HintPath>..\packages\MathNet.Numerics.3.2.3\lib\net40\MathNet.Numerics.dll</HintPath>
     </Reference>
-    <Reference Include="Meta.Numerics, Version=2.1.0.0, Culture=neutral, PublicKeyToken=67d25c65a6631347, processorArchitecture=MSIL">
-      <HintPath>..\SQH.Lib\Meta.Numerics.dll</HintPath>
+    <Reference Include="Meta.Numerics, Version=2.2.0.0, Culture=neutral, PublicKeyToken=67d25c65a6631347, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Meta.Numerics.2.2.0\lib\Meta.Numerics.dll</HintPath>
     </Reference>
     <Reference Include="NPOI">
       <HintPath>..\SQH.Lib\NPOI.dll</HintPath>
@@ -73,6 +133,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Numerics" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -88,6 +149,7 @@
     <Compile Include="Genome\Annotation\AnnovarResultMultipleToOneBuilderCommand.cs" />
     <Compile Include="Genome\Annotation\AnnovarSummaryItemList.cs" />
     <Compile Include="Genome\Annotation\AnnovarSummaryItemListReader.cs" />
+    <Compile Include="Genome\Annotation\GtfDistanceExporter.cs" />
     <Compile Include="Genome\Annotation\ParalyzerClusterAnnotatorCommand.cs" />
     <Compile Include="Genome\Annotation\ParalyzerClusterAnnotator.cs" />
     <Compile Include="Genome\Annotation\ParalyzerClusterAnnotatorOptions.cs" />
@@ -127,8 +189,24 @@
     <Compile Include="Genome\Fastq\Bam2FastqProcessorUI.Designer.cs">
       <DependentUpon>Bam2FastqProcessorUI.cs</DependentUpon>
     </Compile>
+    <Compile Include="Genome\Feature\FeatureLocation.cs" />
+    <Compile Include="Genome\Feature\FeatureSamLocation.cs" />
+    <Compile Include="Genome\Feature\FeatureItem.cs" />
+    <Compile Include="Genome\Feature\FeatureItemGroup.cs" />
+    <Compile Include="Genome\Feature\FeatureItemGroupXmlFormat.cs" />
+    <Compile Include="Genome\Feature\FeatureItemUtils.cs" />
+    <Compile Include="Genome\Feature\FeatureItemGroupCountWriter.cs" />
+    <Compile Include="Genome\Feature\FeatureItemGroupReadLengthWriter.cs" />
+    <Compile Include="Genome\Feature\FeatureItemGroupSequenceWriter.cs" />
     <Compile Include="Genome\Feature\GenomeFeature.cs" />
     <Compile Include="Genome\GenomeUtils.cs" />
+    <Compile Include="Genome\Gwas\GwasGenFormat.cs" />
+    <Compile Include="Genome\Gwas\GwasHapsFormat.cs" />
+    <Compile Include="Genome\Gwas\GwasSampleFormat.cs" />
+    <Compile Include="Genome\Gwas\Impute2ResultDistiller.cs" />
+    <Compile Include="Genome\Gwas\Impute2ResultDistillerCommand.cs" />
+    <Compile Include="Genome\Gwas\Impute2ResultDistillerOptions.cs" />
+    <Compile Include="Genome\Gwas\SNPItem.cs" />
     <Compile Include="Genome\Mapping\ChromosomeCountItem.cs" />
     <Compile Include="Genome\Mapping\ChromosomeCountProcessor.cs" />
     <Compile Include="Genome\Mapping\ChromosomeCountProcessorOptions.cs" />
@@ -136,6 +214,10 @@
     <Compile Include="Genome\Mapping\ChromosomeCountXmFormat.cs" />
     <Compile Include="Genome\Mapping\ChromosomeCountTableBuilder.cs" />
     <Compile Include="Genome\Mapping\ChromosomeCountTableBuilderCommand.cs" />
+    <Compile Include="Genome\Mapping\ISAMAlignedItemParsingFilter.cs" />
+    <Compile Include="Genome\Mapping\MappedCountLargeFileProcessor.cs" />
+    <Compile Include="Genome\Mapping\MappedCountProcessor.cs" />
+    <Compile Include="Genome\Mapping\MappedReadBuilderCommand.cs" />
     <Compile Include="Genome\Mapping\CountMappingSummaryBuilder.cs" />
     <Compile Include="Genome\Mapping\CountMappingSummaryBuilderConfiguration.cs" />
     <Compile Include="Genome\Mapping\CountMappingSummaryBuilderOptions.cs" />
@@ -145,6 +227,18 @@
     <Compile Include="Genome\Mapping\DistinctMappedReadProcessorOptions.cs" />
     <Compile Include="Genome\Mapping\DistinctMappedReadProcessor.cs" />
     <Compile Include="Genome\Mapping\MappedItemGroupReadLengthWriter.cs" />
+    <Compile Include="Genome\Mapping\ReadCountItem.cs" />
+    <Compile Include="Genome\Mapping\MappedReadBuilder.cs" />
+    <Compile Include="Genome\Mapping\MappedReadBuilderOptions.cs" />
+    <Compile Include="Genome\Mapping\SAMAlignedItemCandidateFilterBuilder.cs" />
+    <Compile Include="Genome\Mapping\SAMAlignedItemParsingMRNAFilter.cs" />
+    <Compile Include="Genome\Mapping\SAMAlignedItemParsingMiRNAFilter.cs" />
+    <Compile Include="Genome\Mirna\MirnaConsts.cs" />
+    <Compile Include="Genome\Mirna\MirnaNTACountTableBuilderCommand.cs" />
+    <Compile Include="Genome\Mirna\MirnaNTACountTableBuilder.cs" />
+    <Compile Include="Genome\Mirna\MirnaNonTemplatedNucleotideAdditionsQueryBuilder.cs" />
+    <Compile Include="Genome\Mirna\MirnaNonTemplatedNucleotideAdditionsQueryBuilderCommand.cs" />
+    <Compile Include="Genome\Mirna\MirnaNonTemplatedNucleotideAdditionsQueryBuilderOptions.cs" />
     <Compile Include="Genome\Mirna\MirnaT2CMutationBuilder.cs" />
     <Compile Include="Genome\Pileup\AlignedPositionMapBuilder.cs" />
     <Compile Include="Genome\Pileup\AlignedPositionMapSamples.cs" />
@@ -157,12 +251,21 @@
     <Compile Include="Genome\Pileup\AlleleCountBuilder.cs" />
     <Compile Include="Genome\Pileup\SomaticMutationPileupBuilderOptions.cs" />
     <Compile Include="Genome\Pileup\SomaticMutationPileupBuilder.cs" />
+    <Compile Include="Genome\Plink\PlinkDataAllele2FrequencyBuilderOptions.cs" />
+    <Compile Include="Genome\Plink\PlinkDataAllele2FrequencyBuilder.cs" />
+    <Compile Include="Genome\Plink\PlinkPedToGenConverter.cs" />
+    <Compile Include="Genome\Plink\PlinkPedToGenConverterOptions.cs" />
+    <Compile Include="Genome\Plink\PlinkPedToHapsConverterOptions.cs" />
+    <Compile Include="Genome\Plink\MinorAlleleFrequencyGenBuilder.cs" />
+    <Compile Include="Genome\Plink\PlinkMinorAlleleFrequencyBuilder.cs" />
+    <Compile Include="Genome\Plink\PlinkMinorAlleleFrequencyBuilderOptions.cs" />
     <Compile Include="Genome\Plink\PlinkPedFile.cs" />
     <Compile Include="Genome\Plink\PlinkBedRandomFile.cs" />
     <Compile Include="Genome\Plink\PlinkBedFile.cs" />
     <Compile Include="Genome\Plink\PlinkData.cs" />
     <Compile Include="Genome\Plink\PlinkIndividual.cs" />
     <Compile Include="Genome\Plink\PlinkLocus.cs" />
+    <Compile Include="Genome\Plink\PlinkPedToHapsConverter.cs" />
     <Compile Include="Genome\Plink\PlinkValue.cs" />
     <Compile Include="Genome\QC\BamSummaryBuilderOptions.cs" />
     <Compile Include="Genome\QC\BamSummaryBuilder.cs" />
@@ -187,16 +290,15 @@
     <Compile Include="Genome\SingleNucleotidePolymorphism.cs" />
     <Compile Include="Genome\SmallRNA\SmallRNAT2CMutationBuilder.cs" />
     <Compile Include="Genome\SmallRNA\SmallRNACategoryGroupBuilder.cs" />
-    <Compile Include="Genome\SmallRNA\SmallRNACategoryBuilderCommand.cs" />
     <Compile Include="Genome\SmallRNA\SmallRNACategoryGroupBuilderOptions.cs" />
     <Compile Include="Genome\SmallRNA\SmallRNACategoryGroupBuilderCommand.cs" />
-    <Compile Include="Genome\SmallRNA\SmallRNACategoryBuilderOptions.cs" />
-    <Compile Include="Genome\SmallRNA\SmallRNACategoryBuilder.cs" />
     <Compile Include="Genome\SomaticMutation\AbstractProgramOptions.cs" />
     <Compile Include="Genome\SomaticMutation\AllOptions.cs" />
     <Compile Include="Genome\SomaticMutation\AnnotationOptions.cs" />
     <Compile Include="Genome\SomaticMutation\AnnotationProcessor.cs" />
     <Compile Include="Genome\SomaticMutation\AbstractPileupProcessor.cs" />
+    <Compile Include="Genome\SomaticMutation\IMpileupParser.cs" />
+    <Compile Include="Genome\SomaticMutation\MpileupValidationParser.cs" />
     <Compile Include="Genome\SomaticMutation\PileupParallelChromosomeProcessorByTask.cs" />
     <Compile Include="Genome\SomaticMutation\PileupParallelProcessor.cs" />
     <Compile Include="Genome\SomaticMutation\MpileupPositionParser.cs" />
@@ -220,6 +322,7 @@
     <Compile Include="Genome\Vcf\VcfItem.cs" />
     <Compile Include="Genome\Vcf\VcfItemList.cs" />
     <Compile Include="Genome\Vcf\VcfItemListFormat.cs" />
+    <Compile Include="MapReader.cs" />
     <Compile Include="Sample\SampleItemExcelWriter.cs" />
     <Compile Include="Sample\SampleItemTextWriter.cs" />
     <Compile Include="Sample\SampleItemHtmlWriter.cs" />
@@ -303,7 +406,6 @@
     <Compile Include="Genome\SequenceRegionMappedXmlFileFormat.cs" />
     <Compile Include="Genome\SequenceRegionMappedFileWriter.cs" />
     <Compile Include="Genome\Mapping\MappedCountProcessorOptions.cs" />
-    <Compile Include="Genome\Mapping\MappedCountProcessor.cs" />
     <Compile Include="Genome\Mirna\MiRBaseGff3SequenceCombiner.cs" />
     <Compile Include="Genome\Mirna\MiRBaseGff3SequenceCombinerOptions.cs" />
     <Compile Include="Genome\Mirna\MirnaCountProcessorOptions.cs" />
@@ -562,6 +664,9 @@
     <Compile Include="Sample\SampleItem.cs" />
     <Compile Include="Statistics\MyFisherExactTest.cs" />
     <Compile Include="TCGA\BarInfo.cs" />
+    <Compile Include="TCGA\DataBuilder.cs" />
+    <Compile Include="TCGA\ITCGADatatableBuilder.cs" />
+    <Compile Include="TCGA\MutationDatatableBuilder.cs" />
     <Compile Include="TCGA\TCGAClinicalInformationFormat.cs" />
     <Compile Include="TCGA\TCGAClinicalInformationBuilderOptions.cs" />
     <Compile Include="TCGA\TCGAClinicalInformationBuilder.cs" />
@@ -583,6 +688,11 @@
     <Compile Include="TCGA\TCGADataDownloaderCommand.cs" />
     <Compile Include="TCGA\TCGADataDownloader.cs" />
     <Compile Include="TCGA\TCGADatatableBuilderCommand.cs" />
+    <Compile Include="TCGA\TCGATechnologyImpl\AbstractTCGATechnologyRNAseq.cs" />
+    <Compile Include="TCGA\TCGATechnologyImpl\TCGATechnologyTotalRNAseqV2.cs" />
+    <Compile Include="TCGA\TCGATechnologyImpl\Level3MutationDataTxtReader.cs" />
+    <Compile Include="TCGA\TCGATechnologyImpl\TCGATechnologyCNA.cs" />
+    <Compile Include="TCGA\TCGATechnologyImpl\TCGATechnologyMethylation.cs" />
     <Compile Include="TCGA\TCGATechnologyImpl\TCGATechnologyMutations.cs" />
     <Compile Include="TCGA\TCGATreeBuilderCommand.cs" />
     <Compile Include="TCGA\TCGATreeBuilderOptions.cs" />
@@ -614,7 +724,6 @@
     </Compile>
     <Compile Include="ExpressionDataRawReader.cs" />
     <Compile Include="TCGA\Microarray\MicroarrayDataSummaryBuilder.cs" />
-    <Compile Include="MapReader.cs" />
     <Compile Include="TCGA\SpiderTreeNode.cs" />
     <Compile Include="TCGA\SpiderTreeNodeXmlFormat.cs" />
     <Compile Include="TCGA\TCGAReader.cs" />
@@ -693,6 +802,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <None Include="packages.config" />
     <None Include="Properties\DataSources\CQS.BreastCancer.BreastCancerSampleItem.datasource" />
     <None Include="Properties\DataSources\ProteomicsLib.Format.DefaultValue.datasource" />
   </ItemGroup>
@@ -735,7 +845,9 @@
       <Name>RCPA.Core</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

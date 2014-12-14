@@ -17,6 +17,16 @@ namespace CQS.Genome
       this.Sequence = string.Empty;
     }
 
+    public SequenceRegion(ISequenceRegion source)
+    {
+      this.Seqname = source.Seqname;
+      this.Start = source.Start;
+      this.End = source.End;
+      this.Name = source.Name;
+      this.Strand = source.Strand;
+      this.Sequence = source.Sequence;
+    }
+
     public string Seqname { get; set; }
 
     public long Start { get; set; }
@@ -67,5 +77,10 @@ namespace CQS.Genome
     }
 
     public string Sequence { get; set; }
+
+    public override string ToString()
+    {
+      return string.Format("{0}:{1}-{2}:{3}", Seqname, Start, End, Strand);
+    }
   }
 }

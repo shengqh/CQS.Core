@@ -64,7 +64,7 @@ namespace CQS.Genome.Pileup
           sam.Sequence = seq;
         }
 
-        var loc = new SAMAlignedLocation(sam)
+        var loc = new SamAlignedLocation(sam)
         {
           Seqname = parts[SAMFormatConst.RNAME_INDEX],
           Start = int.Parse(parts[SAMFormatConst.POS_INDEX]),

@@ -6,23 +6,30 @@ using CQS.Commandline;
 using CommandLine;
 using System.IO;
 using CQS.Genome.Sam;
+using CQS.Genome.Gtf;
+using RCPA.Seq;
+using CQS.Genome.Feature;
 
 namespace CQS.Genome.Mapping
 {
   public class CountProcessorOptions : AbstractOptions, ISAMAlignedItemParserOptions
   {
+    private static string MIRNA = "ATGCUN";
+
     private const int DEFAULT_MinimumReadLength = 12;
     private const int DEFAULT_MaximumMismatchCount = 1;
     private const bool DEFAULT_IgnoreScore = false;
     private const int DefaultEngineType = 1;
+    private const string DefaultGtfKey = "";
 
     public CountProcessorOptions()
     {
-      MinimumReadLength = DEFAULT_MinimumReadLength;
-      MaximumReadLength = int.MaxValue;
-      MaximumMismatchCount = DEFAULT_MaximumMismatchCount;
-      IgnoreScore = DEFAULT_IgnoreScore;
-      EngineType = DefaultEngineType;
+      this.GtfFeatureName = DefaultGtfKey;
+      this.MinimumReadLength = DEFAULT_MinimumReadLength;
+      this.MaximumReadLength = int.MaxValue;
+      this.MaximumMismatchCount = DEFAULT_MaximumMismatchCount;
+      this.IgnoreScore = DEFAULT_IgnoreScore;
+      this.EngineType = DefaultEngineType;
     }
 
     [Option('i', "inputFile", Required = true, MetaValue = "FILE", HelpText = "Alignment sam/bam file")]
@@ -30,6 +37,9 @@ namespace CQS.Genome.Mapping
 
     [Option('g', "coordinateFile", Required = true, MetaValue = "FILE", HelpText = "Genome annotation coordinate file (can be gff or bed format. But the coordinates in bed format should be same format as gff)")]
     public string CoordinateFile { get; set; }
+
+    [Option("gtf_key", DefaultValue = DefaultGtfKey, HelpText = "GTF feature name (such as miRNA)")]
+    public string GtfFeatureName { get; set; }
 
     [Option('f', "coordinateFastaFile", Required = false, MetaValue = "FILE", HelpText = "Genome annotation coordinate fasta file")]
     public string FastaFile { get; set; }
@@ -150,6 +160,48 @@ namespace CQS.Genome.Mapping
         cm = new CountMap(this.CountFile);
       }
       return cm;
+    }
+
+    public virtual List<FeatureLocation> GetSequenceRegions()
+    {
+      //Read sequence regions
+      var result = SequenceRegionUtils.GetSequenceRegions(CoordinateFile, GtfFeatureName, BedAsGtf);
+      result.ForEach(m =>
+      {
+        m.Seqname = m.Seqname.StringAfter("chr");
+      });
+
+      //Fill sequence information
+      var sr = result.FirstOrDefault(m => m.Name.Contains(":"));
+      if (sr != null)
+      {
+        var sequence = sr.Name.StringAfter(":");
+        if (sequence.All(m => MIRNA.Contains(m)))
+        {
+          result.ForEach(m => m.Sequence = m.Name.StringAfter(":"));
+          result.ForEach(m => m.Name = m.Name.StringBefore(":"));
+        }
+      }
+
+      if (!string.IsNullOrEmpty(this.FastaFile))
+      {
+        Console.WriteLine("Reading sequence from {0} ...", this.FastaFile);
+        var seqs = SequenceUtils.Read(new FastaFormat(), this.FastaFile).ToDictionary(m => m.Name);
+        result.ForEach(m =>
+        {
+          if (seqs.ContainsKey(m.Name))
+          {
+            m.Sequence = seqs[m.Name].SeqString;
+          }
+          else
+          {
+            Console.WriteLine("Missing sequence: " + m.Name);
+          }
+        });
+        seqs.Clear();
+      }
+
+      return result.ConvertAll(m => new FeatureLocation(m)).ToList();
     }
   }
 }

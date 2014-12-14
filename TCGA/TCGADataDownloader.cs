@@ -76,7 +76,15 @@ namespace CQS.TCGA
 
     private void DownloadLevel3Data(SpiderTreeNode m, string currDir)
     {
-      m.Nodes.RemoveAll(n => TCGAUtils.IsLevel1(n.Name) || TCGAUtils.IsLevel2(n.Name));
+      if (m.Nodes.Any(n => TCGAUtils.IsLevel3(n.Name)))
+      {
+        m.Nodes.RemoveAll(n => TCGAUtils.IsLevel1(n.Name) || TCGAUtils.IsLevel2(n.Name));
+      }
+      else //download level2 data
+      {
+        m.Nodes.RemoveAll(n => TCGAUtils.IsLevel1(n.Name));
+      }
+
       m.MarkHighestVersionNodes();
       foreach (var node in m.Nodes)
       {

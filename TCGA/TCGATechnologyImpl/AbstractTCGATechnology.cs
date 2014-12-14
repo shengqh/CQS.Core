@@ -16,10 +16,10 @@ namespace CQS.TCGA.TCGATechnologyImpl
 
     protected virtual string FindSdrfFile(string platformDir)
     {
-      var sdrfFile  = (from subdir in Directory.GetDirectories(platformDir)
-              where Path.GetFileName(subdir).ToLower().Contains(".mage-tab.")
-              from file in Directory.GetFiles(subdir, "*.sdrf.txt")
-              select file).ToList();
+      var sdrfFile = (from subdir in Directory.GetDirectories(platformDir)
+                      where Path.GetFileName(subdir).ToLower().Contains(".mage-tab.")
+                      from file in Directory.GetFiles(subdir, "*.sdrf.txt")
+                      select file).ToList();
 
       if (sdrfFile.Count == 0)
       {
@@ -69,7 +69,7 @@ namespace CQS.TCGA.TCGATechnologyImpl
       return tumorDir + @"\data\" + this.NodeName;
     }
 
-    public virtual DatasetInfo GetDataset(string tumordir, Func<string, bool> fileFilter)
+    public virtual DatasetInfo GetDataset(string tumordir, IList<string> platforms, Func<string, bool> fileFilter)
     {
       var technologyDir = GetTechnologyDirectory(tumordir);
 
@@ -77,14 +77,14 @@ namespace CQS.TCGA.TCGATechnologyImpl
       {
         return new DatasetInfo()
         {
-          BarInfoListMap = GetFiles(tumordir, fileFilter),
+          BarInfoListMap = GetFiles(tumordir, platforms, fileFilter),
           Reader = this.GetReader()
         };
       }
       return null;
     }
 
-    public virtual Dictionary<string, List<BarInfo>> GetFiles(string tumordir, Func<string, bool> fileFilter)
+    public virtual Dictionary<string, List<BarInfo>> GetFiles(string tumordir, IList<string> platforms, Func<string, bool> fileFilter)
     {
       var technologyDir = GetTechnologyDirectory(tumordir);
 
@@ -99,6 +99,8 @@ namespace CQS.TCGA.TCGATechnologyImpl
       }
 
       return (from platformDir in Directory.GetDirectories(technologyDir)
+              let platform = Path.GetFileName(platformDir)
+              where platforms.IndexOf(platform) != -1
               //get finder
               let finder = new DefaultParticipantFinder(GetFinder(tumordir, platformDir), string.Empty)
               //for each data directory
@@ -112,7 +114,7 @@ namespace CQS.TCGA.TCGATechnologyImpl
               //filter barcode
               where barcode != string.Empty
               //group by filename since there may be duplicated files in different data directory
-              select new BarInfo(barcode, file)).GroupBy(m => Path.GetFileName(m.FileName)).ToList().
+              select new BarInfo(barcode, file, platform)).GroupBy(m => Path.GetFileName(m.FileName)).ToList().
         //keep the last one
                    ConvertAll(m => m.Last()).OrderBy(m => m.BarCode).ToList().
         //there may be multiple samples from same barcode sample
@@ -122,6 +124,24 @@ namespace CQS.TCGA.TCGATechnologyImpl
     public override string ToString()
     {
       return this.NodeName;
+    }
+
+    public virtual bool HasCountData
+    {
+      get
+      {
+        return false;
+      }
+    }
+
+    public virtual string ValueName
+    {
+      get { return "Value"; }
+    }
+
+    public virtual string DefaultPreferPlatform
+    {
+      get { return string.Empty; }
     }
   }
 }

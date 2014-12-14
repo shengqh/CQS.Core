@@ -22,7 +22,7 @@ namespace CQS.Genome.Mapping
       get { return GetEstimateCount(m => true); }
     }
 
-    public double GetEstimateCount(Func<SAMAlignedLocation, bool> func)
+    public double GetEstimateCount(Func<SamAlignedLocation, bool> func)
     {
       return MappedRegions.Sum(m => m.GetEstimatedCount(func));
     }

@@ -5,6 +5,7 @@ using System.Text;
 using System.IO;
 using Bio.IO.SAM;
 using RCPA.Utils;
+using System.Text.RegularExpressions;
 
 namespace CQS.Genome.Sam
 {
@@ -105,6 +106,39 @@ namespace CQS.Genome.Sam
           return result;
         });
       }
+    }
+
+    private static Regex cigarReg = new Regex(@"(\d+)(\S)");
+
+    /// <summary>
+    /// Parsing cigar string to get the end point of the read
+    /// </summary>
+    /// <param name="start">start position in reference</param>
+    /// <param name="cigar">cigar string</param>
+    /// <returns>end position (included in the mapping region) in reference</returns>
+    public static int ParseEnd(int start, string cigar)
+    {
+      var m = cigarReg.Match(cigar);
+      string lastType = string.Empty;
+      int lastDis = 0;
+      while (m.Success)
+      {
+        lastDis = int.Parse(m.Groups[1].Value);
+        lastType = m.Groups[2].Value;
+        if (!lastType.Equals("I"))
+        {
+          start += lastDis;
+        }
+
+        m = m.NextMatch();
+      }
+
+      if (lastType.Equals("D"))
+      {
+        start -= lastDis;
+      }
+
+      return start - 1;
     }
   }
 }

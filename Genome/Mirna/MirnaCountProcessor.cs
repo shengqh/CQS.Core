@@ -13,6 +13,7 @@ using System.Collections.Concurrent;
 using System.Threading;
 using RCPA.Seq;
 using CQS.Genome.Mapping;
+using CQS.Genome.Feature;
 
 namespace CQS.Genome.Mirna
 {
@@ -20,18 +21,19 @@ namespace CQS.Genome.Mirna
   {
     public MirnaCountProcessor(MirnaCountProcessorOptions options) : base(options) { }
 
-    public override IEnumerable<string> Process(string fileName)
+    public override IEnumerable<string> Process()
     {
-      var result = GetResultFilename(fileName);
+      var result = GetResultFilename(options.InputFile);
 
       //parsing reads
       int totalReadCount;
       int mappedReadCount;
-      List<SAMAlignedItem> reads = ParseCandidates(fileName, result, out totalReadCount, out mappedReadCount);
+      List<SAMAlignedItem> reads = ParseCandidates(options.InputFile, result, out totalReadCount, out mappedReadCount);
 
       //Initialize gff map
       Progress.SetMessage("initializing sequence region map...");
-      var srItems = GetSequenceRegions("miRNA");
+      options.GtfFeatureName = "miRNA";
+      var srItems = options.GetSequenceRegions();
       var mappedregions = srItems.ConvertAll(m => new SequenceRegionMapped() { Region = m });
       var srMapped = srItems.ConvertAll(m =>
           (from p in options.Offsets
@@ -47,6 +49,15 @@ namespace CQS.Genome.Mirna
       //remove position 1,2 based on position 0; remove position 2 based on position 1 ...
       Progress.SetMessage("filter reads by positions...");
       filterPositions(srMapped);
+
+      var hasCliped = reads.Count > 0 && reads[0].Qname.Contains(":CLIP_");
+      if (hasCliped)
+      {
+        Progress.SetMessage("filter reads by clip information...");
+        //var tmpmirnas = GetMirnaResult(srMapped);
+        //new MappedMirnaGroupXmlFileFormat().WriteToFile(result + ".mapped_before_filter_clip.xml", tmpmirnas);
+        filterClipResult(reads, srMapped);
+      }
 
       var featureReadCount = reads.Where(m => m.Locations.Any(n => n.Features.Count > 0)).Sum(m => m.QueryCount);
       Console.WriteLine("feature reads = {0}", featureReadCount);
@@ -69,7 +80,7 @@ namespace CQS.Genome.Mirna
       var infoFile = Path.ChangeExtension(result, ".info");
       using (StreamWriter sw = new StreamWriter(infoFile))
       {
-        sw.WriteLine("#file\t{0}", fileName);
+        sw.WriteLine("#file\t{0}", options.InputFile);
         sw.WriteLine("#coordinate\t{0}", options.CoordinateFile);
         sw.WriteLine("#minLength\t{0}", options.MinimumReadLength);
         sw.WriteLine("#maxMismatchCount\t{0}", options.MaximumMismatchCount);
@@ -97,7 +108,7 @@ namespace CQS.Genome.Mirna
         }
         else
         {
-          new FastqExtractorFromBam(options.Samtools) { Progress = this.Progress }.Extract(fileName, unmappedFile, except);
+          new FastqExtractorFromBam(options.Samtools) { Progress = this.Progress }.Extract(options.InputFile, unmappedFile, except);
         }
 
         results.Add(unmappedFile);
@@ -106,6 +117,58 @@ namespace CQS.Genome.Mirna
       Progress.End();
 
       return results;
+    }
+
+    private void filterClipResult(List<SAMAlignedItem> items, Dictionary<ISequenceRegion, Dictionary<int, SequenceRegionMapped>> srMapped)
+    {
+      var reads = (from sr in srMapped.Values
+                   from srm in sr.Values
+                   from loc in srm.AlignedLocations
+                   orderby loc.Parent.Qname
+                   select new { Loc = loc, Qname = loc.Parent.Qname.StringBefore(":CLIP_"), NTA = loc.Parent.Qname.StringAfter(":CLIP_").Length }).ToList();
+
+      var map = reads.GroupBy(m => m.Qname);
+
+      var sals = new HashSet<SamAlignedLocation>();
+      foreach (var locs in map)
+      {
+        var ntas = locs.GroupBy(m => m.Loc.NumberOfMismatch).OrderBy(m => m.Key).First().GroupBy(m => m.NTA).OrderBy(m => m.Key).First();
+        foreach (var nta in ntas)
+        {
+          sals.Add(nta.Loc);
+        }
+      }
+
+      foreach (var sr in srMapped.Values)
+      {
+        foreach (var srm in sr.Values)
+        {
+          srm.AlignedLocations.RemoveAll(m => !sals.Contains(m));
+        }
+
+        var keys = sr.Keys.ToList();
+        foreach (var key in keys)
+        {
+          if (sr[key].AlignedLocations.Count == 0)
+          {
+            sr.Remove(key);
+          }
+        }
+      }
+
+      var mirnakeys = srMapped.Keys.ToList();
+      foreach (var mirnakey in mirnakeys)
+      {
+        if (srMapped[mirnakey].Count == 0)
+        {
+          srMapped.Remove(mirnakey);
+        }
+      }
+
+      items.RemoveAll(m =>
+      {
+        return m.Locations.All(l => !sals.Contains(l));
+      });
     }
 
     private List<MappedMirnaGroup> GetMirnaResult(Dictionary<ISequenceRegion, Dictionary<int, SequenceRegionMapped>> srMapped)
@@ -210,22 +273,22 @@ namespace CQS.Genome.Mirna
       }
     }
 
-    private void MapReadToSequenceRegion(List<GtfItem> srItems, List<SAMAlignedItem> reads, Dictionary<ISequenceRegion, Dictionary<int, SequenceRegionMapped>> srMapped)
+    private void MapReadToSequenceRegion(List<FeatureLocation> srItems, List<SAMAlignedItem> reads, Dictionary<ISequenceRegion, Dictionary<int, SequenceRegionMapped>> srMapped)
     {
       //build chr/strand/samlist map
       Progress.SetMessage("building chr/strand/samlist map ...");
 
-      var chrStrandMatchedMap = new Dictionary<string, Dictionary<char, List<SAMAlignedLocation>>>();
+      var chrStrandMatchedMap = new Dictionary<string, Dictionary<char, List<SamAlignedLocation>>>();
       foreach (var read in reads)
       {
         foreach (var loc in read.Locations)
         {
-          Dictionary<char, List<SAMAlignedLocation>> map;
+          Dictionary<char, List<SamAlignedLocation>> map;
           if (!chrStrandMatchedMap.TryGetValue(loc.Seqname, out map))
           {
-            map = new Dictionary<char, List<SAMAlignedLocation>>();
-            map['+'] = new List<SAMAlignedLocation>();
-            map['-'] = new List<SAMAlignedLocation>();
+            map = new Dictionary<char, List<SamAlignedLocation>>();
+            map['+'] = new List<SamAlignedLocation>();
+            map['-'] = new List<SamAlignedLocation>();
             chrStrandMatchedMap[loc.Seqname] = map;
           }
           map[loc.Strand].Add(loc);
@@ -237,7 +300,7 @@ namespace CQS.Genome.Mirna
       foreach (var srItem in srItems)
       {
         Progress.Increment(1);
-        Dictionary<char, List<SAMAlignedLocation>> curMatchedMap;
+        Dictionary<char, List<SamAlignedLocation>> curMatchedMap;
 
         if (!chrStrandMatchedMap.TryGetValue(srItem.Seqname, out curMatchedMap))
         {
@@ -261,7 +324,7 @@ namespace CQS.Genome.Mirna
       }
     }
 
-    private SequenceRegionMapped FindMatch(ISequenceRegion srItem, Dictionary<int, SequenceRegionMapped> curSrPositions, SAMAlignedLocation loc)
+    private SequenceRegionMapped FindMatch(ISequenceRegion srItem, Dictionary<int, SequenceRegionMapped> curSrPositions, SamAlignedLocation loc)
     {
       if (srItem.Strand == '+')
       {

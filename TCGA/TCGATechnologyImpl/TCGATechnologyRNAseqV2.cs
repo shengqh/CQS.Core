@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 
 namespace CQS.TCGA.TCGATechnologyImpl
 {
-  public class TCGATechnologyRNAseqV2 : TCGATechnologyRNAseqV1
+  public class TCGATechnologyRNAseqV2 : AbstractTCGATechnologyRNAseq
   {
     public override string NodeName
     {
@@ -40,9 +40,9 @@ namespace CQS.TCGA.TCGATechnologyImpl
       return base.GetCountFilename(filename);
     }
 
-    public override string ToString()
+    public override string ValueName
     {
-      return "RSEM";
+      get { return "RSEM"; }
     }
 
     public override Func<string, bool> GetFilenameFilter()

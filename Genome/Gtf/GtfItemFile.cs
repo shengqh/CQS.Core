@@ -52,11 +52,16 @@ namespace CQS.Genome.Gtf
 
     public GtfItem NextExon()
     {
+      return Next("exon");
+    }
+
+    public GtfItem Next(string featureName)
+    {
       string line;
       while ((line = reader.ReadLine()) != null)
       {
         var parts = line.Split('\t');
-        if (parts.Length >= 9 && parts[2].Equals("exon"))
+        if (parts.Length >= 9 && parts[2].Equals(featureName))
         {
           return ParseItem(parts);
         }
@@ -71,6 +76,20 @@ namespace CQS.Genome.Gtf
       {
         GtfItem item;
         while ((item = f.Next()) != null)
+        {
+          result.Add(item);
+        }
+      }
+      return result;
+    }
+
+    public static List<GtfItem> ReadFromFile(string filename, string featureName)
+    {
+      var result = new List<GtfItem>();
+      using (var f = new GtfItemFile(filename))
+      {
+        GtfItem item;
+        while ((item = f.Next(featureName)) != null)
         {
           result.Add(item);
         }

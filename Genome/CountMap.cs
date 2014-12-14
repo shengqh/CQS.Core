@@ -12,12 +12,16 @@ namespace CQS.Genome
 
     private Dictionary<string, int> countMap = new Dictionary<string, int>();
 
+    public bool HasCountFile { get; private set; }
+
     public CountMap() : this(null) { }
 
     public CountMap(string countFile)
     {
       this.countFile = countFile;
-      if (File.Exists(countFile))
+      this.HasCountFile = File.Exists(countFile);
+
+      if (this.HasCountFile)
       {
         Dictionary<string, string> counts = new MapReader(0, 1).ReadFromFile(countFile);
         foreach (var c in counts)

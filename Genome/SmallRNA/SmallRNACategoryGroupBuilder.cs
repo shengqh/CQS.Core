@@ -87,8 +87,12 @@ namespace CQS.Genome.SmallRNA
                                   loc.Parent.QueryCount)).ToGroupDictionary(m => m.Query);
             Progress.SetMessage("Reading smallRNA mapped file finished, {0} queries mapped.", otherQueries.Count);
 
+            //2570-KCV-01-19.bam.count.mapped.xml => 2570-KCV-01-19.bam.info
+            var infofile = Path.Combine(Path.GetDirectoryName(entry.SmallRNAFile), Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(entry.SmallRNAFile))) + ".info");
             if (File.Exists(entry.MiRNAFile))
             {
+              infofile = Path.Combine(Path.GetDirectoryName(entry.MiRNAFile), Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(entry.MiRNAFile))) + ".info");
+
               Progress.SetMessage("Reading miRNA mapped file " + entry.MiRNAFile + " ...");
               var mirnas = new MappedMirnaGroupXmlFileFormat().ReadFromFile(entry.MiRNAFile);
               var mirnaQueries = (from g in mirnas
@@ -96,7 +100,7 @@ namespace CQS.Genome.SmallRNA
                                   from mr in m.MappedRegions
                                   from mapped in mr.Mapped.Values
                                   from loc in mapped.AlignedLocations
-                                  select new QueryRecord(loc.Parent.Qname,
+                                  select new QueryRecord(loc.Parent.Qname.StringBefore(":CLIP_"),
                                     "miRNA",
                                     "miRNA",
                                     m.Name,
@@ -128,11 +132,11 @@ namespace CQS.Genome.SmallRNA
 
             FillCounts(counts, othercategories, otherQueries);
 
-            //2570-KCV-01-19.bam.count.mapped.xml => 2570-KCV-01-19.bam.info
-            var infofile = Path.Combine(Path.GetDirectoryName(entry.SmallRNAFile), Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(entry.SmallRNAFile))) + ".info");
             if (File.Exists(infofile))
             {
               var lines = File.ReadAllLines(infofile);
+
+              Progress.SetMessage("reading mapping information from " + infofile + " ...");
 
               int totalReads = 0;
               int mappedReads = 0;
@@ -179,7 +183,7 @@ namespace CQS.Genome.SmallRNA
                       Count = int.Parse(parts[3])
                     }).ToList();
 
-        var tablefile = catfile + ".table";
+        var tablefile = catfile + ".tsv";
         result.Add(tablefile);
         using (var sw = new StreamWriter(tablefile))
         {

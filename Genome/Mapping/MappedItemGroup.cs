@@ -100,7 +100,7 @@ namespace CQS.Genome.Mapping
       return Name;
     }
 
-    public List<SAMAlignedLocation> GetAlignedLocations()
+    public List<SamAlignedLocation> GetAlignedLocations()
     {
       return (from id in this
               from pos in id.MappedRegions

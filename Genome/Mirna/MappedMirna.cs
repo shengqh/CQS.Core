@@ -56,24 +56,37 @@ namespace CQS.Genome.Mirna
       return result;
     }
 
-    public double EstimateCount
+    public double EstimatedCount
     {
       get { return MappedRegions.Sum(m => m.Mapped.Sum(n => n.Value.EstimatedCount)); }
     }
 
-    public double GetEstimatedCount(int index)
+    public double GetEstimatedCount(int offset = MirnaConsts.NO_OFFSET, string nta = MirnaConsts.NO_NTA)
     {
-      return MappedRegions.Sum(m =>
+      List<SamAlignedLocation> locs;
+
+      if (MirnaConsts.NO_OFFSET == offset)
       {
-        if (m.Mapped.ContainsKey(index))
-        {
-          return m.Mapped[index].AlignedLocations.Sum(n => n.Parent.EstimatedCount);
-        }
-        else
-        {
-          return 0;
-        }
-      });
+        locs = (from mr in MappedRegions
+                from srm in mr.Mapped.Values
+                from loc in srm.AlignedLocations
+                select loc).ToList();
+      }
+      else
+      {
+        locs = (from mr in MappedRegions
+                where mr.Mapped.ContainsKey(offset)
+                let srm = mr.Mapped[offset]
+                from loc in srm.AlignedLocations
+                select loc).ToList();
+      }
+
+      if (MirnaConsts.NO_NTA != nta)
+      {
+        locs.RemoveAll(m => !m.Parent.ClippedNTA.Equals(nta));
+      }
+
+      return locs.Sum(m => m.Parent.EstimatedCount);
     }
 
     public long Length

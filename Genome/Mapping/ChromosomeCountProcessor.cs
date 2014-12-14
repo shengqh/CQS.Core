@@ -85,8 +85,8 @@ namespace CQS.Genome.Mapping
                     select new ChromosomeCountItem() { Names = new HashSet<string>(new string[] { g.Key }), Queries = new HashSet<SAMAlignedItem>(from l in g select l.Parent) }).ToList();
       chroms.Sort((m1, m2) => m2.Queries.Count.CompareTo(m1.Queries.Count));
 
-      var xml = Path.ChangeExtension(options.OutputFile, "xml");
-      new ChromosomeCountXmFormat().WriteToFile(xml, chroms);
+      var mappedfile = options.OutputFile + ".mapped.xml";
+      new ChromosomeCountXmFormat().WriteToFile(mappedfile, chroms);
 
       chroms.MergeItems();
 
@@ -117,7 +117,7 @@ namespace CQS.Genome.Mapping
     }
 
 
-    private bool IsPerferPrefix(SAMAlignedLocation l)
+    private bool IsPerferPrefix(SamAlignedLocation l)
     {
       return l.Seqname.StartsWith(options.PerferPrefix);
     }

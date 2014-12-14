@@ -17,6 +17,8 @@ namespace CQS.TCGA
 
   public enum TCGADataType { Normalized, Count };
 
+  public enum TCGAVialConflict { KeepFirst, KeepLast, KeepAll };
+
   public static class TCGAUtils
   {
     private static Regex reg = new Regex("(TCGA-[^-]+-[^-]+-[^-]+)");
@@ -663,7 +665,7 @@ namespace CQS.TCGA
       return result;
     }
 
-    public static Dictionary<string, Dictionary<ITCGATechnology, Dictionary<string, BarInfo>>> GetTumorTechnologyBarcodeFileMap(ITCGATechnology[] tecs, string tcgaRootDir, TCGASampleCode[] sampleTypes = null, bool commonSampleOnly = true)
+    public static Dictionary<string, Dictionary<ITCGATechnology, Dictionary<string, BarInfo>>> GetTumorTechnologyBarcodeFileMap(ITCGATechnology[] tecs, string tcgaRootDir, IList<string> platforms, TCGASampleCode[] sampleTypes = null, bool commonSampleOnly = true)
     {
       Func<string, bool> acceptBarcode = null;
       HashSet<int> sampleCodes = null;
@@ -688,7 +690,7 @@ namespace CQS.TCGA
         }
 
         var datasets = (from tec in tecs
-                        select new { Tec = tec, Dataset = tec.GetDataset(dir, null) }).ToList();
+                        select new { Tec = tec, Dataset = tec.GetDataset(dir, platforms, null) }).ToList();
 
         if (acceptBarcode != null)
         {
@@ -728,7 +730,7 @@ namespace CQS.TCGA
       return new FileInfo(string.Format("{0}/{1}/data/clin/nationwidechildrens.org_clinical_patient_{1}.txt", tcgaRootDir, tumor)).FullName;
     }
 
-    public static Dictionary<string, BarInfo> GetBarcodeFileMap(string tcgaRootDir, ITCGATechnology tec, string tumor, TCGASampleCode[] sampleTypes = null)
+    public static Dictionary<string, BarInfo> GetBarcodeFileMap(string tcgaRootDir, ITCGATechnology tec, string tumor, IList<string> platforms, TCGASampleCode[] sampleTypes = null, Func<List<BarInfo>, BarInfo> barSelect = null, TCGAVialConflict vc = TCGAVialConflict.KeepLast)
     {
       Func<string, bool> acceptBarcode = null;
       HashSet<int> sampleCodes = null;
@@ -750,7 +752,7 @@ namespace CQS.TCGA
         return new Dictionary<string, BarInfo>();
       }
 
-      var dataset = tec.GetDataset(dir, null);
+      var dataset = tec.GetDataset(dir, platforms, null);
       if (acceptBarcode != null)
       {
         var barcodes = dataset.GetBarCodes();
@@ -763,7 +765,53 @@ namespace CQS.TCGA
         }
       }
 
-      return dataset.BarInfoListMap.ToDictionary(n => n.Key, n => n.Value.First());
+      if (barSelect == null)
+      {
+        barSelect = m =>
+        {
+          if (m.Count > 1 && m.Any(l => l.Platform.Equals(tec.DefaultPreferPlatform)))
+          {
+            return m.First(l => l.Platform.Equals(tec.DefaultPreferPlatform));
+          }
+
+          return m.First();
+        };
+      }
+
+      //For data from different platforms, barSelect solves the conflict
+      var result = dataset.BarInfoListMap.Values.ToList().ConvertAll(m => barSelect(m));
+      if (vc == TCGAVialConflict.KeepAll)
+      {
+        return result.ToDictionary(m => m.BarCode);
+      }
+
+      var lst = result.GroupBy(m => m.BarCode.Substring(0, 15)).ToList();
+
+      //For data from same sample but with different vials, keep the last one
+      if (vc == TCGAVialConflict.KeepLast)
+      {
+        return lst.ConvertAll(n =>
+        {
+          if (n.Count() == 1)
+          {
+            return n.First();
+          }
+
+          return (from l in n select new { Item = l, Vial = l.BarCode.Last() }).OrderByDescending(l => l.Vial).First().Item;
+        }).ToDictionary(n => n.BarCode);
+      }
+      else
+      {
+        return lst.ConvertAll(n =>
+        {
+          if (n.Count() == 1)
+          {
+            return n.First();
+          }
+
+          return (from l in n select new { Item = l, Vial = l.BarCode.Last() }).OrderByDescending(l => l.Vial).Last().Item;
+        }).ToDictionary(n => n.BarCode);
+      }
     }
 
     public static Dictionary<string, string> GetTumorDescriptionMap()
@@ -787,6 +835,103 @@ namespace CQS.TCGA
               where m.Success
               select new { Description = m.Groups[1].Value, Name = m.Groups[2].Value }).ToDictionary(m => m.Name, m => m.Description.Trim());
     }
+
+
+    public static void ExtractData(string tcgaDir, string targetDir, string prefix, string[] tumors, string datatype, string platform, TCGASampleCode[] sampleCodes = null)
+    {
+      if (string.IsNullOrEmpty(platform))
+      {
+        ExtractData(tcgaDir, targetDir, prefix, tumors, datatype, new string[] { }, sampleCodes);
+      }
+      else
+      {
+        ExtractData(tcgaDir, targetDir, prefix, tumors, datatype, new string[] { platform }, sampleCodes);
+      }
+    }
+
+    public static void ExtractData(string tcgaDir, string targetDir, string prefix, string[] tumors, string datatype, string[] platforms, TCGASampleCode[] sampleCodes = null)
+    {
+      var tec = TCGATechnology.Parse(datatype);
+      var platforms_str = (from p in platforms select p.StringBefore("_")).Merge("_");
+
+      var counts = new[] { true, false };
+      foreach (var count in counts)
+      {
+        string resultFile;
+        if (tec.HasCountData)
+        {
+          resultFile = string.Format(@"{0}\{1}_{2}_{3}_{4}.tsv", targetDir, prefix, datatype, platforms_str, count ? "Count" : tec.ValueName);
+        }
+        else
+        {
+          resultFile = string.Format(@"{0}\{1}_{2}_{3}.tsv", targetDir, prefix, datatype, platforms_str);
+        }
+
+        var options = new TCGADatatableBuilderOptions();
+        options.DataType = datatype;
+        options.TCGADirectory = tcgaDir;
+        options.TumorTypes = tumors.ToList();
+        options.Platforms = platforms;
+        options.IsCount = count;
+        options.OutputFile = resultFile;
+        options.TCGASampleCodeStrings = sampleCodes == null ? new List<string>() : sampleCodes.ToList().ConvertAll(m => m.ShortLetterCode).ToList();
+        options.WithClinicalInformationOnly = true;
+
+        if (!options.PrepareOptions())
+        {
+          throw new Exception("Error:\n" + options.ParsingErrors.Merge("\n"));
+        }
+
+        new TCGADatatableBuilder(options).Process();
+
+        if (!tec.HasCountData)
+        {
+          break;
+        }
+      }
+    }
+
+    public static void SummarizeExtractedData(string dir)
+    {
+      var designs = Directory.GetFiles(dir, "*.design.tsv");
+      using (var sw = new StreamWriter(dir + "\\design_overlap.tsv"))
+      using (var swSummary = new StreamWriter(dir + "\\design_summary.tsv"))
+      {
+        var reader = new MapItemReader(2, 4);
+        var data = (from design in designs
+                    from item in reader.ReadFromFile(design)
+                    select item).ToList();
+        var dataMap = data.ToGroupDictionary(m => m.Key);
+        var samples = (from d in data select d.Key).Distinct().OrderBy(m => m).ToList();
+        var platforms = (from d in data select d.Value.Value).Distinct().ToList();
+
+        var dMap = (from d in data
+                    select new { Sample = d.Key, Platform = d.Value.Value }).ToDoubleDictionary(m => m.Platform, m => m.Sample);
+
+        sw.WriteLine("Sample\t" + platforms.Merge("\t"));
+        foreach (var sample in samples)
+        {
+          var sampleMap = new HashSet<string>(dataMap[sample].ConvertAll(m => m.Value.Value));
+          sw.WriteLine("{0}\t{1}",
+            sample,
+            (from p in platforms
+             select sampleMap.Contains(p) ? "+" : "").Merge("\t"));
+        }
+
+        swSummary.WriteLine("\t" + platforms.Merge("\t"));
+        for (int i = 0; i < platforms.Count; i++)
+        {
+          swSummary.Write(platforms[i]);
+          for (int j = 0; j < platforms.Count; j++)
+          {
+            swSummary.Write("\t{0}", dMap[platforms[i]].Keys.Intersect(dMap[platforms[j]].Keys).Count());
+          }
+          swSummary.WriteLine();
+        }
+      }
+    }
+
+
   }
 
   public static class TCGATechnolyTypeExtention

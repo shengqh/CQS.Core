@@ -29,31 +29,36 @@
     private void InitializeComponent()
     {
       this.gffFile = new RCPA.Gui.FileField();
-      this.fileFastq = new RCPA.Gui.FileField();
+      this.fastqFile = new RCPA.Gui.FileField();
       this.cbEngine = new System.Windows.Forms.ComboBox();
       this.label1 = new System.Windows.Forms.Label();
       this.countFile = new RCPA.Gui.FileField();
       this.cbBedAsGtf = new RCPA.Gui.RcpaCheckField();
-      this.fileFasta = new RCPA.Gui.FileField();
-      this.pnlFile.SuspendLayout();
+      this.fastaFile = new RCPA.Gui.FileField();
+      this.bamFile = new RCPA.Gui.FileField();
       this.SuspendLayout();
-      // 
-      // pnlFile
-      // 
-      this.pnlFile.Location = new System.Drawing.Point(12, 13);
-      this.pnlFile.Size = new System.Drawing.Size(919, 24);
-      // 
-      // txtOriginalFile
-      // 
-      this.txtOriginalFile.Size = new System.Drawing.Size(673, 20);
       // 
       // lblProgress
       // 
       this.lblProgress.Location = new System.Drawing.Point(0, 241);
+      this.lblProgress.Size = new System.Drawing.Size(955, 23);
       // 
       // progressBar
       // 
       this.progressBar.Location = new System.Drawing.Point(0, 264);
+      this.progressBar.Size = new System.Drawing.Size(955, 23);
+      // 
+      // btnClose
+      // 
+      this.btnClose.Location = new System.Drawing.Point(525, 8);
+      // 
+      // btnCancel
+      // 
+      this.btnCancel.Location = new System.Drawing.Point(440, 8);
+      // 
+      // btnGo
+      // 
+      this.btnGo.Location = new System.Drawing.Point(355, 8);
       // 
       // gffFile
       // 
@@ -65,26 +70,26 @@
       this.gffFile.Location = new System.Drawing.Point(12, 43);
       this.gffFile.Name = "gffFile";
       this.gffFile.OpenButtonText = "Browse  ...";
-      this.gffFile.WidthOpenButton = 246;
       this.gffFile.PreCondition = null;
       this.gffFile.Size = new System.Drawing.Size(919, 23);
       this.gffFile.TabIndex = 11;
+      this.gffFile.WidthOpenButton = 246;
       // 
-      // fileFastq
+      // fastqFile
       // 
-      this.fileFastq.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+      this.fastqFile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-      this.fileFastq.FileArgument = null;
-      this.fileFastq.FullName = "";
-      this.fileFastq.Key = "FastqFile";
-      this.fileFastq.Location = new System.Drawing.Point(12, 73);
-      this.fileFastq.Name = "fileFastq";
-      this.fileFastq.OpenButtonText = "Browse  ...";
-      this.fileFastq.WidthOpenButton = 246;
-      this.fileFastq.PreCondition = null;
-      this.fileFastq.Required = false;
-      this.fileFastq.Size = new System.Drawing.Size(919, 23);
-      this.fileFastq.TabIndex = 12;
+      this.fastqFile.FileArgument = null;
+      this.fastqFile.FullName = "";
+      this.fastqFile.Key = "FastqFile";
+      this.fastqFile.Location = new System.Drawing.Point(12, 73);
+      this.fastqFile.Name = "fastqFile";
+      this.fastqFile.OpenButtonText = "Browse  ...";
+      this.fastqFile.PreCondition = null;
+      this.fastqFile.Required = false;
+      this.fastqFile.Size = new System.Drawing.Size(919, 23);
+      this.fastqFile.TabIndex = 12;
+      this.fastqFile.WidthOpenButton = 246;
       // 
       // cbEngine
       // 
@@ -114,11 +119,11 @@
       this.countFile.Location = new System.Drawing.Point(12, 102);
       this.countFile.Name = "countFile";
       this.countFile.OpenButtonText = "Browse  ...";
-      this.countFile.WidthOpenButton = 246;
       this.countFile.PreCondition = null;
       this.countFile.Required = false;
       this.countFile.Size = new System.Drawing.Size(919, 23);
       this.countFile.TabIndex = 15;
+      this.countFile.WidthOpenButton = 246;
       // 
       // cbBedAsGtf
       // 
@@ -134,48 +139,62 @@
       this.cbBedAsGtf.Text = "Bed as gtf";
       this.cbBedAsGtf.UseVisualStyleBackColor = true;
       // 
-      // fileFasta
+      // fastaFile
       // 
-      this.fileFasta.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+      this.fastaFile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-      this.fileFasta.FileArgument = null;
-      this.fileFasta.FullName = "";
-      this.fileFasta.Key = "FastaFile";
-      this.fileFasta.Location = new System.Drawing.Point(12, 131);
-      this.fileFasta.Name = "fileFasta";
-      this.fileFasta.OpenButtonText = "Browse  ...";
-      this.fileFasta.WidthOpenButton = 246;
-      this.fileFasta.PreCondition = null;
-      this.fileFasta.Required = false;
-      this.fileFasta.Size = new System.Drawing.Size(919, 23);
-      this.fileFasta.TabIndex = 17;
+      this.fastaFile.FileArgument = null;
+      this.fastaFile.FullName = "";
+      this.fastaFile.Key = "FastaFile";
+      this.fastaFile.Location = new System.Drawing.Point(12, 131);
+      this.fastaFile.Name = "fastaFile";
+      this.fastaFile.OpenButtonText = "Browse  ...";
+      this.fastaFile.PreCondition = null;
+      this.fastaFile.Required = false;
+      this.fastaFile.Size = new System.Drawing.Size(919, 23);
+      this.fastaFile.TabIndex = 17;
+      this.fastaFile.WidthOpenButton = 246;
+      // 
+      // bamFile
+      // 
+      this.bamFile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+      this.bamFile.FileArgument = null;
+      this.bamFile.FullName = "";
+      this.bamFile.Key = "BamFile";
+      this.bamFile.Location = new System.Drawing.Point(12, 14);
+      this.bamFile.Name = "bamFile";
+      this.bamFile.OpenButtonText = "Browse  ...";
+      this.bamFile.PreCondition = null;
+      this.bamFile.Size = new System.Drawing.Size(919, 23);
+      this.bamFile.TabIndex = 18;
+      this.bamFile.WidthOpenButton = 246;
       // 
       // MirnaCountProcessorUI
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.ClientSize = new System.Drawing.Size(955, 326);
-      this.Controls.Add(this.fileFasta);
+      this.Controls.Add(this.bamFile);
+      this.Controls.Add(this.fastaFile);
       this.Controls.Add(this.cbBedAsGtf);
       this.Controls.Add(this.countFile);
       this.Controls.Add(this.label1);
       this.Controls.Add(this.cbEngine);
-      this.Controls.Add(this.fileFastq);
+      this.Controls.Add(this.fastqFile);
       this.Controls.Add(this.gffFile);
       this.Name = "MirnaCountProcessorUI";
       this.Text = "Mirna Count Processor";
       this.Controls.SetChildIndex(this.progressBar, 0);
       this.Controls.SetChildIndex(this.lblProgress, 0);
-      this.Controls.SetChildIndex(this.pnlFile, 0);
       this.Controls.SetChildIndex(this.gffFile, 0);
-      this.Controls.SetChildIndex(this.fileFastq, 0);
+      this.Controls.SetChildIndex(this.fastqFile, 0);
       this.Controls.SetChildIndex(this.cbEngine, 0);
       this.Controls.SetChildIndex(this.label1, 0);
       this.Controls.SetChildIndex(this.countFile, 0);
       this.Controls.SetChildIndex(this.cbBedAsGtf, 0);
-      this.Controls.SetChildIndex(this.fileFasta, 0);
-      this.pnlFile.ResumeLayout(false);
-      this.pnlFile.PerformLayout();
+      this.Controls.SetChildIndex(this.fastaFile, 0);
+      this.Controls.SetChildIndex(this.bamFile, 0);
       this.ResumeLayout(false);
       this.PerformLayout();
 
@@ -184,12 +203,13 @@
     #endregion
 
     private RCPA.Gui.FileField gffFile;
-    private RCPA.Gui.FileField fileFastq;
+    private RCPA.Gui.FileField fastqFile;
     private System.Windows.Forms.ComboBox cbEngine;
     private System.Windows.Forms.Label label1;
     private RCPA.Gui.FileField countFile;
     private RCPA.Gui.RcpaCheckField cbBedAsGtf;
-    private RCPA.Gui.FileField fileFasta;
+    private RCPA.Gui.FileField fastaFile;
+    private RCPA.Gui.FileField bamFile;
 
   }
 }

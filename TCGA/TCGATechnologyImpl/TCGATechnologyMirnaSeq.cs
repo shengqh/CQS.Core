@@ -36,5 +36,29 @@ namespace CQS.TCGA.TCGATechnologyImpl
     {
       return m => m.ToLower().EndsWith(".mirna.quantification.txt") && (!m.ToLower().Contains("hg19"));
     }
+
+    public override bool HasCountData
+    {
+      get
+      {
+        return true;
+      }
+    }
+
+    public override string DefaultPreferPlatform
+    {
+      get
+      {
+        return "illuminahiseq_rnaseqv2";
+      }
+    }
+
+    public override string ValueName
+    {
+      get
+      {
+        return "RPM";
+      }
+    }
   }
 }

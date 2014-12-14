@@ -80,13 +80,13 @@ namespace CQS.Genome.Fastq
       Progress.SetMessage("writing duplicate count ...");
       using (StreamWriter sw = new StreamWriter(countFile))
       {
-        sw.WriteLine("Sequence\tCount");
+        sw.WriteLine("Query\tCount\tSequence");
         var seqs = (from s in queries
                     orderby s.Value.RepeatCount descending, s.Key
                     select s).ToList();
         foreach (var seq in seqs)
         {
-          sw.WriteLine("{0}\t{1}", seq.Value.Name, seq.Value.RepeatCount);
+          sw.WriteLine("{0}\t{1}\t{2}", seq.Value.Name, seq.Value.RepeatCount, seq.Value.SeqString);
         }
       }
 

@@ -10,7 +10,7 @@ namespace CQS
 {
   public class SimpleDataTableBuilderOptions : AbstractOptions
   {
-    private const string DEFAULT_FILE_PATTERN = "*.count";
+    private const string DEFAULT_FILE_PATTERN = "*.xml";
 
     public SimpleDataTableBuilderOptions()
     {

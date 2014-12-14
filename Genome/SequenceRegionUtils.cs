@@ -37,11 +37,11 @@ namespace CQS.Genome
       return 0;
     }
 
-    public static bool Overlap(this ISequenceRegion one, ISequenceRegion two, double minPercentage)
+    public static double OverlapPercentage(this ISequenceRegion one, ISequenceRegion two)
     {
       if (!one.Seqname.Equals(two.Seqname))
       {
-        return false;
+        return 0.0;
       }
 
       ISequenceRegion first, second;
@@ -59,18 +59,24 @@ namespace CQS.Genome
       //no-overlap
       if (first.End < second.Start)
       {
-        return false;
+        return 0.0;
       }
 
       //contain
       if (first.End >= second.End)
       {
-        return true;
+        return 1.0;
       }
 
       //overlap
-      var overlap = first.End - second.Start + 1;
-      return (overlap >= first.Length * minPercentage || overlap >= second.Length * minPercentage);
+      var overlap = first.End - second.Start + 1.0;
+      return overlap / Math.Min(first.Length, second.Length);
+    }
+
+    public static bool Overlap(this ISequenceRegion one, ISequenceRegion two, double minPercentage)
+    {
+      var perc =  OverlapPercentage(one, two);
+      return perc > 0 && perc >= minPercentage;
     }
 
     public static string GetLocationWithoutStrand(this ISequenceRegion sr)

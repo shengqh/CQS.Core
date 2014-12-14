@@ -20,6 +20,7 @@ namespace CQS.Genome.Fastq
     public override IEnumerable<string> Process()
     {
       Dictionary<int, int> bins = new Dictionary<int, int>();
+      bool bfirst = true;
       foreach (var file in options.InputFiles)
       {
         Progress.SetMessage("Processing " + file + "...");
@@ -43,6 +44,12 @@ namespace CQS.Genome.Fastq
               count = 0;
             }
             bins[seq.Length] = count + 1;
+
+            if (seq.Length == 51 && bfirst)
+            {
+              Console.WriteLine("{0}\n{1}\n{2}\n{3}", id, seq, strand, score);
+              bfirst = false;
+            }
 
             readcount++;
             if (readcount % 100000 == 0)

@@ -46,6 +46,9 @@ namespace CQS.Genome.SomaticMutation
     [Option("distance_junction_bed", MetaValue = "FILE", HelpText = "Junction bed file for distance calculation.")]
     public string DistanceJunctionBed { get; set; }
 
+    [Option("gtf", MetaValue = "FILE", HelpText = "Annotation by distance to entries from gtf file")]
+    public string GtfFile { get; set; }
+
     [Option("rnaediting", HelpText = "Annotation by rna editing database.")]
     public bool Rnaediting { get; set; }
 

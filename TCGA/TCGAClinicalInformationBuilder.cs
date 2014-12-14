@@ -36,30 +36,32 @@ namespace CQS.TCGA
 
       using (StreamReader sr = new StreamReader(_options.DataFile))
       {
-        var barcodes = sr.ReadLine().Split('\t').Skip(1).ToList();
+        var barcodes = sr.ReadLine().Split('\t').Where(m => m.StartsWith("TCGA")).ToList();
         List<Annotation> found = new List<Annotation>();
         foreach (var barcode in barcodes)
         {
           var patient = barcode.Substring(0, 12);
 
           Annotation ann;
-          if (itemMap.TryGetValue(patient, out ann))
+          if (!itemMap.TryGetValue(patient, out ann))
           {
-            ann.Annotations[sampleBarcodeKey] = barcode;
-            found.Add(ann);
-          }
-          else if (_options.ThrowException)
-          {
-            throw new Exception("Cannot find patient information for " + patient);
-          }
-          else
-          {
+            if (_options.ThrowException)
+            {
+              throw new Exception("Cannot find patient information for " + patient);
+            }
+
             Console.Error.WriteLine("Cannot find patient information for " + patient);
-            Annotation empty = new Annotation();
-            empty.Annotations[sampleBarcodeKey] = barcode;
-            empty.Annotations[TCGAClinicalInformation.BcrPatientBarcode] = patient;
-            found.Add(empty);
+            ann = new Annotation();
           }
+
+          var curann = new Annotation();
+          curann.Annotations[sampleBarcodeKey] = barcode;
+          curann.Annotations[TCGAClinicalInformation.BcrPatientBarcode] = patient;
+          foreach (var e in ann.Annotations)
+          {
+            curann.Annotations[e.Key] = e.Value;
+          }
+          found.Add(curann);
         }
         format.WriteToFile(_options.OutputFile, found);
       }

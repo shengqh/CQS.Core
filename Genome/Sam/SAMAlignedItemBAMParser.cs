@@ -56,7 +56,7 @@ namespace CQS.Genome.Sam
       }
 
       var result = new SAMAlignedItem();
-      var loc = new SAMAlignedLocation(result);
+      var loc = new SamAlignedLocation(result);
 
       int value;
       // 0-4 bytes

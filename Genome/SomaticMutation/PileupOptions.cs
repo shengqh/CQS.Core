@@ -22,8 +22,8 @@ namespace CQS.Genome.SomaticMutation
 
     private const int DefaultMinimumReadDepth = 10;
     private const int DefaultMpileupMinimumReadQuality = 20;
-    private const double DEFAULT_MaximumPercentageOfMinorAlleleInNormal = 0.05;
-    private const int DEFAULT_MinimumReadsOfMinorAlleleInTumor = 3;
+    private const double DEFAULT_MaximumPercentageOfMinorAlleleInNormal = 0.01;
+    private const int DEFAULT_MinimumReadsOfMinorAlleleInTumor = 5;
     private const double DEFAULT_MinimumPercentageOfMinorAlleleInTumor = 0.1;
     private const int DefaultThreadCount = 1;
 
@@ -100,6 +100,9 @@ namespace CQS.Genome.SomaticMutation
     //[Option('c', "thread_count", MetaValue = "INT", DefaultValue = DefaultThreadCount, HelpText = "Number of thread, only valid when type is bam")]
     public int ThreadCount { get; set; }
 
+    [Option('v', "validation_file", MetaValue = "FILE", Required = false, HelpText = "Bed format file for somatic mutation validation")]
+    public string ValidationFile { get; set; }
+
     [Option('o', "output", MetaValue = "STRING", Required = true, HelpText = "Output file suffix")]
     public string OutputSuffix { get; set; }
 
@@ -117,10 +120,18 @@ namespace CQS.Genome.SomaticMutation
       return Path.GetDirectoryName(new FileInfo(OutputSuffix).FullName);
     }
 
-    public PileupItemParser GetPileupItemParser()
+    public PileupItemParser GetPileupItemParser(bool limitMinimumReadDepth = true)
     {
-      return new PileupItemParser(MinimumReadDepth, MinimumBaseQuality, IgnoreInsertionDeletion, IgnoreN,
-        IgnoreTerminalBase);
+      if (limitMinimumReadDepth)
+      {
+        return new PileupItemParser(MinimumReadDepth, MinimumBaseQuality, IgnoreInsertionDeletion, IgnoreN,
+          IgnoreTerminalBase);
+      }
+      else
+      {
+        return new PileupItemParser(1, MinimumBaseQuality, IgnoreInsertionDeletion, IgnoreN,
+          IgnoreTerminalBase);
+      }
     }
 
     public string GetSamtoolsCommand()

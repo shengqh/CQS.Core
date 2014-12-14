@@ -155,13 +155,13 @@ namespace CQS.Genome.Gtf
     public GtfItem()
     {
       this.Seqname = string.Empty;
-      this.Source = string.Empty;
+      this.Source = ".";
       this.Feature = string.Empty;
       this.Start = -1;
       this.End = -1;
       this.Score = ".";
       this.Strand = '.';
-      this.Frame = 'x';
+      this.Frame = '.';
       this._attributes = string.Empty;
       this.GeneId = "";
       this.TranscriptId = string.Empty;
@@ -241,7 +241,7 @@ namespace CQS.Genome.Gtf
 
     public override string ToString()
     {
-      return string.Format("{0}\t{1}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}",
+      return string.Format("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}",
         Seqname,
         Source,
         Feature,

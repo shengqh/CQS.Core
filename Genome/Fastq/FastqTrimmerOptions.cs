@@ -14,9 +14,11 @@ namespace CQS.Genome.Fastq
     private const int DEFAULT_Last = 0;
     private const bool DEFAULT_Gzipped = false;
     private const bool DEFAULT_TrimN = false;
+    private const int DEFAULT_MINLEN = 0;
 
     public FastqTrimmerOptions()
     {
+      MinimumLength = DEFAULT_MINLEN;
     }
 
     [Option('i', "inputFile", Required = true, MetaValue = "FILE", HelpText = "Fastq file")]
@@ -33,6 +35,9 @@ namespace CQS.Genome.Fastq
 
     [Option('n', "trimN", DefaultValue = DEFAULT_TrimN, HelpText = "Trim terminal N")]
     public bool TrimN { get; set; }
+
+    [Option('m', "minimumLength", DefaultValue = DEFAULT_MINLEN, HelpText = "Minimum length of reads")]
+    public int MinimumLength { get; set; }
 
     [Option('z', "gzipped", DefaultValue = DEFAULT_Gzipped, HelpText = "Output file gzipped")]
     public bool Gzipped { get; set; }

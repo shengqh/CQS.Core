@@ -48,7 +48,15 @@ namespace CQS.Genome.SomaticMutation
       {
         try
         {
-          var proc = new MpileupParser(_options, result);
+          IMpileupParser proc;
+          if (File.Exists(_options.ValidationFile))
+          {
+            proc = new MpileupValidationParser(_options, result);
+          }
+          else
+          {
+            proc = new MpileupParser(_options, result);
+          }
 
           string line;
           while ((line = pfile.ReadLine()) != null)

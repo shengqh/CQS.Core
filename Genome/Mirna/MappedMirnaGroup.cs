@@ -15,12 +15,12 @@ namespace CQS.Genome.Mirna
 
     public double EstimateCount
     {
-      get { return this.Sum(m => m.EstimateCount); }
+      get { return this.Sum(m => m.EstimatedCount); }
     }
 
-    public double GetEstimatedCount(int index)
+    public double GetEstimatedCount(int offset = MirnaConsts.NO_OFFSET, string nta = MirnaConsts.NO_NTA)
     {
-      return this.Sum(m => m.GetEstimatedCount(index));
+      return this.Sum(m => m.GetEstimatedCount(offset, nta));
     }
 
     public string DisplayName
@@ -39,7 +39,7 @@ namespace CQS.Genome.Mirna
       }
     }
 
-    public List<SAMAlignedLocation> GetAlignedLocations()
+    public List<SamAlignedLocation> GetAlignedLocations()
     {
       return (from mirna in this
               from pos in mirna.MappedRegions

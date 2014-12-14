@@ -18,6 +18,5 @@ namespace CQS.Genome.Sam
     int EngineType { get; set; }
 
     ISAMFormat GetSAMFormat();
-
   }
 }

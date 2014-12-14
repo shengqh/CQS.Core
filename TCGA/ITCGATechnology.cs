@@ -67,17 +67,19 @@ namespace CQS.TCGA
     /// Get barcode/file map
     /// </summary>
     /// <param name="tumordir">tumor directory</param>
+    /// <param name="platforms">platforms</param>
     /// <param name="fileFilter">file filter, if null assigned, the default file filter will be used</param>
     /// <returns>barcode/file map</returns>
-    Dictionary<string, List<BarInfo>> GetFiles(string tumordir, Func<string, bool> fileFilter);
+    Dictionary<string, List<BarInfo>> GetFiles(string tumordir, IList<string> platforms, Func<string, bool> fileFilter);
 
     /// <summary>
     /// Get dataset information from tumor directory
     /// </summary>
     /// <param name="tumorDir">tumor directory</param>
-    /// <param name="tumorDir">file filter</param>
+    /// <param name="platforms">platforms</param>
+    /// <param name="fileFilter">file filter</param>
     /// <returns>dataset information</returns>
-    DatasetInfo GetDataset(string tumordir, Func<string, bool> fileFilter);
+    DatasetInfo GetDataset(string tumordir, IList<string> platforms, Func<string, bool> fileFilter);
 
     /// <summary>
     /// Get technology directory based on tumor directory
@@ -85,5 +87,20 @@ namespace CQS.TCGA
     /// <param name="tumorDir">tumor directory</param>
     /// <returns>technology directory</returns>
     string GetTechnologyDirectory(string tumorDir);
+
+    /// <summary>
+    /// Does this technology has count data?
+    /// </summary>
+    bool HasCountData { get; }
+
+    /// <summary>
+    /// Other than count data, what's the name of value? For example, RSEM for RNAseqv2
+    /// </summary>
+    string ValueName { get; }
+
+    /// <summary>
+    /// Default perfer platform for solving conflict
+    /// </summary>
+    string DefaultPreferPlatform { get; }
   }
 }

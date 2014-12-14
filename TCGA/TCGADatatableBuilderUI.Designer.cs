@@ -33,8 +33,11 @@
       this.lbDataTypes = new System.Windows.Forms.ListBox();
       this.label1 = new System.Windows.Forms.Label();
       this.splitContainer2 = new System.Windows.Forms.SplitContainer();
+      this.splitContainer3 = new System.Windows.Forms.SplitContainer();
       this.lbTumors = new System.Windows.Forms.ListBox();
       this.label2 = new System.Windows.Forms.Label();
+      this.lbPlatforms = new System.Windows.Forms.ListBox();
+      this.label4 = new System.Windows.Forms.Label();
       this.lbSampleTypes = new System.Windows.Forms.ListBox();
       this.label3 = new System.Windows.Forms.Label();
       this.cbCount = new RCPA.Gui.RcpaCheckField();
@@ -49,6 +52,10 @@
       this.splitContainer2.Panel1.SuspendLayout();
       this.splitContainer2.Panel2.SuspendLayout();
       this.splitContainer2.SuspendLayout();
+      ((System.ComponentModel.ISupportInitialize)(this.splitContainer3)).BeginInit();
+      this.splitContainer3.Panel1.SuspendLayout();
+      this.splitContainer3.Panel2.SuspendLayout();
+      this.splitContainer3.SuspendLayout();
       this.SuspendLayout();
       // 
       // lblProgress
@@ -101,7 +108,7 @@
       // 
       this.splitContainer1.Panel2.Controls.Add(this.splitContainer2);
       this.splitContainer1.Size = new System.Drawing.Size(1116, 410);
-      this.splitContainer1.SplitterDistance = 372;
+      this.splitContainer1.SplitterDistance = 274;
       this.splitContainer1.TabIndex = 13;
       // 
       // lbDataTypes
@@ -110,7 +117,7 @@
       this.lbDataTypes.FormattingEnabled = true;
       this.lbDataTypes.Location = new System.Drawing.Point(0, 13);
       this.lbDataTypes.Name = "lbDataTypes";
-      this.lbDataTypes.Size = new System.Drawing.Size(372, 397);
+      this.lbDataTypes.Size = new System.Drawing.Size(274, 397);
       this.lbDataTypes.TabIndex = 1;
       this.lbDataTypes.SelectedIndexChanged += new System.EventHandler(this.lbDataTypes_SelectedIndexChanged);
       // 
@@ -119,7 +126,7 @@
       this.label1.Dock = System.Windows.Forms.DockStyle.Top;
       this.label1.Location = new System.Drawing.Point(0, 0);
       this.label1.Name = "label1";
-      this.label1.Size = new System.Drawing.Size(372, 13);
+      this.label1.Size = new System.Drawing.Size(274, 13);
       this.label1.TabIndex = 0;
       this.label1.Text = "Select data type (only one data type allowed)";
       // 
@@ -131,16 +138,34 @@
       // 
       // splitContainer2.Panel1
       // 
-      this.splitContainer2.Panel1.Controls.Add(this.lbTumors);
-      this.splitContainer2.Panel1.Controls.Add(this.label2);
+      this.splitContainer2.Panel1.Controls.Add(this.splitContainer3);
       // 
       // splitContainer2.Panel2
       // 
       this.splitContainer2.Panel2.Controls.Add(this.lbSampleTypes);
       this.splitContainer2.Panel2.Controls.Add(this.label3);
-      this.splitContainer2.Size = new System.Drawing.Size(740, 410);
-      this.splitContainer2.SplitterDistance = 383;
+      this.splitContainer2.Size = new System.Drawing.Size(838, 410);
+      this.splitContainer2.SplitterDistance = 555;
       this.splitContainer2.TabIndex = 0;
+      // 
+      // splitContainer3
+      // 
+      this.splitContainer3.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.splitContainer3.Location = new System.Drawing.Point(0, 0);
+      this.splitContainer3.Name = "splitContainer3";
+      // 
+      // splitContainer3.Panel1
+      // 
+      this.splitContainer3.Panel1.Controls.Add(this.lbTumors);
+      this.splitContainer3.Panel1.Controls.Add(this.label2);
+      // 
+      // splitContainer3.Panel2
+      // 
+      this.splitContainer3.Panel2.Controls.Add(this.lbPlatforms);
+      this.splitContainer3.Panel2.Controls.Add(this.label4);
+      this.splitContainer3.Size = new System.Drawing.Size(555, 410);
+      this.splitContainer3.SplitterDistance = 284;
+      this.splitContainer3.TabIndex = 0;
       // 
       // lbTumors
       // 
@@ -149,18 +174,39 @@
       this.lbTumors.Location = new System.Drawing.Point(0, 13);
       this.lbTumors.Name = "lbTumors";
       this.lbTumors.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-      this.lbTumors.Size = new System.Drawing.Size(383, 397);
+      this.lbTumors.Size = new System.Drawing.Size(284, 397);
       this.lbTumors.Sorted = true;
-      this.lbTumors.TabIndex = 4;
+      this.lbTumors.TabIndex = 6;
+      this.lbTumors.SelectedIndexChanged += new System.EventHandler(this.lbTumors_SelectedIndexChanged);
       // 
       // label2
       // 
       this.label2.Dock = System.Windows.Forms.DockStyle.Top;
       this.label2.Location = new System.Drawing.Point(0, 0);
       this.label2.Name = "label2";
-      this.label2.Size = new System.Drawing.Size(383, 13);
-      this.label2.TabIndex = 3;
+      this.label2.Size = new System.Drawing.Size(284, 13);
+      this.label2.TabIndex = 5;
       this.label2.Text = "Select tumor types (ctrl+click for multiple selection)";
+      // 
+      // lbPlatforms
+      // 
+      this.lbPlatforms.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.lbPlatforms.FormattingEnabled = true;
+      this.lbPlatforms.Location = new System.Drawing.Point(0, 13);
+      this.lbPlatforms.Name = "lbPlatforms";
+      this.lbPlatforms.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
+      this.lbPlatforms.Size = new System.Drawing.Size(267, 397);
+      this.lbPlatforms.Sorted = true;
+      this.lbPlatforms.TabIndex = 6;
+      // 
+      // label4
+      // 
+      this.label4.Dock = System.Windows.Forms.DockStyle.Top;
+      this.label4.Location = new System.Drawing.Point(0, 0);
+      this.label4.Name = "label4";
+      this.label4.Size = new System.Drawing.Size(267, 13);
+      this.label4.TabIndex = 5;
+      this.label4.Text = "Select platform type (only one allowed)";
       // 
       // lbSampleTypes
       // 
@@ -169,7 +215,7 @@
       this.lbSampleTypes.Location = new System.Drawing.Point(0, 13);
       this.lbSampleTypes.Name = "lbSampleTypes";
       this.lbSampleTypes.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-      this.lbSampleTypes.Size = new System.Drawing.Size(353, 397);
+      this.lbSampleTypes.Size = new System.Drawing.Size(279, 397);
       this.lbSampleTypes.TabIndex = 6;
       // 
       // label3
@@ -177,12 +223,13 @@
       this.label3.Dock = System.Windows.Forms.DockStyle.Top;
       this.label3.Location = new System.Drawing.Point(0, 0);
       this.label3.Name = "label3";
-      this.label3.Size = new System.Drawing.Size(353, 13);
+      this.label3.Size = new System.Drawing.Size(279, 13);
       this.label3.TabIndex = 5;
       this.label3.Text = "Select sample types (ctrl+click for multiple selection)";
       // 
       // cbCount
       // 
+      this.cbCount.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
       this.cbCount.AutoSize = true;
       this.cbCount.Key = "cbCount";
       this.cbCount.Location = new System.Drawing.Point(24, 522);
@@ -223,6 +270,7 @@
       // 
       // cbClinicalOnly
       // 
+      this.cbClinicalOnly.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
       this.cbClinicalOnly.AutoSize = true;
       this.cbClinicalOnly.Key = "cbClinicalOnly";
       this.cbClinicalOnly.Location = new System.Drawing.Point(160, 522);
@@ -264,6 +312,10 @@
       this.splitContainer2.Panel2.ResumeLayout(false);
       ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).EndInit();
       this.splitContainer2.ResumeLayout(false);
+      this.splitContainer3.Panel1.ResumeLayout(false);
+      this.splitContainer3.Panel2.ResumeLayout(false);
+      ((System.ComponentModel.ISupportInitialize)(this.splitContainer3)).EndInit();
+      this.splitContainer3.ResumeLayout(false);
       this.ResumeLayout(false);
       this.PerformLayout();
 
@@ -276,14 +328,17 @@
     private System.Windows.Forms.ListBox lbDataTypes;
     private System.Windows.Forms.Label label1;
     private System.Windows.Forms.SplitContainer splitContainer2;
-    private System.Windows.Forms.ListBox lbTumors;
-    private System.Windows.Forms.Label label2;
     private System.Windows.Forms.ListBox lbSampleTypes;
     private System.Windows.Forms.Label label3;
     private RCPA.Gui.RcpaCheckField cbCount;
     private RCPA.Gui.DirectoryField rootDir;
     private RCPA.Gui.FileField targetFile;
     private RCPA.Gui.RcpaCheckField cbClinicalOnly;
+    private System.Windows.Forms.SplitContainer splitContainer3;
+    private System.Windows.Forms.ListBox lbTumors;
+    private System.Windows.Forms.Label label2;
+    private System.Windows.Forms.ListBox lbPlatforms;
+    private System.Windows.Forms.Label label4;
 
   }
 }

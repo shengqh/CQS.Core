@@ -22,7 +22,7 @@ namespace CQS.Genome.SmallRNA
     [OptionList('c', "category", Required = false, MetaValue = "STRING", HelpText = "Priority based categories")]
     public IList<string> Categories { get; set; }
 
-    [Option('i', "input", Required = true, MetaValue = "FILE", HelpText = "Input list file, each line includes [GroupName, SampleName, miRNAFile, otherRNAFile] which seperated by tab character")]
+    [Option('i', "input", Required = true, MetaValue = "FILE", HelpText = "Input list file, each line includes [GroupName, SampleName, otherRNAFile, miRNAFile] which seperated by tab character")]
     public string InputFile { get; set; }
 
     [Option('o', "output", Required = true, MetaValue = "DIRECTORY", HelpText = "Output directory")]

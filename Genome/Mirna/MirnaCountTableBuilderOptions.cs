@@ -20,5 +20,21 @@ namespace CQS.Genome.Mirna
         return Path.ChangeExtension(this.OutputFile, ".isomir.tsv");
       }
     }
+
+    public string NTAFile
+    {
+      get
+      {
+        return Path.ChangeExtension(this.OutputFile, ".NTA.tsv");
+      }
+    }
+
+    public string IsomirNTAFile
+    {
+      get
+      {
+        return Path.ChangeExtension(this.OutputFile, ".isomir_NTA.tsv");
+      }
+    }
   }
 }

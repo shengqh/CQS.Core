@@ -68,7 +68,7 @@ namespace CQS.Genome.Mapping
           }
           else
           {
-            var files = new MappedCountProcessor(options).Process(options.InputFile);
+            var files = new MappedCountProcessor(options).Process();
             Console.WriteLine("File saved to :\n" + files.Merge("\n"));
           }
         }

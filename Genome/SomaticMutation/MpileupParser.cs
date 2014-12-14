@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace CQS.Genome.SomaticMutation
 {
-  public class MpileupParser
+  public class MpileupParser : IMpileupParser
   {
     private readonly PileupItemNormalTest _normalTest;
     private readonly PileupOptions _options;
@@ -94,7 +94,7 @@ namespace CQS.Genome.SomaticMutation
       result.CandidateFile = string.Format("{0}/{1}.wsm", _options.CandidatesDirectory, result.GetString());
       piFile.WriteToFile(result.CandidateFile, item);
 
-      Console.WriteLine("{0}\t{1}\t{2}",item.SequenceIdentifier, item.Position,  fisherresult);
+      Console.WriteLine("{0}\t{1}\t{2}", item.SequenceIdentifier, item.Position, fisherresult);
 
       return result;
     }

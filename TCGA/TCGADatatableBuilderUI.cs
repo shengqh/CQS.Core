@@ -43,6 +43,7 @@ namespace CQS.TCGA
       options.DataType = lbDataTypes.SelectedItem as string;
       options.TCGADirectory = rootDir.FullName;
       options.TumorTypes = GetSelectedTumors();
+      options.Platforms = GetSelectedPlatforms();
       options.OutputFile = targetFile.FullName;
       options.IsCount = cbCount.Checked;
       options.TCGASampleCodeStrings = GetSampleCodes();
@@ -74,6 +75,11 @@ namespace CQS.TCGA
         throw new ArgumentException("Select tumor type first!");
       }
 
+      if (GetSelectedPlatforms().Count == 0)
+      {
+        throw new ArgumentException("Select platform first!");
+      }
+
       if (GetSampleCodes().Count == 0)
       {
         throw new ArgumentException("Select sample type first!");
@@ -86,6 +92,16 @@ namespace CQS.TCGA
       foreach (string obj in lbTumors.SelectedItems)
       {
         result.Add(obj.StringBefore(","));
+      }
+      return result;
+    }
+
+    private List<string> GetSelectedPlatforms()
+    {
+      List<string> result = new List<string>();
+      foreach (string obj in lbPlatforms.SelectedItems)
+      {
+        result.Add(obj);
       }
       return result;
     }
@@ -166,5 +182,59 @@ namespace CQS.TCGA
     {
       FillTumor();
     }
+
+    private void lbTumors_SelectedIndexChanged(object sender, EventArgs e)
+    {
+      FillPlatform();
+    }
+
+    private void FillPlatform()
+    {
+      lbPlatforms.BeginUpdate();
+      try
+      {
+        var oldplatforms = GetSelectedPlatforms();
+
+        lbPlatforms.Items.Clear();
+
+        if (lbDataTypes.SelectedItem == null || !Directory.Exists(rootDir.FullName) || lbTumors.SelectedItem == null)
+        {
+          return;
+        }
+
+        var technology = TCGATechnology.Parse(lbDataTypes.SelectedItem as string);
+        var tumors = GetSelectedTumors();
+
+        var platforms = (from tumor in tumors
+                         let dir = rootDir.FullName + "/" + tumor
+                         let plats = Directory.GetDirectories(technology.GetTechnologyDirectory(dir))
+                         from plat in plats
+                         select Path.GetFileName(plat)).Distinct().OrderBy(m => m).ToList();
+
+        platforms.ForEach(m => lbPlatforms.Items.Add(m));
+        if (platforms.Count == 1)
+        {
+          lbPlatforms.SelectedIndex = 0;
+        }
+        else
+        {
+          if (oldplatforms.Count > 0)
+          {
+            for (int i = 0; i < lbPlatforms.Items.Count; i++)
+            {
+              if (oldplatforms.Contains(lbPlatforms.Items[i]))
+              {
+                lbPlatforms.SetSelected(i, true);
+              }
+            }
+          }
+        }
+      }
+      finally
+      {
+        lbPlatforms.EndUpdate();
+      }
+    }
+
   }
 }

@@ -7,7 +7,7 @@ using System.IO;
 
 namespace CQS.TCGA.TCGATechnologyImpl
 {
-  public class TCGATechnologyRNAseqV1 : AbstractTCGATechnology
+  public class TCGATechnologyRNAseqV1 : AbstractTCGATechnologyRNAseq
   {
     public override string NodeName
     {
@@ -17,29 +17,14 @@ namespace CQS.TCGA.TCGATechnologyImpl
       }
     }
 
-    public override IFileReader<ExpressionData> GetReader()
-    {
-      return new ExpressionDataRawReader(2, -1);
-    }
-
-    public override IFileReader<ExpressionData> GetCountReader()
-    {
-      return new ExpressionDataRawReader(2, 1);
-    }
-
-    public override string ToString()
-    {
-      return "RPKM";
-    }
-
-    public override IParticipantFinder GetFinder(string tumorDir, string platformDir)
-    {
-      return new FindParticipantRnaSeq(FindSdrfFile(platformDir));
-    }
-
     public override Func<string, bool> GetFilenameFilter()
     {
       return m => m.ToLower().EndsWith(".gene.quantification.txt");
+    }
+
+    public override string ValueName
+    {
+      get { return "RPKM"; }
     }
   }
 }

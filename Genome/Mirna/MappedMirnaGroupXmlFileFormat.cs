@@ -104,7 +104,8 @@ namespace CQS.Genome.Mirna
                     from item in mapped.AlignedLocations
                     select new XElement("query",
                       new XAttribute("qname", item.Parent.Qname),
-                      new XAttribute("loc", item.GetLocation()))))))));
+                      new XAttribute("loc", item.GetLocation()),
+                      new XAttribute("querycount", item.Parent.QueryCount))))))));
       xml.Save(fileName);
     }
   }

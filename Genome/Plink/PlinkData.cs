@@ -7,6 +7,12 @@ namespace CQS.Genome.Plink
 {
   public class PlinkData
   {
+    public PlinkData()
+    {
+      this.Locus = new List<PlinkLocus>();
+      this.Individual = new List<PlinkIndividual>();
+    }
+
     /// <summary>
     /// All locus
     /// </summary>
@@ -48,12 +54,12 @@ namespace CQS.Genome.Plink
     /// <summary>
     /// First allele matrix of [locus, individual]
     /// </summary>
-    public bool[,] IsOneMinor { get; set; }
+    public bool[,] IsHaplotype1Allele2 { get; set; }
 
     /// <summary>
     /// Second allele matrix of [locus, individual]
     /// </summary>
-    public bool[,] IsTwoMinor { get; set; }
+    public bool[,] IsHaplotype2Allele2 { get; set; }
 
     public Dictionary<string, int> LocusMap { get; private set; }
 
@@ -64,8 +70,8 @@ namespace CQS.Genome.Plink
     /// </summary>
     public void AllocateDataMemory()
     {
-      this.IsOneMinor = new bool[Locus.Count, Individual.Count];
-      this.IsTwoMinor = new bool[Locus.Count, Individual.Count];
+      this.IsHaplotype1Allele2 = new bool[Locus.Count, Individual.Count];
+      this.IsHaplotype2Allele2 = new bool[Locus.Count, Individual.Count];
     }
 
     public void BuildMap()
@@ -73,7 +79,7 @@ namespace CQS.Genome.Plink
       this.LocusMap = new Dictionary<string, int>();
       for (int i = 0; i < Locus.Count; i++)
       {
-        this.LocusMap[Locus[i].Name] = i;
+        this.LocusMap[Locus[i].MarkerId] = i;
       }
 
       this.IndividualMap = new Dictionary<string, int>();
@@ -89,9 +95,20 @@ namespace CQS.Genome.Plink
     /// <param name="locus">locus (zero based)</param>
     /// <param name="individual">individual (zero based)</param>
     /// <returns>geno type, 0:major-major, 1:major-minor, 2:minor-minor, 3:missing</returns>
+    public int GenoType(string locus, string individual)
+    {
+      return GenoType(LocusMap[locus], IndividualMap[individual]);
+    }
+
+    /// <summary>
+    /// Get the geno type of [locus, individual]
+    /// </summary>
+    /// <param name="locus">locus (zero based)</param>
+    /// <param name="individual">individual (zero based)</param>
+    /// <returns>geno type, 0:major-major, 1:major-minor, 2:minor-minor, 3:missing</returns>
     public int GenoType(int locus, int individual)
     {
-      return GetGenoType(IsOneMinor[locus, individual], IsTwoMinor[locus, individual]);
+      return GetGenoType(IsHaplotype1Allele2[locus, individual], IsHaplotype2Allele2[locus, individual]);
     }
 
     /// <summary>
@@ -107,17 +124,18 @@ namespace CQS.Genome.Plink
         return "0";
       }
 
-      return IsOneMinor[locus, individual] ? Locus[locus].Allele2 : Locus[locus].Allele1;
+      return IsHaplotype1Allele2[locus, individual] ? Locus[locus].Allele2 : Locus[locus].Allele1;
     }
 
-    public static bool IsMissing(bool isOneMinor, bool isTwoMinor)
+    public static bool IsMissing(bool isHaplotype1Allele2, bool isHaplotype2Allele2)
     {
-      return isOneMinor && !isTwoMinor;
+      return isHaplotype1Allele2 && !isHaplotype2Allele2;
     }
 
     public bool IsMissing(int locus, int individual)
     {
-      return IsMissing(IsOneMinor[locus, individual], IsTwoMinor[locus, individual]);
+      var result = IsMissing(IsHaplotype1Allele2[locus, individual], IsHaplotype2Allele2[locus, individual]);
+      return result;
     }
 
     /// <summary>
@@ -133,7 +151,29 @@ namespace CQS.Genome.Plink
         return "0";
       }
 
-      return IsTwoMinor[locus, individual] ? Locus[locus].Allele2 : Locus[locus].Allele1;
+      return IsHaplotype2Allele2[locus, individual] ? Locus[locus].Allele2 : Locus[locus].Allele1;
+    }
+
+    /// <summary>
+    /// Get the first allele of [locusName, individualName]
+    /// </summary>
+    /// <param name="locusName">locus name</param>
+    /// <param name="individualName">individual name</param>
+    /// <returns>first allele</returns>
+    public string Allele1(string locusName, string individualName)
+    {
+      return Allele1(LocusMap[locusName], IndividualMap[individualName]);
+    }
+
+    /// <summary>
+    /// Get the second allele of [locusName, individualName]
+    /// </summary>
+    /// <param name="locusName">locus name</param>
+    /// <param name="individualName">individual name</param>
+    /// <returns>second allele</returns>
+    public string Allele2(string locusName, string individualName)
+    {
+      return Allele2(LocusMap[locusName], IndividualMap[individualName]);
     }
 
     private string DoAllele(int locus, string delimiter, Func<int, int, string> func)
@@ -236,7 +276,7 @@ namespace CQS.Genome.Plink
         {
           sb.Append(delimiter);
         }
-        sb.Append(GetGenoType(IsOneMinor[locus, j], IsTwoMinor[locus, j]));
+        sb.Append(GetGenoType(IsHaplotype1Allele2[locus, j], IsHaplotype2Allele2[locus, j]));
       }
       return sb.ToString();
     }

@@ -10,7 +10,7 @@ namespace CQS.Genome
   {
     public SequenceRegionMapped()
     {
-      this.AlignedLocations = new List<SAMAlignedLocation>();
+      this.AlignedLocations = new List<SamAlignedLocation>();
       this.Region = new SequenceRegion();
     }
 
@@ -52,9 +52,9 @@ namespace CQS.Genome
       }
     }
 
-    public List<SAMAlignedLocation> AlignedLocations { get; private set; }
+    public List<SamAlignedLocation> AlignedLocations { get; private set; }
 
-    public double GetEstimatedCount(Func<SAMAlignedLocation, bool> func)
+    public double GetEstimatedCount(Func<SamAlignedLocation, bool> func)
     {
       return (from loc in this.AlignedLocations
               where func(loc)

@@ -14,6 +14,7 @@ namespace CQS.Genome.Plink
     public string Mat { get; set; }
     public string Sexcode { get; set; }
     public double Phenotype { get; set; }
+    public bool Ignored { get; set; }
 
     /// <summary>
     /// Read individual from fam file of bed format, or from ped file of ped format

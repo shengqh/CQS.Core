@@ -11,9 +11,13 @@ namespace CQS.TCGA
   {
     private readonly TCGADatatableBuilderOptions _options;
 
+    public DirectoryInfo TemplateDirectory { get; set; }
+
     public TCGADatatableBuilder(TCGADatatableBuilderOptions options)
     {
       _options = options;
+      _options.PrepareOptions();
+      this.TemplateDirectory = FileUtils.GetTemplateDir();
     }
 
     private Dictionary<string, Dictionary<string, double>> GetData(Dictionary<string, BarInfo> barMap,
@@ -63,7 +67,7 @@ namespace CQS.TCGA
       foreach (var tumor in _options.TumorTypes)
       {
         var curMap = TCGAUtils.GetBarcodeFileMap(_options.TCGADirectory,
-          _options.GetTechnology(), tumor, _options.GetTCGASampleCodes().ToArray());
+          _options.GetTechnology(), tumor, _options.Platforms, _options.GetTCGASampleCodes().ToArray());
 
         foreach (var v in curMap)
         {
@@ -124,7 +128,7 @@ namespace CQS.TCGA
 
         using (var sw = new StreamWriter(_options.DesignFile))
         {
-          sw.Write("Sample\tBarcode\tPatient\tTumorType\tSampleType\tSampleTypeDescription");
+          sw.Write("Sample\tBarcode\tPatient\tTumorType\tPlatform\tSampleType\tSampleTypeDescription");
           if (headers.Count > 0)
           {
             sw.WriteLine("\t{0}", headers.Merge("\t"));
@@ -138,7 +142,7 @@ namespace CQS.TCGA
           {
             var tumor = GetTumorType(entry.Key);
             var type = TCGASampleCode.Find(entry.Value.Sample);
-            sw.Write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}", entry.Key, entry.Value.BarCode, entry.Value.Paticipant, tumor, type.ShortLetterCode,
+            sw.Write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}", entry.Key, entry.Value.BarCode, entry.Value.Paticipant, tumor, entry.Value.Platform, type.ShortLetterCode,
               type.Definition);
             var key = GetSampleKey(tumor, entry.Value.Paticipant);
             var vdata = clindata.ContainsKey(key) ? clindata[key] : new Annotation();
@@ -175,7 +179,7 @@ namespace CQS.TCGA
 
         using (var sw = new StreamWriter(_options.DesignFile))
         {
-          sw.Write("Sample\tBarcode\tPatient\tTumorType\tSampleType\tSampleTypeDescription");
+          sw.Write("Sample\tBarcode\tPatient\tTumorType\tPlatform\tSampleType\tSampleTypeDescription");
           if (headers.Count > 0)
           {
             sw.WriteLine("\t{0}", headers.Merge("\t"));
@@ -189,7 +193,7 @@ namespace CQS.TCGA
           {
             var tumor = _options.TumorTypes.First();
             var type = TCGASampleCode.Find(entry.Value.Sample);
-            sw.Write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}", entry.Key.StringAfter("_"), entry.Value.BarCode, entry.Value.Paticipant, tumor, type.ShortLetterCode,
+            sw.Write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}", entry.Key.StringAfter("_"), entry.Value.BarCode, entry.Value.Paticipant, tumor, entry.Value.Platform, type.ShortLetterCode,
               type.Definition);
             var key = GetSampleKey(tumor, entry.Value.Paticipant);
             var vdata = clindata.ContainsKey(key) ? clindata[key] : new Annotation();
@@ -260,12 +264,12 @@ namespace CQS.TCGA
       {
         clinicalData[GetSampleKey(tumorType, entry.BarCode())] = entry;
       }
-
-      string configheader = FileUtils.GetTemplateDir() + "/" + Path.GetFileNameWithoutExtension(clinfile) + ".header.xml";
+      var configheader = TemplateDirectory + "/" + Path.GetFileNameWithoutExtension(clinfile) + ".header.xml";
       if (!File.Exists(configheader))
       {
-        configheader = FileUtils.GetTemplateDir() + "/clinical_patient_tcga.header.xml";
+        configheader = TemplateDirectory + "/clinical_patient_tcga.header.xml";
       }
+
       var fd = HeaderDefinition.LoadFromFile(configheader);
       foreach (var line in fd.Properties)
       {

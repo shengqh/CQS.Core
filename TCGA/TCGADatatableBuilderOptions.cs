@@ -11,24 +11,53 @@ namespace CQS.TCGA
 {
   public class TCGADatatableBuilderOptions : AbstractOptions
   {
+    /// <summary>
+    /// TCGA root directory
+    /// </summary>
     [Option('i', "tcgaDir", Required = true, MetaValue = "DIRECTORY", HelpText = "TCGA root directory")]
     public string TCGADirectory { get; set; }
 
+    /// <summary>
+    /// Data type, including microarray, mirna, mirnaseq, rnaseqv1 and rnaseqv2
+    /// </summary>
     [Option('d', "dataType", Required = true, MetaValue = "STRING", HelpText = "Data type, including microarray, mirna, mirnaseq, rnaseqv1 and rnaseqv2")]
     public string DataType { get; set; }
 
+    /// <summary>
+    /// Tumor types, for example 'brca,lusc'
+    /// </summary>
     [OptionList('t', "tumorTypes", Required = true, MetaValue = "STRINGS", Separator = ',', HelpText = "Tumor types, separated by ',', for example 'brca,lusc'")]
     public IList<string> TumorTypes { get; set; }
 
+    /// <summary>
+    /// Platform types, for example 'illuminahiseq_rnaseqv2,illuminaga_rnaseqv2'
+    /// </summary>
+    [OptionList('p', "platforms", Required = true, MetaValue = "STRINGS", Separator = ',', HelpText = "Platform types, separated by ',', for example 'illuminahiseq_rnaseqv2,illuminaga_rnaseqv2'")]
+    public IList<string> Platforms { get; set; }
+
+    public string PreferPlatform { get; set; }
+
+    /// <summary>
+    /// Output file
+    /// </summary>
     [Option('o', "outputFile", Required = true, MetaValue = "FILE", HelpText = "Output file")]
     public string OutputFile { get; set; }
 
+    /// <summary>
+    /// Extract count data or normal value
+    /// </summary>
     [Option('c', "count", DefaultValue = false, HelpText = "Extract count data or normal value")]
     public bool IsCount { get; set; }
 
-    [Option('p', "patient", DefaultValue = false, HelpText = "With clinical information only")]
+    /// <summary>
+    /// With clinical information only
+    /// </summary>
+    [Option("clinical", DefaultValue = false, HelpText = "With clinical information only")]
     public bool WithClinicalInformationOnly { get; set; }
 
+    /// <summary>
+    /// TCGA sample types, for example 'TP,NT', TP is Primary solid Tumor, NT is Solid Tissue Normal
+    /// </summary>
     [OptionList('s', "sampleCodes", MetaValue = "STRINGS", Separator = ',', HelpText = "TCGA sample types, separated by ',', for example 'TP,NT', TP is Primary solid Tumor, NT is Solid Tissue Normal")]
     public IList<string> TCGASampleCodeStrings { get; set; }
 
@@ -106,6 +135,16 @@ namespace CQS.TCGA
       {
         ParsingErrors.Add(ex.Message);
         return false;
+      }
+
+      if (this.Platforms == null || this.Platforms.Count == 0)
+      {
+        var tec = GetTechnology();
+        this.Platforms = (from tumor in TumorTypes
+                          let dir = Path.Combine(this.TCGADirectory, tumor)
+                          let tecdir = tec.GetTechnologyDirectory(dir)
+                          from subdir in Directory.GetDirectories(tecdir)
+                          select Path.GetFileName(subdir)).Distinct().OrderBy(m => m).ToList();
       }
 
       return true;

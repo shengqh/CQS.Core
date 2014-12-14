@@ -30,7 +30,7 @@ namespace CQS.TCGA.TCGATechnologyImpl
 
     public override Func<string, bool> GetFilenameFilter()
     {
-      return m => m.ToLower().EndsWith(".gene.tcga_level3.data.txt");
+      return m => m.ToLower().EndsWith(".somatic.maf");
     }
   }
 }
