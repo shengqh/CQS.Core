@@ -56,7 +56,7 @@ namespace CQS.BreastCancer.parser
 
       var dirname = Path.GetFileName(datasetDirectory);
 
-      var map = RawSampleInfoReaderFactory.GetReader(datasetDirectory).ReadDescriptionFromDirectory(datasetDirectory);
+      var map = new RawSampleInfoReader().ReadDescriptionFromDirectory(datasetDirectory);
 
       foreach (var key in map.Keys)
       {

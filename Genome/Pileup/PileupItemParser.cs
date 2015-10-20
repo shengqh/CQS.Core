@@ -92,11 +92,6 @@ namespace CQS.Genome.Pileup
     {
       var parts = line.Split('\t');
 
-      if (!Accept(parts))
-      {
-        return null;
-      }
-
       var result = new PileupItem
       {
         SequenceIdentifier = parts[0],

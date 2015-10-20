@@ -9,11 +9,11 @@ namespace CQS.Genome.Feature
   {
     public FeatureItem()
     {
-      Mapped = new List<FeatureLocation>();
+      Locations = new List<FeatureLocation>();
       Name = string.Empty;
     }
 
-    public List<FeatureLocation> Mapped { get; private set; }
+    public List<FeatureLocation> Locations { get; private set; }
 
     public string Name { get; set; }
 
@@ -22,26 +22,26 @@ namespace CQS.Genome.Feature
       get { return GetEstimateCount(m => true); }
     }
 
-    public double GetEstimateCount(Func<SamAlignedLocation, bool> func)
+    public double GetEstimateCount(Func<FeatureSamLocation, bool> accept)
     {
-      return Mapped.Sum(m => m.GetEstimatedCount(func));
+      return Locations.Sum(m => m.GetEstimateCount(accept));
     }
 
     public int QueryCount
     {
       get
       {
-        return (from region in Mapped
+        return (from region in Locations
                 from loc in region.SamLocations
                 select loc.SamLocation.Parent).Distinct().Sum(m => m.QueryCount);
       }
     }
 
-    public string Locations
+    public string DisplayLocations
     {
       get
       {
-        return (from loc in Mapped
+        return (from loc in Locations
                 select loc.GetLocation()).Merge(",");
       }
     }
@@ -50,8 +50,7 @@ namespace CQS.Genome.Feature
     {
       get
       {
-        return (from loc in Mapped
-                select loc.Sequence).Merge(",");
+        return Locations.Count > 0 ? Locations[0].Sequence : string.Empty;
       }
     }
 
@@ -60,31 +59,18 @@ namespace CQS.Genome.Feature
       return Name;
     }
 
-    public void FilterLocations(HashSet<long> allowedOffsets)
-    {
-      foreach (var region in Mapped)
-      {
-        region.SamLocations.RemoveAll(loc =>
-        {
-          return !allowedOffsets.Contains(loc.Offset);
-        });
-      }
-
-      Mapped.RemoveAll(region => region.SamLocations.Count == 0);
-    }
-
     public void CombineLocations()
     {
       //deal with the item with multiple regions but one of them contains others
-      if (this.Mapped.Count > 1)
+      if (this.Locations.Count > 1)
       {
         var removed = new List<FeatureLocation>();
-        for (int i = 0; i < this.Mapped.Count; i++)
+        for (int i = 0; i < this.Locations.Count; i++)
         {
-          var regi = this.Mapped[i];
-          for (int j = i + 1; j < this.Mapped.Count; j++)
+          var regi = this.Locations[i];
+          for (int j = i + 1; j < this.Locations.Count; j++)
           {
-            var regj = this.Mapped[j];
+            var regj = this.Locations[j];
             if (removed.Contains(regj))
             {
               continue;
@@ -129,19 +115,43 @@ namespace CQS.Genome.Feature
         //remove the feature from SAMAlignedItem feature list.
         removed.ForEach(m => m.SamLocations.ForEach(l => l.SamLocation.Features.Remove(m)));
 
-        this.Mapped.RemoveAll(m => removed.Contains(m));
+        this.Locations.RemoveAll(m => removed.Contains(m));
       }
     }
   }
 
   public static class FeatureItemExtension
   {
-    public static List<FeatureItemGroup> GroupByIdenticalQuery(this List<FeatureItem> items)
+    public static List<FeatureItemGroup> GroupByIdenticalQuery(this IEnumerable<FeatureItem> items)
     {
-      var dic = items.GroupBy(m => (from r in m.Mapped
+      var dic = items.GroupBy(m => (from r in m.Locations
                                     from l in r.SamLocations
                                     select l.SamLocation.Parent.Qname).Distinct().OrderBy(l => l).Merge(";")).ToList();
       var result = new List<FeatureItemGroup>();
+      foreach (var curItems in dic)
+      {
+        var group = new FeatureItemGroup();
+        group.AddRange(from item in curItems orderby item.Name select item);
+        result.Add(group);
+      }
+
+      return result;
+    }
+
+    public static List<FeatureItemGroup> GroupBySequence(this IEnumerable<FeatureItem> items)
+    {
+      var result = new List<FeatureItemGroup>();
+      foreach (var item in items)
+      {
+        if (string.IsNullOrEmpty(item.Sequence))
+        {
+          var group = new FeatureItemGroup();
+          group.Add(item);
+          result.Add(group);
+        }
+      }
+
+      var dic = items.Where(m => !string.IsNullOrEmpty(m.Sequence)).GroupBy(m => m.Sequence).ToList();
       foreach (var curItems in dic)
       {
         var group = new FeatureItemGroup();

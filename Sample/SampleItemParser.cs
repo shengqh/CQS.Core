@@ -36,12 +36,12 @@ namespace CQS.Sample
 
       var datasetName = Path.GetFileName(datasetDirectory);
 
-      var dataMap = RawSampleInfoReaderFactory.GetReader(datasetDirectory).ReadDescriptionFromDirectory(datasetDirectory);
+      var dataMap = new RawSampleInfoReader().ReadDescriptionFromDirectory(datasetDirectory);
 
       foreach (var sampleName in dataMap.Keys)
       {
         string filename;
-        if (files.TryGetValue(sampleName.ToLower(), out filename))
+        if (files.TryGetValue(sampleName.ToUpper(), out filename))
         {
           var sample = new SampleItem()
           {

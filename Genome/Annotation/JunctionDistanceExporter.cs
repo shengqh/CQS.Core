@@ -16,7 +16,7 @@ namespace CQS.Genome.Annotation
 
     public JunctionDistanceExporter(string junctionBedFile)
     {
-      this.maps = CollectionUtils.ToGroupDictionary(new TophatJunctionBedReader().ReadFromFile(junctionBedFile), m => m.Chr);
+      this.maps = CollectionUtils.ToGroupDictionary(new TophatJunctionBedReader().ReadFromFile(junctionBedFile), m => m.Chr.StringAfter("chr"));
       this.header = (from h in new string[] { "junction", "junction_name", "junction_position", "terminal", "terminal_name", "terminal_position" }
                      let t = "distance_" + h
                      select t).Merge("\t");

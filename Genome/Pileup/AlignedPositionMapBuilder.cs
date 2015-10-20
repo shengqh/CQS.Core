@@ -17,7 +17,7 @@ namespace CQS.Genome.Pileup
     {
       this._options = options;
       _format = options.GetSAMFormat();
-      _file = SAMFactory.GetReader(fileName, options.Samtools, true);
+      _file = SAMFactory.GetReader(fileName, true);
       _list = new AlignedPositionMapList();
       _done = new List<AlignedPositionMap>();
     }

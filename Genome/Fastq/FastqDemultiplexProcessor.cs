@@ -65,7 +65,8 @@ namespace CQS.Genome.Fastq
         Progress.SetMessage("Processing " + Path.GetFullPath(options.InputFile) + " ...");
         using (var sr = StreamUtils.GetReader(options.InputFile))
         {
-          foreach (FastqSequence seq in parser.Parse(sr))
+          FastqSequence seq;
+          while((seq = parser.Parse(sr)) != null)
           {
             //Console.WriteLine("seq = " + seq.Reference);
 

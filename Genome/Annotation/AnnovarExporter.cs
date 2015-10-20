@@ -17,7 +17,16 @@ namespace CQS.Genome.Annotation
     {
       this.keyFunc = keyFunc;
       this.annovarItems = new AnnovarSummaryItemListReader().ReadFromFile(fileName);
-      this.annovarMap = annovarItems.ToDictionary(m => keyFunc(m.Seqname, m.Start));
+      var g = annovarItems.GroupBy(m => keyFunc(m.Seqname.StringAfter("chr"), m.Start));
+      foreach (var gg in g)
+      {
+        if (gg.Count() > 1)
+        {
+          Console.WriteLine(gg.Key);
+        }
+      }
+
+      this.annovarMap = g.ToDictionary(m => m.Key, m => m.First());
       this.emptyStr = new String('\t', annovarItems.Headers.Count());
       this.annovarHeader = (from h in annovarItems.Headers
                             select "annovar_" + h).Merge('\t');

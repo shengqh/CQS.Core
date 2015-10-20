@@ -23,7 +23,7 @@ namespace CQS.Genome.Mirna
               var mapped = region.Mapped[position];
               mapped.AlignedLocations.RemoveAll(q =>
               {
-                var snp = q.GetMutation(q.Parent.Sequence);
+                var snp = q.GetNotGsnapMismatch(q.Parent.Sequence);
                 if (null == snp)
                 {
                   return true;

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Bio.Util;
 using CommandLine;
-using CQS.Commandline;
+using RCPA.Commandline;
 using System;
 using System.IO;
 using System.Linq;

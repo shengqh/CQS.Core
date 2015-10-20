@@ -4,12 +4,14 @@ using System.Linq;
 using System.Xml.Linq;
 using CQS.Genome.Sam;
 using RCPA;
+using System.Xml;
+using System.Text;
 
 namespace CQS.Genome.Mapping
 {
-  public class ChromosomeCountXmFormat : IFileFormat<List<ChromosomeCountItem>>
+  public class ChromosomeCountXmlFormat : IFileFormat<List<ChromosomeCountItem>>
   {
-    public ChromosomeCountXmFormat()
+    public ChromosomeCountXmlFormat()
     { }
 
     public List<ChromosomeCountItem> ReadFromFile(string fileName)
@@ -45,8 +47,44 @@ namespace CQS.Genome.Mapping
 
     public void WriteToFile(string fileName, List<ChromosomeCountItem> groups)
     {
-      List<SAMAlignedItem> queries = groups.GetQueries();
+      using (var xw = new XmlTextWriter(fileName, Encoding.UTF8))
+      {
+        xw.Formatting = Formatting.Indented;
+        xw.WriteStartDocument();
 
+        xw.WriteStartElement("root");
+        groups.GetQueries().WriteTo(xw);
+        xw.WriteStartElement("subjectResult");
+        foreach (var itemgroup in groups)
+        {
+          xw.WriteStartElement("subjectGroup");
+
+          foreach (var name in itemgroup.Names)
+          {
+            xw.WriteStartElement("subject");
+            xw.WriteAttributeString("name", name);
+            xw.WriteEndElement();
+          }
+          foreach (var loc in itemgroup.Queries)
+          {
+            xw.WriteStartElement("query");
+            xw.WriteAttributeString("qname", loc.Qname);
+            xw.WriteEndElement();
+          }
+
+          xw.WriteEndElement();
+        }
+        xw.WriteEndElement();
+        xw.WriteEndElement();
+
+        xw.WriteEndDocument();
+        xw.Close();
+      }
+    }
+
+    public void WriteToFileSlow(string fileName, List<ChromosomeCountItem> groups)
+    {
+      List<SAMAlignedItem> queries = groups.GetQueries();
       var xml = new XElement("root",
         queries.ToXElement(),
         new XElement("subjectResult",

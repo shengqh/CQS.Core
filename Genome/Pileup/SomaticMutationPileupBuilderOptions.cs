@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using CQS.Commandline;
+using RCPA.Commandline;
 using CommandLine;
 using System.IO;
 using CQS.Genome.Sam;
@@ -75,8 +75,8 @@ namespace CQS.Genome.Pileup
 
       try
       {
-        SAMFactory.GetReader(this.NormalFile, this.Samtools);
-        SAMFactory.GetReader(this.TumorFile, this.Samtools);
+        using (SAMFactory.GetReader(this.NormalFile)) { }
+        using (SAMFactory.GetReader(this.TumorFile)) { }
       }
       catch (Exception ex)
       {

@@ -1,67 +1,62 @@
-﻿using System;
+﻿using RCPA;
+using RCPA.Gui;
+using RCPA.R;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.Linq;
 
 namespace CQS.Genome.SomaticMutation
 {
-  public class FilterProcessor
+  public class FilterProcessor : AbstractThreadProcessor
   {
-    private readonly FilterOptions _options;
+    private readonly FilterProcessorOptions _options;
 
-    public FilterProcessor(FilterOptions options)
+    public FilterProcessor(FilterProcessorOptions options)
     {
       _options = options;
     }
 
-    public bool Process()
+    public override IEnumerable<string> Process()
     {
-      Console.Out.WriteLine("filter process started at {0}", DateTime.Now);
+      Progress.SetMessage("filter process started at {0}", DateTime.Now);
       var watch = new Stopwatch();
       watch.Start();
 
-      var rproc = new Process
+      var tsvfile = _options.OutputFile + ".rtsv";
+
+      var roptions = new RProcessorOptions()
       {
-        StartInfo = new ProcessStartInfo
-        {
-          FileName = _options.GetRCommand(),
-          Arguments = string.Format("--vanilla -f {0}", _options.TargetRFile),
-          UseShellExecute = false,
-          RedirectStandardOutput = true,
-          CreateNoWindow = true
-        }
+        RExecute = _options.GetRCommand(),
+        RFile = _options.TargetRFile,
+        ExpectResultFile = _options.ROutputFile
       };
 
-      Console.Out.WriteLine("running command : " + rproc.StartInfo.FileName + " " + rproc.StartInfo.Arguments);
-      try
-      {
-        if (!rproc.Start())
-        {
-          Console.Out.WriteLine("R command cannot be started, check your parameters and ensure that R is available.");
-        }
-      }
-      catch (Exception ex)
-      {
-        Console.Out.WriteLine("R command cannot be started : ", ex.Message);
-        return false;
-      }
+      new RProcessor(roptions).Process();
 
-      try
+      if (!File.Exists(_options.ROutputFile))
       {
-        string line;
-        while ((line = rproc.StandardOutput.ReadLine()) != null)
-        {
-          Console.Out.WriteLine(line);
-        }
+        throw new Exception(string.Format("R command failed, look at the file {0}!\nMake sure that your R and R packages brglm, stringr have been installed.", roptions.RFile + ".log"));
       }
-      catch (Exception ex)
+      else if (!_options.IsValidation)
       {
-        Console.Out.WriteLine("R command error : {0} ", ex.Message);
-        return false;
+        var items = new FilterItemTextFormat().ReadFromFile(_options.ROutputFile);
+
+        var unfilteredfile = Path.ChangeExtension(_options.ROutputFile, ".vcf");
+        new FilterItemVcfWriter(_options).WriteToFile(unfilteredfile, items);
+
+        items.RemoveAll(m => !m.Filter.Equals("PASS"));
+        var vcfFile = Path.ChangeExtension(_options.OutputFile, ".vcf");
+        new FilterItemVcfWriter(_options).WriteToFile(vcfFile, items);
+
+        new FilterItemTextFormat().WriteToFile(_options.OutputFile, items);
       }
 
       watch.Stop();
-      Console.Out.WriteLine("filter process ended at {0}, cost {1}", DateTime.Now, watch.Elapsed);
+      Progress.SetMessage("filter process ended at {0}, cost {1}", DateTime.Now, watch.Elapsed);
 
-      return true;
+      return new[] { _options.OutputFile };
     }
   }
 }

@@ -152,7 +152,7 @@ namespace CQS.TCGA
 
             WebUtils.DownloadFile(uri + ".md5", compressedMd5);
 
-            var downloadedMD5 = FileUtils.GetMd5HashForFile(compressed);
+            var downloadedMD5 = HashUtils.GetMD5Hash(compressed, true, false);
             var trueMD5 = File.ReadAllText(compressedMd5).Split(new[] { '\t', ' ' })[0];
 
             if (!downloadedMD5.Equals(trueMD5))

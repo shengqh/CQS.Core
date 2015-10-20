@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using CommandLine;
-using CQS.Commandline;
+using RCPA.Commandline;
 using System.IO;
 
 namespace CQS.Genome.Bed
@@ -14,19 +14,22 @@ namespace CQS.Genome.Bed
     public Bed2FastaProcessorOptions()
     {
       this.KeepChrInName = DEFAULT_KeepChrInName;
+      this.AcceptName = m => true;
     }
 
-    [Option('i', "inputFile", Required = true, MetaValue = "FILE", HelpText = "Input bam file")]
+    [Option('i', "inputFile", Required = true, MetaValue = "FILE", HelpText = "Input bed file")]
     public string InputFile { get; set; }
 
     [Option('f', "genomeFastaFile", Required = true, MetaValue = "FILE", HelpText = "Genome fasta file")]
     public string GenomeFastaFile { get; set; }
 
-    [Option('o', "outputFile", Required = true, MetaValue = "FILE", HelpText = "Output fastq file")]
+    [Option('o', "outputFile", Required = true, MetaValue = "FILE", HelpText = "Output fasta file")]
     public string OutputFile { get; set; }
 
     [Option("keepChrInName", DefaultValue = DEFAULT_KeepChrInName, HelpText = "Keep \"chr\" at chromosome name")]
     public bool KeepChrInName { get; set; }
+
+    public Func<string, bool> AcceptName { get; set; }
 
     public override bool PrepareOptions()
     {

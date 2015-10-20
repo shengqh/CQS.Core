@@ -5,7 +5,7 @@ using System.Text;
 using RCPA;
 using CQS.Genome.Sam;
 using Bio.IO.SAM;
-using CQS.Commandline;
+using RCPA.Commandline;
 using CommandLine;
 using System.IO;
 using CQS.Genome.Mirna;

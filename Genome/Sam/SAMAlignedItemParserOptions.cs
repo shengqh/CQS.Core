@@ -1,34 +1,59 @@
 ﻿using CommandLine;
-using CQS.Commandline;
+using RCPA.Commandline;
 using CQS.Genome.Sam;
+using System;
 
 namespace CQS.Genome.Mapping
 {
-  public class SAMAlignedItemParserOptions : ISAMAlignedItemParserOptions
+  public class SAMAlignedItemParserOptions : AbstractOptions, ISAMAlignedItemParserOptions
   {
+    private const int DEFAULT_EngineType = 1;
+    private const int DEFAULT_MinimumReadLength = 16;
+    private const int DEFAULT_MaximumMismatchCount = 1;
+    public const int DEFAULT_MaximumNoPenaltyMutationCount = 3;
+    private const bool DEFAULT_IgnoreScore = false;
+
     public SAMAlignedItemParserOptions()
     {
-      MaximumReadLength = int.MaxValue;
+      this.EngineType = DEFAULT_EngineType;
+      this.MinimumReadLength = DEFAULT_MinimumReadLength;
+      this.MaximumReadLength = int.MaxValue;
+      this.MaximumMismatch = DEFAULT_MaximumMismatchCount;
+      this.MaximumNoPenaltyMutationCount = DEFAULT_MaximumNoPenaltyMutationCount;
+      this.IgnoreScore = DEFAULT_IgnoreScore;
     }
 
-    public int MinimumReadLength { get; set; }
+    [Option('e', "engineType", DefaultValue = DEFAULT_EngineType, MetaValue = "INT", HelpText = "Engine type (1:bowtie1, 2:bowtie2, 3:bwa, 4:gsnap, 5:star)")]
+    public virtual int EngineType { get; set; }
 
-    public int MaximumReadLength { get; set; }
+    [Option('l', "minlen", MetaValue = "INT", DefaultValue = DEFAULT_MinimumReadLength, HelpText = "Minimum read length")]
+    public virtual int MinimumReadLength { get; set; }
 
-    public int MaximumMismatchCount { get; set; }
+    [Option("maxlen", MetaValue = "INT", DefaultValue = int.MaxValue, HelpText = "Maximum read length")]
+    public virtual int MaximumReadLength { get; set; }
 
-    public int EngineType { get; set; }
+    [Option('m', "maxMismatch", MetaValue = "INT", DefaultValue = DEFAULT_MaximumMismatchCount, HelpText = "Maximum mismatch count")]
+    public virtual int MaximumMismatch { get; set; }
 
-    public string Samtools { get; set; }
+    [Option("maxNoPenaltyMutation", MetaValue = "INT", DefaultValue = DEFAULT_MaximumNoPenaltyMutationCount, HelpText = "Maximum no penalty mutation count (such as T2C for Parclip, gsnap only)")]
+    public virtual int MaximumNoPenaltyMutationCount { get; set; }
 
-    public ISAMFormat GetSAMFormat()
+    [Option('s', "ignoreScore", DefaultValue = DEFAULT_IgnoreScore, HelpText = "Ignore score difference between matches from same query")]
+    public bool IgnoreScore { get; set; }
+
+    public virtual ISAMFormat GetSAMFormat()
     {
-      switch (this.EngineType)
+      var result = SAMFactory.GetFormat(this.EngineType);
+      if (result == null)
       {
-        case 2: return SAMFormat.Bowtie2;
-        case 3: return SAMFormat.Bwa;
-        default: return SAMFormat.Bowtie1;
+        throw new Exception(string.Format("No SAM format defined for engine {0}", this.EngineType));
       }
+      return result;
+    }
+
+    public override bool PrepareOptions()
+    {
+      return true;
     }
   }
 }

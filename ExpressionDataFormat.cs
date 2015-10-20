@@ -9,6 +9,12 @@ namespace CQS
 {
   public class ExpressionDataFormat<T> : IFileFormat<List<T>> where T : ExpressionData, new()
   {
+    private int startColumn;
+    public ExpressionDataFormat(int startColumn = 1)
+    {
+      this.startColumn = startColumn;
+    }
+
     public virtual List<T> ReadFromFile(string fileName)
     {
       List<T> result = new List<T>();
@@ -17,7 +23,7 @@ namespace CQS
       {
         var line = sr.ReadLine();
         var parts = line.Split('\t');
-        for (int i = 1; i < parts.Length; i++)
+        for (int i = startColumn; i < parts.Length; i++)
         {
           result.Add(new T() { SampleBarcode = parts[i] });
         }
@@ -25,9 +31,9 @@ namespace CQS
         while ((line = sr.ReadLine()) != null)
         {
           var values = line.Split('\t');
-          for (int i = 1; i < values.Length; i++)
+          for (int i = startColumn; i < values.Length; i++)
           {
-            result[i - 1].Values.Add(new ExpressionValue()
+            result[i - startColumn].Values.Add(new ExpressionValue()
             {
               Name = values[0],
               Value = values[i].Equals("NA") ? double.NaN : double.Parse(values[i])

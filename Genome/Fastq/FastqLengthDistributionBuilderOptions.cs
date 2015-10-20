@@ -3,15 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using CommandLine;
-using CQS.Commandline;
+using RCPA.Commandline;
 using System.IO;
 
 namespace CQS.Genome.Fastq
 {
   public class FastqLengthDistributionBuilderOptions : AbstractOptions
   {
+    public FastqLengthDistributionBuilderOptions()
+    {
+      this.CheckCCA = false;
+    }
     [OptionList('i', "inputFiles", Required = true, MetaValue = "FILES", Separator = ',', HelpText = "Input fastq files, separated by ','")]
     public IList<string> InputFiles { get; set; }
+
+    [Option('c', "checkCCA", Required = false, MetaValue = "STRING", HelpText = "Check CCA and CCAA on 3' terminal")]
+    public bool CheckCCA { get; set; }
 
     [Option('o', "outputFile", Required = false, MetaValue = "FILE", HelpText = "Output file")]
     public string OutputFile { get; set; }

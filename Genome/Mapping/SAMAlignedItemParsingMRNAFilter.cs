@@ -1,6 +1,7 @@
 ﻿using CQS.Genome.Feature;
 using CQS.Genome.Mirna;
 using CQS.Genome.Sam;
+using CQS.Genome.SmallRNA;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,11 +26,11 @@ namespace CQS.Genome.Mapping
 
     private AcceptQueryNameFunc DoAcceptQueryName;
 
-    private static int tagLength = MirnaConsts.NTA_TAG.Length;
+    private static int tagLength = SmallRNAConsts.NTA_TAG.Length;
 
     private static bool FilterNTA(string qname)
     {
-      var pos = qname.IndexOf(MirnaConsts.NTA_TAG);
+      var pos = qname.IndexOf(SmallRNAConsts.NTA_TAG);
       if (pos == -1)
       {
         return true;

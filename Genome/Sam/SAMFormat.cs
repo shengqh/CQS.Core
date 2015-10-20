@@ -79,7 +79,8 @@ namespace CQS.Genome.Sam
 
   public class Bowtie1Format : SAMFormat
   {
-    public Bowtie1Format() : base("Bowtie1", false, "NM", "XA")
+    public Bowtie1Format()
+      : base("Bowtie1", false, "NM", "NM")
     {
     }
 
@@ -91,7 +92,8 @@ namespace CQS.Genome.Sam
 
   public class Bowtie2Format : SAMFormat
   {
-    public Bowtie2Format() : base("Bowtie2", false, "XM", "AS")
+    public Bowtie2Format()
+      : base("Bowtie2", false, "XM", "AS")
     {
     }
 
@@ -105,7 +107,8 @@ namespace CQS.Genome.Sam
   {
     private readonly Regex _reg = new Regex(@"(.+?),([+-])(\d+?),(.+?),(\d+)");
 
-    public BwaFormat() : base("Bwa", true, "XM", "AS")
+    public BwaFormat()
+      : base("Bwa", true, "XM", "AS")
     {
     }
 
@@ -150,6 +153,16 @@ namespace CQS.Genome.Sam
       string v = GetOptionValue(parts, "AS:i:", false);
       return string.IsNullOrEmpty(v) ? 0 : int.Parse(v);
     }
+
+    public override int CompareScore(double score1, double score2)
+    {
+      return score2.CompareTo(score1);
+    }
+  }
+
+  public class StarFormat : SAMFormat
+  {
+    public StarFormat() : base("Star", false, "NM", "AS") { }
 
     public override int CompareScore(double score1, double score2)
     {

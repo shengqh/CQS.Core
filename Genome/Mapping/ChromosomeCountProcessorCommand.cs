@@ -1,4 +1,5 @@
 ﻿
+using RCPA.Commandline;
 namespace CQS.Genome.Mapping
 {
   public class ChromosomeCountProcessorCommand : AbstractCommandLineCommand<ChromosomeCountProcessorOptions>

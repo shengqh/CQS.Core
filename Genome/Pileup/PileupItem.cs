@@ -136,21 +136,30 @@ namespace CQS.Genome.Pileup
         throw new Exception("No sample defined in PileupItem!");
       }
 
+      string majorEvent = string.Empty;
+      string minorEvent = string.Empty;
       if (_samples.Count == 1)
       {
         //both major and minor are defined by the only sample
         var sampleEvents = _samples[0].EventCountList;
         if (sampleEvents.Count > 1)
         {
-          return new PairedEvent(sampleEvents[0].Event, sampleEvents[1].Event);
+          majorEvent = sampleEvents[0].Event;
+          minorEvent = sampleEvents[1].Event;
         }
-        return new PairedEvent(sampleEvents[0].Event, string.Empty);
+        else if (sampleEvents.Count > 0)
+        {
+          majorEvent = sampleEvents[0].Event;
+        }
       }
       else
       {
         //major are defined by normal sample
         var sampleEvents = _samples[0].EventCountList;
-        var majorEvent = sampleEvents[0].Event;
+        if (sampleEvents.Count > 0)
+        {
+          majorEvent = sampleEvents[0].Event;
+        }
 
         //minor are defined by tumor sample
         var tumorEvents = _samples[1].EventCountList;
@@ -158,11 +167,20 @@ namespace CQS.Genome.Pileup
         {
           if (!e.Event.Equals(majorEvent))
           {
-            return new PairedEvent(majorEvent, e.Event);
+            if (majorEvent.Equals(string.Empty))
+            {
+              majorEvent = e.Event;
+            }
+            else
+            {
+              minorEvent = e.Event;
+              break;
+            }
           }
         }
-        return new PairedEvent(majorEvent, string.Empty);
       }
+
+      return new PairedEvent(majorEvent, minorEvent);
     }
   }
 }

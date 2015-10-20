@@ -11,7 +11,7 @@ using CQS.Genome.Bed;
 using CQS.Genome.Fastq;
 using System.Collections.Concurrent;
 using System.Threading;
-using CQS.Commandline;
+using RCPA.Commandline;
 using CommandLine;
 using System.Text.RegularExpressions;
 using CQS.Genome.Mapping;

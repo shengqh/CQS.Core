@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using RCPA;
+using CQS.Microarray.Affymatrix;
 
 namespace CQS.BreastCancer.parser
 {
@@ -65,7 +66,7 @@ namespace CQS.BreastCancer.parser
 
     public List<BreastCancerSampleItem> ParseDataset(string datasetDirectory)
     {
-      var files = new HashSet<string>(from f in Directory.GetFiles(datasetDirectory, "*.CEL")
+      var files = new HashSet<string>(from f in CelFile.GetCelFiles(datasetDirectory, false)
                                       select Path.GetFileNameWithoutExtension(f));
 
       var sdrfFile = Directory.GetFiles(datasetDirectory, "*.sdrf.txt");
@@ -104,7 +105,7 @@ namespace CQS.BreastCancer.parser
 
     public void ParseDataset(string datasetDirectory, Dictionary<string, BreastCancerSampleItem> sampleMap)
     {
-      var files = new HashSet<string>(from f in Directory.GetFiles(datasetDirectory, "*.CEL")
+      var files = new HashSet<string>(from f in CelFile.GetCelFiles(datasetDirectory, false)
                                       select Path.GetFileNameWithoutExtension(f));
 
       var sdrfFile = Directory.GetFiles(datasetDirectory, "*.sdrf.txt");

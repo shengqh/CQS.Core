@@ -5,13 +5,50 @@ using System.Text;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.IO.Compression;
+using RCPA;
+using RCPA.R;
 
 namespace CQS.Microarray.Affymatrix
 {
-  public class CelFile
+  public static class CelFile
   {
-    public static readonly char DELIMCHAR = '\x14';
+    public static Dictionary<string, string> GetChipTypes(string rExecute, string directory, bool includingSubDirectory, string outputFile)
+    {
+      var cels = GetCelFiles(directory);
+      foreach (var dir in Directory.GetDirectories(directory))
+      {
+        cels.AddRange(GetCelFiles(dir));
+      }
 
+      if (cels.Count == 0)
+      {
+        return new Dictionary<string, string>();
+      }
+
+      var inputfile = Path.Combine(directory, "celfiles.tsv");
+      using (var sw = new StreamWriter(inputfile))
+      {
+        foreach (var cel in cels)
+        {
+          sw.WriteLine(FileUtils.ToLinuxFormat(cel));
+        }
+      }
+
+      var roptions = new RTemplateProcessorOptions();
+      roptions.RExecute = rExecute;
+      roptions.InputFile = inputfile;
+      roptions.OutputFile = outputFile;
+      roptions.RTemplate = FileUtils.GetTemplateDir() + "/getceltypes.r";
+      new RTemplateProcessor(roptions).Process();
+      return new MapReader(0, 1).ReadFromFile(roptions.OutputFile);
+    }
+
+    public static List<string> GetCelFiles(string directory, bool drillDown = true)
+    {
+      return FileUtils.GetFiles(directory, "*.cel.gz", drillDown).Union(FileUtils.GetFiles(directory, "*.cel", drillDown)).ToList();
+    }
+
+    public static readonly char DELIMCHAR = '\x14';
 
     /// <summary>
     /// Parsing chip type from CEL file. Only uncompressed file can be parsed.
@@ -80,7 +117,7 @@ namespace CQS.Microarray.Affymatrix
           break;
         }
       }
-      return result;
+      return result.Trim();
     }
 
     /// <summary>
@@ -92,18 +129,20 @@ namespace CQS.Microarray.Affymatrix
     {
       try
       {
-        StreamReader sr;
-
-        if (fileName.ToLower().EndsWith(".gz"))
+        using (var sr = StreamUtils.GetReader(fileName))
         {
-          sr = new StreamReader(new GZipStream(new FileStream(fileName, FileMode.Open), CompressionMode.Decompress));
-        }
-        else
-        {
-          sr = new StreamReader(fileName);
-        }
+          var result = DoGetChipType(sr);
+          if (string.IsNullOrEmpty(result))
+          {
+            Console.Error.WriteLine("No chip type found in {0}", fileName);
+          }
+          else if (!Char.IsLetter(result[0]))
+          {
+            Console.Error.WriteLine("Wrong chip type {0} found in {1}", result, fileName);
+          }
 
-        return DoGetChipType(sr);
+          return result;
+        }
       }
       catch (Exception ex)
       {

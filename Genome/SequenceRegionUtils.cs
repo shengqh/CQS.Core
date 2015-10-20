@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using CQS.Genome.Bed;
 using CQS.Genome.Gtf;
+using System.Xml.Linq;
 
 namespace CQS.Genome
 {
@@ -14,11 +15,11 @@ namespace CQS.Genome
     private static readonly Regex Namereg = new Regex(@"\((.+?)\)(.+?):(.+?)-(.+?):([+-])");
 
     /// <summary>
-    /// Check if two regions are container-containee
+    /// Check if two regions are container-containee. If one contains two, return 1. If two contains one, return -1. Otherwise return 0.
     /// </summary>
     /// <param name="one">first region</param>
     /// <param name="two">second region</param>
-    /// <returns>If one contains two, return 1. If two contains one, return -1. Otherwise return 0.</returns>
+    /// <returns>result</returns>
     public static int Contains(this ISequenceRegion one, ISequenceRegion two)
     {
       if (one.Length >= two.Length)
@@ -75,7 +76,7 @@ namespace CQS.Genome
 
     public static bool Overlap(this ISequenceRegion one, ISequenceRegion two, double minPercentage)
     {
-      var perc =  OverlapPercentage(one, two);
+      var perc = OverlapPercentage(one, two);
       return perc > 0 && perc >= minPercentage;
     }
 
@@ -84,11 +85,21 @@ namespace CQS.Genome
       return string.Format("{0}:{1}-{2}", sr.Seqname, sr.Start, sr.End);
     }
 
+    /// <summary>
+    /// Get location using chrom:start-end:strand format
+    /// </summary>
+    /// <param name="sr"></param>
+    /// <returns></returns>
     public static string GetLocation(this ISequenceRegion sr)
     {
       return string.Format("{0}:{1}-{2}:{3}", sr.Seqname, sr.Start, sr.End, sr.Strand);
     }
 
+    /// <summary>
+    /// Get name and location using (name)chrom:start-end:strand format
+    /// </summary>
+    /// <param name="sr"></param>
+    /// <returns></returns>
     public static string GetNameLocation(this ISequenceRegion sr)
     {
       return string.Format("({0}){1}", sr.Name, sr.GetLocation());
@@ -182,17 +193,38 @@ namespace CQS.Genome
 
         result.ForEach(m =>
         {
-          if (m.Attributes.Contains("Name="))
-          {
-            m.GeneId = m.Attributes.StringAfter("Name=").StringBefore(";");
-          }
-          else if (m.Attributes.Contains("gene_id \""))
+          if (m.Attributes.Contains("gene_id \""))
           {
             m.GeneId = m.Attributes.StringAfter("gene_id \"").StringBefore("\"");
           }
-          else
+          else if (m.Attributes.Contains("ID="))
+          {
+            m.GeneId = m.Attributes.StringAfter("ID=").StringBefore(";");
+          }
+
+          if (m.Attributes.Contains("gene_name \""))
+          {
+            m.Name = m.Attributes.StringAfter("gene_name \"").StringBefore("\"");
+          }
+          else if (m.Attributes.Contains("Name="))
+          {
+            m.Name = m.Attributes.StringAfter("Name=").StringBefore(";");
+          }
+
+          if (string.IsNullOrEmpty(m.GeneId) && !string.IsNullOrEmpty(m.Name))
+          {
+            m.GeneId = m.Name;
+          }
+
+          if (!string.IsNullOrEmpty(m.GeneId) && string.IsNullOrEmpty(m.Name))
+          {
+            m.Name = m.GeneId;
+          }
+
+          if (string.IsNullOrEmpty(m.GeneId))
           {
             m.GeneId = m.Attributes;
+            m.Name = m.Attributes;
           }
         });
       }
@@ -224,6 +256,103 @@ namespace CQS.Genome
         }
       }
       return isBedFormat;
+    }
+    public static string GetDisplayName(this ISequenceRegion sr)
+    {
+      if (!string.IsNullOrEmpty(sr.Sequence))
+      {
+        return sr.Name + ":" + sr.Sequence;
+      }
+      else
+      {
+        return sr.Name;
+      }
+    }
+
+    public static void ParseLocation(this ISequenceRegion loc, XElement locEle)
+    {
+      loc.Seqname = locEle.Attribute("seqname").Value;
+      loc.Start = long.Parse(locEle.Attribute("start").Value);
+      loc.End = long.Parse(locEle.Attribute("end").Value);
+      loc.Strand = locEle.Attribute("strand").Value[0];
+    }
+
+    public static void UnionWith(this ISequenceRegion loc, ISequenceRegion item)
+    {
+      loc.Start = Math.Min(loc.Start, item.Start);
+      loc.End = Math.Max(loc.End, item.End);
+    }
+
+    public static long Offset(this ISequenceRegion actual, ISequenceRegion reference)
+    {
+      if (reference.Strand == '-')
+      {
+        return reference.End - actual.End;
+      }
+      else
+      {
+        return actual.Start - reference.Start;
+      }
+    }
+
+    public static void Combine<T>(this List<T> regions, Action<T, T> unionAction = null, Func<T, T, bool> overlapPreRequired = null) where T : ISequenceRegion
+    {
+      regions.Sort((m1, m2) =>
+      {
+        var res = m1.Seqname.CompareTo(m2.Seqname);
+        if (res != 0)
+        {
+          return res;
+        }
+
+        res = m1.Start.CompareTo(m2.Start);
+        if (res != 0)
+        {
+          return res;
+        }
+
+        return m1.End.CompareTo(m2.End);
+      });
+
+      int i = 0;
+      while (i < regions.Count - 1)
+      {
+        var iFeature = regions[i];
+        var jFeature = regions[i + 1];
+
+        if (iFeature.Seqname.Equals(jFeature.Seqname))
+        {
+          var iContain = iFeature.Contains(jFeature);
+          if (iContain == 1) // i contains j
+          {
+            regions.RemoveAt(i + 1);
+            continue;
+          }
+
+          if (iContain == -1)
+          {
+            regions.RemoveAt(i);
+
+            continue;
+          }
+
+          if (iFeature.Contains(jFeature.Start))
+          {
+            if (overlapPreRequired == null || overlapPreRequired(iFeature, jFeature))
+            {
+              iFeature.UnionWith(jFeature);
+              if (unionAction != null)
+              {
+                unionAction(iFeature, jFeature);
+              }
+              regions.RemoveAt(i + 1);
+              continue;
+            }
+          }
+        }
+
+        i++;
+      }
     }
   }
 }

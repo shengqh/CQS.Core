@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using RCPA;
 using System.IO;
-using CQS.Commandline;
+using RCPA.Commandline;
 using CommandLine;
 
 namespace CQS.Genome.Gtf
@@ -20,7 +20,13 @@ namespace CQS.Genome.Gtf
 
     public override IEnumerable<string> Process()
     {
-      Dictionary<string, string> map = new Dictionary<string, string>();
+      Dictionary<string, List<GtfItem>> map = new Dictionary<string, List<GtfItem>>();
+
+      var namemap = new Dictionary<string, string>();
+      if (File.Exists(options.MapFile))
+      {
+        namemap = new MapReader(0, 1, hasHeader: false).ReadFromFile(options.MapFile);
+      }
 
       using (var gtf = new GtfItemFile(options.InputFile))
       {
@@ -33,24 +39,90 @@ namespace CQS.Genome.Gtf
           {
             Progress.SetMessage("{0} gtf item processed", count);
           }
-          map[item.GeneId] = item.Attributes.StringAfter("gene_name \"").StringBefore("\"");
+          List<GtfItem> oldItems;
+          if (!map.TryGetValue(item.GeneId, out oldItems))
+          {
+            map[item.GeneId] = new[] { item }.ToList();
+          }
+          else
+          {
+            if (IsExon(item))
+            {
+              oldItems.RemoveAll(m => !IsExon(m));
+              oldItems.Add(item);
+            }
+            else
+            {
+              if (oldItems.All(m => !IsExon(m)))
+              {
+                oldItems.Add(item);
+              }
+            }
+          }
         }
       }
 
+      //      map[item.GeneId] = item.Attributes.StringAfter("gene_name \"").StringBefore("\"");
       var keys = (from key in map.Keys
                   orderby key
                   select key).ToList();
 
       using (StreamWriter sw = new StreamWriter(options.OutputFile))
       {
-        sw.WriteLine("gene_id\tgene_name");
+        bool bHasGeneName = map.Values.Any(l => l.Any(m => m.Attributes.Contains("gene_name")));
+        if (!bHasGeneName  && !File.Exists(options.MapFile))
+        {
+          throw new Exception(string.Format("No gene_name found in {0} and no id/name map file defined.", options.InputFile));
+        }
+
+        bool bHasGeneBiotype = map.Values.Any(l => l.Any(m => m.Attributes.Contains("gene_biotype")));
+        if (bHasGeneBiotype)
+        {
+          sw.WriteLine("gene_id\tgene_name\tlength\tgene_biotype");
+        }
+        else
+        {
+          sw.WriteLine("gene_id\tgene_name\tlength");
+        }
+
         foreach (var key in keys)
         {
-          sw.WriteLine("{0}\t{1}", key, map[key]);
+          var gtfs = map[key];
+          string name;
+          var gtf = gtfs.FirstOrDefault(m => m.Attributes.Contains("gene_name"));
+          gtfs.CombineCoordinates();
+          string biotype;
+          if (gtf == null)
+          {
+            biotype = string.Empty;
+            if (!namemap.TryGetValue(key, out name))
+            {
+              name = key;
+            }
+          }
+          else
+          {
+            biotype = gtf.GetBiotype();
+            name = gtf.Attributes.StringAfter("gene_name \"").StringBefore("\"");
+          }
+
+          if (bHasGeneBiotype)
+          {
+            sw.WriteLine("{0}\t{1}\t{2}\t{3}", key, name, gtfs.Sum(m => m.Length), biotype);
+          }
+          else
+          {
+            sw.WriteLine("{0}\t{1}\t{2}", key, name, gtfs.Sum(m => m.Length));
+          }
         }
       }
 
       return new string[] { options.OutputFile };
+    }
+
+    private static bool IsExon(GtfItem item)
+    {
+      return item.Feature.Equals("exon");
     }
   }
 }

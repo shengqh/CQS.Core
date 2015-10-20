@@ -16,6 +16,7 @@ using CQS.Ncbi.Geo;
 using CQS.Sample;
 using CQS.BreastCancer.parser;
 using RCPA.Gui;
+using CQS.Microarray.Affymatrix;
 
 namespace CQS.BreastCancer
 {
@@ -106,12 +107,12 @@ namespace CQS.BreastCancer
         }
       }
 
-      var map = RawSampleInfoReaderFactory.GetReader(subdir).ReadDescriptionFromDirectory(subdir);
+      var map = new RawSampleInfoReader().ReadDescriptionFromDirectory(subdir);
 
       lastDirectory = subdir;
       lastFile = String.Empty;
 
-      var files = new HashSet<string>(from f in Directory.GetFiles(subdir, "*.CEL")
+      var files = new HashSet<string>(from f in CelFile.GetCelFiles(subdir, false)
                                       select GeoUtils.GetGsmName(f));
 
       Dictionary<string, HashSet<string>> headers = new Dictionary<string, HashSet<string>>();
@@ -336,7 +337,7 @@ namespace CQS.BreastCancer
 
         var form = new BreastCancerSampleInformationForm();
 
-        var reader = RawSampleInfoReaderFactory.GetReader(dlgOpenDirectory.SelectedPath);
+        var reader = new RawSampleInfoReader();
         form.SetRawInfoReader(reader, Path.GetFileNameWithoutExtension(dlgOpenDirectory.SelectedPath));
         form.SetDataSource(lst);
         form.ShowDialog();

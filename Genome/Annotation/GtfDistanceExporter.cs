@@ -23,10 +23,10 @@ namespace CQS.Genome.Annotation
     public GtfDistanceExporter(string gtfFile, string gtfKey = "exon")
     {
       Console.WriteLine("reading gtf file " + gtfFile + " ...");
-      this.maps = CollectionUtils.ToGroupDictionary(GtfItemFile.ReadFromFile(gtfFile, gtfKey), m => m.Seqname);
+      this.maps = CollectionUtils.ToGroupDictionary(GtfItemFile.ReadFromFile(gtfFile, gtfKey), m => m.Seqname.StringAfter("chr"));
       Console.WriteLine("reading gtf file " + gtfFile + " done");
 
-      this.header = string.Format("distance_{0}\tdistance_{0}_position", gtfKey);
+      this.header = string.Format("distance_{0}\tdistance_{0}_position\tdistance_gene\tdistance_in_gene\tdistance_in_gene_range", gtfKey);
       this.emptyStr = "\t";
 
       //sort the gtf items by locus
@@ -52,7 +52,8 @@ namespace CQS.Genome.Annotation
 
       long minAbsoluteDistance = int.MaxValue;
       long minDistance = int.MaxValue;
-      string position = string.Empty;
+      GtfItem distItem = null;
+      bool bStart = true;
       foreach (var item in items)
       {
         var disStart = start - item.Start;
@@ -61,7 +62,8 @@ namespace CQS.Genome.Annotation
         {
           minAbsoluteDistance = absDisStart;
           minDistance = disStart;
-          position = item.Name + ":start";
+          distItem = item;
+          bStart = true;
         }
 
         var disEnd = start - item.End;
@@ -70,7 +72,8 @@ namespace CQS.Genome.Annotation
         {
           minAbsoluteDistance = absDisEnd;
           minDistance = disEnd;
-          position = item.Name + ":end";
+          distItem = item;
+          bStart = false;
         }
 
         if (disStart < 0 && disEnd < 0)
@@ -79,7 +82,33 @@ namespace CQS.Genome.Annotation
         }
       }
 
-      return string.Format("{0}\t{1}", minDistance, position);
+      var position = distItem.GetNameExon() + ":" + (bStart ? "start" : "end");
+
+      string gene = string.Empty;
+      string gene_func = string.Empty;
+      if (bStart && distItem.ExonNumber <= 1 && minDistance < 0)
+      {
+      }
+      else
+      {
+        var maxExon = items.Where(m => m.Name.Equals(distItem.Name)).Select(m => m.ExonNumber).Max();
+        if (!bStart && distItem.ExonNumber == maxExon && minDistance > 0)
+        {
+        }
+        else
+        {
+          gene = distItem.Name;
+          if ((bStart && minDistance < 0) || (!bStart && minDistance > 0))
+          {
+            gene_func = "intron";
+          }
+          else
+          {
+            gene_func = "exon";
+          }
+        }
+      }
+      return string.Format("{0}\t{1}\t{2}\t{3}", minDistance, position, gene, gene_func);
     }
   }
 }

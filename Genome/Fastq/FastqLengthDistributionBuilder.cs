@@ -84,7 +84,7 @@ namespace CQS.Genome.Fastq
 
       if (SystemUtils.IsLinux)
       {
-        var absoluteFile = Path.GetFullPath(options.OutputFile).Replace("\\", "/");
+        var absoluteFile = FileUtils.ToLinuxFormat(Path.GetFullPath(options.OutputFile));
         var command = string.Format(@"--vanilla -e 'library(graphics);data<-read.table(""{0}"", sep=""\\t"", header=T);png(""{0}.png"", width=4000, height=3000,res=300); barplot(data[,2], names.arg=data[,1], cex.names=0.65, main=""{1}""); dev.off()'", absoluteFile, Path.GetFileName(options.InputFiles[0]));
         SystemUtils.Execute("R", command);
       }

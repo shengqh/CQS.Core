@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using RCPA;
+using CQS.Genome.Quantification;
 
 namespace CQS
 {
@@ -16,6 +17,12 @@ namespace CQS
       _options = options;
     }
 
+    private class SampleData
+    {
+      public string Name { get; set; }
+      public Dictionary<string, MapItem> Data { get; set; }
+    }
+
     public override IEnumerable<string> Process()
     {
       var countfiles = _options.GetCountFiles();
@@ -24,18 +31,24 @@ namespace CQS
                         hasHeader: !_options.HasNoHeader);
       reader.CheckEnd = m => m.StartsWith("no_feature");
 
-      var counts = (from file in countfiles
-                    let data = reader.ReadFromFile(file.File)
-                    select new { Dir = file.Name, Data = data }).ToList();
+      var counts = new List<SampleData>();
+      foreach (var file in countfiles)
+      {
+        Progress.SetMessage("Reading data from {0} ...", file.File);
+        var data = reader.ReadFromFile(file.File);
+        counts.Add(new SampleData() { Name = file.Name, Data = data });
+      }
 
-      var namemap = new Dictionary<string, string>();
+      MapData namemap = null;
       if (File.Exists(_options.MapFile))
       {
-        namemap = new MapReader(0, 1).ReadFromFile(_options.MapFile);
+        Progress.SetMessage("Reading name map from {0} ...", _options.MapFile);
+        namemap = new MapDataReader(0, 1).ReadFromFile(_options.MapFile);
       }
 
       if (!string.IsNullOrEmpty(_options.KeyRegex))
       {
+        Progress.SetMessage("Filtering key by pattern {0} ...", _options.KeyRegex);
         var reg = new Regex(_options.KeyRegex);
         counts.ForEach(m =>
         {
@@ -54,21 +67,21 @@ namespace CQS
                       from k in c.Data.Keys
                       select k).Distinct().OrderBy(m => m).ToList();
 
+      Progress.SetMessage("Writing {0} features to {1} ...", features.Count, _options.OutputFile);
       using (var sw = new StreamWriter(_options.OutputFile))
       {
         sw.Write("Feature");
 
-        if (namemap.Count > 0)
+        if (namemap != null)
         {
-          sw.Write("\tName");
+          sw.Write("\tFeature_{0}", namemap.ValueName);
+          if (_options.ExportExtra)
+          {
+            sw.Write("\t{0}", (from v in namemap.InfoNames select "Feature_" + v).Merge("\t"));
+          }
         }
 
-        if (_options.InformationIndex != -1)
-        {
-          sw.Write("\tInformation");
-        }
-
-        sw.WriteLine("\t" + (from c in counts select c.Dir).Merge("\t"));
+        sw.WriteLine("\t" + (from c in counts select c.Name).Merge("\t"));
 
         foreach (var feature in features)
         {
@@ -80,28 +93,46 @@ namespace CQS
           }
 
           sw.Write(feature);
-          if (namemap.Count > 0)
+          if (namemap != null)
           {
-
-            if (namemap.ContainsKey(feature))
+            if (namemap.Data.ContainsKey(feature))
             {
-              sw.Write("\t" + namemap[feature]);
+              sw.Write("\t{0}", namemap.Data[feature].Value);
+              if (_options.ExportExtra)
+              {
+                sw.Write("\t{0}", namemap.Data[feature].Informations.Merge("\t"));
+              }
             }
             else
             {
               var fea = feature.StringBefore(":");
               var suffix = feature.Contains(":") ? ":" + feature.StringAfter(":") : string.Empty;
               var feas = fea.Split('+');
-              var values = (from f in feas
-                            select namemap.ContainsKey(f) ? namemap[f] : f).Merge("+") + suffix;
-              sw.Write("\t" + values);
-            }
-          }
+              var values = new List<string>();
 
-          if (_options.InformationIndex != -1)
-          {
-            var c = counts.First(m => m.Data.ContainsKey(feature));
-            sw.Write("\t" + c.Data[feature].Information);
+              var findFeature = feas.FirstOrDefault(m => namemap.Data.ContainsKey(m));
+              if (findFeature == null)
+              {
+                sw.Write("\t{0}", feature);
+                if (_options.ExportExtra)
+                {
+                  sw.Write("\t{0}", (from f in namemap.InfoNames select string.Empty).Merge("\t"));
+                }
+              }
+              else
+              {
+                sw.Write("\t{0}", (from f in feas
+                                   select namemap.Data.ContainsKey(f) ? namemap.Data[f].Value : f).Merge("+") + suffix);
+                if (_options.ExportExtra)
+                {
+                  for (int i = 0; i < namemap.InfoNames.Count; i++)
+                  {
+                    sw.Write("\t{0}", (from f in feas
+                                       select namemap.Data.ContainsKey(f) ? namemap.Data[f].Informations[i] : string.Empty).Merge(";"));
+                  }
+                }
+              }
+            }
           }
 
           foreach (var count in counts)
@@ -118,6 +149,34 @@ namespace CQS
           sw.WriteLine();
         }
       }
+
+      if (File.Exists(_options.MapFile))
+      {
+        bool hasLength = false;
+        using (var sr = new StreamReader(_options.MapFile))
+        {
+          var line = sr.ReadLine();
+          if (line != null)
+          {
+            hasLength = line.Contains("length");
+          }
+        }
+
+        if (hasLength)
+        {
+          Progress.SetMessage("Calculating FPKM values...");
+          new HTSeqCountToFPKMCalculator(new HTSeqCountToFPKMCalculatorOptions()
+          {
+            InputFile = _options.OutputFile,
+            GeneLengthFile = _options.MapFile,
+            OutputFile = Path.ChangeExtension(_options.OutputFile, ".fpkm.tsv")
+          })
+          {
+            Progress = this.Progress
+          }.Process();
+        }
+      }
+
       return new[] { Path.GetFullPath(_options.OutputFile) };
     }
   }

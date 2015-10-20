@@ -42,5 +42,23 @@ namespace CQS.Genome.Gtf
 
       return result;
     }
+
+    public static void CombineCoordinates(this List<GtfItem> gtfs)
+    {
+      for (int i = gtfs.Count - 1; i > 0; i--)
+      {
+        var gtfi = gtfs[i];
+        for (int j = i - 1; j >= 0; j--)
+        {
+          var gtfj = gtfs[j];
+          if (gtfi.Overlap(gtfj, 0))
+          {
+            gtfj.UnionWith(gtfi);
+            gtfs.RemoveAt(i);
+            break;
+          }
+        }
+      }
+    }
   }
 }

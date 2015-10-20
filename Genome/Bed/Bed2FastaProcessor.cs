@@ -7,6 +7,7 @@ using Bio.IO.SAM;
 using System.IO;
 using CQS.Genome.Sam;
 using RCPA.Seq;
+using CQS.Genome.Gtf;
 
 namespace CQS.Genome.Bed
 {
@@ -20,9 +21,14 @@ namespace CQS.Genome.Bed
 
     public override IEnumerable<string> Process()
     {
-      var srItems = SequenceRegionUtils.GetSequenceRegions(options.InputFile);
+      var srItems = SequenceRegionUtils.GetSequenceRegions(options.InputFile).Where(m => options.AcceptName(m.Name)).ToList();
 
-      if (!options.KeepChrInName)
+      srItems = (from sr in srItems.GroupBy(m => m.Name)
+                 select sr.First()).ToList();
+
+      var keepChrInName = options.KeepChrInName && srItems.Any(m => m.Name.StartsWith("chr"));
+
+      if (!keepChrInName)
       {
         srItems.ForEach(m => m.Seqname = m.Seqname.StringAfter("chr"));
       }
@@ -39,19 +45,45 @@ namespace CQS.Genome.Bed
           {
             Progress.SetMessage("processing " + seq.Name + " ...");
             var name = seq.Name;
-            if (!options.KeepChrInName)
+            if (!keepChrInName)
             {
               name = name.StringAfter("chr");
             }
 
-            if (srMap.ContainsKey(name))
+            List<GtfItem> items;
+
+            if (!srMap.TryGetValue(name, out items))
             {
-              var items = srMap[name];
+              if (name.Equals("M"))
+              {
+                name = "MT";
+                srMap.TryGetValue(name, out items);
+              }
+              else if (name.Equals("chrM"))
+              {
+                name = "chrMT";
+                srMap.TryGetValue(name, out items);
+              }
+              else if (name.Equals("MT"))
+              {
+                name = "M";
+                srMap.TryGetValue(name, out items);
+              }
+              else if (name.Equals("chrMT"))
+              {
+                name = "chrM";
+                srMap.TryGetValue(name, out items);
+              }
+            }
+
+            if (items != null)
+            {
               Progress.SetMessage("  there are {0} entries in {1} ...", items.Count, name);
               foreach (var item in items)
               {
                 var newseq = seq.SeqString.Substring((int)item.Start - 1, (int)item.Length);
-                if(item.Strand == '-'){
+                if (item.Strand == '-')
+                {
                   newseq = SequenceUtils.GetReverseComplementedSequence(newseq);
                 }
                 newseq = newseq.ToUpper();

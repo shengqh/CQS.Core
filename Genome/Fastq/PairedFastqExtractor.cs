@@ -32,8 +32,8 @@ namespace CQS.Genome.Fastq
         var count = 0;
         while (true)
         {
-          var q1 = reader.ParseOne(gz1.Reader);
-          var q2 = reader.ParseOne(gz2.Reader);
+          var q1 = reader.Parse(gz1.Reader);
+          var q2 = reader.Parse(gz2.Reader);
           if (q1 == null || q2 == null)
           {
             break;

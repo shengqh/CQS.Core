@@ -6,60 +6,50 @@ using System.Linq;
 
 namespace CQS.Sample
 {
-  public class SampleInfoBuilder : AbstractThreadFileProcessor
+  public class SampleInfoBuilder : AbstractThreadProcessor
   {
-    private List<string> properties;
+    private SampleInfoBuilderOptions options;
 
-    public SampleInfoBuilder(string propertyFile)
+    public SampleInfoBuilder(SampleInfoBuilderOptions options)
     {
-      this.properties = SampleUtils.ReadPropertiesFromFile(propertyFile);
+      this.options = options;
+      this.AcceptGsmName = m => true;
     }
 
-    public override IEnumerable<string> Process(string rootDirectory)
+    public Func<string, bool> AcceptGsmName { get; set; }
+
+    public override IEnumerable<string> Process()
     {
-      var subdirs = SampleUtils.GetDatasets(rootDirectory);
+      var properties = SampleUtils.ReadPropertiesFromFile(options.PropertyFile);
+      var format = new SampleItemTextWriter(properties);
 
       List<SampleItem> total = new List<SampleItem>();
-
-      foreach (var subdir in subdirs)
-      {
-        var sifile = subdir + "/" + Path.GetFileName(subdir) + ".siformat";
-        if (!File.Exists(sifile))
-        {
-          throw new Exception("File is not exists:" + sifile);
-        }
-      }
-
-      var format = new SampleItemTextWriter(this.properties);
-
-      foreach (var subdir in subdirs)
+      foreach (var subdir in options.SampleDirectories())
       {
         Progress.SetMessage("processing " + subdir + " ...");
 
         var dirname = Path.GetFileName(subdir);
-        var sifile = subdir + "/" + dirname + ".siformat";
+        var sifile = Path.Combine(subdir, dirname + ".siformat");
         var parser = new SampleItemParser(sifile);
 
-        //Console.WriteLine(dirname);
-
         var flist = parser.ParseDataset(subdir);
-
-        total.AddRange(flist.Values);
-
-        var sampleFile = subdir + @"/" + dirname + ".sample";
+        var sampleFile = Path.ChangeExtension(sifile, ".sample");
         format.WriteToFile(sampleFile, flist.Values.ToList());
+
+        total.AddRange(from l in flist
+                       where AcceptGsmName(l.Key)
+                       select l.Value);
       }
 
-      var tsvFile = rootDirectory + "\\" + Path.GetFileNameWithoutExtension(rootDirectory) + "_SampleInformation.tsv";
-      format.WriteToFile(tsvFile, total);
+      format.WriteToFile(options.OutputFile, total);
 
-      var htmlFile = Path.ChangeExtension(tsvFile, ".html");
-      new SampleItemHtmlWriter(this.properties).WriteToFile(htmlFile, total);
+      var htmlFile = Path.ChangeExtension(options.OutputFile, ".html");
+      new SampleItemHtmlWriter(properties).WriteToFile(htmlFile, total);
 
       var excelFile = Path.ChangeExtension(htmlFile, ".xls");
-      new SampleItemExcelWriter(this.properties).WriteToFile(excelFile, total);
+      new SampleItemExcelWriter(properties).WriteToFile(excelFile, total);
 
-      return new string[] { tsvFile, htmlFile, excelFile };
+      return new string[] { options.OutputFile, htmlFile, excelFile };
     }
   }
 }

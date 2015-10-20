@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using CQS.Commandline;
+using RCPA.Commandline;
 using CommandLine;
 using System.IO;
 
@@ -21,8 +21,8 @@ namespace CQS.Genome.Fastq
       MinimumLength = DEFAULT_MINLEN;
     }
 
-    [Option('i', "inputFile", Required = true, MetaValue = "FILE", HelpText = "Fastq file")]
-    public string InputFile { get; set; }
+    [OptionList('i', "inputFiles", Required = true, MetaValue = "FILES", Separator = ',', HelpText = "Input FASTQ files")]
+    public IList<string> InputFiles { get; set; }
 
     [Option('f', "first", MetaValue = "INT", DefaultValue = DEFAULT_Start, HelpText = "First base to keep, 1=first base.")]
     public int Start { get; set; }
@@ -30,8 +30,8 @@ namespace CQS.Genome.Fastq
     [Option('l', "last", MetaValue = "INT", DefaultValue = DEFAULT_Last, HelpText = "Last base to keep. 0=entire read.")]
     public int Last { get; set; }
 
-    [Option('o', "outputFile", Required = false, MetaValue = "FILE", HelpText = "Output fastq file")]
-    public string OutputFile { get; set; }
+    [OptionList('o', "outputFiles", Required = false, MetaValue = "FILES", Separator = ',', HelpText = "Output FASTQ files")]
+    public IList<string> OutputFiles { get; set; }
 
     [Option('n', "trimN", DefaultValue = DEFAULT_TrimN, HelpText = "Trim terminal N")]
     public bool TrimN { get; set; }
@@ -44,18 +44,21 @@ namespace CQS.Genome.Fastq
 
     public override bool PrepareOptions()
     {
-      if (!File.Exists(this.InputFile))
+      foreach (var file in this.InputFiles)
       {
-        ParsingErrors.Add(string.Format("Input file not exists {0}.", this.InputFile));
-        return false;
+        if (!File.Exists(file))
+        {
+          ParsingErrors.Add(string.Format("Input file not exists {0}.", file));
+        }
       }
 
-      if (string.IsNullOrEmpty(this.OutputFile))
+      if (this.OutputFiles == null || this.OutputFiles.Count != this.InputFiles.Count)
       {
-        this.OutputFile = Path.ChangeExtension(InputFile, "_trim.fastq");
+
+        this.OutputFiles = (from f in this.InputFiles select Path.ChangeExtension(f, "_trim.fastq")).ToList();
       }
 
-      return true;
+      return ParsingErrors.Count == 0;
     }
   }
 }

@@ -28,61 +28,86 @@
     /// </summary>
     private void InitializeComponent()
     {
-      this.columnFiles = new RCPA.Gui.FileField();
-      this.pnlFile.SuspendLayout();
+      this.propertyFile = new RCPA.Gui.FileField();
+      this.rootDirectory = new RCPA.Gui.DirectoryField();
+      this.pnlButton.SuspendLayout();
       this.SuspendLayout();
-      // 
-      // pnlFile
-      // 
-      this.pnlFile.Location = new System.Drawing.Point(3, 13);
-      this.pnlFile.Size = new System.Drawing.Size(947, 24);
-      // 
-      // txtOriginalFile
-      // 
-      this.txtOriginalFile.Size = new System.Drawing.Size(701, 20);
       // 
       // lblProgress
       // 
-      this.lblProgress.Location = new System.Drawing.Point(0, 79);
+      this.lblProgress.Location = new System.Drawing.Point(0, 77);
+      this.lblProgress.Size = new System.Drawing.Size(955, 23);
       // 
       // progressBar
       // 
-      this.progressBar.Location = new System.Drawing.Point(0, 102);
+      this.progressBar.Location = new System.Drawing.Point(0, 100);
+      this.progressBar.Size = new System.Drawing.Size(955, 23);
       // 
-      // columnFiles
+      // pnlButton
       // 
-      this.columnFiles.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+      this.pnlButton.Location = new System.Drawing.Point(0, 123);
+      this.pnlButton.Size = new System.Drawing.Size(955, 39);
+      // 
+      // btnClose
+      // 
+      this.btnClose.Location = new System.Drawing.Point(525, 8);
+      // 
+      // btnCancel
+      // 
+      this.btnCancel.Location = new System.Drawing.Point(440, 8);
+      // 
+      // btnGo
+      // 
+      this.btnGo.Location = new System.Drawing.Point(355, 8);
+      // 
+      // propertyFile
+      // 
+      this.propertyFile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-      this.columnFiles.FullName = "";
-      this.columnFiles.Key = "FileField";
-      this.columnFiles.Location = new System.Drawing.Point(3, 43);
-      this.columnFiles.Name = "columnFiles";
-      this.columnFiles.OpenButtonText = "Browse All File ...";
-      this.columnFiles.WidthOpenButton = 246;
-      this.columnFiles.PreCondition = null;
-      this.columnFiles.Size = new System.Drawing.Size(947, 23);
-      this.columnFiles.TabIndex = 10;
+      this.propertyFile.FullName = "";
+      this.propertyFile.Key = "PropertyFile";
+      this.propertyFile.Location = new System.Drawing.Point(3, 41);
+      this.propertyFile.Name = "propertyFile";
+      this.propertyFile.OpenButtonText = "Browse All File ...";
+      this.propertyFile.PreCondition = null;
+      this.propertyFile.Size = new System.Drawing.Size(947, 23);
+      this.propertyFile.TabIndex = 10;
+      this.propertyFile.WidthOpenButton = 250;
+      // 
+      // rootDirectory
+      // 
+      this.rootDirectory.FullName = "";
+      this.rootDirectory.Key = "RootDirectory";
+      this.rootDirectory.Location = new System.Drawing.Point(3, 12);
+      this.rootDirectory.Name = "rootDirectory";
+      this.rootDirectory.OpenButtonText = "Browse  Directory ...";
+      this.rootDirectory.OpenButtonWidth = 250;
+      this.rootDirectory.PreCondition = null;
+      this.rootDirectory.Size = new System.Drawing.Size(947, 23);
+      this.rootDirectory.TabIndex = 11;
       // 
       // SampleInfoBuilderUI
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.ClientSize = new System.Drawing.Size(955, 164);
-      this.Controls.Add(this.columnFiles);
+      this.ClientSize = new System.Drawing.Size(955, 162);
+      this.Controls.Add(this.rootDirectory);
+      this.Controls.Add(this.propertyFile);
       this.Name = "SampleInfoBuilderUI";
       this.Text = "BreastCancerSampleInformationBuilderUI";
+      this.Controls.SetChildIndex(this.pnlButton, 0);
       this.Controls.SetChildIndex(this.progressBar, 0);
       this.Controls.SetChildIndex(this.lblProgress, 0);
-      this.Controls.SetChildIndex(this.pnlFile, 0);
-      this.Controls.SetChildIndex(this.columnFiles, 0);
-      this.pnlFile.ResumeLayout(false);
-      this.pnlFile.PerformLayout();
+      this.Controls.SetChildIndex(this.propertyFile, 0);
+      this.Controls.SetChildIndex(this.rootDirectory, 0);
+      this.pnlButton.ResumeLayout(false);
       this.ResumeLayout(false);
 
     }
 
     #endregion
 
-    private RCPA.Gui.FileField columnFiles;
+    private RCPA.Gui.FileField propertyFile;
+    private RCPA.Gui.DirectoryField rootDirectory;
   }
 }

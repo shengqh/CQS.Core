@@ -25,10 +25,5 @@ namespace CQS.Sample
         return readers;
       }
     }
-
-    public static IRawSampleInfoReader GetReader(string dir)
-    {
-      return new RawSampleInfoReader();
-    }
   }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Xml.Linq;
 using CQS.Genome.Sam;
 using RCPA;
+using System.IO;
 
 namespace CQS.Genome.Feature
 {
@@ -41,7 +42,7 @@ namespace CQS.Genome.Feature
           foreach (XElement locEle in featureEle.Elements("region"))
           {
             var fl = new FeatureLocation();
-            item.Mapped.Add(fl);
+            item.Locations.Add(fl);
 
             fl.Name = item.Name;
             fl.ParseLocation(locEle);
@@ -79,6 +80,22 @@ namespace CQS.Genome.Feature
               {
                 fsl.OverlapPercentage = double.Parse(attr.Value);
               }
+
+              var nnpm = queryEle.FindAttribute("nnpm");
+              if (nnpm == null)
+              {
+                nnpm = queryEle.FindAttribute("nnmp");
+              }
+              if (nnpm != null)
+              {
+                fsl.NumberOfNoPenaltyMutation = int.Parse(nnpm.Value);
+              }
+
+              var nmi = queryEle.FindAttribute("nmi");
+              if (nmi != null)
+              {
+                fsl.NumberOfMismatch = int.Parse(nmi.Value);
+              }
             }
           }
         }
@@ -100,7 +117,7 @@ namespace CQS.Genome.Feature
             from item in itemgroup
             select new XElement("subject",
               new XAttribute("name", item.Name),
-              from region in item.Mapped
+              from region in item.Locations
               select new XElement("region",
                 new XAttribute("seqname", region.Seqname),
                 new XAttribute("start", region.Start),
@@ -110,15 +127,24 @@ namespace CQS.Genome.Feature
                 this.exportPValue ? new XAttribute("query_count_before_filter", region.QueryCountBeforeFilter) : null,
                 this.exportPValue ? new XAttribute("query_count", region.QueryCount) : null,
                 this.exportPValue ? new XAttribute("pvalue", region.PValue) : null,
+                new XAttribute("size", region.Length),
                 from sl in region.SamLocations
                 let loc = sl.SamLocation
                 select new XElement("query",
                   new XAttribute("qname", loc.Parent.Qname),
                   new XAttribute("loc", loc.GetLocation()),
                   new XAttribute("overlap", string.Format("{0:0.##}", sl.OverlapPercentage)),
-                  this.exportPValue ? new XAttribute("query_count", loc.Parent.QueryCount) : null
+                  new XAttribute("offset", sl.Offset),
+                  new XAttribute("query_count", loc.Parent.QueryCount),
+                  new XAttribute("seq_len", loc.Parent.Sequence.Length),
+                  new XAttribute("nmi", loc.NumberOfMismatch),
+                  new XAttribute("nnpm", loc.NumberOfNoPenaltyMutation)
                   ))))));
-      xml.Save(fileName);
+      using (var sw = new StreamWriter(fileName))
+      {
+        sw.NewLine = Environment.NewLine;
+        xml.Save(sw);
+      }
     }
   }
 }

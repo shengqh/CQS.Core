@@ -86,7 +86,7 @@ namespace CQS.Genome.Mapping
       {
         Progress.SetMessage("Reading perfect mapped reads from bam/sam file {0} ...", readNameFile);
         var list = new List<string>();
-        using (var sr = SAMFactory.GetReader(readNameFile, _options.Samtools, true))
+        using (var sr = SAMFactory.GetReader(readNameFile, true))
         {
           string line;
           while ((line = sr.ReadLine()) != null)

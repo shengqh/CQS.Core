@@ -1,5 +1,5 @@
 ﻿using CommandLine;
-using CQS.Commandline;
+using RCPA.Commandline;
 using CQS.Genome.Sam;
 
 namespace CQS.Genome.Mapping

@@ -13,7 +13,7 @@ using NPOI.HSSF.Util;
 using NPOI.HSSF.UserModel;
 using NPOI.HPSF;
 using System.Text.RegularExpressions;
-using CQS.Commandline;
+using RCPA.Commandline;
 using CommandLine;
 using CQS.Genome.Statistics;
 

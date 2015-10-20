@@ -22,7 +22,7 @@ namespace CQS.Genome.Feature
 
             sw.WriteLine("{0}\t{1}\t{2}\t{3:0.##}\t{4}",
               g.DisplayName,
-              g.DisplayLocation,
+              g.DisplayLocations,
               g.DisplaySequence,
               estimateCount,
               queryCount);
@@ -42,7 +42,7 @@ namespace CQS.Genome.Feature
 
             sw.WriteLine("{0}\t{1}\t{2:0.##}\t{3}",
               g.DisplayName,
-              g.DisplayLocation,
+              g.DisplayLocations,
               estimateCount,
               queryCount);
           }

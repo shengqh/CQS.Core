@@ -837,24 +837,24 @@ namespace CQS.TCGA
     }
 
 
-    public static void ExtractData(string tcgaDir, string targetDir, string prefix, string[] tumors, string datatype, string platform, TCGASampleCode[] sampleCodes = null)
+    public static void ExtractData(string tcgaDir, string targetDir, string prefix, string[] tumors, string datatype, string platform, TCGASampleCode[] sampleCodes = null, bool outputCountDataOnly = false)
     {
       if (string.IsNullOrEmpty(platform))
       {
-        ExtractData(tcgaDir, targetDir, prefix, tumors, datatype, new string[] { }, sampleCodes);
+        ExtractData(tcgaDir, targetDir, prefix, tumors, datatype, new string[] { }, sampleCodes, outputCountDataOnly);
       }
       else
       {
-        ExtractData(tcgaDir, targetDir, prefix, tumors, datatype, new string[] { platform }, sampleCodes);
+        ExtractData(tcgaDir, targetDir, prefix, tumors, datatype, new string[] { platform }, sampleCodes, outputCountDataOnly);
       }
     }
 
-    public static void ExtractData(string tcgaDir, string targetDir, string prefix, string[] tumors, string datatype, string[] platforms, TCGASampleCode[] sampleCodes = null)
+    public static void ExtractData(string tcgaDir, string targetDir, string prefix, string[] tumors, string datatype, string[] platforms, TCGASampleCode[] sampleCodes = null, bool outputCountDataOnly = false)
     {
       var tec = TCGATechnology.Parse(datatype);
       var platforms_str = (from p in platforms select p.StringBefore("_")).Merge("_");
 
-      var counts = new[] { true, false };
+      var counts = outputCountDataOnly ? new[] { true } : new[] { true, false };
       foreach (var count in counts)
       {
         string resultFile;

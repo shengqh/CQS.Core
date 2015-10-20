@@ -62,8 +62,7 @@ namespace CQS.Genome.Pileup
 
     public List<EventCount> EventCountList { get; set; }
 
-
-    public void InitEventCountList()
+    public void InitEventCountList(bool orderByCount = true)
     {
       var map = new Dictionary<string, EventCount>();
       foreach (var e in this)
@@ -80,12 +79,21 @@ namespace CQS.Genome.Pileup
         }
       }
 
-      this.EventCountList = (from ec in map.Values
-                             orderby ec.Count descending
-                             select ec).ToList();
+      if (orderByCount)
+      {
+        this.EventCountList = (from ec in map.Values
+                               orderby ec.Count descending
+                               select ec).ToList();
+      }
+      else
+      {
+        this.EventCountList = (from ec in map.Values
+                               orderby ec.Event
+                               select ec).ToList();
+      }
     }
 
-    public void InitEventCountList(int minimumMappingQuality)
+    public void InitEventCountList(int minimumMappingQuality, bool orderByCount = true)
     {
       var map = new Dictionary<string, EventCount>();
       foreach (var e in this)
@@ -107,9 +115,18 @@ namespace CQS.Genome.Pileup
         }
       }
 
-      this.EventCountList = (from ec in map.Values
-                             orderby ec.Count descending
-                             select ec).ToList();
+      if (orderByCount)
+      {
+        this.EventCountList = (from ec in map.Values
+                               orderby ec.Count descending
+                               select ec).ToList();
+      }
+      else
+      {
+        this.EventCountList = (from ec in map.Values
+                               orderby ec.Event
+                               select ec).ToList();
+      }
     }
   }
 }

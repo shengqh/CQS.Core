@@ -1,4 +1,5 @@
-﻿
+﻿using RCPA.Commandline;
+
 namespace CQS.Genome.Gwas
 {
   public class Impute2ResultDistillerCommand : AbstractCommandLineCommand<Impute2ResultDistillerOptions>

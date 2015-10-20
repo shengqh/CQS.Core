@@ -29,11 +29,6 @@ namespace CQS.Genome.Pileup
         }
 
         PileupItem result = parser.GetSequenceIdentifierAndPosition(line);
-        if (result == null)
-        {
-          continue;
-        }
-
         if (!result.SequenceIdentifier.Equals(chr) || result.Position != position)
         {
           continue;

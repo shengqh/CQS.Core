@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using RCPA;
-using CQS.Commandline;
+using RCPA.Commandline;
 using CommandLine;
 using System.IO;
 using CQS.Genome.Sam;

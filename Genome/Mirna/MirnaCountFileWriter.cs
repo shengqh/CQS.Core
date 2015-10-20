@@ -18,11 +18,13 @@ namespace CQS.Genome.Mirna
 
     public void WriteToFile(string fileName, List<MappedMirnaGroup> mirnas)
     {
+      var items = mirnas.OrderByDescending(m => m.EstimateCount).ToList();
+
       using (StreamWriter sw = new StreamWriter(fileName))
       {
         sw.WriteLine("miRNA\tLocation\tSequence\tTotalCount\t" + (from p in this.offsets select "Count" + p.ToString()).Merge("\t"));
 
-        foreach (var mirna in mirnas)
+        foreach (var mirna in items)
         {
           var counts = (from p in this.offsets
                         select mirna.GetEstimatedCount(p)).ToList();

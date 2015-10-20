@@ -5,6 +5,7 @@ using System.Text;
 using RCPA;
 using System.IO;
 using CQS.Genome.Fastq;
+using CQS.Genome.SmallRNA;
 
 namespace CQS.Genome.Mirna
 {
@@ -43,7 +44,8 @@ namespace CQS.Genome.Mirna
       {
         using (var sw = StreamUtils.GetWriter(options.OutputFile, gzipped))
         {
-          foreach (FastqSequence seq in parser.Parse(sr))
+          FastqSequence seq;
+          while((seq = parser.Parse(sr)) != null)
           {
             readcount++;
             if (readcount % 100000 == 0)
@@ -77,7 +79,7 @@ namespace CQS.Genome.Mirna
 
               seq.SeqString = sequence.Substring(0, newlen);
               seq.Score = score.Substring(0, newlen);
-              seq.Reference = string.Format("{0}{1}{2}", name, MirnaConsts.NTA_TAG, clipped);
+              seq.Reference = string.Format("{0}{1}{2}", name, SmallRNAConsts.NTA_TAG, clipped);
               writer.Write(sw, seq);
               if (map.HasCountFile)
               {

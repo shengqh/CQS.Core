@@ -19,11 +19,18 @@ namespace CQS.Genome.Feature
       this.SamLocations = new List<FeatureSamLocation>();
     }
 
+    public string Category { get; set; }
+
     public List<FeatureSamLocation> SamLocations { get; set; }
 
-    public double GetEstimatedCount(Func<SamAlignedLocation, bool> func)
+    public double GetEstimateCount(Func<FeatureSamLocation, bool> accept)
     {
-      return SamLocations.Where(m => func(m.SamLocation)).Sum(m => m.SamLocation.Parent.EstimatedCount);
+      return SamLocations.Where(m => accept(m)).Sum(m => m.SamLocation.Parent.EstimatedCount);
+    }
+
+    public double GetEstimateCount()
+    {
+      return SamLocations.Sum(m => m.SamLocation.Parent.EstimatedCount);
     }
 
     public int QueryCount
@@ -59,7 +66,7 @@ namespace CQS.Genome.Feature
       {
         var mi = new FeatureItem();
         mi.Name = curregions.Key;
-        mi.Mapped.AddRange(curregions);
+        mi.Locations.AddRange(curregions);
         result.Add(mi);
       }
 

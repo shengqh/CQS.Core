@@ -1,4 +1,5 @@
 ﻿using RCPA;
+using RCPA.Commandline;
 
 namespace CQS.Genome.Sam
 {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using CQS.Commandline;
+using RCPA.Commandline;
 using CommandLine;
 using System.IO;
 using CQS.Genome.Sam;
@@ -49,9 +49,6 @@ namespace CQS.Genome.Pileup
     [Option('e', "engineType", DefaultValue = DEFAULT_EngineType, MetaValue = "INT", HelpText = "Engine type (1:bowtie1, 2:bowtie2, 3:bwa)")]
     public int EngineType { get; set; }
 
-    [Option("samtools", Required = false, MetaValue = "FILE", HelpText = "Samtools location (required for bam file)")]
-    public string Samtools { get; set; }
-
     [Option("bed_as_gtf", DefaultValue = DEFAULT_BedAsGtf, HelpText = "Consider bed coordinate (zero-based) as gtf format (one-based)")]
     public bool BedAsGtf { get; set; }
 
@@ -66,12 +63,6 @@ namespace CQS.Genome.Pileup
       if (!File.Exists(this.InputFile))
       {
         ParsingErrors.Add(string.Format("Input file not exists {0}.", this.InputFile));
-        return false;
-      }
-
-      if (this.InputFile.ToLower().EndsWith(".bam") && !File.Exists(this.Samtools))
-      {
-        ParsingErrors.Add(string.Format("Samtools location is not defined or not exists: {0}", this.Samtools));
         return false;
       }
 

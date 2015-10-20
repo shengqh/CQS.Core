@@ -33,12 +33,15 @@ namespace CQS.Genome.Fastq
       var parser = new FastqReader();
       var writer = new FastqWriter();
 
+      var tmpFile = fastqFile + ".tmp";
+
       int readcount = 0;
       using (var sr = StreamUtils.GetReader(options.InputFile))
       {
-        using (var sw = StreamUtils.GetWriter(fastqFile, !options.Gunzipped))
+        using (var sw = StreamUtils.GetWriter(tmpFile, !options.Gunzipped))
         {
-          foreach (FastqSequence seq in parser.Parse(sr))
+          FastqSequence seq;
+          while ((seq = parser.Parse(sr)) != null)
           {
             readcount++;
             if (readcount % 100000 == 0)
@@ -77,18 +80,33 @@ namespace CQS.Genome.Fastq
 
       var countFile = Path.ChangeExtension(fastqFile, ".dupcount");
       result.Add(countFile);
+      Progress.SetMessage("sort queries ...");
+      var seqs = queries.Values.ToList();
+      seqs.Sort((m1, m2) =>
+      {
+        var res = m2.RepeatCount.CompareTo(m2.RepeatCount);
+        if (res == 0)
+        {
+          res = m1.SeqString.CompareTo(m2.SeqString);
+        }
+        return res;
+      });
+
       Progress.SetMessage("writing duplicate count ...");
       using (StreamWriter sw = new StreamWriter(countFile))
       {
         sw.WriteLine("Query\tCount\tSequence");
-        var seqs = (from s in queries
-                    orderby s.Value.RepeatCount descending, s.Key
-                    select s).ToList();
         foreach (var seq in seqs)
         {
-          sw.WriteLine("{0}\t{1}\t{2}", seq.Value.Name, seq.Value.RepeatCount, seq.Value.SeqString);
+          sw.WriteLine("{0}\t{1}\t{2}", seq.Name, seq.RepeatCount, seq.SeqString);
         }
       }
+
+      if (File.Exists(fastqFile))
+      {
+        File.Delete(fastqFile);
+      }
+      File.Move(tmpFile, fastqFile);
 
       if (options.OutputScores)
       {
@@ -98,9 +116,6 @@ namespace CQS.Genome.Fastq
         using (StreamWriter sw = new StreamWriter(scoreFile))
         {
           sw.WriteLine("Query\tSequence\tPosition\tScores");
-          var seqs = (from s in queries
-                      orderby s.Value.RepeatCount descending, s.Key
-                      select s.Value).ToList();
           foreach (var seq in seqs)
           {
             sw.WriteLine("{0}\t{1}", seq.Name, seq.SeqString);

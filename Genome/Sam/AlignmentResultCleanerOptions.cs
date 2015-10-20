@@ -1,6 +1,6 @@
 ﻿using System.IO;
 using CommandLine;
-using CQS.Commandline;
+using RCPA.Commandline;
 
 namespace CQS.Genome.Sam
 {

@@ -16,7 +16,7 @@ namespace CQS.Genome.Annotation
 
     public AbstractInsertionDeletionDistanceExporter(string insdelBedFile, string name)
     {
-      this.maps = CollectionUtils.ToGroupDictionary(new BedItemFile<InsertionDeletionItem>().ReadFromFile(insdelBedFile), m => m.Seqname);
+      this.maps = CollectionUtils.ToGroupDictionary(new BedItemFile<InsertionDeletionItem>().ReadFromFile(insdelBedFile), m => m.Seqname.StringAfter("chr"));
       this.header = string.Format("distance_{0}\tdistance_{0}_position", name);
       this.emptyStr = "\t";
     }

@@ -1,6 +1,7 @@
 ﻿using CQS.Genome.Pileup;
 using CQS.Genome.Statistics;
 using RCPA;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -17,8 +18,7 @@ namespace CQS.Genome.SomaticMutation
       {
         if (!string.IsNullOrWhiteSpace(line))
         {
-          var item = new MpileupFisherResult();
-          item.ParseString(line, '\t');
+          var item = ParseString(line, '\t');
           result.Add(item);
         }
       }
@@ -26,17 +26,72 @@ namespace CQS.Genome.SomaticMutation
       return result;
     }
 
+    public static MpileupFisherResult ParseString(string line, char separator = '_')
+    {
+      var result = new MpileupFisherResult();
+      try
+      {
+        var parts = line.Split(separator);
+        result.Item = new PileupItem()
+        {
+          SequenceIdentifier = parts[0],
+          Position = long.Parse(parts[1]),
+          Nucleotide = parts[2][0]
+        };
+        result.Group = new FisherExactTestResult()
+        {
+          SucceedName = parts[3],
+          FailedName = parts[4],
+        };
+        result.Group.Sample1.Succeed = int.Parse(parts[5]);
+        result.Group.Sample1.Failed = int.Parse(parts[6]);
+        result.Group.Sample2.Succeed = int.Parse(parts[7]);
+        result.Group.Sample2.Failed = int.Parse(parts[8]);
+        result.Group.PValue = double.Parse(parts[9]);
+        if (parts.Length > 10)
+        {
+          result.FailedReason = parts[10];
+          Console.WriteLine("Failed reason = " + result.FailedReason);
+        }
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine("ParseString error: " + line);
+        throw ex;
+      }
+      return result;
+    }
+
+    public static string GetString(MpileupFisherResult mfr, char separator = '_', bool includeFailedReason = true)
+    {
+      var result = string.Format("{1}{0}{2}{0}{3}{0}{4}{0}{5}{0}{6}{0}{7}{0}{8}{0}{9}{0}{10:0.0E00}",
+        separator,
+            mfr.Item.SequenceIdentifier,
+            mfr.Item.Position,
+            mfr.Item.Nucleotide,
+            mfr.Group.SucceedName,
+            mfr.Group.FailedName,
+            mfr.Group.Sample1.Succeed,
+            mfr.Group.Sample1.Failed,
+            mfr.Group.Sample2.Succeed,
+            mfr.Group.Sample2.Failed,
+            mfr.Group.PValue);
+      if (includeFailedReason)
+      {
+        result = result + separator + mfr.FailedReason;
+      }
+      return result;
+    }
+
     public void WriteToFile(string fileName, List<MpileupFisherResult> items)
     {
       using (var sw = new StreamWriter(fileName))
       {
-        sw.WriteLine(
-          "chr\tloc\tref\tmajor_allele\tminor_allele\tnormal_major_count\tnormal_minor_count\ttumor_major_count\ttumor_minor_count\tfisher_group"
-          );
+        sw.WriteLine("chr\tloc\tref\tmajor_allele\tminor_allele\tnormal_major_count\tnormal_minor_count\ttumor_major_count\ttumor_minor_count\tfisher_group\tfilter");
 
         foreach (var res in items)
         {
-          sw.WriteLine(res.GetString('\t'));
+          sw.WriteLine(GetString(res, '\t'));
         }
       }
     }

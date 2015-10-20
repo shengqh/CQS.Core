@@ -7,6 +7,8 @@ using CQS.Genome.Sam;
 using RCPA.Gui;
 using Bio.IO.SAM;
 using RCPA;
+using CQS.Genome.Mirna;
+using CQS.Genome.SmallRNA;
 
 namespace CQS.Genome.Fastq
 {
@@ -14,53 +16,78 @@ namespace CQS.Genome.Fastq
   {
     public IFilter<SAMItemSlim> Filter { get; set; }
 
-    private string samtools;
+    public FastqExtractorFromBam()
+    { }
 
-    public FastqExtractorFromBam(string samtools)
-    {
-      this.samtools = samtools;
-    }
-
-    public int Extract(string sourceFile, string targetFile, IEnumerable<string> exceptQueryNames)
+    public int Extract(string sourceFile, string targetFile, IEnumerable<string> exceptQueryNames, string countFile)
     {
       int result = 0;
 
       var except = new HashSet<string>(exceptQueryNames);
 
-      using (var sw = StreamUtils.GetWriter(targetFile, targetFile.ToLower().EndsWith(".gz")))
+      CountMap cm = new CountMap();
+      StreamWriter swCount = null;
+      if (File.Exists(countFile))
       {
-        using (var sr = SAMFactory.GetReader(sourceFile, samtools, true))
+        var oldCm = new CountMap(countFile);
+        foreach (var c in oldCm.Counts)
         {
-          string line;
-          var count = 0;
-          while ((line = sr.ReadLine()) != null)
+          cm.Counts[c.Key.StringBefore(SmallRNAConsts.NTA_TAG)] = c.Value;
+        }
+        swCount = new StreamWriter(targetFile + ".dupcount");
+      }
+
+      try
+      {
+        using (var sw = StreamUtils.GetWriter(targetFile, targetFile.ToLower().EndsWith(".gz")))
+        {
+          using (var sr = SAMFactory.GetReader(sourceFile, true))
           {
-            count++;
-
-            if (count % 100000 == 0)
+            string line;
+            var count = 0;
+            while ((line = sr.ReadLine()) != null)
             {
-              Progress.SetMessage("{0} reads", count);
-              if (Progress.IsCancellationPending())
+              count++;
+
+              if (count % 100000 == 0)
               {
-                throw new UserTerminatedException();
+                Progress.SetMessage("{0} reads", count);
+                if (Progress.IsCancellationPending())
+                {
+                  throw new UserTerminatedException();
+                }
               }
-            }
 
-            var ss = SAMUtils.Parse<SAMItemSlim>(line);
-            if (except.Contains(ss.Qname))
-            {
-              continue;
-            }
+              var ss = SAMUtils.Parse<SAMItemSlim>(line);
+              ss.Qname = ss.Qname.StringBefore(SmallRNAConsts.NTA_TAG);
+              if (except.Contains(ss.Qname))
+              {
+                continue;
+              }
 
-            if (Filter != null && !Filter.Accept(ss))
-            {
-              continue;
-            }
+              if (Filter != null && !Filter.Accept(ss))
+              {
+                continue;
+              }
 
-            except.Add(ss.Qname);
-            ss.WriteFastq(sw);
-            result++;
+              except.Add(ss.Qname);
+              ss.WriteFastq(sw);
+
+              if (swCount != null)
+              {
+                swCount.WriteLine("{0}\t{1}", ss.Qname, cm.Counts[ss.Qname]);
+              }
+
+              result++;
+            }
           }
+        }
+      }
+      finally
+      {
+        if (swCount != null)
+        {
+          swCount.Close();
         }
       }
       return result;

@@ -39,6 +39,10 @@ namespace CQS.Genome.Feature
 
     public long Offset { get; set; }
 
+    public int NumberOfMismatch { get; set; }
+
+    public int NumberOfNoPenaltyMutation { get; set; }
+
     public double OverlapPercentage { get; set; }
 
     private void CalculateOffset()
@@ -49,15 +53,7 @@ namespace CQS.Genome.Feature
         return;
       }
 
-      if (FeatureLocation.Strand == '-')
-      {
-        this.Offset = FeatureLocation.End - _samLocation.End;
-      }
-      else
-      {
-        //default, assume as positive strand
-        this.Offset = _samLocation.Start - FeatureLocation.Start;
-      }
+      this.Offset = _samLocation.Offset(FeatureLocation);
     }
   }
 }

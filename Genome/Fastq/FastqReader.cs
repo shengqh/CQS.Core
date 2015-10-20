@@ -12,57 +12,63 @@ namespace CQS.Genome.Fastq
   /// </summary>
   public sealed class FastqReader
   {
-    #region Methods
-
-    /// <summary>
-    /// Gets the IEnumerable of QualitativeSequences from the steam being parsed.
-    /// </summary>
-    /// <param name="reader">Stream to be parsed.</param>
-    /// <returns>Returns the QualitativeSequences.</returns>
-    public IEnumerable<FastqSequence> Parse(TextReader reader)
+    public FastqReader()
     {
-      FastqSequence result;
-      while ((result = ParseOne(reader)) != null)
-      {
-        yield return result;
-      }
+      this.AcceptName = m => true;
     }
+
+    public Func<string, bool> AcceptName {get;set;}
+    #region Methods
 
     /// <summary>
     /// Gets the IEnumerable of FastqSequence from the stream being parsed.
     /// </summary>
     /// <param name="sr">Stream to be parsed.</param>
     /// <returns>Returns a FastqSequence.</returns>
-    public FastqSequence ParseOne(TextReader sr)
+    public FastqSequence Parse(TextReader sr)
     {
-      string line;
-      while ((line = sr.ReadLine()) != null)
+      while (true)
       {
-        if (line.StartsWith("@"))
+        string line;
+        while ((line = sr.ReadLine()) != null)
         {
-          break;
+          if (!String.IsNullOrWhiteSpace(line))
+          {
+            break;
+          }
         }
+
+        if (line == null)
+        {
+          return null;
+        }
+
+        if (!line.StartsWith("@"))
+        {
+          throw new Exception("Unrecognized line, should start with @ for query name: " + line);
+        }
+
+        var refer = line.Substring(1);
+        FastqSequence result = new FastqSequence(refer, null);
+
+        if (!AcceptName(result.Name))
+        {
+          sr.ReadLine();
+          sr.ReadLine();
+          sr.ReadLine();
+          continue;
+        }
+
+        result.SeqString = sr.ReadLine();
+        result.Strand = sr.ReadLine().StartsWith("-") ? '-' : '+';
+        result.Score = sr.ReadLine();
+        if (result.Score == null)
+        {
+          throw new Exception("Unrecognized line, cannot find score line of query: " + refer);
+        }
+
+        return result;
       }
-
-      if (line == null)
-      {
-        return null;
-      }
-
-      var refer = line.Substring(1);
-      var seq = sr.ReadLine();
-      var strand = sr.ReadLine();
-      var score = sr.ReadLine();
-      if (score == null)
-      {
-        return null;
-      }
-
-      FastqSequence result = new FastqSequence(refer, seq);
-      result.Strand = strand.StartsWith("-") ? '-' : '+';
-      result.Score = score;
-
-      return result;
     }
 
     #endregion

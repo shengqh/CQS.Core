@@ -20,7 +20,7 @@ namespace CQS.TCGA.TCGATechnologyImpl
 
     public override IFileReader<ExpressionData> GetReader()
     {
-      return new Level3MicroarrayDataTxtReader();
+      return new Level3MutationDataTxtReader();
     }
 
     public override IParticipantFinder GetFinder(string tumorDir, string platformDir)

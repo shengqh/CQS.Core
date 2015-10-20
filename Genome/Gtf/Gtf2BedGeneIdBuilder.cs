@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using RCPA;
 using System.IO;
-using CQS.Commandline;
+using RCPA.Commandline;
 using CommandLine;
 using CQS.Genome.Bed;
 

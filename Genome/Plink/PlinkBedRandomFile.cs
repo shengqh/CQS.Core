@@ -8,7 +8,7 @@ using System.Text;
 
 namespace CQS.Genome.Plink
 {
-  public class PlinkBedRandomFile
+  public class PlinkBedRandomFile : IDisposable
   {
     private BinaryReader _reader;
     private long _startPosition;
@@ -32,7 +32,12 @@ namespace CQS.Genome.Plink
       {
         result = new bool[2, Data.Individual.Count];
 
-        long locusIndex = this.Data.LocusMap[name];
+        int locusIndex;
+
+        if (!this.Data.LocusMap.TryGetValue(name, out locusIndex))
+        {
+          throw new Exception("Cannot find locus with name " + name);
+        }
         long individualSize = Data.Individual.Count % 4 == 0 ? Data.Individual.Count / 4 : ((int)(Data.Individual.Count / 4) + 1);
         _reader.BaseStream.Position = _startPosition + locusIndex * individualSize;
 
@@ -91,7 +96,7 @@ namespace CQS.Genome.Plink
       Data = new PlinkData();
       Data.Individual = PlinkIndividual.ReadFromFile(famFile);
       Data.Locus = PlinkLocus.ReadFromBimFile(bimFile);
-      Data.Locus.ForEach(m => m.MarkerId = m.MarkerId.ToLower());
+      //Data.Locus.ForEach(m => m.MarkerId = m.MarkerId.ToLower());
       Data.BuildMap();
 
       DoOpenFile(fileName);
@@ -168,11 +173,48 @@ namespace CQS.Genome.Plink
 
     public void Close()
     {
-      if (_reader != null)
+      if (null != _reader)
       {
         _reader.Close();
         _reader = null;
       }
     }
+
+    #region IDisposable Members
+
+    public void Dispose()
+    {
+      Dispose(true);
+      GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+      if (!m_disposed)
+      {
+        if (disposing)
+        {
+          // Release managed resources
+        }
+
+        if (null != _reader)
+        {
+          _reader.Close();
+          _reader = null;
+        }
+
+        m_disposed = true;
+      }
+    }
+
+    ~PlinkBedRandomFile()
+    {
+      Dispose(false);
+    }
+
+    private bool m_disposed;
+
+    #endregion
+
   }
 }

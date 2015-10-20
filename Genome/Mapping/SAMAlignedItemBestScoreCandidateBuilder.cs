@@ -12,19 +12,17 @@ namespace CQS.Genome.Mapping
 {
   public class SAMAlignedItemBestScoreCandidateBuilder : SAMAlignedItemCandidateBuilder
   {
-    public SAMAlignedItemBestScoreCandidateBuilder(int engineType) : base(engineType) { }
-
-    public SAMAlignedItemBestScoreCandidateBuilder(CountProcessorOptions options) : base(options) { }
+    public SAMAlignedItemBestScoreCandidateBuilder(ISAMAlignedItemParserOptions options) : base(options) { }
 
     protected override List<T> DoAddCompleted<T>(List<T> samlist)
     {
-      if (options.GetSAMFormat().HasAlternativeHits || samlist.Count == 0)
+      if (_options.GetSAMFormat().HasAlternativeHits || samlist.Count == 0)
       {
         return samlist;
       }
 
       Progress.SetMessage("Sorting mapped reads by name and score...");
-      samlist.SortByNameAndScore(options.GetSAMFormat());
+      samlist.SortByNameAndScore(_options.GetSAMFormat());
       Progress.SetMessage("Sorting mapped reads by name and score finished...");
 
       var result = new List<T> {samlist[0]};
@@ -45,6 +43,8 @@ namespace CQS.Genome.Mapping
       }
 
       samlist.Clear();
+
+      KeepUniqueLocation<T>(result);
 
       return result;
     }

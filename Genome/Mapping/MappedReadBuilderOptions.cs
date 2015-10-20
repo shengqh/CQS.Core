@@ -1,5 +1,5 @@
 ﻿using CommandLine;
-using CQS.Commandline;
+using RCPA.Commandline;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -25,9 +25,6 @@ namespace CQS.Genome.Mapping
 
     [OptionList("fileTags", Required = false, Separator = ',', HelpText = "File tags, should be matched with mappedFiles")]
     public IList<string> FileTags { get; set; }
-
-    [Option('s', "samtools", Required = false, MetaValue = "FILE", HelpText = "Samtools for reading bam/sam file")]
-    public string Samtools { get; set; }
 
     [Option('o', "outputFile", Required = true, MetaValue = "FILE", HelpText = "Output read file")]
     public string OutputFile { get; set; }
@@ -66,25 +63,6 @@ namespace CQS.Genome.Mapping
         if (FileTags.Count != MappedFiles.Count)
         {
           ParsingErrors.Add(string.Format("The number of file tag {0} should be equals to number of mapped file {1}.", FileTags.Count, MappedFiles.Count));
-          return false;
-        }
-      }
-
-      if (MappedFiles.Any(m =>
-      {
-        var ext = Path.GetExtension(m).ToLower();
-        return ext.Equals("sam") || ext.Equals("bam");
-      }))
-      {
-        if (string.IsNullOrEmpty(this.Samtools))
-        {
-          ParsingErrors.Add("Define samtools for reading bam/sam first!");
-          return false;
-        }
-
-        if (!File.Exists(this.Samtools))
-        {
-          ParsingErrors.Add(string.Format("Samtools is not exists: {0}", this.Samtools));
           return false;
         }
       }

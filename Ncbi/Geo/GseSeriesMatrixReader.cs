@@ -220,6 +220,11 @@ namespace CQS.Ncbi.Geo
       return GetMatrixFiles(directory).Length > 0;
     }
 
+    public static bool HasMatrixFiles(string directory)
+    {
+      return GetMatrixFiles(directory).Length > 0;
+    }
+
     private static string[] GetMatrixFiles(string directory)
     {
       return Directory.GetFiles(directory, "GSE*series_matrix*.txt");

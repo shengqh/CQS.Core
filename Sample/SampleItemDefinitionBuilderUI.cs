@@ -17,6 +17,7 @@ using CQS.Sample;
 using CQS.BreastCancer.parser;
 using RCPA.Gui;
 using RCPA.Gui.FileArgument;
+using CQS.Microarray.Affymatrix;
 
 
 namespace CQS.Sample
@@ -32,7 +33,7 @@ namespace CQS.Sample
     private List<string> properties;
 
     [RcpaOption("LastDirectory", RcpaOptionType.String)]
-    private string lastDirectory = String.Empty;
+    public string LastDirectory = String.Empty;
 
     public static string Title = "GEO Sample Info Definition Builder";
     public static string Version = "1.0.0";
@@ -44,7 +45,7 @@ namespace CQS.Sample
       InitializeComponent();
 
       columnFiles.FileArgument = new OpenFileArgument("Column Definition", ".columns");
-      columnFiles.btnLoad.Click += btnColumnLoad_Click;
+      columnFiles.AfterBrowseFileEvent = btnColumnLoad_Click;
 
       this.Text = Constants.GetSqhVanderbiltTitle(Title, Version);
     }
@@ -85,6 +86,7 @@ namespace CQS.Sample
 
       properties.Insert(0, string.Empty);
 
+      colPropertyName.Items.Clear();
       colPropertyName.Items.AddRange(properties.ToArray());
 
       headers = (from name in properties
@@ -99,7 +101,7 @@ namespace CQS.Sample
     {
       if (!Directory.Exists(dlgOpenDirectory.SelectedPath))
       {
-        dlgOpenDirectory.SelectedPath = lastDirectory;
+        dlgOpenDirectory.SelectedPath = LastDirectory;
       }
 
       if (dlgOpenDirectory.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
@@ -120,18 +122,18 @@ namespace CQS.Sample
           prefile.ReadFromFile(siformat[0]);
         }
 
-        var map = RawSampleInfoReaderFactory.GetReader(subdir).ReadDescriptionFromDirectory(subdir);
+        var map = new RawSampleInfoReader().ReadDescriptionFromDirectory(subdir);
 
-        lastDirectory = subdir;
+        LastDirectory = subdir;
         lastFile = String.Empty;
 
-        var files = new HashSet<string>(from f in Directory.GetFiles(subdir, "*.CEL")
+        var files = new HashSet<string>(from f in CelFile.GetCelFiles(subdir, false)
                                         select GeoUtils.GetGsmName(f));
 
         Dictionary<string, HashSet<string>> headers = new Dictionary<string, HashSet<string>>();
         foreach (var m in map)
         {
-          var gsm = m.Key.ToLower();
+          var gsm = m.Key.ToUpper();
 
           if (!files.Contains(gsm))
           {
@@ -229,7 +231,7 @@ namespace CQS.Sample
     private string lastFile;
     private void btnLoad_Click(object sender, EventArgs e)
     {
-      dlgOpenFormatFile.InitialDirectory = lastDirectory;
+      dlgOpenFormatFile.InitialDirectory = LastDirectory;
 
       if (dlgOpenFormatFile.ShowDialog() == System.Windows.Forms.DialogResult.OK)
       {
@@ -289,24 +291,29 @@ namespace CQS.Sample
 
     private void btnSave_Click(object sender, EventArgs e)
     {
-      FormToDefinition();
-
       if (dlgSaveFormatFile.ShowDialog() == System.Windows.Forms.DialogResult.OK)
       {
-        var map = headers.ToDictionary(m => m.PropertyName);
-        items.ForEach(m =>
-        {
-          if (!string.IsNullOrEmpty(m.PropertyName))
-          {
-            var item = map[m.PropertyName];
-            m.ValueType = item.ValueType;
-            m.Required = item.Required;
-            m.Format = item.Format;
-          }
-        });
-
-        items.WriteToFile(dlgSaveFormatFile.FileName);
+        DoSaveToFile(dlgSaveFormatFile.FileName);
       }
+    }
+
+    private void DoSaveToFile(string filename)
+    {
+      FormToDefinition();
+
+      var map = headers.ToDictionary(m => m.PropertyName);
+      items.ForEach(m =>
+      {
+        if (!string.IsNullOrEmpty(m.PropertyName))
+        {
+          var item = map[m.PropertyName];
+          m.ValueType = item.ValueType;
+          m.Required = item.Required;
+          m.Format = item.Format;
+        }
+      });
+
+      items.WriteToFile(filename);
     }
 
     private void FormToDefinition()
@@ -342,6 +349,98 @@ namespace CQS.Sample
         form.SetDataset(Path.GetFileName(dlgOpenDirectory.SelectedPath));
         form.SetDataSource(lst);
         form.ShowDialog();
+      }
+    }
+
+    private void btnSaveAndFirst_Click(object sender, EventArgs e)
+    {
+      if (TrySave())
+      {
+        var dirs = Directory.GetDirectories(Path.GetDirectoryName(LastDirectory));
+        if (dirs.Length > 0)
+        {
+          NewFromData(dirs.First());
+        }
+        else
+        {
+          MessageBox.Show("No directory found!");
+        }
+      }
+    }
+
+    private void btnSaveAndPrev_Click(object sender, EventArgs e)
+    {
+      if (TrySave())
+      {
+        var dirs = Directory.GetDirectories(Path.GetDirectoryName(LastDirectory));
+        var index = Array.IndexOf(dirs, LastDirectory);
+        if (index > 0)
+        {
+          NewFromData(dirs[index - 1]);
+        }
+        else
+        {
+          MessageBox.Show("Current directory is the first one!");
+        }
+      }
+    }
+
+    private bool TrySave()
+    {
+      if (gvItems.DataSource == null)
+      {
+        return true;
+      }
+
+      if (string.IsNullOrEmpty(dlgSaveFormatFile.FileName))
+      {
+        if (dlgSaveFormatFile.ShowDialog() != System.Windows.Forms.DialogResult.OK)
+        {
+          return false;
+        }
+      }
+
+      DoSaveToFile(dlgSaveFormatFile.FileName);
+
+      if (string.IsNullOrEmpty(LastDirectory))
+      {
+        btnInit.PerformClick();
+        return false;
+      }
+
+      return true;
+    }
+
+    private void btnSaveAndNext_Click(object sender, EventArgs e)
+    {
+      if (TrySave())
+      {
+        var dirs = Directory.GetDirectories(Path.GetDirectoryName(LastDirectory));
+        var index = Array.IndexOf(dirs, LastDirectory);
+        if (index < dirs.Length - 1)
+        {
+          NewFromData(dirs[index + 1]);
+        }
+        else
+        {
+          MessageBox.Show("Current directory is the last one!");
+        }
+      }
+    }
+
+    private void btnSaveAndLast_Click(object sender, EventArgs e)
+    {
+      if (TrySave())
+      {
+        var dirs = Directory.GetDirectories(Path.GetDirectoryName(LastDirectory));
+        if (dirs.Length > 0)
+        {
+          NewFromData(dirs.Last());
+        }
+        else
+        {
+          MessageBox.Show("No directory found!");
+        }
       }
     }
   }

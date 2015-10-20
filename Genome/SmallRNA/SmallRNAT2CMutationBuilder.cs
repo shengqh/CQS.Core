@@ -1,5 +1,7 @@
-﻿using CQS.Genome.Mapping;
+﻿using CQS.Genome.Feature;
+using CQS.Genome.Mapping;
 using CQS.Genome.Statistics;
+using RCPA.Gui;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +9,7 @@ using System.Text;
 
 namespace CQS.Genome.SmallRNA
 {
-  public class SmallRNAT2CMutationBuilder
+  public class SmallRNAT2CMutationBuilder : ProgressClass
   {
     private double t2cRate;
 
@@ -16,45 +18,66 @@ namespace CQS.Genome.SmallRNA
       this.t2cRate = t2cRate;
     }
 
-    public List<MappedItemGroup> Build(string countXmlFile)
+    public List<FeatureItemGroup> Build(string countXmlFile)
     {
-      var result = new MappedItemGroupXmlFileFormat().ReadFromFile(countXmlFile);
+      var result = new FeatureItemGroupXmlFormat().ReadFromFile(countXmlFile);
 
-      foreach (var group in result)
+      Progress.SetMessage("There are {0} groups in {1}", result.Count, countXmlFile);
+
+      result.ForEach(g => g.ForEach(smallRNA => smallRNA.Locations.ForEach(region => region.QueryCountBeforeFilter = region.QueryCount)));
+
+      //no number of no penalty mutation defined, check the T2C
+      if (result.All(m => m.All(l => l.Locations.All(k => k.SamLocations.All(s => s.NumberOfNoPenaltyMutation == 0)))))
       {
-        foreach (var smallRNA in group)
+        foreach (var group in result)
         {
-          smallRNA.MappedRegions.RemoveAll(m => m.AlignedLocations.Count == 0);
-
-          MappedItemUtils.FilterMappedRegion(smallRNA);
-
-          foreach (var region in smallRNA.MappedRegions)
+          foreach (var smallRNA in group)
           {
-            region.QueryCountBeforeFilter = region.QueryCount;
-            region.AlignedLocations.RemoveAll(q =>
+            smallRNA.Locations.RemoveAll(m => m.SamLocations.Count == 0);
+            foreach (var region in smallRNA.Locations)
             {
-              var snp = q.GetMutation(q.Parent.Sequence);
-              if (null == snp)
+              region.SamLocations.ForEach(q =>
               {
-                return true;
-              }
-
-              return !snp.IsMutation('T', 'C');
-            });
+                var snp = q.SamLocation.GetNotGsnapMismatch(q.SamLocation.Parent.Sequence);
+                if (null != snp && snp.IsMutation('T', 'C'))
+                {
+                  q.NumberOfMismatch = q.SamLocation.NumberOfMismatch - 1;
+                  q.NumberOfNoPenaltyMutation = 1;
+                }
+                else
+                {
+                  q.NumberOfMismatch = q.SamLocation.NumberOfMismatch;
+                  q.NumberOfNoPenaltyMutation = 0;
+                }
+              });
+            }
           }
-          smallRNA.MappedRegions.RemoveAll(m => m.AlignedLocations.Count == 0);
         }
-
-        group.RemoveAll(n => n.MappedRegions.Count == 0);
       }
 
-      result.RemoveAll(m => m.Count == 0);
+      result.RemoveAll(m =>
+      {
+        m.RemoveAll(l =>
+        {
+          l.Locations.RemoveAll(k =>
+          {
+            k.SamLocations.RemoveAll(s => s.NumberOfNoPenaltyMutation == 0);
+            return k.SamLocations.Count == 0;
+          });
+
+          return l.Locations.Count == 0;
+        });
+
+        return m.Count == 0;
+      });
+
+      Progress.SetMessage("There are {0} groups having T2C mutation", result.Count);
 
       foreach (var group in result)
       {
         foreach (var smallRNA in group)
         {
-          foreach (var region in smallRNA.MappedRegions)
+          foreach (var region in smallRNA.Locations)
           {
             var fisher = new FisherExactTestResult();
             fisher.Sample1.Succeed = region.QueryCountBeforeFilter - region.QueryCount;

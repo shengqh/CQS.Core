@@ -6,7 +6,17 @@ namespace CQS.Genome
 {
   public static class GenomeUtils
   {
-    public static void SortChromosome<T>(List<T> items, Func<T, string> getChromosome, Func<T, int> getPosition)
+    public static string GetKey(string chr, object pos)
+    {
+      return string.Format("{0}_{1}", chr, pos);
+    }
+
+    public static string GetKey<T>(T obj, Func<T, string> getChr, Func<T, object> getPos)
+    {
+      return GetKey(getChr(obj), getPos(obj));
+    }
+
+    public static void SortChromosome<T>(List<T> items, Func<T, string> getChromosome, Func<T, long> getPosition)
     {
       var trychr = -1;
 

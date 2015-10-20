@@ -33,5 +33,10 @@ namespace CQS.Genome.Pileup
 
       return true;
     }
+
+    public string RejectReason
+    {
+      get { return "Read depth < " + this.minReadDepth.ToString(); }
+    }
   }
 }

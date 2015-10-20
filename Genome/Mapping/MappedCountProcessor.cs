@@ -6,6 +6,7 @@ using CQS.Genome.Fastq;
 using CQS.Genome.Sam;
 using CQS.Genome.Mirna;
 using CQS.Genome.Feature;
+using CQS.Genome.SmallRNA;
 
 namespace CQS.Genome.Mapping
 {
@@ -33,20 +34,22 @@ namespace CQS.Genome.Mapping
           options.CoordinateFile));
       }
 
-      var resultFilename = GetResultFilename(options.InputFile);
+      var resultFilename = options.OutputFile;
       result.Add(resultFilename);
 
       //parsing reads
-      int totalReadCount;
-      int mappedReadCount;
-      var reads = ParseCandidates(options.InputFile, resultFilename, out totalReadCount, out mappedReadCount);
-      if (reads.Count > 0 && reads[0].Qname.Contains(MirnaConsts.NTA_TAG))
+      var totalQueries = new HashSet<string>();
+      var reads = ParseCandidates(options.InputFile, resultFilename, out totalQueries);
+      int totalReadCount = totalQueries.Sum(l => Counts.GetCount(l));
+
+      if (reads.Count > 0 && reads[0].Qname.Contains(SmallRNAConsts.NTA_TAG))
       {
         if (!options.NTA)
         {
-          reads.RemoveAll(m => !m.Qname.EndsWith(MirnaConsts.NTA_TAG));
+          reads.RemoveAll(m => !m.Qname.EndsWith(SmallRNAConsts.NTA_TAG));
         }
       }
+      int mappedReadCount = reads.Sum(l => Counts.GetCount(l.Qname));
 
       Progress.SetMessage("mapping reads to sequence regions...");
       MapReadToSequenceRegion(featureLocations, reads);
@@ -71,6 +74,7 @@ namespace CQS.Genome.Mapping
       }
 
       Progress.SetMessage("write result ...");
+      mappedGroups.Sort((m1, m2) => m2.EstimateCount.CompareTo(m1.EstimateCount));
       new FeatureItemGroupCountWriter().WriteToFile(resultFilename, mappedGroups);
 
       if (options.ExportLengthDistribution)
@@ -97,11 +101,11 @@ namespace CQS.Genome.Mapping
 
         if (File.Exists(options.FastqFile))
         {
-          new FastqExtractorFromFastq { Progress = Progress }.Extract(options.FastqFile, unmappedFile, except);
+          new FastqExtractorFromFastq { Progress = Progress }.Extract(options.FastqFile, unmappedFile, except, options.CountFile);
         }
         else
         {
-          new FastqExtractorFromBam(options.Samtools) { Progress = Progress }.Extract(options.InputFile, unmappedFile, except);
+          new FastqExtractorFromBam() { Progress = Progress }.Extract(options.InputFile, unmappedFile, except, options.CountFile);
         }
         result.Add(unmappedFile);
       }
@@ -113,7 +117,7 @@ namespace CQS.Genome.Mapping
         sw.WriteLine("#file\t{0}", options.InputFile);
         sw.WriteLine("#coordinate\t{0}", options.CoordinateFile);
         sw.WriteLine("#minLength\t{0}", options.MinimumReadLength);
-        sw.WriteLine("#maxMismatchCount\t{0}", options.MaximumMismatchCount);
+        sw.WriteLine("#maxMismatchCount\t{0}", options.MaximumMismatch);
         if (File.Exists(options.CountFile))
         {
           sw.WriteLine("#countFile\t{0}", options.CountFile);
@@ -165,11 +169,9 @@ namespace CQS.Genome.Mapping
         }
       }
 
-      Progress.SetRange(0, mapped.Count);
       var gmapped = new Dictionary<string, SAMAlignedItem>();
       foreach (var curmapped in mapped)
       {
-        Progress.Increment(1);
         Dictionary<char, List<SamAlignedLocation>> curMatchedMap;
 
         if (!chrStrandMatchedMap.TryGetValue(curmapped.Seqname, out curMatchedMap))
@@ -209,11 +211,9 @@ namespace CQS.Genome.Mapping
         }
       }
 
-      Progress.SetRange(0, mapped.Count);
       var gmapped = new Dictionary<string, SAMAlignedItem>();
       foreach (var curmapped in mapped)
       {
-        Progress.Increment(1);
         List<SamAlignedLocation> matches;
 
         if (!chrStrandMatchedMap.TryGetValue(curmapped.Seqname, out matches))
@@ -224,13 +224,14 @@ namespace CQS.Genome.Mapping
         foreach (var m in matches)
         {
           var op = curmapped.OverlapPercentage(m);
-          if (op < options.MinimumOverlapPercentage)
+          if (op == 0.0 || op < options.MinimumOverlapPercentage)
           {
             continue;
           }
 
           var fsl = new FeatureSamLocation(curmapped);
           fsl.SamLocation = m;
+          fsl.OverlapPercentage = op;
         }
       }
     }

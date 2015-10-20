@@ -1,25 +1,32 @@
-﻿using System;
+﻿using RCPA;
+using RCPA.Gui;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
+using System.Linq;
 
 namespace CQS.Genome.SomaticMutation
 {
-  public abstract class AbstractPileupProcessor
+  public abstract class AbstractPileupProcessor : ProgressClass, IProcessor
   {
-    protected readonly PileupOptions _options;
-    
+    protected readonly PileupProcessorOptions _options;
+
     protected bool? _samtoolsOk;
 
-    public AbstractPileupProcessor(PileupOptions options)
+    protected virtual bool outputNotCoveredSite { get { return false; } }
+
+    public AbstractPileupProcessor(PileupProcessorOptions options)
     {
       _options = options;
     }
 
-    public bool Process()
+    protected abstract MpileupResult GetMpileupResult();
+
+    public virtual IEnumerable<string> Process()
     {
-      Console.Out.WriteLine("initialize process started at {0}", DateTime.Now);
+      Progress.SetMessage("initialize process started at {0}", DateTime.Now);
 
       _options.PrintParameter();
 
@@ -30,56 +37,47 @@ namespace CQS.Genome.SomaticMutation
       Directory.GetFiles(_options.CandidatesDirectory, "*.wsm").ForEach(m => File.Delete(m));
 
       var summary = GetMpileupResult();
-      if (summary == null)
-      {
-        return false;
-      }
-
       watch.Stop();
-      Console.Out.WriteLine("initialize process ended at {0}, cost {1}", DateTime.Now, watch.Elapsed);
+      Progress.SetMessage("initialize process ended at {0}, cost {1}", DateTime.Now, watch.Elapsed);
 
-      new MpileupResultCountFormat().WriteToFile(_options.SummaryFilename, summary);
+      WriteSummaryFile(summary);
 
-      GenomeUtils.SortChromosome(summary.Results, m => m.Item.SequenceIdentifier, m => (int)m.Item.Position);
+      //GenomeUtils.SortChromosome(summary.Results, m => m.Item.SequenceIdentifier, m => (int)m.Item.Position);
       new MpileupFisherResultFileFormat().WriteToFile(_options.CandidatesFilename, summary.Results);
 
       using (var sw = new StreamWriter(_options.BaseFilename))
       {
         if (summary.Results.Count > 0)
         {
-          string line;
-          if (string.IsNullOrWhiteSpace(summary.Results[0].CandidateFile))
+          var candFiles = summary.Results.Where(m => !string.IsNullOrEmpty(m.CandidateFile)).ToArray();
+          if (candFiles.Length == 0)
           {
-            throw new Exception("Miss candidate file!");
+            Progress.SetMessage("No candidate file found!");
           }
-
-          using (var sr = new StreamReader(summary.Results[0].CandidateFile))
+          else
           {
-            line = sr.ReadLine();
-            sw.WriteLine("Identity\t{0}", line);
-          }
-
-          foreach (var res in summary.Results)
-          {
-            if (string.IsNullOrWhiteSpace(res.CandidateFile))
+            string line;
+            using (var sr = new StreamReader(candFiles[0].CandidateFile))
             {
-              throw new Exception("Miss candidate file!");
+              line = sr.ReadLine();
+              sw.WriteLine("Identity\t{0}", line);
             }
 
-            using (var sr = new StreamReader(res.CandidateFile))
+            foreach (var res in candFiles)
             {
-              //pass the header line
-              sr.ReadLine();
-              while ((line = sr.ReadLine()) != null)
+              using (var sr = new StreamReader(res.CandidateFile))
               {
-                if (string.IsNullOrWhiteSpace(line))
+                //pass the header line
+                sr.ReadLine();
+                while ((line = sr.ReadLine()) != null)
                 {
-                  continue;
-                }
+                  if (string.IsNullOrWhiteSpace(line))
+                  {
+                    continue;
+                  }
 
-                sw.WriteLine("{0}\t{1}",
-                  Path.GetFileNameWithoutExtension(res.CandidateFile),
-                  line);
+                  sw.WriteLine("{0}\t{1}", Path.GetFileNameWithoutExtension(res.CandidateFile), line);
+                }
               }
             }
           }
@@ -89,12 +87,18 @@ namespace CQS.Genome.SomaticMutation
       Thread.Sleep(2000);
       foreach (var file in summary.Results)
       {
-        File.Delete(file.CandidateFile);
+        if (File.Exists(file.CandidateFile))
+        {
+          File.Delete(file.CandidateFile);
+        }
       }
 
-      return true;
+      return new string[] { _options.BaseFilename };
     }
 
-    protected abstract MpileupResult GetMpileupResult();
+    protected virtual void WriteSummaryFile(MpileupResult summary)
+    {
+      new MpileupResultCountFormat(_options, outputNotCoveredSite).WriteToFile(_options.SummaryFilename, summary);
+    }
   }
 }

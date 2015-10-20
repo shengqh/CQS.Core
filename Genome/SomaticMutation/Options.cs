@@ -6,16 +6,19 @@ namespace CQS.Genome.SomaticMutation
   public class Options
   {
     [VerbOption("pileup", HelpText = "Initialize candidates from samtools mpileup result.")]
-    public PileupOptions InitVerb { get; set; }
+    public PileupProcessorOptions InitVerb { get; set; }
 
     [VerbOption("filter", HelpText = "Filter candidates by logistic regression model.")]
-    public FilterOptions FilterVerb { get; set; }
+    public FilterProcessorOptions FilterVerb { get; set; }
 
     [VerbOption("annotation", HelpText = "Annotate mutation using varies tools.")]
-    public AnnotationOptions AnnotationVerb { get; set; }
+    public AnnotationProcessorOptions AnnotationVerb { get; set; }
 
     [VerbOption("all", HelpText = "pileup/filter/annotate data")]
-    public AllOptions AllVerb { get; set; }
+    public PipelineProcessorOptions AllVerb { get; set; }
+
+    [VerbOption("validation", HelpText = "Validate somatic mutations in vcf/bed file.")]
+    public ValidationProcessorOptions ValidationVerb { get; set; }
 
     [HelpVerbOption]
     public string GetUsage(string verb)

@@ -10,7 +10,5 @@ namespace CQS.Genome.Mirna
     public const int NO_OFFSET = int.MinValue;
 
     public const string NO_NTA = null;
-
-    public const string NTA_TAG = ":CLIP_";
   }
 }

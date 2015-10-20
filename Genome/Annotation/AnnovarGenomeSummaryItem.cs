@@ -77,11 +77,98 @@ namespace CQS.Genome.Annotation
         }
       }
     }
+
+    public string Format { get; set; }
+
+    public Dictionary<string, string> _samples;
+    public Dictionary<string, string> Samples
+    {
+      get
+      {
+        if (_samples == null)
+        {
+          _samples = new Dictionary<string, string>();
+        }
+        return _samples;
+      }
+    }
   }
 
   public class AnnovarGenomeSummaryItemReader : IFileReader<List<AnnovarGenomeSummaryItem>>
   {
     public List<AnnovarGenomeSummaryItem> ReadFromFile(string fileName)
+    {
+      if (fileName.ToLower().EndsWith("csv"))
+      {
+        return ReadCsv(fileName);
+      }
+      else
+      {
+        return ReadTsv(fileName);
+      }
+    }
+
+    private List<AnnovarGenomeSummaryItem> ReadTsv(string fileName)
+    {
+      var result = new List<AnnovarGenomeSummaryItem>();
+
+      var lines = File.ReadAllLines(fileName).Where(m => !m.StartsWith("#")).ToArray();
+
+      string[] headers = lines.First().Split('\t');
+      var funcIndex = Array.IndexOf(headers, "Func");
+      if (funcIndex == -1)
+      {
+        funcIndex = Array.IndexOf(headers, "Func.refGene");
+      }
+
+      var geneIndex = Array.IndexOf(headers, "Gene");
+      if (geneIndex == -1)
+      {
+        geneIndex = Array.IndexOf(headers, "Gene.refGene");
+      }
+
+      var exonicFuncIndex = Array.IndexOf(headers, "ExonicFunc");
+      if (exonicFuncIndex == -1)
+      {
+        exonicFuncIndex = Array.IndexOf(headers, "ExonicFunc.refGene");
+      }
+
+      var formatIndex = Array.IndexOf(headers, "FORMAT");
+      string[] samples = null;
+      if (formatIndex > 0)
+      {
+        samples = headers.Skip(formatIndex + 1).ToArray();
+      }
+
+      var chrIndex = Array.IndexOf(headers, "Chr");
+      var startIndex = Array.IndexOf(headers, "Start");
+      var endIndex = Array.IndexOf(headers, "End");
+      for (int i = 1; i < lines.Length; i++)
+      {
+        var item = new AnnovarGenomeSummaryItem();
+        var parts = lines[i].Split('\t');
+        item.Func = parts[funcIndex];
+        item.GeneString = parts[geneIndex];
+        item.ExonicFunc = parts[exonicFuncIndex];
+        item.Seqname = parts[chrIndex];
+        item.Start = long.Parse(parts[startIndex]);
+        item.End = long.Parse(parts[endIndex]);
+
+        if (formatIndex > 0)
+        {
+          item.Format = parts[formatIndex];
+          for (int j = formatIndex + 1; j < parts.Length; j++)
+          {
+            item.Samples[samples[j - formatIndex - 1]] = parts[j];
+          }
+        }
+
+        result.Add(item);
+      }
+      return result;
+    }
+
+    private List<AnnovarGenomeSummaryItem> ReadCsv(string fileName)
     {
       var result = new List<AnnovarGenomeSummaryItem>();
 
@@ -106,6 +193,13 @@ namespace CQS.Genome.Annotation
           exonicFuncIndex = Array.IndexOf(headers, "ExonicFunc.refGene");
         }
 
+        var formatIndex = Array.IndexOf(headers, "FORMAT");
+        string[] samples = null;
+        if (formatIndex > 0)
+        {
+          samples = headers.Skip(formatIndex).ToArray();
+        }
+
         var chrIndex = Array.IndexOf(headers, "Chr");
         var startIndex = Array.IndexOf(headers, "Start");
         var endIndex = Array.IndexOf(headers, "End");
@@ -118,10 +212,19 @@ namespace CQS.Genome.Annotation
           item.Seqname = csv[chrIndex];
           item.Start = long.Parse(csv[startIndex]);
           item.End = long.Parse(csv[endIndex]);
+
+          if (formatIndex > 0)
+          {
+            item.Format = csv[formatIndex];
+            for (int j = formatIndex + 1; j < csv.FieldCount; j++)
+            {
+              item.Samples[samples[j - formatIndex - 1]] = csv[j];
+            }
+          }
+
           result.Add(item);
         }
       }
-
       return result;
     }
   }

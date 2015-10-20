@@ -18,7 +18,6 @@ namespace CQS.Genome.Mapping
 
     public List<MappedItemGroup> ReadFromFile(string fileName)
     {
-      Console.WriteLine("read file {0} ...", fileName);
       var result = new List<MappedItemGroup>();
 
       XElement root = XElement.Load(fileName);

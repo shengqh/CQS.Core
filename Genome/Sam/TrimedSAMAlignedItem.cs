@@ -29,7 +29,7 @@ namespace CQS.Genome.Sam
       using (var sr = StreamUtils.GetReader(fastqFile))
       {
         FastqSequence item;
-        while ((item = reader.ParseOne(sr)) != null)
+        while ((item = reader.Parse(sr)) != null)
         {
           var name = item.Name.StringBefore(" ").StringBefore("\t");
           TrimedSAMAlignedItem titem;

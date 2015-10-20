@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using CQS.Commandline;
+using RCPA.Commandline;
 using CommandLine;
 using System.IO;
 using CQS.Genome.Sam;
@@ -30,9 +30,6 @@ namespace CQS.Genome.Pileup
 
     [Option('e', "engineType", DefaultValue = DEFAULT_EngineType, MetaValue = "INT", HelpText = "Engine type (1:bowtie1, 2:bowtie2, 3:bwa)")]
     public int EngineType { get; set; }
-
-    [Option("samtools", Required = false, MetaValue = "FILE", HelpText = "Samtools location (required for bam file)")]
-    public string Samtools { get; set; }
 
     public ISAMFormat GetSAMFormat()
     {

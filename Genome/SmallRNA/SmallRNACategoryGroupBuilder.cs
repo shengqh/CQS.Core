@@ -59,6 +59,14 @@ namespace CQS.Genome.SmallRNA
                      let mirna = parts.Length == 3 ? string.Empty : parts[3]
                      select new { GroupName = parts[0], SampleName = parts[1], SmallRNAFile = parts[2], MiRNAFile = mirna }).ToList();
 
+      if (entries.All(m => !File.Exists(m.MiRNAFile)))
+      {
+        return new SmallRNACategoryGroupPlusBuilder(options)
+        {
+          Progress = this.Progress
+        }.Process();
+      }
+
       var groups = entries.GroupBy(m => m.GroupName).ToList();
 
       var result = new List<string>();

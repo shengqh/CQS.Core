@@ -1,4 +1,5 @@
 ﻿using RCPA;
+using RCPA.Commandline;
 using RCPA.Gui.Command;
 
 namespace CQS.Genome.Fastq

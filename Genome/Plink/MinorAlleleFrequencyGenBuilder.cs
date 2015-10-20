@@ -58,7 +58,7 @@ namespace CQS.Genome.Plink
               Console.Error.WriteLine(string.Format("Unknown, name={0}, i={1}, genotype={2} {3} {4}", locus.MarkerId, i, parts[i], parts[i + 1], parts[i + 2]));
             }
           }
-          locus.Allele2Frequency = ((double)(count2)) / (count1 + count2);
+          locus.Allele1Frequency = ((double)(count2)) / (count1 + count2);
         }
       }
 

@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using CQS.Genome.Sam;
 using RCPA;
+using CQS.Genome.Mirna;
+using CQS.Genome.SmallRNA;
 
 namespace CQS.Genome.Mapping
 {
@@ -25,35 +27,60 @@ namespace CQS.Genome.Mapping
       var samitems = builder.Build<SAMAlignedItem>(options.InputFile, out queries);
       if (options.Offsets.Count > 0 && options.Offsets[0] != 0)
       {
+        Progress.SetMessage("Filter mapped reads with offsets {0} ...", (from offset in options.Offsets select offset.ToString()).Merge(","));
         var offsets = new HashSet<long>(options.Offsets);
         samitems.ForEach(m =>
         {
           m.RemoveLocation(l => !offsets.Contains(l.Start));
         });
+        samitems.RemoveAll(m => m.Locations.Count == 0);
+        Progress.SetMessage("Total {0} mapped reads kept.");
       }
 
-      var removedReads = string.IsNullOrEmpty(options.PerfectMappedNameFile) ? new HashSet<string>() : new HashSet<string>(File.ReadAllLines(options.PerfectMappedNameFile));
-
       var cm = options.GetCountMap();
-      if (!string.IsNullOrEmpty(options.PerferPrefix))
+
+      //Assume that the sample is from human tissue, the prefered prefix will be hsa.
+      //If one read mapped to multiple features belongs to multiple species including human, only the features from human will be kept.
+      if (!string.IsNullOrEmpty(options.PreferPrefix))
       {
         samitems.ForEach(m =>
         {
-          if (m.Locations.Any(l => IsPerferPrefix(l)))
+          if (m.Locations.Any(l => IsPreferPrefix(l)))
           {
-            m.RemoveLocation(l => !IsPerferPrefix(l));
+            m.RemoveLocation(l => !IsPreferPrefix(l));
           }
         });
       }
 
-      if (removedReads.Count > 0)
+      //If one read perfectly mapped to human genome and it is not mapped to human miRNA, it will be discarded.
+      if (File.Exists(options.PerfectMappedNameFile))
       {
-        if (!string.IsNullOrEmpty(options.PerferPrefix))
+        Progress.SetMessage("Filter mapped reads with query perfectly mapped to genome ...");
+
+        var removedReads = new HashSet<string>();
+        var names = File.ReadAllLines(options.PerfectMappedNameFile);
+        if (names.Any(l => l.Contains(SmallRNAConsts.NTA_TAG)))
+        {
+          foreach (var name in names)
+          {
+            //only the original read perfect mapped to genome will be considered
+            if (string.IsNullOrEmpty(name.StringAfter(SmallRNAConsts.NTA_TAG)))
+            {
+              removedReads.Add(name.StringBefore(SmallRNAConsts.NTA_TAG));
+            }
+          }
+        }
+        else
+        {
+          removedReads = new HashSet<string>(names);
+        }
+
+        if (!string.IsNullOrEmpty(options.PreferPrefix))
         {
           //keep all reads with perferName
           samitems.RemoveAll(m =>
           {
-            if (!m.Locations.Any(l => IsPerferPrefix(l)))
+            if (!m.Locations.Any(l => IsPreferPrefix(l)))
             {
               if (removedReads.Contains(m.Qname))
               {
@@ -69,6 +96,8 @@ namespace CQS.Genome.Mapping
           //remove all perfect mapped 
           samitems.RemoveAll(m => removedReads.Contains(m.Qname));
         }
+
+        Progress.SetMessage("Total {0} mapped reads kept.", samitems.Count);
       }
 
       samitems.ForEach(m =>
@@ -82,32 +111,33 @@ namespace CQS.Genome.Mapping
                   select l).ToList();
 
       var chroms = (from g in locs.GroupBy(m => m.Seqname)
-                    select new ChromosomeCountItem() { Names = new HashSet<string>(new string[] { g.Key }), Queries = new HashSet<SAMAlignedItem>(from l in g select l.Parent) }).ToList();
+                    select new ChromosomeCountItem() { Names = new string[] { g.Key }.ToList(), Queries = (from l in g select l.Parent).ToList() }).ToList();
       chroms.Sort((m1, m2) => m2.Queries.Count.CompareTo(m1.Queries.Count));
 
       var mappedfile = options.OutputFile + ".mapped.xml";
-      new ChromosomeCountXmFormat().WriteToFile(mappedfile, chroms);
+      new ChromosomeCountXmlFormat().WriteToFile(mappedfile, chroms);
 
-      chroms.MergeItems();
+      chroms.CalculateAndSortByEstimatedCount();
 
-      chroms.Sort((m1, m2) => m2.QueryCount.CompareTo(m1.QueryCount));
       using (var sw = new StreamWriter(options.OutputFile))
       {
-        if (!string.IsNullOrEmpty(options.PerferPrefix))
+        if (!string.IsNullOrEmpty(options.PreferPrefix))
         {
-          foreach (var mirna in chroms)
+          foreach (var chr in chroms)
           {
-            if (mirna.Names.Any(m => m.StartsWith(options.PerferPrefix)))
+            if (chr.Names.Any(m => m.StartsWith(options.PreferPrefix)))
             {
-              mirna.Names.RemoveWhere(m => !m.StartsWith(options.PerferPrefix));
+              chr.Names.RemoveAll(m => !m.StartsWith(options.PreferPrefix));
             }
           }
         }
 
-        sw.WriteLine("Name\tQueryCount");
-        foreach (var mirna in chroms)
+        sw.WriteLine("Name\tEstimatedCount\tQueryCount");
+        foreach (var chr in chroms)
         {
-          sw.WriteLine((from m in mirna.Names orderby m select m).Merge(";") + "\t" + mirna.QueryCount);
+          sw.WriteLine("{0}\t{1:0.##}\t{2}", (from m in chr.Names orderby m select m).Merge(";"),
+            chr.EstimatedCount,
+            chr.QueryCount);
         }
       }
 
@@ -117,9 +147,9 @@ namespace CQS.Genome.Mapping
     }
 
 
-    private bool IsPerferPrefix(SamAlignedLocation l)
+    private bool IsPreferPrefix(SamAlignedLocation l)
     {
-      return l.Seqname.StartsWith(options.PerferPrefix);
+      return l.Seqname.StartsWith(options.PreferPrefix);
     }
   }
 }

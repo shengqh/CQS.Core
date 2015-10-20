@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using System.Collections.ObjectModel;
 using System.Xml.Linq;
 using CQS.Genome.Pileup;
+using System.Xml;
 
 namespace CQS.Genome.Sam
 {
@@ -24,6 +25,13 @@ namespace CQS.Genome.Sam
     public string Qname { get; set; }
 
     public string Sequence { get; set; }
+
+    public void InitializeDistinctSeqnameCount()
+    {
+      this.DistinctSeqnameCount = (from l in this.Locations
+                                   select l.Seqname).Distinct().Count();
+    }
+    public int DistinctSeqnameCount { get; private set; }
 
     private string _clippedNTA;
     public string ClippedNTA
@@ -451,6 +459,8 @@ namespace CQS.Genome.Sam
       mindex += count;
       position += count;
     }
+
+    public string OriginalQname { get; set; }
   }
 
   public static class SAMAlignedItemExtension
@@ -473,6 +483,11 @@ namespace CQS.Genome.Sam
           loc.AlignmentScore = int.Parse(locEle.Attribute("score").Value);
           loc.MismatchPositions = locEle.Attribute("mdz").Value;
           loc.NumberOfMismatch = int.Parse(locEle.Attribute("nmi").Value);
+          var nnmpattr = locEle.Attribute("nnpm");
+          if (nnmpattr != null)
+          {
+            loc.NumberOfNoPenaltyMutation = int.Parse(nnmpattr.Value);
+          }
         }
       }
       return result;
@@ -495,7 +510,36 @@ namespace CQS.Genome.Sam
                     new XAttribute("cigar", l.Cigar),
                     new XAttribute("score", l.AlignmentScore),
                     new XAttribute("mdz", l.MismatchPositions),
-                    new XAttribute("nmi", l.NumberOfMismatch))));
+                    new XAttribute("nmi", l.NumberOfMismatch),
+                    new XAttribute("nnpm", l.NumberOfNoPenaltyMutation))));
+    }
+
+    public static void WriteTo(this IEnumerable<SAMAlignedItem> queries, XmlWriter xw)
+    {
+      xw.WriteStartElement("queries");
+      foreach (var q in queries)
+      {
+        xw.WriteStartElement("query");
+        xw.WriteAttributeString("name", q.Qname);
+        xw.WriteAttributeString("sequence", q.Sequence);
+        xw.WriteAttributeString("count", q.QueryCount.ToString());
+        foreach (var l in q.Locations)
+        {
+          xw.WriteStartElement("location");
+          xw.WriteAttributeString("seqname", l.Seqname);
+          xw.WriteAttributeString("start", l.Start.ToString());
+          xw.WriteAttributeString("end", l.End.ToString());
+          xw.WriteAttributeString("strand", l.Strand.ToString());
+          xw.WriteAttributeString("cigar", l.Cigar);
+          xw.WriteAttributeString("score", l.AlignmentScore.ToString());
+          xw.WriteAttributeString("mdz", l.MismatchPositions);
+          xw.WriteAttributeString("nmi", l.NumberOfMismatch.ToString());
+          xw.WriteAttributeString("nnpm", l.NumberOfNoPenaltyMutation.ToString());
+          xw.WriteEndElement();
+        }
+        xw.WriteEndElement();
+      }
+      xw.WriteEndElement();
     }
   }
 }

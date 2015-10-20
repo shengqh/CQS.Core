@@ -1,7 +1,8 @@
 ﻿
+using RCPA.Commandline;
 namespace CQS.Genome.Mapping
 {
-  public class ChromosomeCountTableBuilderCommand : AbstractCommandLineCommand<SimpleDataTableBuilderOptions>
+  public class ChromosomeCountTableBuilderCommand : AbstractCommandLineCommand<ChromosomeCountTableBuilderOptions>
   {
     public override string Name
     {
@@ -13,9 +14,9 @@ namespace CQS.Genome.Mapping
       get { return "Build chromosome data table from files located in subdirectories of root directory"; }
     }
 
-    public override RCPA.IProcessor GetProcessor(SimpleDataTableBuilderOptions options)
+    public override RCPA.IProcessor GetProcessor(ChromosomeCountTableBuilderOptions options)
     {
-      return new ChromosomeCountTableBuilder(options);
+      return new ChromosomeCountSlimTableBuilder(options);
     }
   }
 }

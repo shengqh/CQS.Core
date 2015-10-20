@@ -9,10 +9,11 @@ using System.Windows.Forms;
 using RCPA.Gui;
 using RCPA.Gui.Command;
 using RCPA.Gui.FileArgument;
+using System.IO;
 
 namespace CQS.Sample
 {
-  public partial class SampleInfoBuilderUI : AbstractFileProcessorUI
+  public partial class SampleInfoBuilderUI : AbstractProcessorUI
   {
     public static string title = "GEO Sample Info Builder";
     public static string version = "1.0.0";
@@ -21,15 +22,19 @@ namespace CQS.Sample
     {
       InitializeComponent();
 
-      SetDirectoryArgument("DatasetRootDirectory", "Dataset Root");
-      columnFiles.FileArgument = new OpenFileArgument("Column Definition", ".columns");
+      propertyFile.FileArgument = new OpenFileArgument("Column Definition", ".columns");
 
       this.Text = Constants.GetSqhVanderbiltTitle(title, version);
     }
 
-    protected override RCPA.IFileProcessor GetFileProcessor()
+    protected override RCPA.IProcessor GetProcessor()
     {
-      return new SampleInfoBuilder(columnFiles.FullName);
+      return new SampleInfoBuilder(new SampleInfoBuilderOptions()
+      {
+        InputDirectory = rootDirectory.FullName,
+        PropertyFile = propertyFile.FullName,
+        OutputFile = Path.Combine(rootDirectory.FullName, Path.GetFileName(rootDirectory.FullName) + ".sample.tsv")
+      });
     }
 
     public class Command : IToolCommand

@@ -39,19 +39,23 @@
       this.panel1 = new System.Windows.Forms.Panel();
       this.label1 = new System.Windows.Forms.Label();
       this.dvGrids = new System.Windows.Forms.DataGridView();
-      this.colPropertyName2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-      this.dataGridViewTextBoxColumn2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
       this.defaultValueBindingSource = new System.Windows.Forms.BindingSource(this.components);
       this.panel2 = new System.Windows.Forms.Panel();
       this.label2 = new System.Windows.Forms.Label();
       this.btnInit = new System.Windows.Forms.Button();
       this.btnLoad = new System.Windows.Forms.Button();
       this.btnSave = new System.Windows.Forms.Button();
-      this.btnTest = new System.Windows.Forms.Button();
+      this.btnSaveAndNext = new System.Windows.Forms.Button();
       this.btnClose = new System.Windows.Forms.Button();
+      this.btnTest = new System.Windows.Forms.Button();
       this.dlgOpenFormatFile = new System.Windows.Forms.OpenFileDialog();
       this.dlgSaveFormatFile = new System.Windows.Forms.SaveFileDialog();
       this.columnFiles = new RCPA.Gui.FileField();
+      this.colPropertyName2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.dataGridViewTextBoxColumn2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+      this.btnSaveAndLast = new System.Windows.Forms.Button();
+      this.btnSaveAndPrev = new System.Windows.Forms.Button();
+      this.btnSaveAndFirst = new System.Windows.Forms.Button();
       ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
       this.splitContainer1.Panel1.SuspendLayout();
       this.splitContainer1.Panel2.SuspendLayout();
@@ -87,6 +91,10 @@
       this.splitContainer1.Panel2.Controls.Add(this.btnInit);
       this.splitContainer1.Panel2.Controls.Add(this.btnLoad);
       this.splitContainer1.Panel2.Controls.Add(this.btnSave);
+      this.splitContainer1.Panel2.Controls.Add(this.btnSaveAndFirst);
+      this.splitContainer1.Panel2.Controls.Add(this.btnSaveAndPrev);
+      this.splitContainer1.Panel2.Controls.Add(this.btnSaveAndNext);
+      this.splitContainer1.Panel2.Controls.Add(this.btnSaveAndLast);
       this.splitContainer1.Panel2.Controls.Add(this.btnTest);
       this.splitContainer1.Panel2.Controls.Add(this.btnClose);
       this.splitContainer1.Size = new System.Drawing.Size(975, 481);
@@ -99,7 +107,6 @@
       this.splitContainer2.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
       this.splitContainer2.Location = new System.Drawing.Point(0, 0);
       this.splitContainer2.Name = "splitContainer2";
-      this.splitContainer2.Orientation = System.Windows.Forms.Orientation.Horizontal;
       // 
       // splitContainer2.Panel1
       // 
@@ -112,7 +119,7 @@
       this.splitContainer2.Panel2.Controls.Add(this.dvGrids);
       this.splitContainer2.Panel2.Controls.Add(this.panel2);
       this.splitContainer2.Size = new System.Drawing.Size(975, 447);
-      this.splitContainer2.SplitterDistance = 217;
+      this.splitContainer2.SplitterDistance = 672;
       this.splitContainer2.TabIndex = 2;
       // 
       // gvItems
@@ -130,7 +137,7 @@
       this.gvItems.Location = new System.Drawing.Point(0, 27);
       this.gvItems.Name = "gvItems";
       this.gvItems.RowTemplate.Height = 23;
-      this.gvItems.Size = new System.Drawing.Size(975, 190);
+      this.gvItems.Size = new System.Drawing.Size(672, 420);
       this.gvItems.TabIndex = 3;
       // 
       // colAnnotationName
@@ -169,7 +176,7 @@
       this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
       this.panel1.Location = new System.Drawing.Point(0, 0);
       this.panel1.Name = "panel1";
-      this.panel1.Size = new System.Drawing.Size(975, 27);
+      this.panel1.Size = new System.Drawing.Size(672, 27);
       this.panel1.TabIndex = 2;
       // 
       // label1
@@ -177,7 +184,7 @@
       this.label1.Dock = System.Windows.Forms.DockStyle.Fill;
       this.label1.Location = new System.Drawing.Point(0, 0);
       this.label1.Name = "label1";
-      this.label1.Size = new System.Drawing.Size(975, 27);
+      this.label1.Size = new System.Drawing.Size(672, 27);
       this.label1.TabIndex = 0;
       this.label1.Text = "Annotation/property mapping";
       this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -195,24 +202,8 @@
       this.dvGrids.Dock = System.Windows.Forms.DockStyle.Fill;
       this.dvGrids.Location = new System.Drawing.Point(0, 27);
       this.dvGrids.Name = "dvGrids";
-      this.dvGrids.Size = new System.Drawing.Size(975, 199);
+      this.dvGrids.Size = new System.Drawing.Size(299, 420);
       this.dvGrids.TabIndex = 3;
-      // 
-      // colPropertyName2
-      // 
-      this.colPropertyName2.DataPropertyName = "PropertyName";
-      this.colPropertyName2.HeaderText = "PropertyName";
-      this.colPropertyName2.Name = "colPropertyName2";
-      this.colPropertyName2.ReadOnly = true;
-      this.colPropertyName2.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-      this.colPropertyName2.Width = 300;
-      // 
-      // dataGridViewTextBoxColumn2
-      // 
-      this.dataGridViewTextBoxColumn2.DataPropertyName = "Value";
-      this.dataGridViewTextBoxColumn2.HeaderText = "Value";
-      this.dataGridViewTextBoxColumn2.Name = "dataGridViewTextBoxColumn2";
-      this.dataGridViewTextBoxColumn2.Width = 300;
       // 
       // defaultValueBindingSource
       // 
@@ -224,7 +215,7 @@
       this.panel2.Dock = System.Windows.Forms.DockStyle.Top;
       this.panel2.Location = new System.Drawing.Point(0, 0);
       this.panel2.Name = "panel2";
-      this.panel2.Size = new System.Drawing.Size(975, 27);
+      this.panel2.Size = new System.Drawing.Size(299, 27);
       this.panel2.TabIndex = 3;
       // 
       // label2
@@ -232,7 +223,7 @@
       this.label2.Dock = System.Windows.Forms.DockStyle.Fill;
       this.label2.Location = new System.Drawing.Point(0, 0);
       this.label2.Name = "label2";
-      this.label2.Size = new System.Drawing.Size(975, 27);
+      this.label2.Size = new System.Drawing.Size(299, 27);
       this.label2.TabIndex = 0;
       this.label2.Text = "Default value";
       this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -240,7 +231,7 @@
       // btnInit
       // 
       this.btnInit.Dock = System.Windows.Forms.DockStyle.Right;
-      this.btnInit.Location = new System.Drawing.Point(475, 0);
+      this.btnInit.Location = new System.Drawing.Point(75, 0);
       this.btnInit.Name = "btnInit";
       this.btnInit.Size = new System.Drawing.Size(100, 30);
       this.btnInit.TabIndex = 0;
@@ -251,7 +242,7 @@
       // btnLoad
       // 
       this.btnLoad.Dock = System.Windows.Forms.DockStyle.Right;
-      this.btnLoad.Location = new System.Drawing.Point(575, 0);
+      this.btnLoad.Location = new System.Drawing.Point(175, 0);
       this.btnLoad.Name = "btnLoad";
       this.btnLoad.Size = new System.Drawing.Size(100, 30);
       this.btnLoad.TabIndex = 0;
@@ -263,13 +254,35 @@
       // 
       this.btnSave.Dock = System.Windows.Forms.DockStyle.Right;
       this.btnSave.Enabled = false;
-      this.btnSave.Location = new System.Drawing.Point(675, 0);
+      this.btnSave.Location = new System.Drawing.Point(275, 0);
       this.btnSave.Name = "btnSave";
       this.btnSave.Size = new System.Drawing.Size(100, 30);
       this.btnSave.TabIndex = 0;
       this.btnSave.Text = "&Save format...";
       this.btnSave.UseVisualStyleBackColor = true;
       this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
+      // 
+      // btnSaveAndNext
+      // 
+      this.btnSaveAndNext.Dock = System.Windows.Forms.DockStyle.Right;
+      this.btnSaveAndNext.Location = new System.Drawing.Point(575, 0);
+      this.btnSaveAndNext.Name = "btnSaveAndNext";
+      this.btnSaveAndNext.Size = new System.Drawing.Size(100, 30);
+      this.btnSaveAndNext.TabIndex = 2;
+      this.btnSaveAndNext.Text = ">";
+      this.btnSaveAndNext.UseVisualStyleBackColor = true;
+      this.btnSaveAndNext.Click += new System.EventHandler(this.btnSaveAndNext_Click);
+      // 
+      // btnClose
+      // 
+      this.btnClose.Dock = System.Windows.Forms.DockStyle.Right;
+      this.btnClose.Location = new System.Drawing.Point(875, 0);
+      this.btnClose.Name = "btnClose";
+      this.btnClose.Size = new System.Drawing.Size(100, 30);
+      this.btnClose.TabIndex = 0;
+      this.btnClose.Text = "&Close";
+      this.btnClose.UseVisualStyleBackColor = true;
+      this.btnClose.Click += new System.EventHandler(this.btnClose_Click);
       // 
       // btnTest
       // 
@@ -282,17 +295,6 @@
       this.btnTest.Text = "&Test format...";
       this.btnTest.UseVisualStyleBackColor = true;
       this.btnTest.Click += new System.EventHandler(this.btnTest_Click);
-      // 
-      // btnClose
-      // 
-      this.btnClose.Dock = System.Windows.Forms.DockStyle.Right;
-      this.btnClose.Location = new System.Drawing.Point(875, 0);
-      this.btnClose.Name = "btnClose";
-      this.btnClose.Size = new System.Drawing.Size(100, 30);
-      this.btnClose.TabIndex = 0;
-      this.btnClose.Text = "&Close";
-      this.btnClose.UseVisualStyleBackColor = true;
-      this.btnClose.Click += new System.EventHandler(this.btnClose_Click);
       // 
       // dlgOpenFormatFile
       // 
@@ -308,6 +310,7 @@
       // 
       // columnFiles
       // 
+      this.columnFiles.AfterBrowseFileEvent = null;
       this.columnFiles.Dock = System.Windows.Forms.DockStyle.Top;
       this.columnFiles.FullName = "";
       this.columnFiles.Key = "ColumnFile";
@@ -315,10 +318,59 @@
       this.columnFiles.Location = new System.Drawing.Point(0, 0);
       this.columnFiles.Name = "columnFiles";
       this.columnFiles.OpenButtonText = "Browse All File ...";
-      this.columnFiles.WidthOpenButton = 226;
       this.columnFiles.PreCondition = null;
       this.columnFiles.Size = new System.Drawing.Size(975, 23);
       this.columnFiles.TabIndex = 1;
+      this.columnFiles.WidthOpenButton = 226;
+      // 
+      // colPropertyName2
+      // 
+      this.colPropertyName2.DataPropertyName = "PropertyName";
+      this.colPropertyName2.HeaderText = "PropertyName";
+      this.colPropertyName2.Name = "colPropertyName2";
+      this.colPropertyName2.ReadOnly = true;
+      this.colPropertyName2.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+      this.colPropertyName2.Width = 150;
+      // 
+      // dataGridViewTextBoxColumn2
+      // 
+      this.dataGridViewTextBoxColumn2.DataPropertyName = "Value";
+      this.dataGridViewTextBoxColumn2.HeaderText = "Value";
+      this.dataGridViewTextBoxColumn2.Name = "dataGridViewTextBoxColumn2";
+      this.dataGridViewTextBoxColumn2.Width = 300;
+      // 
+      // btnSaveAndLast
+      // 
+      this.btnSaveAndLast.Dock = System.Windows.Forms.DockStyle.Right;
+      this.btnSaveAndLast.Location = new System.Drawing.Point(675, 0);
+      this.btnSaveAndLast.Name = "btnSaveAndLast";
+      this.btnSaveAndLast.Size = new System.Drawing.Size(100, 30);
+      this.btnSaveAndLast.TabIndex = 3;
+      this.btnSaveAndLast.Text = ">|";
+      this.btnSaveAndLast.UseVisualStyleBackColor = true;
+      this.btnSaveAndLast.Click += new System.EventHandler(this.btnSaveAndLast_Click);
+      // 
+      // btnSaveAndPrev
+      // 
+      this.btnSaveAndPrev.Dock = System.Windows.Forms.DockStyle.Right;
+      this.btnSaveAndPrev.Location = new System.Drawing.Point(475, 0);
+      this.btnSaveAndPrev.Name = "btnSaveAndPrev";
+      this.btnSaveAndPrev.Size = new System.Drawing.Size(100, 30);
+      this.btnSaveAndPrev.TabIndex = 4;
+      this.btnSaveAndPrev.Text = "<";
+      this.btnSaveAndPrev.UseVisualStyleBackColor = true;
+      this.btnSaveAndPrev.Click += new System.EventHandler(this.btnSaveAndPrev_Click);
+      // 
+      // btnSaveAndFirst
+      // 
+      this.btnSaveAndFirst.Dock = System.Windows.Forms.DockStyle.Right;
+      this.btnSaveAndFirst.Location = new System.Drawing.Point(375, 0);
+      this.btnSaveAndFirst.Name = "btnSaveAndFirst";
+      this.btnSaveAndFirst.Size = new System.Drawing.Size(100, 30);
+      this.btnSaveAndFirst.TabIndex = 5;
+      this.btnSaveAndFirst.Text = "|<";
+      this.btnSaveAndFirst.UseVisualStyleBackColor = true;
+      this.btnSaveAndFirst.Click += new System.EventHandler(this.btnSaveAndFirst_Click);
       // 
       // SampleItemDefinitionBuilderUI
       // 
@@ -371,8 +423,12 @@
     private System.Windows.Forms.DataGridViewTextBoxColumn colAnnotationName;
     private System.Windows.Forms.DataGridViewTextBoxColumn Example;
     private System.Windows.Forms.DataGridViewComboBoxColumn colPropertyName;
+    private RCPA.Gui.FileField columnFiles;
+    private System.Windows.Forms.Button btnSaveAndNext;
     private System.Windows.Forms.DataGridViewTextBoxColumn colPropertyName2;
     private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn2;
-    private RCPA.Gui.FileField columnFiles;
+    private System.Windows.Forms.Button btnSaveAndFirst;
+    private System.Windows.Forms.Button btnSaveAndPrev;
+    private System.Windows.Forms.Button btnSaveAndLast;
   }
 }

@@ -18,25 +18,30 @@ namespace CQS.Genome.Plink
 
     public override IEnumerable<string> Process()
     {
-      var file = new PlinkBedRandomFile(_options.InputFile);
-      try
+      using (var file = new PlinkBedRandomFile(_options.InputFile))
       {
         var locusList = file.Data.Locus;
         var individualList = file.Data.Individual;
 
+        Progress.SetRange(0, locusList.Count);
         for (int i = 0; i < locusList.Count; i++)
         {
+          Progress.SetPosition(i);
+
           var locus = locusList[i];
           var data = file.Read(locus.MarkerId);
 
           int count1 = 0;
           int count2 = 0;
+          int validSample = 0;
           for (int j = 0; j < individualList.Count; j++)
           {
-            if (PlinkData.IsMissing(data[0, j], data[1,j]))
+            if (PlinkData.IsMissing(data[0, j], data[1, j]))
             {
               continue;
             }
+
+            validSample++;
 
             if (data[0, j])
             {
@@ -56,14 +61,12 @@ namespace CQS.Genome.Plink
               count1++;
             }
           }
-          locus.Allele2Frequency = ((double)(count2)) / (count1 + count2);
+          locus.Allele1Frequency = ((double)(count1)) / (count1 + count2);
+          locus.TotalSample = individualList.Count;
+          locus.ValidSample = validSample;
         }
 
-        PlinkLocus.WriteToFile(_options.OutputFile, locusList, false, true);
-      }
-      finally
-      {
-        file.Close();
+        PlinkLocus.WriteToFile(_options.OutputFile, locusList, false, true, true);
       }
 
       return new string[] { _options.OutputFile };

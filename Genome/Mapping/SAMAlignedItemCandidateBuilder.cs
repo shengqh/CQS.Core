@@ -11,55 +11,48 @@ using Bio.IO.SAM;
 
 namespace CQS.Genome.Mapping
 {
-  public class SAMAlignedItemCandidateBuilder : ProgressClass, ICandidateBuilder
+  public class SAMAlignedItemCandidateBuilder : AbstractSAMAlignedItemCandidateBuilder
   {
-    protected ISAMFormat format;
-
-    protected ISAMAlignedItemParserOptions options;
-
     /// <summary>
     /// Constructor of SAMAlignedItemCandidateBuilder
     /// </summary>
     /// <param name="engineType">1:bowtie1, 2:bowtie2, 3:bwa</param>
     public SAMAlignedItemCandidateBuilder(int engineType)
-    {
-      this.options = new SAMAlignedItemParserOptions()
-      {
-        EngineType = engineType,
-        MaximumMismatchCount = int.MaxValue,
-        MinimumReadLength = 0,
-        Samtools = null
-      };
-    }
+      : base(engineType)
+    { }
 
     public SAMAlignedItemCandidateBuilder(ISAMAlignedItemParserOptions options)
-    {
-      this.options = options;
-    }
+      : base(options)
+    { }
 
-    public List<T> Build<T>(string fileName, out HashSet<string> totalQueryNames) where T : SAMAlignedItem, new()
+    protected override List<T> DoBuild<T>(string fileName, out HashSet<string> totalQueryNames)
     {
-      format = options.GetSAMFormat();
+      var result = new List<T>();
 
-      var samlist = new List<T>();
+      _format = _options.GetSAMFormat();
 
       totalQueryNames = new HashSet<string>();
 
-      using (var sr = SAMFactory.GetReader(fileName, options.Samtools, true))
+      using (var sr = SAMFactory.GetReader(fileName, true))
       {
         int count = 0;
         int waitingcount = 0;
         string line;
-        while ((line= sr.ReadLine()) != null)
+        while ((line = sr.ReadLine()) != null)
         {
           count++;
 
-          if (count % 100 == 0)
+          if (count % 1000 == 0)
           {
             if (Progress.IsCancellationPending())
             {
               throw new UserTerminatedException();
             }
+          }
+
+          if (count % 100000 == 0)
+          {
+            Progress.SetMessage("{0} candidates from {1} reads", waitingcount, count);
           }
 
           var parts = line.Split('\t');
@@ -70,13 +63,13 @@ namespace CQS.Genome.Mapping
           totalQueryNames.Add(qname);
 
           //too short
-          if (seq.Length < options.MinimumReadLength)
+          if (seq.Length < _options.MinimumReadLength)
           {
             continue;
           }
 
           //too long
-          if (seq.Length > options.MaximumReadLength)
+          if (seq.Length > _options.MaximumReadLength)
           {
             continue;
           }
@@ -96,24 +89,25 @@ namespace CQS.Genome.Mapping
           //}
 
           //too many mismatchs
-          var mismatchCount = format.GetNumberOfMismatch(parts);
-          if (mismatchCount > options.MaximumMismatchCount)
+          var mismatchCount = _format.GetNumberOfMismatch(parts);
+          if (mismatchCount > _options.MaximumMismatch)
           {
             continue;
           }
 
           bool isReversed = flag.HasFlag(SAMFlags.QueryOnReverseStrand);
           char strand;
-          if(isReversed)
+          if (isReversed)
           {
-            strand  ='-';
+            strand = '-';
             seq = SequenceUtils.GetReverseComplementedSequence(seq);
           }
-          else{
+          else
+          {
             strand = '+';
           }
 
-          var score = format.GetAlignmentScore(parts);
+          var score = _format.GetAlignmentScore(parts);
 
           var sam = new T()
           {
@@ -129,63 +123,24 @@ namespace CQS.Genome.Mapping
             Cigar = parts[SAMFormatConst.CIGAR_INDEX],
             NumberOfMismatch = mismatchCount,
             AlignmentScore = score,
-            MismatchPositions = format.GetMismatchPositions(parts)
+            MismatchPositions = _format.GetMismatchPositions(parts)
           };
 
           loc.ParseEnd(sam.Sequence);
           sam.AddLocation(loc);
 
-          if (format.HasAlternativeHits)
+          if (_format.HasAlternativeHits)
           {
-            format.ParseAlternativeHits(parts, sam);
+            _format.ParseAlternativeHits(parts, sam);
           }
 
-          samlist.Add(sam);
+          result.Add(sam);
 
           waitingcount++;
-
-          if (waitingcount % 100000 == 0)
-          {
-            Progress.SetMessage("{0} candidates from {1} reads", waitingcount, count);
-          }
         }
+
+        Progress.SetMessage("Finally, there are {0} candidates from {1} reads", waitingcount, count);
       }
-
-      return DoAddCompleted(samlist);
-    }
-
-    protected virtual List<T> DoAddCompleted<T>(List<T> samlist) where T : SAMAlignedItem, new()
-    {
-      if (options.GetSAMFormat().HasAlternativeHits || samlist.Count == 0)
-      {
-        return samlist;
-      }
-
-      Progress.SetMessage("Sorting mapped reads by name...");
-      SAMUtils.SortByName(samlist);
-      Progress.SetMessage("Sorting mapped reads by name finished...");
-
-      var result = new List<T>();
-      result.Add(samlist[0]);
-      T last = samlist[0];
-
-      for (int i = 1; i < samlist.Count; i++)
-      {
-        var sam = samlist[i];
-        if (!last.Qname.Equals(sam.Qname))
-        {
-          last = sam;
-          result.Add(last);
-        }
-        else
-        {
-          last.AddLocations(sam.Locations);
-          sam.ClearLocations();
-        }
-      }
-
-      samlist.Clear();
-      samlist = null;
 
       return result;
     }

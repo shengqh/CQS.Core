@@ -21,7 +21,7 @@ namespace CQS.Genome.Annotation
       Console.WriteLine("reading rnaediting database " + database + " ...");
       this.items = new DarnedReader().ReadFromFile(database);
       Console.WriteLine("reading rnaediting database " + database + " finished.");
-      this.maps = CollectionUtils.ToGroupDictionary(items, m => keyFunc(m.Chrom, m.Coordinate));
+      this.maps = CollectionUtils.ToGroupDictionary(items, m => keyFunc(m.Chrom.StringAfter("chr"), m.Coordinate));
       Console.WriteLine("rnaediting directionary built.");
       this.header = (from m in new string[] { "strand", "inchr", "inrna", "gene", "seqReg", "exReg", "source", "PubMedID" }
                      let n = "rnaediting_" + m

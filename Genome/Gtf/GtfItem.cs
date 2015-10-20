@@ -22,6 +22,8 @@ namespace CQS.Genome.Gtf
     private static Regex geneIdReg = new Regex("gene_id\\s\"(.+?)\"");
     private static Regex transcriptIdReg = new Regex("transcript_id\\s\"(.+?)\"");
     private static Regex exonNumberReg = new Regex("exon_number\\s\"(.+?)\"");
+    private static Regex geneNameReg = new Regex("gene_name\\s\"(.+?)\"");
+    private static Regex geneBiotypeReg = new Regex("gene_biotype\\s\"(.+?)\"");
 
     /// <summary>
     /// The name of the sequence. Commonly, this is the chromosome ID or contig ID. 
@@ -107,13 +109,10 @@ namespace CQS.Genome.Gtf
     public string GeneId { get; set; }
 
     /// <summary>
-    /// alias of GeneId
+    /// parsing from [Attributes]
+    /// gene_name value
     /// </summary>
-    public string Name
-    {
-      get { return GeneId; }
-      set { GeneId = value; }
-    }
+    public string Name { get; set; }
 
     /// <summary>
     /// parsing from [Attributes]
@@ -149,6 +148,7 @@ namespace CQS.Genome.Gtf
         GeneId = GetRegexValue(geneIdReg, value);
         TranscriptId = GetRegexValue(transcriptIdReg, value);
         ExonNumber = int.Parse(GetRegexValue(exonNumberReg, value, "0"));
+        Name = GetRegexValue(geneNameReg, value);
       }
     }
 
@@ -163,10 +163,11 @@ namespace CQS.Genome.Gtf
       this.Strand = '.';
       this.Frame = '.';
       this._attributes = string.Empty;
-      this.GeneId = "";
+      this.GeneId = string.Empty;
       this.TranscriptId = string.Empty;
       this.ExonNumber = -1;
       this.Sequence = string.Empty;
+      this.Name = string.Empty;
     }
 
     public GtfItem(ISequenceRegion source)
@@ -251,6 +252,23 @@ namespace CQS.Genome.Gtf
         Strand,
         Frame,
         Attributes);
+    }
+
+    public string GetBiotype()
+    {
+      return GetRegexValue(geneBiotypeReg, this.Attributes);
+    }
+
+    public string GetNameExon()
+    {
+      if (this.ExonNumber == 0)
+      {
+        return this.Name;
+      }
+      else
+      {
+        return this.Name + ":exon" + this.ExonNumber.ToString();
+      }
     }
   }
 }

@@ -23,7 +23,7 @@ namespace CQS.Genome.Sam
                        let files = Directory.GetFiles(dir, "*.stat")
                        where files.Length > 0
                        from file in files
-                       let refile = file.Substring(rootdir.Length+1)
+                       let refile = file.Substring(rootdir.Length + 1)
                        select new
                        {
                          File = file,
@@ -32,25 +32,34 @@ namespace CQS.Genome.Sam
 
       using (StreamWriter sw = new StreamWriter(_options.OutputFile))
       {
-        sw.WriteLine("Path\tName\tTotal\tMapped\tMappedRate\tLReads\tRReads\tPairs\tAlignedPairs\tAlignedPairDiscordant");
+        sw.WriteLine("Path{0}\tTotal\tMapped\tMappedRate\tLReads\tRReads\tPairs\tAlignedPairs\tAlignedPairDiscordant",
+          _options.ExcludeFileName ? "" : "\tName");
         foreach (var file in statFiles)
         {
           var lines = File.ReadAllLines(file.File);
-          sw.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}%\t{5}\t{6}\t{7}\t{8}\t{9}",
-            Path.GetDirectoryName(file.Name),
-            Path.GetFileName(file.Name),
-            lines[0].StringBefore("+").Trim(),
-            lines[2].StringBefore("+").Trim(),
-            lines[2].StringAfter("(").StringBefore("%").Trim(),
-            lines[4].StringBefore("+").Trim(),
-            lines[5].StringBefore("+").Trim(),
-            lines[3].StringBefore("+").Trim(),
-            lines[6].StringAfter("(").StringBefore("%").Trim(),
-            lines[9].StringBefore("+").Trim());
+          sw.Write("{0}", Path.GetDirectoryName(file.Name));
+          if (!_options.ExcludeFileName)
+          {
+            sw.Write("\t{0}", Path.GetFileName(file.Name));
+          }
+          sw.WriteLine("\t{0}\t{1}\t{2}%\t{3}\t{4}\t{5}\t{6}%\t{7}",
+            FindLine(lines, " in total ").StringBefore("+").Trim(),
+            FindLine(lines, " mapped ").StringBefore("+").Trim(),
+            FindLine(lines, " mapped ").StringAfter("(").StringBefore("%").Trim(),
+            FindLine(lines, " read1").StringBefore("+").Trim(),
+            FindLine(lines, " read2").StringBefore("+").Trim(),
+            FindLine(lines, " paired in sequencing").StringBefore("+").Trim(),
+            FindLine(lines, " properly paired").StringAfter("(").StringBefore("%").Trim(),
+            FindLine(lines, " mapped to a different chr").StringBefore("+").Trim());
         }
       }
 
       return new[] { _options.OutputFile };
+    }
+
+    private static string FindLine(string[] lines, string key)
+    {
+      return lines.Where(l => l.Contains(key)).First();
     }
   }
 }

@@ -34,7 +34,7 @@ namespace CQS.Genome.Pileup
 
     private void GetChromosomes(string normalFile)
     {
-      using (var file = SAMFactory.GetReader(normalFile, options.Samtools))
+      using (var file = SAMFactory.GetReader(normalFile, false))
       {
         var headers = file.ReadHeaders();
         this.Chromosomes = (from h in headers

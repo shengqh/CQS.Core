@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace CQS.Genome.Gtf
 {
@@ -46,7 +48,8 @@ namespace CQS.Genome.Gtf
         Score = parts[5],
         Strand = parts[6][0],
         Frame = parts[7][0],
-        Attributes = parts[8]
+        Attributes = parts.Length == 9 ? parts[8] : parts.Skip(8).Merge(" ")
+
       };
     }
 

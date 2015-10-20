@@ -30,7 +30,7 @@ namespace CQS.Genome.Feature
           var list = reads.GroupBy(m => GetSequence(gstrand, m)).ToList().ConvertAll(m =>
           {
             var loc = (from item in g
-                       from mr in item.Mapped
+                       from mr in item.Locations
                        from l in mr.SamLocations
                        where GetSequence(gstrand, l.SamLocation.Parent).Equals(m.Key)
                        select l.SamLocation).First();
@@ -42,7 +42,7 @@ namespace CQS.Genome.Feature
             sw.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}\t{5}",
               index,
               g.DisplayName,
-              g.DisplayLocation,
+              g.DisplayLocations,
               read.Item.Key,
               read.Location.GetLocation(),
               read.Item.Sum(m => m.QueryCount));

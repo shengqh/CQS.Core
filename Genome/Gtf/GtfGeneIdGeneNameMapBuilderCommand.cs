@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using CommandLine;
 using System.IO;
-using CQS.Commandline;
+using RCPA.Commandline;
 
 namespace CQS.Genome.Gtf
 {

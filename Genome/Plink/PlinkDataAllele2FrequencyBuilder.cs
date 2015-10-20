@@ -56,7 +56,7 @@ namespace CQS.Genome.Plink
             count1++;
           }
         }
-        locus.Allele2Frequency = ((double)(count2)) / (count1 + count2);
+        locus.Allele1Frequency = ((double)(count2)) / (count1 + count2);
         locus.TotalSample = individualList.Count;
         locus.ValidSample = validSample;
       }

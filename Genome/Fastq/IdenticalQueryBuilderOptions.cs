@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using CQS.Commandline;
+using RCPA.Commandline;
 using CommandLine;
 using System.IO;
 
@@ -10,7 +10,7 @@ namespace CQS.Genome.Fastq
 {
   public class IdenticalQueryBuilderOptions : AbstractOptions
   {
-    private const int DEFAULT_MinimumReadLength = 12;
+    private const int DEFAULT_MinimumReadLength = 16;
     private const bool DEFAULT_OutputScores = false;
     private const bool DEFAULT_Gunzipped = false;
 

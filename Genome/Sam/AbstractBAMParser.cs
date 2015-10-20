@@ -8,6 +8,7 @@ using Bio;
 using Bio.IO.BAM;
 using Bio.IO.SAM;
 using Bio.Util;
+using ICSharpCode.SharpZipLib.GZip;
 
 namespace CQS.Genome.Sam
 {
@@ -337,7 +338,7 @@ namespace CQS.Genome.Sam
     /// <param name="outStream">Out stream.</param>
     private static void Decompress(Stream compressedStream, Stream outStream)
     {
-      using (var decompress = new GZipStream(compressedStream, CompressionMode.Decompress, true))
+      using (var decompress = new GZipInputStream(compressedStream))
       {
         decompress.CopyTo(outStream);
       }
@@ -657,14 +658,21 @@ namespace CQS.Genome.Sam
 
     #region Protected Methods
 
-    /// <summary>
-    ///   Disposes this object.
-    /// </summary>
-    /// <param name="disposing">If true disposes resourses held by this instance.</param>
+    public void Dispose()
+    {
+      Dispose(true);
+      GC.SuppressFinalize(this);
+    }
+
     protected virtual void Dispose(bool disposing)
     {
-      if (disposing)
+      if (!m_disposed)
       {
+        if (disposing)
+        {
+          // Release managed resources
+        }
+
         if (ReadStream != null)
         {
           ReadStream.Dispose();
@@ -676,21 +684,21 @@ namespace CQS.Genome.Sam
           _deCompressedStream.Dispose();
           _deCompressedStream = null;
         }
+
+        m_disposed = true;
       }
     }
+
+    ~AbstractBAMParser()
+    {
+      Dispose(false);
+    }
+
+    private bool m_disposed;
 
     #endregion
 
     #region Public Methods
-
-    /// <summary>
-    ///   Disposes resources if any.
-    /// </summary>
-    public void Dispose()
-    {
-      Dispose(true);
-      GC.SuppressFinalize(this);
-    }
 
     /// <summary>
     ///   Returns a boolean indicating whether the reader is reached end of file or not.

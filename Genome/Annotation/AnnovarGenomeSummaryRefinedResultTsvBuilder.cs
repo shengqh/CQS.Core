@@ -13,7 +13,7 @@ using NPOI.HSSF.Util;
 using NPOI.HSSF.UserModel;
 using NPOI.HPSF;
 using System.Text.RegularExpressions;
-using CQS.Commandline;
+using RCPA.Commandline;
 using CommandLine;
 using CQS.Genome.Statistics;
 using CQS.Genome.SomaticMutation;
@@ -154,6 +154,11 @@ namespace CQS.Genome.Annotation
           while ((line = sr.ReadLine()) != null)
           {
             var parts = line.Split('\t');
+            if (parts.Length < geneIndex)
+            {
+              break;
+            }
+
             var row = all.CreateRow(nRow++);
             for (int i = 0; i < geneIndex; i++)
             {

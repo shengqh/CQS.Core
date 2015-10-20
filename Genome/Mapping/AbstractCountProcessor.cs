@@ -13,65 +13,80 @@ using System.Collections.Concurrent;
 using System.Threading;
 using RCPA.Seq;
 using CQS.Genome.Mirna;
+using CQS.Genome.SmallRNA;
 
 namespace CQS.Genome.Mapping
 {
-  public abstract class AbstractCountProcessor<T> : AbstractThreadProcessor where T : CountProcessorOptions
+  public abstract class AbstractCountProcessor<T> : AbstractThreadProcessor where T : ICountProcessorOptions
   {
     protected T options;
+
+    private CountMap _counts;
+    public CountMap Counts
+    {
+      get
+      {
+        if (_counts == null)
+        {
+          Progress.SetMessage("Reading count map ...");
+          _counts = options.GetCountMap();
+          Progress.SetMessage("Reading count map done ...");
+        }
+        return _counts;
+      }
+    }
 
     protected AbstractCountProcessor(T options)
     {
       this.options = options;
     }
 
-    protected virtual List<SAMAlignedItem> ParseCandidates(string fileName, string outputFile, out int totalReadCount, out int mappedReadCount)
+    protected virtual List<SAMAlignedItem> ParseCandidates(string fileName, string outputFile, out HashSet<string> queryNames)
     {
-      Progress.SetMessage("processing file: " + fileName);
+      return ParseCandidates(new string[] { fileName }.ToList(), outputFile, out queryNames);
+    }
 
-      HashSet<string> totalQueryNames;
-      var cm = options.GetCountMap();
+    protected virtual List<SAMAlignedItem> ParseCandidates(IList<string> fileNames, string outputFile, out HashSet<string> queryNames)
+    {
       var candiateBuilder = GetCandidateBuilder();
 
-      var result = candiateBuilder.Build<SAMAlignedItem>(fileName, out totalQueryNames);
+      queryNames = new HashSet<string>();
 
-      result.ForEach(m =>
+      var result = new List<SAMAlignedItem>();
+      foreach (var fileName in fileNames)
       {
-        m.QueryCount = cm.GetCount(m.Qname);
-        m.SortLocations();
-      });
+        Progress.SetMessage("processing file: " + fileName);
 
-      if (options.MatchedFile)
-      {
-        Progress.SetMessage("output matched query details...");
-        new SAMAlignedItemFileFormat().WriteToFile(outputFile + ".matched", result);
+        HashSet<string> curQueryNames;
+        var curResult = candiateBuilder.Build<SAMAlignedItem>(fileName, out curQueryNames);
+
+        queryNames.UnionWith(curQueryNames);
+        result.AddRange(curResult);
       }
 
-      if (totalQueryNames.Count > 0 && totalQueryNames.First().Contains(MirnaConsts.NTA_TAG))
-      {
-        var qnames = (from q in totalQueryNames
-                      select q.StringBefore(MirnaConsts.NTA_TAG) + MirnaConsts.NTA_TAG).Distinct();
-        totalReadCount = qnames.Sum(m => cm.GetCount(m));
-        var rnames = (from r in result
-                      select r.Qname.StringBefore(MirnaConsts.NTA_TAG) + MirnaConsts.NTA_TAG).Distinct();
+      FilterAlignedItems(result);
 
-        mappedReadCount = rnames.Sum(m => cm.GetCount(m));
-      }
-      else
-      {
-        totalReadCount = totalQueryNames.Sum(m => cm.GetCount(m));
-        totalQueryNames.Clear();
-        mappedReadCount = result.Sum(m => m.QueryCount);
-      }
-      Console.WriteLine("total reads = {0}", totalReadCount);
-      Console.WriteLine("mapped reads = {0}", mappedReadCount);
+      FillReadCount(result);
+
+      result.ForEach(m => m.SortLocations());
 
       return result;
     }
 
-    protected string GetResultFilename(string fileName)
+    protected virtual void FillReadCount(List<SAMAlignedItem> result)
     {
-      return string.IsNullOrEmpty(options.OutputFile) ? Path.GetFullPath(fileName) + ".count" : Path.GetFullPath(options.OutputFile);
+      result.ForEach(m =>
+      {
+        m.QueryCount = Counts.GetCount(m.Qname, m.OriginalQname);
+      });
+    }
+
+    protected virtual void FilterAlignedItems(List<SAMAlignedItem> result)
+    {
+      if (result.Any(l => l.Qname.Contains(SmallRNAConsts.NTA_TAG)))
+      {
+        result.ForEach(l => l.OriginalQname = l.Qname.StringBefore(SmallRNAConsts.NTA_TAG));
+      }
     }
 
     protected virtual ICandidateBuilder GetCandidateBuilder()

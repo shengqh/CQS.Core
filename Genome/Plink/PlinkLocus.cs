@@ -53,7 +53,7 @@ namespace CQS.Genome.Plink
 
     public int ValidSample { get; set; }
 
-    public double Allele2Frequency { get; set; }
+    public double Allele1Frequency { get; set; }
 
     public bool FromImputation { get; set; }
 
@@ -100,7 +100,7 @@ namespace CQS.Genome.Plink
 
           if (hasAllele2Freqency)
           {
-            locus.Allele2Frequency = double.Parse(parts[index++]);
+            locus.Allele1Frequency = double.Parse(parts[index++]);
             locus.TotalSample = int.Parse(parts[index++]);
             locus.ValidSample = int.Parse(parts[index++]);
           }
@@ -160,10 +160,25 @@ namespace CQS.Genome.Plink
       return result;
     }
 
-    public static void WriteToFile(string fileName, List<PlinkLocus> items, bool exportPlatform = false, bool exportAllele2Freqency = false)
+    public static void WriteToFile(string fileName, List<PlinkLocus> items, bool exportPlatform = false, bool exportAllele2Freqency = false, bool exportHeader = false)
     {
       using (var sw = new StreamWriter(fileName))
       {
+        if (exportHeader)
+        {
+          sw.Write("Chromosome\tMarkerId\tGeneticDistance\tPhysicalPosition\tAllele1\tAllele2");
+          if (exportPlatform)
+          {
+            sw.Write("\tPlatform\tValidPlatformCount");
+          }
+
+          if (exportAllele2Freqency)
+          {
+            sw.Write("\tAllele1Frequency\tValidSample\tTotalSample\tMissRate");
+          }
+          sw.WriteLine();
+        }
+
         foreach (var locus in items)
         {
           sw.Write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}",
@@ -180,7 +195,7 @@ namespace CQS.Genome.Plink
 
           if (exportAllele2Freqency)
           {
-            sw.Write("\t{0:0.000}\t{1}\t{2}", locus.Allele2Frequency, locus.TotalSample, locus.ValidSample);
+            sw.Write("\t{0:0.000}\t{1}\t{2}\t{3:0.###}", locus.Allele1Frequency, locus.ValidSample, locus.TotalSample, (locus.TotalSample - locus.ValidSample) * 1.0 / locus.TotalSample);
           }
 
           sw.WriteLine();

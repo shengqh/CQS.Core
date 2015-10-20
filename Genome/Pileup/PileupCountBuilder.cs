@@ -5,7 +5,7 @@ using System.Text;
 using RCPA;
 using CQS.Genome.Sam;
 using Bio.IO.SAM;
-using CQS.Commandline;
+using RCPA.Commandline;
 using CommandLine;
 using System.IO;
 using CQS.Genome.Mirna;
@@ -71,7 +71,7 @@ namespace CQS.Genome.Pileup
     options.MinimumAlternativeAlleleFrequency,
     Path.GetFileNameWithoutExtension(options.InputFile));
 
-          using (var sr = SAMFactory.GetReader(options.InputFile, options.Samtools, true))
+          using (var sr = SAMFactory.GetReader(options.InputFile, true))
           {
             int count = 0;
             string line;

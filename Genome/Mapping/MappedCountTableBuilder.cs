@@ -11,7 +11,7 @@ using CQS.Genome.Bed;
 using CQS.Genome.Fastq;
 using System.Collections.Concurrent;
 using System.Threading;
-using CQS.Commandline;
+using RCPA.Commandline;
 using CommandLine;
 using System.Text.RegularExpressions;
 using CQS.Genome.Mirna;
@@ -33,6 +33,11 @@ namespace CQS.Genome.Mapping
 
       var features = counts.Parse(options, m => SmallRNAUtils.SortNames(m));
 
+      var featureCounts = (from feature in features
+                           let count = MathNet.Numerics.Statistics.Statistics.Median(from c in counts
+                                                                                     select c.DisplayNameGroupMap.ContainsKey(feature) ? c.DisplayNameGroupMap[feature].EstimateCount : 0)
+                           select new { Feature = feature, Count = count }).OrderByDescending(m => m.Count).ToList();
+
       using (StreamWriter sw = new StreamWriter(options.OutputFile))
       {
         sw.Write("Feature\tLocation");
@@ -46,11 +51,12 @@ namespace CQS.Genome.Mapping
 
         sw.WriteLine("\t" + (from c in counts select c.ItemName).Merge("\t"));
 
-        foreach (var feature in features)
+        foreach (var fc in featureCounts)
         {
+          var feature = fc.Feature;
           var first = counts.FirstOrDefault(m => m.DisplayNameGroupMap.ContainsKey(feature));
           var item = first.DisplayNameGroupMap[feature];
-          sw.Write(feature + "\t" + item.DisplayLocation);
+          sw.Write(feature + "\t" + item.DisplayLocations);
           if (hassequence)
           {
             sw.Write("\t" + item.DisplaySequence);

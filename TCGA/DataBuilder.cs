@@ -27,14 +27,14 @@ namespace CQS.TCGA
       return barcode.Substring(0, 12);
     }
 
-    public void ExtractData(string datatype, string platform)
+    public void ExtractData(string datatype, string platform, bool outputCountDataOnly = false)
     {
-      ExtractData(datatype, new string[] { platform });
+      ExtractData(datatype, new string[] { platform }, outputCountDataOnly);
     }
 
-    public void ExtractData(string datatype, string[] platforms)
+    public void ExtractData(string datatype, string[] platforms, bool outputCountDataOnly = false)
     {
-      TCGAUtils.ExtractData(TCGARoot, TargetDirectory, TargetFilePrefix, Tumors, datatype, platforms, SampleCodes);
+      TCGAUtils.ExtractData(TCGARoot, TargetDirectory, TargetFilePrefix, Tumors, datatype, platforms, SampleCodes, outputCountDataOnly);
     }
   }
 }

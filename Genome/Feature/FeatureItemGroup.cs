@@ -9,7 +9,7 @@ namespace CQS.Genome.Feature
 {
   public class FeatureItemGroup : List<FeatureItem>
   {
-    private string _displayLocation;
+    private string _displayLocations;
     private string _displayName;
     private string _queryNames = string.Empty;
 
@@ -35,6 +35,11 @@ namespace CQS.Genome.Feature
       get { return this.Sum(m => m.EstimateCount); }
     }
 
+    public double GetEstimateCount(Func<FeatureSamLocation, bool> accept)
+    {
+      return this.Sum(m => m.GetEstimateCount(accept));
+    }
+
     public string DisplayName
     {
       get
@@ -49,26 +54,32 @@ namespace CQS.Genome.Feature
       set { _displayName = value; }
     }
 
-    public string DisplayLocation
+    public string DisplayLocations
     {
       get
       {
-        if (!string.IsNullOrEmpty(_displayLocation))
+        if (!string.IsNullOrEmpty(_displayLocations))
         {
-          return _displayLocation;
+          return _displayLocations;
         }
         return (from id in this
-                select id.Locations).Merge(";");
+                select id.DisplayLocations).Merge(";");
       }
-      set { _displayLocation = value; }
+      set { _displayLocations = value; }
     }
 
     public string DisplaySequence
     {
       get
       {
-        return (from id in this
-                select id.Sequence).Merge(";");
+        if (this.All(l => string.IsNullOrEmpty(l.Sequence)))
+        {
+          return string.Empty;
+        }
+        else
+        {
+          return (from id in this select id.Sequence).Merge(";");
+        }
       }
     }
 
@@ -89,7 +100,7 @@ namespace CQS.Genome.Feature
       get
       {
         return (from id in this
-                from pos in id.Mapped
+                from pos in id.Locations
                 from l in pos.SamLocations
                 select l.SamLocation.Parent).Distinct().Sum(m => m.QueryCount);
       }
@@ -103,7 +114,7 @@ namespace CQS.Genome.Feature
     public List<SamAlignedLocation> GetAlignedLocations()
     {
       return (from id in this
-              from pos in id.Mapped
+              from pos in id.Locations
               from q in pos.SamLocations
               select q.SamLocation).Distinct().OrderBy(m => m.Parent.Qname).ToList();
     }
@@ -111,7 +122,7 @@ namespace CQS.Genome.Feature
     public void InitializeQueryNames()
     {
       _queryNames = (from id in this
-                     from pos in id.Mapped
+                     from pos in id.Locations
                      from l in pos.SamLocations
                      select l.SamLocation.Parent.Qname).Distinct().OrderBy(l => l).Merge(";");
     }
@@ -130,7 +141,7 @@ namespace CQS.Genome.Feature
     {
       foreach (var m in items)
       {
-        m.ForEach(n => n.Mapped.ForEach(l => l.SamLocations.RemoveAll(g => g.SamLocation.Parent.Qname.Equals(qname))));
+        m.ForEach(n => n.Locations.ForEach(l => l.SamLocations.RemoveAll(g => g.SamLocation.Parent.Qname.Equals(qname))));
       }
     }
 

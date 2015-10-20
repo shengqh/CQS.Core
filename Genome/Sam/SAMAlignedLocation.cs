@@ -30,18 +30,6 @@ namespace CQS.Genome.Sam
 
     public string Qual { get; set; }
 
-    public long Offset(ISequenceRegion region)
-    {
-      if (region.Strand == '+')
-      {
-        return this.Start - region.Start;
-      }
-      else
-      {
-        return this.End - region.End;
-      }
-    }
-
     /// <summary>
     /// Alignment score, parsed from option values
     /// </summary>
@@ -51,6 +39,11 @@ namespace CQS.Genome.Sam
     /// Number of mismatch, parsed from option values
     /// </summary>
     public int NumberOfMismatch { get; set; }
+
+    /// <summary>
+    /// Number of non-penalty mutation, such like T to C, or A to G, parsed from gsnap result
+    /// </summary>
+    public int NumberOfNoPenaltyMutation { get; set; }
 
     /// <summary>
     /// Mismatch positions, parsed from option values
@@ -77,9 +70,9 @@ namespace CQS.Genome.Sam
       return GetKey(Parent.Qname, this.GetLocation());
     }
 
-    private static Regex mismatch = new Regex(@"(\d+)(\S)");
+    private static Regex mismatch = new Regex(@"(\d+)([^\d]+)");
 
-    public SingleNucleotidePolymorphism GetMutation(string querySequence)
+    public SingleNucleotidePolymorphism GetNotGsnapMismatch(string querySequence)
     {
       if (this.NumberOfMismatch == 0)
       {
@@ -102,6 +95,40 @@ namespace CQS.Genome.Sam
 
       return new SingleNucleotidePolymorphism(pos, chr, detectedChr);
     }
+
+    private List<SingleNucleotidePolymorphism> gsnapMismatches = null;
+
+    public List<SingleNucleotidePolymorphism> GetGsnapMismatches()
+    {
+      if (this.gsnapMismatches != null)
+      {
+        return gsnapMismatches;
+      }
+
+      this.gsnapMismatches = new List<SingleNucleotidePolymorphism>();
+      if (this.NumberOfMismatch == 0 && this.NumberOfNoPenaltyMutation == 0)
+      {
+        return this.gsnapMismatches;
+      }
+
+      var seq = Parent.Sequence;
+      var mis = mismatch.Match(this.MismatchPositions);
+      int pos = 0;
+      while (mis.Success)
+      {
+        var curcount = int.Parse(mis.Groups[1].Value);
+        var mismatches = mis.Groups[2].Value;
+        pos += curcount;
+        for (int i = 0; i < mismatches.Length; i++)
+        {
+          this.gsnapMismatches.Add(new SingleNucleotidePolymorphism(pos + i, mismatches[i], seq[pos + i]));
+        }
+        pos += mismatches.Length;
+        mis = mis.NextMatch();
+      }
+
+      return this.gsnapMismatches;
+    }
   }
 
   public static class SAMAlignedLocationExtension
@@ -110,9 +137,24 @@ namespace CQS.Genome.Sam
     {
       var items = root.ToSAMAlignedItems();
 
-      return (from item in items
-              from loc in item.Locations
-              select loc).ToDictionary(m => m.GetKey());
+      var result = new Dictionary<string, SamAlignedLocation>();
+      foreach (var item in items)
+      {
+        foreach (var loc in item.Locations)
+        {
+          var key = loc.GetKey();
+          if (result.ContainsKey(key))
+          {
+            Console.WriteLine("Duplicated key {0}", key);
+          }
+          else
+          {
+            result[key] = loc;
+          }
+        }
+      }
+
+      return result;
     }
 
     public static Dictionary<string, SAMAlignedItem> ToSAMAlignedItemMap(this XElement root)
