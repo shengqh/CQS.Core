@@ -31,7 +31,7 @@ namespace CQS.Genome.SomaticMutation
 
     private static Regex GetFileRegex(char separator)
     {
-      return new Regex(string.Format(@"(.+){0}(\d+){0}([a-zA-Z]){0}([a-zA-Z]){0}([a-zA-Z]){0}(\d+){0}(\d+){0}(\d+){0}(\d+)([^{0}]+)(.*)", separator));
+      return new Regex(string.Format(@"(.+){0}(\d+){0}([a-zA-Z]){0}([a-zA-Z]){0}([a-zA-Z]){0}(\d+){0}(\d+){0}(\d+){0}(\d+){0}([^{0}]+)(.*)", separator));
     }
 
     private static Dictionary<char, Regex> fileRegMap =  new Dictionary<char,Regex>();
