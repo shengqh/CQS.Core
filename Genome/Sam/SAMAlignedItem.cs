@@ -460,7 +460,25 @@ namespace CQS.Genome.Sam
       position += count;
     }
 
-    public string OriginalQname { get; set; }
+    private string _originalQname;
+    public string OriginalQname
+    {
+      get
+      {
+        if (string.IsNullOrWhiteSpace(_originalQname))
+        {
+          return Qname;
+        }
+        else
+        {
+          return _originalQname;
+        }
+      }
+      set
+      {
+        _originalQname = value;
+      }
+    }
   }
 
   public static class SAMAlignedItemExtension

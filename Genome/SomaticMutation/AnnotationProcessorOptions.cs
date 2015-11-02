@@ -142,20 +142,22 @@ namespace CQS.Genome.SomaticMutation
         {
           ParsingErrors.Add(string.Format("--annovar_databasedir : directory not exists : {0}", this.AnnovarDatabaseDirectory));
         }
-
-        var files = Directory.GetFiles(this.AnnovarDatabaseDirectory, this.AnnovarBuildVersion + "*");
-        if (files.Length == 0)
+        else
         {
-          ParsingErrors.Add(string.Format("--annovar_databasedir : there is no annovar database {0} in directory {1}", this.AnnovarBuildVersion, this.AnnovarDatabaseDirectory));
-        }
+          var files = Directory.GetFiles(this.AnnovarDatabaseDirectory, this.AnnovarBuildVersion + "*");
+          if (files.Length == 0)
+          {
+            ParsingErrors.Add(string.Format("--annovar_databasedir : there is no annovar database {0} in directory {1}", this.AnnovarBuildVersion, this.AnnovarDatabaseDirectory));
+          }
 
-        if (this.AnnovarSetDefault)
-        {
-          set.Parameters["databasedir"] = this.AnnovarDatabaseDirectory;
-          set.Parameters["protocol"] = this.AnnovarProtocol;
-          set.Parameters["operation"] = this.AnnovarOperation;
-          annovar.DefaultParameterSet = this.AnnovarBuildVersion;
-          this.Config.Save();
+          if (this.AnnovarSetDefault)
+          {
+            set.Parameters["databasedir"] = this.AnnovarDatabaseDirectory;
+            set.Parameters["protocol"] = this.AnnovarProtocol;
+            set.Parameters["operation"] = this.AnnovarOperation;
+            annovar.DefaultParameterSet = this.AnnovarBuildVersion;
+            this.Config.Save();
+          }
         }
       }
 

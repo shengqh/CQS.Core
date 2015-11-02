@@ -26,7 +26,9 @@ namespace CQS.Genome.Parclip
       }.Build(options.InputFile);
 
       groups.Sort((m1, m2) => m1[0].Locations[0].PValue.CompareTo(m2[0].Locations[0].PValue));
-      new FeatureItemGroupXmlFormat(true).WriteToFile(options.OutputFile + ".unfiltered.xml", groups);
+      var unfiltered = Path.ChangeExtension(options.OutputFile, "") + "unfiltered" + Path.GetExtension(options.OutputFile);
+      new FeatureItemGroupT2CWriter(options.ExpectRate).WriteToFile(unfiltered, groups);
+      new FeatureItemGroupXmlFormat(true).WriteToFile(unfiltered + ".xml", groups);
 
       groups.RemoveByLocation(m => m.PValue > options.PValue);
       Progress.SetMessage("There are {0} groups containing T2C mutation with pValue < {1}", groups.Count, options.PValue);

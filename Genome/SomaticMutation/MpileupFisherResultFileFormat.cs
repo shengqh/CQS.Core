@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace CQS.Genome.SomaticMutation
 {
@@ -26,32 +27,53 @@ namespace CQS.Genome.SomaticMutation
       return result;
     }
 
+    //4_JH584292_random_13694_T_T_G_49_0_37_6_8.5E-03
+
+    private static Regex GetFileRegex(char separator)
+    {
+      return new Regex(string.Format(@"(.+){0}(\d+){0}([a-zA-Z]){0}([a-zA-Z]){0}([a-zA-Z]){0}(\d+){0}(\d+){0}(\d+){0}(\d+)([^{0}]+)(.*)", separator));
+    }
+
+    private static Dictionary<char, Regex> fileRegMap =  new Dictionary<char,Regex>();
+
     public static MpileupFisherResult ParseString(string line, char separator = '_')
     {
+      Regex reg;
+      if (!fileRegMap.TryGetValue(separator, out reg))
+      {
+        reg = GetFileRegex(separator);
+        fileRegMap[separator] = reg;
+      }
+
       var result = new MpileupFisherResult();
       try
       {
-        var parts = line.Split(separator);
+        var m = reg.Match(line);
+        if (!m.Success)
+        {
+          throw new Exception(string.Format("Cannot parse fisher result from {0}", line));
+        }
         result.Item = new PileupItem()
         {
-          SequenceIdentifier = parts[0],
-          Position = long.Parse(parts[1]),
-          Nucleotide = parts[2][0]
+          SequenceIdentifier = m.Groups[1].Value,
+          Position = long.Parse(m.Groups[2].Value),
+          Nucleotide = m.Groups[3].Value[0]
         };
         result.Group = new FisherExactTestResult()
         {
-          SucceedName = parts[3],
-          FailedName = parts[4],
+          SucceedName = m.Groups[4].Value,
+          FailedName = m.Groups[5].Value,
         };
-        result.Group.Sample1.Succeed = int.Parse(parts[5]);
-        result.Group.Sample1.Failed = int.Parse(parts[6]);
-        result.Group.Sample2.Succeed = int.Parse(parts[7]);
-        result.Group.Sample2.Failed = int.Parse(parts[8]);
-        result.Group.PValue = double.Parse(parts[9]);
-        if (parts.Length > 10)
+        result.Group.Sample1.Succeed = int.Parse(m.Groups[6].Value);
+        result.Group.Sample1.Failed = int.Parse(m.Groups[7].Value);
+        result.Group.Sample2.Succeed = int.Parse(m.Groups[8].Value);
+        result.Group.Sample2.Failed = int.Parse(m.Groups[9].Value);
+        result.Group.PValue = double.Parse(m.Groups[10].Value);
+        result.FailedReason = m.Groups[11].Value;
+        if (!string.IsNullOrWhiteSpace(result.FailedReason))
         {
-          result.FailedReason = parts[10];
-          Console.WriteLine("Failed reason = " + result.FailedReason);
+          result.FailedReason = result.FailedReason.Substring(1);
+          //Console.WriteLine("Failed reason = " + result.FailedReason);
         }
       }
       catch (Exception ex)

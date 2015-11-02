@@ -74,8 +74,9 @@ namespace CQS.Genome.SmallRNA
         var mirnaGroups = featureMapped.Where(m => m.Name.StartsWith(SmallRNAConsts.miRNA)).GroupBySequence();
         if (mirnaGroups.Count > 0)
         {
-          Progress.SetMessage("writing miRNA count ...");
           OrderFeatureItemGroup(mirnaGroups);
+
+          Progress.SetMessage("writing miRNA count ...");
 
           var mirnaCountFile = Path.ChangeExtension(resultFilename, "." + SmallRNAConsts.miRNA + ".count");
           new SmallRNACountMicroRNAWriter(options.Offsets).WriteToFile(mirnaCountFile, mirnaGroups);
@@ -86,10 +87,11 @@ namespace CQS.Genome.SmallRNA
         var trnaGroups = featureMapped.Where(m => m.Name.StartsWith(SmallRNAConsts.tRNA)).GroupByIdenticalQuery();
         if (trnaGroups.Count > 0)
         {
+          OrderFeatureItemGroup(trnaGroups);
+
           Progress.SetMessage("writing tRNA count ...");
           var trnaCountFile = Path.ChangeExtension(resultFilename, "." + SmallRNAConsts.tRNA + ".count");
 
-          OrderFeatureItemGroup(trnaGroups);
           new FeatureItemGroupCountWriter().WriteToFile(trnaCountFile, trnaGroups);
           result.Add(trnaCountFile);
 
@@ -99,12 +101,15 @@ namespace CQS.Genome.SmallRNA
         var otherGroups = featureMapped.Where(m => !m.Name.StartsWith(SmallRNAConsts.miRNA) && !m.Name.StartsWith(SmallRNAConsts.tRNA)).GroupByIdenticalQuery();
         if (otherGroups.Count > 0)
         {
-          Progress.SetMessage("writing other smallRNA count ...");
-          var otherCountFile = Path.ChangeExtension(resultFilename, ".other.count");
-
           OrderFeatureItemGroup(otherGroups);
-          new FeatureItemGroupCountWriter().WriteToFile(otherCountFile, otherGroups);
-          result.Add(otherCountFile);
+
+          if (mirnaGroups.Count > 0 || trnaGroups.Count > 0)
+          {
+            Progress.SetMessage("writing other smallRNA count ...");
+            var otherCountFile = Path.ChangeExtension(resultFilename, ".other.count");
+            new FeatureItemGroupCountWriter().WriteToFile(otherCountFile, otherGroups);
+            result.Add(otherCountFile);
+          }
 
           allmapped.AddRange(otherGroups);
         }

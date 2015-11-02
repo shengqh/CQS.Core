@@ -16,6 +16,46 @@ namespace CQS.Genome
       return GetKey(getChr(obj), getPos(obj));
     }
 
+    public static int CompareChromosome(string chr1, string chr2)
+    {
+      int chrNumber1, chrNumber2;
+
+      var n1 = int.TryParse(chr1, out chrNumber1);
+      var n2 = int.TryParse(chr2, out chrNumber2);
+
+      if (n1)
+      {
+        if (n2)
+        {
+          return chrNumber1.CompareTo(chrNumber2);
+        }
+        else
+        {
+          return -1;
+        }
+      }
+      else if (n2)
+      {
+        return 1;
+      }
+      else if (chr1.Equals(chr2))
+      {
+        return 0;
+      }
+      else if (chr1.Equals("M") || chr1.Equals("MT"))
+      {
+        return 1;
+      }
+      else if (chr2.Equals("M") || chr2.Equals("MT"))
+      {
+        return -1;
+      }
+      else
+      {
+        return chr1.CompareTo(chr2);
+      }
+    }
+
     public static void SortChromosome<T>(List<T> items, Func<T, string> getChromosome, Func<T, long> getPosition)
     {
       var trychr = -1;

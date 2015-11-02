@@ -157,6 +157,9 @@
     <Compile Include="Genome\Bed\BedSorterOptions.cs" />
     <Compile Include="Genome\CNV\CNVItemTableBuilder.cs" />
     <Compile Include="Genome\CNV\CNVItemTableBuilderOptions.cs" />
+    <Compile Include="Genome\Database\DatabaseReorderProcessor.cs" />
+    <Compile Include="Genome\Database\DatabaseReorderProcessorCommand.cs" />
+    <Compile Include="Genome\Database\DatabaseReorderProcessorOptions.cs" />
     <Compile Include="Genome\Depth\DepthProcessor.cs" />
     <Compile Include="Genome\Depth\DepthProcessorCommand.cs" />
     <Compile Include="Genome\Depth\DepthProcessorOptions.cs" />
@@ -400,6 +403,8 @@
     <Compile Include="Genome\SomaticMutation\SomaticMutationUtils.cs" />
     <Compile Include="Genome\SomaticMutation\Options.cs" />
     <Compile Include="Genome\SomaticMutation\PileupProcessorOptions.cs" />
+    <Compile Include="Genome\TNBC\CallerResult.cs" />
+    <Compile Include="Genome\TNBC\CallerResultReader.cs" />
     <Compile Include="Genome\Tophat\TophatSummaryBuilderCommand.cs" />
     <Compile Include="Genome\Tophat\TophatSummaryBuilder.cs" />
     <Compile Include="Genome\Tophat\TophatSummaryBuilderOptions.cs" />

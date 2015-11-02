@@ -73,33 +73,13 @@ namespace CQS.Genome.QC
       {
         var targetrfile = datafile + ".r";
         var resultfile = datafile + ".png";
-        using (var sw = new StreamWriter(targetrfile))
-        {
-          sw.NewLine = "\n";
-          sw.WriteLine("outputdir<-\"{0}\"", Path.GetDirectoryName(Path.GetFullPath(options.OutputFile)).Replace("\\", "/"));
-          sw.WriteLine("inputfile<-\"{0}\"", Path.GetFileName(datafile));
-          sw.WriteLine("outputfile<-\"{0}\"", Path.GetFileName(resultfile));
-          string line = File.ReadAllText(rfile);
-          using (var sr = new StreamReader(rfile))
-          {
-            if (line.Contains("#predefine_end"))
-            {
-              while ((line = sr.ReadLine()) != null)
-              {
-                if (line.Contains("#predefine_end"))
-                {
-                  break;
-                }
-              }
-            }
 
-            while ((line = sr.ReadLine()) != null)
-            {
-              sw.WriteLine(line);
-            }
-          }
-        }
-        SystemUtils.Execute("R", "--vanilla --slave -f \"" + targetrfile + "\"");
+        var definitions = new List<string>();
+        definitions.Add(string.Format("outputdir<-\"{0}\"", Path.GetDirectoryName(Path.GetFullPath(options.OutputFile)).Replace("\\", "/")));
+        definitions.Add(string.Format("inputfile<-\"{0}\"", Path.GetFileName(datafile)));
+        definitions.Add(string.Format("outputfile<-\"{0}\"", Path.GetFileName(resultfile)));
+
+        RUtils.PerformRByTemplate(rfile, targetrfile, definitions);
 
         if (File.Exists(resultfile))
         {
@@ -149,33 +129,13 @@ namespace CQS.Genome.QC
       {
         var targetrfile = options.OutputFile + ".r";
         var resultfile = options.OutputFile + ".png";
-        using (var sw = new StreamWriter(targetrfile))
-        {
-          sw.NewLine = "\n";
-          sw.WriteLine("outputdir<-\"{0}\"", Path.GetDirectoryName(Path.GetFullPath(options.OutputFile)).Replace("\\", "/"));
-          sw.WriteLine("inputfile<-\"{0}\"", Path.GetFileName(options.OutputFile));
-          sw.WriteLine("outputfile<-\"{0}\"", Path.GetFileName(resultfile));
-          string line = File.ReadAllText(rfile);
-          using (var sr = new StreamReader(rfile))
-          {
-            if (line.Contains("#predefine_end"))
-            {
-              while ((line = sr.ReadLine()) != null)
-              {
-                if (line.Contains("#predefine_end"))
-                {
-                  break;
-                }
-              }
-            }
 
-            while ((line = sr.ReadLine()) != null)
-            {
-              sw.WriteLine(line);
-            }
-          }
-        }
-        SystemUtils.Execute("R", "--vanilla --slave -f \"" + targetrfile + "\"");
+        var definitions = new List<string>();
+        definitions.Add(string.Format("outputdir<-\"{0}\"", Path.GetDirectoryName(Path.GetFullPath(options.OutputFile)).Replace("\\", "/")));
+        definitions.Add(string.Format("inputfile<-\"{0}\"", Path.GetFileName(options.OutputFile)));
+        definitions.Add(string.Format("outputfile<-\"{0}\"", Path.GetFileName(resultfile)));
+
+        RUtils.PerformRByTemplate(rfile, targetrfile, definitions);
 
         if (File.Exists(resultfile))
         {

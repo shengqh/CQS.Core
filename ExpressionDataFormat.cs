@@ -10,9 +10,11 @@ namespace CQS
   public class ExpressionDataFormat<T> : IFileFormat<List<T>> where T : ExpressionData, new()
   {
     private int startColumn;
-    public ExpressionDataFormat(int startColumn = 1)
+    private char delimiter;
+    public ExpressionDataFormat(int startColumn = 1, char delimiter = '\t')
     {
       this.startColumn = startColumn;
+      this.delimiter = delimiter;
     }
 
     public virtual List<T> ReadFromFile(string fileName)
@@ -22,7 +24,7 @@ namespace CQS
       using (StreamReader sr = new StreamReader(fileName))
       {
         var line = sr.ReadLine();
-        var parts = line.Split('\t');
+        var parts = line.Split(delimiter);
         for (int i = startColumn; i < parts.Length; i++)
         {
           result.Add(new T() { SampleBarcode = parts[i] });
@@ -30,7 +32,7 @@ namespace CQS
 
         while ((line = sr.ReadLine()) != null)
         {
-          var values = line.Split('\t');
+          var values = line.Split(delimiter);
           for (int i = startColumn; i < values.Length; i++)
           {
             result[i - startColumn].Values.Add(new ExpressionValue()
