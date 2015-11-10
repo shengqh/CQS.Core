@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CQS.Genome.TNBC
 {
-  public enum TNBCSubtype { UNKNOWN, IM, BL1, MSL, M, BL2, LAR };
+  public enum TNBCSubtype { UNS, IM, BL1, MSL, M, BL2, LAR };
 
   public class CallerResultValue
   {
@@ -23,6 +23,8 @@ namespace CQS.Genome.TNBC
     public string Dataset { get; set; }
 
     public string Patient { get; set; }
+
+    public string Geneset { get; set; }
 
     public Dictionary<TNBCSubtype, CallerResultValue> Items { get; private set; }
 

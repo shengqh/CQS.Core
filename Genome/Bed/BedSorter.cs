@@ -30,10 +30,11 @@ namespace CQS.Genome.Bed
       var items = (from line in File.ReadAllLines(_options.InputFile)
                    where !string.IsNullOrWhiteSpace(line)
                    let parts = line.Split('\t')
-                   select new BedEntry (){ Seqname = parts[0], Start = int.Parse(parts[1]), End = int.Parse(parts[2]), Line = line }).ToList();
+                   select new BedEntry() { Seqname = parts[0], Start = int.Parse(parts[1]), End = int.Parse(parts[2]), Line = line }).ToList();
 
       var chrInBed = new List<string>();
-      foreach(var item in items){
+      foreach (var item in items)
+      {
         if (chrInBed.Contains(item.Seqname))
         {
           continue;
@@ -83,23 +84,16 @@ namespace CQS.Genome.Bed
       }
 
       Progress.SetMessage("Saving {0} entries to {1} ...", items.Count, _options.OutputFile);
-      if (!_options.VcfFormat)
+      using (var sw = new StreamWriter(_options.OutputFile))
       {
-        using (var sw = new StreamWriter(_options.OutputFile))
+        foreach (var chr in chrs)
         {
-          foreach (var chr in chrs)
+          var chrItems = items.Where(m => m.Seqname.Equals(chr)).OrderBy(m => m.Start).ToArray();
+          foreach (var item in chrItems)
           {
-            var chrItems = items.Where(m => m.Seqname.Equals(chr)).OrderBy(m => m.Start).ToArray();
-            foreach (var item in chrItems)
-            {
-              sw.WriteLine(item.Line);
-            }
+            sw.WriteLine(item.Line);
           }
         }
-      }
-      else
-      {
-
       }
 
       return new string[] { _options.OutputFile };

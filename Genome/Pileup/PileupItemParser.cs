@@ -22,9 +22,9 @@ namespace CQS.Genome.Pileup
 
     static PileupItemParser()
     {
-      Matches = new HashSet<char> {'.', ',', 'A', 'T', 'G', 'C', 'N', 'a', 't', 'g', 'c', 'n'};
+      Matches = new HashSet<char> { '.', ',', 'A', 'T', 'G', 'C', 'N', 'a', 't', 'g', 'c', 'n' };
 
-      Ignored = new HashSet<char> {'>', '<', '*'};
+      Ignored = new HashSet<char> { '>', '<', '*' };
     }
 
     /// <summary>
@@ -41,12 +41,12 @@ namespace CQS.Genome.Pileup
       _minBaseMappingQuality = minBaseMappingQuality;
       if (minBaseMappingQuality > 0)
       {
-        _minBaseMappingQualityChar = (char) (_minBaseMappingQuality + 33);
+        _minBaseMappingQualityChar = (char)(_minBaseMappingQuality + 33);
         _acceptScore = m => m.Score >= _minBaseMappingQuality;
       }
       else
       {
-        _minBaseMappingQualityChar = (char) 0;
+        _minBaseMappingQualityChar = (char)0;
         _acceptScore = m => true;
       }
 
@@ -91,7 +91,11 @@ namespace CQS.Genome.Pileup
     public PileupItem GetSequenceIdentifierAndPosition(string line)
     {
       var parts = line.Split('\t');
+      return GetSequenceIdentifierAndPosition(parts);
+    }
 
+    public PileupItem GetSequenceIdentifierAndPosition(string[] parts)
+    {
       var result = new PileupItem
       {
         SequenceIdentifier = parts[0],
@@ -104,7 +108,11 @@ namespace CQS.Genome.Pileup
     public PileupItem GetValue(string line)
     {
       var parts = line.Split('\t');
+      return GetValue(parts);
+    }
 
+    public PileupItem GetValue(string[] parts)
+    {
       if (!Accept(parts))
       {
         return null;
@@ -157,7 +165,7 @@ namespace CQS.Genome.Pileup
             pb.Position = PositionType.MIDDLE;
             ParseMatchBase(result, pbl, pb, seq, scores, positions, seqLength, ref baseIndex, ref scoreIndex);
           }
-            //A pattern ‘\+[0-9]+[ACGTNacgtn]+’ indicates there is an insertion between this reference position and the next reference position. The length of the insertion is given by the integer in the pattern, followed by the inserted sequence. Similarly, a pattern ‘-[0-9]+[ACGTNacgtn]+’ represents a deletion from the reference.
+          //A pattern ‘\+[0-9]+[ACGTNacgtn]+’ indicates there is an insertion between this reference position and the next reference position. The length of the insertion is given by the integer in the pattern, followed by the inserted sequence. Similarly, a pattern ‘-[0-9]+[ACGTNacgtn]+’ represents a deletion from the reference.
           else if (seq[baseIndex] == '+' || seq[baseIndex] == '-')
           {
             if (_ignoreInsertionDeletion)

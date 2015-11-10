@@ -79,6 +79,9 @@ namespace CQS.Genome.SomaticMutation
     [Option('o', "output", MetaValue = "STRING", Required = true, HelpText = "Output file suffix")]
     public string OutputSuffix { get; set; }
 
+    [Option("exclude_bed", MetaValue = "FILE", Required = false, HelpText = "Exclude the range in bed format file")]
+    public string ExcludeBedFile { get; set; }
+
     public string CandidatesDirectory
     {
       get { return GetOutputDirectory() + "/temp"; }
@@ -111,6 +114,12 @@ namespace CQS.Genome.SomaticMutation
     {
       if (!PrepareOutputDirectory())
       {
+        return false;
+      }
+
+      if (!string.IsNullOrWhiteSpace(ExcludeBedFile) && !File.Exists(ExcludeBedFile))
+      {
+        ParsingErrors.Add("Exclude file not exists:" + ExcludeBedFile);
         return false;
       }
 

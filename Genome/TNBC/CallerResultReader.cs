@@ -28,7 +28,7 @@ namespace CQS.Genome.TNBC
         ccr.Sample = parts[0];
         for (int j = 1; j < headers.Length; j++)
         {
-          var tt = EnumUtils.StringToEnum(headers[j], TNBCSubtype.UNKNOWN);
+          var tt = EnumUtils.StringToEnum(headers[j], TNBCSubtype.UNS);
           ccr.Items[tt] = new CallerResultValue() { Coef = double.Parse(parts[j]) };
         }
       }

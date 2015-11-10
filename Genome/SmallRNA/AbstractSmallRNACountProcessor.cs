@@ -339,19 +339,20 @@ namespace CQS.Genome.SmallRNA
             sw.WriteLine("#countFile\t{0}", options.CountFile);
           }
 
-          if (options.EngineType == EngineType.star && File.Exists(options.CountFile))
+          var totalQueryCount = (from q in totalQueries select q.StringBefore(SmallRNAConsts.NTA_TAG)).Distinct().Sum(m => Counts.GetCount(m));
+          var totalMappedCount = totalMappedQueries.Sum(l => Counts.GetCount(l));
+          if (totalQueryCount == totalMappedCount && File.Exists(options.CountFile))
           {
             //Total count was calcualted from count table
             sw.WriteLine("TotalReads\t{0}", Counts.Counts.Sum(l => l.Value));
           }
           else
           {
-            var totalQueryCount = (from q in totalQueries select q.StringBefore(SmallRNAConsts.NTA_TAG)).Distinct().Sum(m => Counts.GetCount(m));
             sw.WriteLine("TotalReads\t{0}", totalQueryCount);
           }
 
           //The mapped reads is the union of tRNA and otherRNA alignment result
-          sw.WriteLine("MappedReads\t{0}", totalMappedQueries.Sum(l => Counts.GetCount(l)));
+          sw.WriteLine("MappedReads\t{0}", totalMappedCount);
 
           var featureReadCount = (from feature in allmapped
                                   from item in feature.GetAlignedLocations()

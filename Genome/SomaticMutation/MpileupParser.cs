@@ -1,8 +1,12 @@
-﻿using CQS.Genome.Pileup;
+﻿using CQS.Genome.Bed;
+using CQS.Genome.Pileup;
 using CQS.Genome.Statistics;
 using RCPA.Gui;
+using RCPA;
 using System;
+using System.Linq;
 using System.Collections.Generic;
+using System.IO;
 
 namespace CQS.Genome.SomaticMutation
 {
@@ -15,6 +19,20 @@ namespace CQS.Genome.SomaticMutation
     private readonly PileupItemTumorTest _tumorTest;
     private MpileupResult _result;
 
+    private Dictionary<string, List<BedItem>> bedMap = new Dictionary<string, List<BedItem>>();
+    protected bool IsIgnored(string seqname, long position)
+    {
+      List<BedItem> items;
+      if (bedMap.TryGetValue(seqname, out items))
+      {
+        return items.Any(l => l.Contains(position));
+      }
+      else
+      {
+        return false;
+      }
+    }
+
     public MpileupParser(PileupProcessorOptions options, MpileupResult result)
     {
       _options = options;
@@ -23,11 +41,35 @@ namespace CQS.Genome.SomaticMutation
       _tumorTest = new PileupItemTumorTest(options.MinimumReadsOfMinorAlleleInTumor, options.MinimumPercentageOfMinorAlleleInTumor);
       _parser = options.GetPileupItemParser();
       _result = result;
+
+      if (File.Exists(_options.ExcludeBedFile))
+      {
+        bedMap = new BedItemFile<BedItem>().ReadFromFile(_options.ExcludeBedFile).ToGroupDictionary(m => m.Seqname);
+      }
     }
 
     public MpileupFisherResult Parse(string line, bool writeCandidateFile = true)
     {
-      var item = _parser.GetValue(line);
+      PileupItem item;
+      if (bedMap.Count > 0)
+      {
+        var parts = line.Split('\t');
+        item = _parser.GetSequenceIdentifierAndPosition(line);
+        if (IsIgnored(item.SequenceIdentifier, item.Position))
+        {
+          _result.Ignored++;
+          return null;
+        }
+        else
+        {
+          item = _parser.GetValue(parts);
+        }
+      }
+      else
+      {
+        item = _parser.GetValue(line);
+      }
+
       if (item == null)
       {
         _result.MinimumReadDepthFailed++;

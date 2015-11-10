@@ -36,6 +36,7 @@ namespace CQS.Genome.SomaticMutation
       this.Results = new List<MpileupFisherResult>();
 
       this.TotalCount = 0;
+      this.Ignored = 0;
       this.NotCovered = 0;
       this.CandidateCount = 0;
       this.GroupFisherFailed = 0;
@@ -52,19 +53,21 @@ namespace CQS.Genome.SomaticMutation
 
     public List<MpileupFisherResult> Results { get; private set; }
 
-    public int TotalCount { get; set; }
-    public int NotCovered { get; set; }
-    public int CandidateCount { get; set; }
-    public int GroupFisherFailed { get; set; }
-    public int MinimumReadDepthFailed { get; set; }
-    public int OneEventFailed { get; set; }
-    public int MinorAlleleDecreasedFailed { get; set; }
-    public int MinorAlleleFailedInTumorSample { get; set; }
-    public int MinorAlleleFailedInNormalSample { get; set; }
+    public long TotalCount { get; set; }
+    public long Ignored { get; set; }
+    public long NotCovered { get; set; }
+    public long CandidateCount { get; set; }
+    public long GroupFisherFailed { get; set; }
+    public long MinimumReadDepthFailed { get; set; }
+    public long OneEventFailed { get; set; }
+    public long MinorAlleleDecreasedFailed { get; set; }
+    public long MinorAlleleFailedInTumorSample { get; set; }
+    public long MinorAlleleFailedInNormalSample { get; set; }
 
     public void MergeWith(MpileupResult res)
     {
       this.TotalCount += res.TotalCount;
+      this.Ignored += res.Ignored;
       this.NotCovered += res.NotCovered;
       this.CandidateCount += res.CandidateCount;
       this.GroupFisherFailed += res.GroupFisherFailed;

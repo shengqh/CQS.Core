@@ -375,6 +375,7 @@
     <Compile Include="Genome\Samtools\MpileupOptions.cs" />
     <Compile Include="Genome\SomaticMutation\FilterItemVcfWriter.cs" />
     <Compile Include="Genome\SomaticMutation\MpileupResultProcessor.cs" />
+    <Compile Include="Genome\SomaticMutation\SomaticItem.cs" />
     <Compile Include="Genome\SomaticMutation\ValidationProcessorCommand.cs" />
     <Compile Include="Genome\SomaticMutation\ValidationParser.cs" />
     <Compile Include="Genome\SomaticMutation\ValidationFile.cs" />

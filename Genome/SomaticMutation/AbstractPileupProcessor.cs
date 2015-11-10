@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Linq;
+using CQS.Genome.Bed;
 
 namespace CQS.Genome.SomaticMutation
 {

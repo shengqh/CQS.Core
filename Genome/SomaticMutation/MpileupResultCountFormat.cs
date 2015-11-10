@@ -25,6 +25,11 @@ namespace CQS.Genome.SomaticMutation
 
         var _totalCount = t.TotalCount;
         sw.WriteLine("total site\t\t{0}", _totalCount);
+        if (t.Ignored > 0)
+        {
+          _totalCount -= t.Ignored;
+          sw.WriteLine("ignored\t{0}\t{1}", t.Ignored, _totalCount);
+        }
         if (outputNotCovered) // for validation only
         {
           _totalCount -= t.NotCovered;

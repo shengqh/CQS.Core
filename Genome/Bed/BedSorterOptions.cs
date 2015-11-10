@@ -22,8 +22,8 @@ namespace CQS.Genome.Bed
     [Option('o', "output", Required = true, MetaValue = "FILE", HelpText = "Output file")]
     public string OutputFile { get; set; }
 
-    [Option('v', "vcf", Required = false, MetaValue = "BOOLEAN", HelpText = "Output as vcf format")]
-    public bool VcfFormat { get; set; }
+    //[Option('v', "vcf", Required = false, MetaValue = "BOOLEAN", HelpText = "Output as vcf format")]
+    //public bool VcfFormat { get; set; }
 
     public override bool PrepareOptions()
     {

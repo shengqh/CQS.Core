@@ -42,47 +42,63 @@ namespace CQS.Genome.Parclip
 
       var sixmerMap = utr3seeds.ToGroupDictionary(m => m.Sequence.ToUpper());
 
-      Console.WriteLine("Reading T2C miRNA...");
-      var mappedSmallRNA = GetMiRNACoverageRegion(options.InputFile);
+      Console.WriteLine("Reading T2C smallRNA...");
+      var mappedSmallRNA = GetSmallRNACoverageRegion(options.InputFile);
       mappedSmallRNA.Sort((m1, m2) => m2.Coverages.Average().CompareTo(m1.Coverages.Average()));
 
       using (var sw = new StreamWriter(options.OutputFile))
       {
-        sw.WriteLine("miRNA\tChr\tStart\tEnd\tStrand\tSeed\tSeedOffset\tSeedCoverage\tTarget\tTargetCoverage\tTargetGeneSymbol\tTargetName");
+        sw.WriteLine("SmallRNA\tChr\tStart\tEnd\tStrand\tSeed\tSeedOffset\tSeedCoverage\tTarget\tTargetCoverage\tTargetGeneSymbol\tTargetName");
         List<SeedItem> target;
 
         foreach (var t2c in mappedSmallRNA)
         {
           var seq = t2c.Sequence.ToUpper();
 
-          int offset = 1;
-          var seed = seq.Substring(offset, options.SeedLength);
-          var coverage = t2c.Coverages.Skip(offset).Take(options.SeedLength).Average();
-          if (coverage < options.MinimumCoverage)
+          int[] offsets;
+          if (t2c.Name.StartsWith(SmallRNAConsts.miRNA))
           {
-            continue;
+            offsets = new[] { 1 };
           }
-
-          if (sixmerMap.TryGetValue(seed, out target))
+          else
           {
-            target.Sort((m1, m2) =>
+            var lst = new List<int>();
+            for (int j = 1; j < t2c.Sequence.Length - options.SeedLength - 1; j++)
             {
-              return m2.Coverage.CompareTo(m1.Coverage);
-            });
-
-            for (int j = 0; j < target.Count; j++)
+              lst.Add(j);
+            }
+            offsets = lst.ToArray();
+          }
+          foreach (var offset in offsets)
+          {
+            var seed = seq.Substring(offset, options.SeedLength);
+            var coverage = t2c.Coverages.Skip(offset).Take(options.SeedLength).Average();
+            if (coverage < options.MinimumCoverage)
             {
-              sw.Write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}", t2c.Name.StringAfter(SmallRNAConsts.miRNA + ":"), t2c.Seqname, t2c.Start, t2c.End, t2c.Strand, seed, offset, Math.Round(coverage));
+              continue;
+            }
 
-              var t = target[j];
-              sw.WriteLine("\t{0}:{1}-{2}:{3}\t{4}\t{5}\t{6}",
-                t.Seqname,
-                t.Start,
-                t.End,
-                t.Strand,
-                t.Coverage,
-                t.GeneSymbol,
-                t.Name);
+            if (sixmerMap.TryGetValue(seed, out target))
+            {
+              target.Sort((m1, m2) =>
+              {
+                return m2.Coverage.CompareTo(m1.Coverage);
+              });
+
+              for (int j = 0; j < target.Count; j++)
+              {
+                sw.Write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}", t2c.Name, t2c.Seqname, t2c.Start, t2c.End, t2c.Strand, seed, offset, Math.Round(coverage));
+
+                var t = target[j];
+                sw.WriteLine("\t{0}:{1}-{2}:{3}\t{4}\t{5}\t{6}",
+                  t.Seqname,
+                  t.Start,
+                  t.End,
+                  t.Strand,
+                  t.Coverage,
+                  t.GeneSymbol,
+                  t.Name);
+              }
             }
           }
         }
@@ -91,26 +107,26 @@ namespace CQS.Genome.Parclip
       return new[] { options.OutputFile };
     }
 
-    private static List<CoverageRegion> GetMiRNACoverageRegion(string mappedFeatureXmlFile)
+    private static List<CoverageRegion> GetSmallRNACoverageRegion(string mappedFeatureXmlFile)
     {
       var result = new List<CoverageRegion>();
 
-      var miRNAGroups = new FeatureItemGroupXmlFormat().ReadFromFile(mappedFeatureXmlFile).Where(m => m.Name.StartsWith(SmallRNAConsts.miRNA)).ToList();
-      foreach (var miRNAGroup in miRNAGroups)
+      var smallRNAGroups = new FeatureItemGroupXmlFormat().ReadFromFile(mappedFeatureXmlFile).Where(m => m.Name.StartsWith(SmallRNAConsts.miRNA) || m.Name.StartsWith(SmallRNAConsts.tRNA)).ToList();
+      foreach (var sg in smallRNAGroups)
       {
         //since the items in same group shared same reads, only the first one will be used.
-        var miRNA = miRNAGroup[0];
-        miRNA.Name = (from g in miRNAGroup select g.Name).Merge("/");
+        var smallRNA = sg[0];
+        smallRNA.Name = (from g in sg select g.Name).Merge("/");
 
-        miRNA.Locations.RemoveAll(m => m.SamLocations.Count == 0);
-        miRNA.CombineLocationByMappedReads();
+        smallRNA.Locations.RemoveAll(m => m.SamLocations.Count == 0);
+        smallRNA.CombineLocationByMappedReads();
 
         //only first location will be used.
-        var loc = miRNA.Locations[0];
+        var loc = smallRNA.Locations[0];
 
         //coverage in all position will be set as same as total query count
         var rg = new CoverageRegion();
-        rg.Name = miRNA.Name;
+        rg.Name = smallRNA.Name;
         rg.Seqname = loc.Seqname;
         rg.Start = loc.Start;
         rg.End = loc.End;

@@ -84,7 +84,7 @@ namespace CQS.Genome.Fastq
       var seqs = queries.Values.ToList();
       seqs.Sort((m1, m2) =>
       {
-        var res = m2.RepeatCount.CompareTo(m2.RepeatCount);
+        var res = m2.RepeatCount.CompareTo(m1.RepeatCount);
         if (res == 0)
         {
           res = m1.SeqString.CompareTo(m2.SeqString);

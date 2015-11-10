@@ -1,10 +1,12 @@
-﻿using CQS.Genome.Pileup;
+﻿using CQS.Genome.Bed;
+using CQS.Genome.Pileup;
 using CQS.Genome.Samtools;
 using RCPA;
 using RCPA.Gui;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
