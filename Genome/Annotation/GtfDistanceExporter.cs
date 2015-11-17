@@ -26,8 +26,8 @@ namespace CQS.Genome.Annotation
       this.maps = CollectionUtils.ToGroupDictionary(GtfItemFile.ReadFromFile(gtfFile, gtfKey), m => m.Seqname.StringAfter("chr"));
       Console.WriteLine("reading gtf file " + gtfFile + " done");
 
-      this.header = string.Format("distance_{0}\tdistance_{0}_position\tdistance_gene\tdistance_in_gene\tdistance_in_gene_range", gtfKey);
-      this.emptyStr = "\t";
+      this.header = string.Format("distance_{0}\tdistance_{0}_position\tdistance_gene\tdistance_in_gene", gtfKey);
+      this.emptyStr = new String('\t', header.Count(m => m == '\t'));
 
       //sort the gtf items by locus
       foreach (var lst in maps.Values)

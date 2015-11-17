@@ -9,7 +9,6 @@ namespace CQS.Genome.SomaticMutation
   {
     public const double DEFAULT_ErrorRate = 0.01;
     public const double DEFAULT_GlmPvalue = 0.05;
-    public const bool DEFAULT_UseGlmRawPvalue = false;
 
     public FilterProcessorOptions()
     {
@@ -27,7 +26,7 @@ namespace CQS.Genome.SomaticMutation
     [Option("glm_pvalue", MetaValue = "DOUBLE", DefaultValue = DEFAULT_GlmPvalue, HelpText = "Maximum pvalue used for GLM test")]
     public double GlmPvalue { get; set; }
 
-    [Option("glm_use_raw_pvalue", MetaValue = "BOOLEAN", DefaultValue = DEFAULT_UseGlmRawPvalue, HelpText = "Use GLM raw pvalue rather than FDR adjusted pvalue")]
+    [Option("glm_use_raw_pvalue", MetaValue = "BOOLEAN", HelpText = "Use GLM raw pvalue rather than FDR adjusted pvalue")]
     public bool UseGlmRawPvalue { get; set; }
 
     [Option('o', "output", MetaValue = "FILE", Required = true, HelpText = "Output file")]
@@ -97,7 +96,7 @@ namespace CQS.Genome.SomaticMutation
           }
           sw.WriteLine("pvalue<-{0}", GlmPvalue);
           sw.WriteLine("errorrate<-{0}", ErrorRate);
-          sw.WriteLine("israwpvalue<{0}", IsValidation || UseGlmRawPvalue ? "1" : "0");
+          sw.WriteLine("israwpvalue<-{0}", IsValidation || UseGlmRawPvalue ? "1" : "0");
 
           var inpredefined = true;
           foreach (var line in lines)

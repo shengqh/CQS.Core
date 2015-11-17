@@ -41,23 +41,16 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x86\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <OutputPath>bin\Debug\</OutputPath>
+    <Optimize>false</Optimize>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
-    <OutputPath>bin\x86\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <OutputPath>bin\Release\</OutputPath>
     <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Bio">
@@ -375,7 +368,10 @@
     <Compile Include="Genome\Samtools\MpileupOptions.cs" />
     <Compile Include="Genome\SomaticMutation\FilterItemVcfWriter.cs" />
     <Compile Include="Genome\SomaticMutation\MpileupResultProcessor.cs" />
+    <Compile Include="Genome\SomaticMutation\SomaticMutationTableBuilderCommand.cs" />
+    <Compile Include="Genome\SomaticMutation\SomaticMutationTableBuilderOptions.cs" />
     <Compile Include="Genome\SomaticMutation\SomaticItem.cs" />
+    <Compile Include="Genome\SomaticMutation\SomaticMutationTableBuilder.cs" />
     <Compile Include="Genome\SomaticMutation\ValidationProcessorCommand.cs" />
     <Compile Include="Genome\SomaticMutation\ValidationParser.cs" />
     <Compile Include="Genome\SomaticMutation\ValidationFile.cs" />

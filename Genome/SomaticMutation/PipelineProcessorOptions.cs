@@ -12,6 +12,9 @@ namespace CQS.Genome.SomaticMutation
     [Option("glm_pvalue", MetaValue = "DOUBLE", DefaultValue = PileupProcessorOptions.DEFAULT_FisherPvalue, HelpText = "Maximum adjusted pvalue used for GLM test")]
     public double GlmPvalue { get; set; }
 
+    [Option("glm_use_raw_pvalue", MetaValue = "BOOLEAN", HelpText = "Use GLM raw pvalue rather than FDR adjusted pvalue")]
+    public bool UseGlmRawPvalue { get; set; }
+
     public string AnnovarCommand { get; private set; }
 
     [Option("annovar_set_default", DefaultValue = false, HelpText = "Set current setting as annovar default setting")]
@@ -54,6 +57,7 @@ namespace CQS.Genome.SomaticMutation
       result.OutputFile = FilterResultFile;
       result.GlmPvalue = GlmPvalue;
       result.ErrorRate = ErrorRate;
+      result.UseGlmRawPvalue = UseGlmRawPvalue;
 
       return result;
     }

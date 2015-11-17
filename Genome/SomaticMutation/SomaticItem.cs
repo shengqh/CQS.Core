@@ -35,6 +35,7 @@ namespace CQS.Genome.SomaticMutation
     public string RefGeneFunc { get; set; }
     public string RefGeneName { get; set; }
     public string RefGeneExonicFunc { get; set; }
+    public string RefGeneAAChange { get; set; }
 
     public double Score { get; set; }
     public string Sample { get; set; }

@@ -137,7 +137,8 @@ namespace CQS.Genome.SomaticMutation
           Score = -Math.Log(double.Parse(fdr)),
           RefGeneFunc = GetDictionaryValue(ann.Annotations, "annovar_Func.refGene", string.Empty),
           RefGeneName = GetDictionaryValue(ann.Annotations, "annovar_Gene.refGene", string.Empty),
-          RefGeneExonicFunc = GetDictionaryValue(ann.Annotations, "annovar_ExonicFunc.refGene", string.Empty)
+          RefGeneExonicFunc = GetDictionaryValue(ann.Annotations, "annovar_ExonicFunc.refGene", string.Empty),
+          RefGeneAAChange = GetDictionaryValue(ann.Annotations, "annovar_AAChange.refGene", string.Empty),
         };
 
         result.Add(item);
