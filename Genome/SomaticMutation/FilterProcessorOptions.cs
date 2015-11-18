@@ -8,7 +8,7 @@ namespace CQS.Genome.SomaticMutation
   public class FilterProcessorOptions : AbstractProgramOptions
   {
     public const double DEFAULT_ErrorRate = 0.01;
-    public const double DEFAULT_GlmPvalue = 0.05;
+    public const double DEFAULT_GlmPvalue = 0.1;
 
     public FilterProcessorOptions()
     {

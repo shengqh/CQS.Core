@@ -27,53 +27,36 @@ namespace CQS.Genome.SomaticMutation
       return result;
     }
 
-    //4_JH584292_random_13694_T_T_G_49_0_37_6_8.5E-03
-
-    private static Regex GetFileRegex(char separator)
-    {
-      return new Regex(string.Format(@"(.+){0}(\d+){0}([a-zA-Z]){0}([a-zA-Z]){0}([a-zA-Z]){0}(\d+){0}(\d+){0}(\d+){0}(\d+){0}([^{0}]+)(.*)", separator));
-    }
-
-    private static Dictionary<char, Regex> fileRegMap =  new Dictionary<char,Regex>();
-
     public static MpileupFisherResult ParseString(string line, char separator = '_')
     {
-      Regex reg;
-      if (!fileRegMap.TryGetValue(separator, out reg))
-      {
-        reg = GetFileRegex(separator);
-        fileRegMap[separator] = reg;
-      }
+      var parts = line.Split(separator);
 
       var result = new MpileupFisherResult();
       try
       {
-        var m = reg.Match(line);
-        if (!m.Success)
-        {
-          throw new Exception(string.Format("Cannot parse fisher result from {0}", line));
-        }
         result.Item = new PileupItem()
         {
-          SequenceIdentifier = m.Groups[1].Value,
-          Position = long.Parse(m.Groups[2].Value),
-          Nucleotide = m.Groups[3].Value[0]
+          SequenceIdentifier = parts[0],
+          Position = long.Parse(parts[1]),
+          Nucleotide = parts[2][0]
         };
         result.Group = new FisherExactTestResult()
         {
-          SucceedName = m.Groups[4].Value,
-          FailedName = m.Groups[5].Value,
+          SucceedName = parts[3],
+          FailedName = parts[4]
         };
-        result.Group.Sample1.Succeed = int.Parse(m.Groups[6].Value);
-        result.Group.Sample1.Failed = int.Parse(m.Groups[7].Value);
-        result.Group.Sample2.Succeed = int.Parse(m.Groups[8].Value);
-        result.Group.Sample2.Failed = int.Parse(m.Groups[9].Value);
-        result.Group.PValue = double.Parse(m.Groups[10].Value);
-        result.FailedReason = m.Groups[11].Value;
-        if (!string.IsNullOrWhiteSpace(result.FailedReason))
+        result.Group.Sample1.Succeed = int.Parse(parts[5]);
+        result.Group.Sample1.Failed = int.Parse(parts[6]);
+        result.Group.Sample2.Succeed = int.Parse(parts[7]);
+        result.Group.Sample2.Failed = int.Parse(parts[8]);
+        result.Group.PValue = double.Parse(parts[9]);
+        if (parts.Length > 10)
         {
-          result.FailedReason = result.FailedReason.Substring(1);
-          //Console.WriteLine("Failed reason = " + result.FailedReason);
+          result.FailedReason = parts[10];
+        }
+        else
+        {
+          result.FailedReason = string.Empty;
         }
       }
       catch (Exception ex)
@@ -88,16 +71,16 @@ namespace CQS.Genome.SomaticMutation
     {
       var result = string.Format("{1}{0}{2}{0}{3}{0}{4}{0}{5}{0}{6}{0}{7}{0}{8}{0}{9}{0}{10:0.0E00}",
         separator,
-            mfr.Item.SequenceIdentifier,
-            mfr.Item.Position,
-            mfr.Item.Nucleotide,
-            mfr.Group.SucceedName,
-            mfr.Group.FailedName,
-            mfr.Group.Sample1.Succeed,
-            mfr.Group.Sample1.Failed,
-            mfr.Group.Sample2.Succeed,
-            mfr.Group.Sample2.Failed,
-            mfr.Group.PValue);
+        mfr.Item.SequenceIdentifier,
+        mfr.Item.Position,
+        mfr.Item.Nucleotide,
+        mfr.Group.SucceedName,
+        mfr.Group.FailedName,
+        mfr.Group.Sample1.Succeed,
+        mfr.Group.Sample1.Failed,
+        mfr.Group.Sample2.Succeed,
+        mfr.Group.Sample2.Failed,
+        mfr.Group.PValue);
       if (includeFailedReason)
       {
         result = result + separator + mfr.FailedReason;

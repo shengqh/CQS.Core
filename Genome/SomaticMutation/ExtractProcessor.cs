@@ -58,12 +58,19 @@ namespace CQS.Genome.SomaticMutation
         try
         {
           string line;
+          string lastChrom = string.Empty;
           while ((line = pfile.ReadLine()) != null)
           {
             try
             {
               var locus = parser.GetSequenceIdentifierAndPosition(line);
               var locusKey = GenomeUtils.GetKey(locus.SequenceIdentifier, locus.Position);
+
+              if (!locus.SequenceIdentifier.Equals(lastChrom))
+              {
+                Progress.SetMessage("Processing chromosome " + locus.SequenceIdentifier + " ...");
+                lastChrom = locus.SequenceIdentifier;
+              }
 
               ValidationItem vitem = null;
               if (!map.TryGetValue(locusKey, out vitem))
@@ -75,7 +82,7 @@ namespace CQS.Genome.SomaticMutation
             }
             catch (Exception ex)
             {
-              var error = string.Format("parsing error {0}\n{1}", ex.Message, line);
+              var error = string.Format("Parsing error {0}\n{1}", ex.Message, line);
               Progress.SetMessage(error);
               Console.Error.WriteLine(ex.StackTrace);
               throw new Exception(error);

@@ -15,7 +15,7 @@ namespace CQS.Genome.SomaticMutation
     private const int DEFAULT_MinimumReadDepth = 10;
     private const int DEFAULT_MinimumReadsOfMinorAlleleInTumor = 5;
 
-    private const double DEFAULT_MaximumPercentageOfMinorAlleleInNormal = 0.01;
+    private const double DEFAULT_MaximumPercentageOfMinorAlleleInNormal = 0.02;
     private const double DEFAULT_MinimumPercentageOfMinorAlleleInTumor = 0.1;
     public const double DEFAULT_FisherPvalue = 0.05;
 

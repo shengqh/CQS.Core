@@ -54,7 +54,7 @@ namespace CQS.Genome.SomaticMutation
       if (bedMap.Count > 0)
       {
         var parts = line.Split('\t');
-        item = _parser.GetSequenceIdentifierAndPosition(line);
+        item = _parser.GetSequenceIdentifierAndPosition(parts);
         if (IsIgnored(item.SequenceIdentifier, item.Position))
         {
           _result.Ignored++;
