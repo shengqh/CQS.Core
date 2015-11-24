@@ -16,6 +16,13 @@ namespace CQS.Genome.SomaticMutation
     [Option("error_rate", MetaValue = "DOUBLE", DefaultValue = FilterProcessorOptions.DEFAULT_ErrorRate, HelpText = "Sequencing error rate for normal sample test")]
     public double ErrorRate { get; set; }
 
+    public ValidationProcessorOptions()
+    {
+      this.GlmPvalue = FilterProcessorOptions.DEFAULT_GlmPvalue;
+      this.ErrorRate = FilterProcessorOptions.DEFAULT_ErrorRate;
+      this.IgnoreDepthLimitation = true;
+    }
+
     public override bool PrepareOptions()
     {
       base.PrepareOptions();
@@ -40,7 +47,9 @@ namespace CQS.Genome.SomaticMutation
     public override void PrintParameter()
     {
       base.PrintParameter();
-      Console.Out.WriteLine("#validation file: " + this.ValidationFile);
+      Console.Out.WriteLine("#error rate: {0}", this.ErrorRate);
+      Console.Out.WriteLine("#glm pvalue: {0}", this.GlmPvalue);
+      Console.Out.WriteLine("#validation file: {0}", this.ValidationFile);
     }
   }
 }

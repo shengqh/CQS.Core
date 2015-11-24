@@ -13,10 +13,10 @@ namespace CQS.Genome.SomaticMutation
   public class PileupProcessorOptions : MpileupOptions
   {
     private const int DEFAULT_MinimumReadDepth = 10;
-    private const int DEFAULT_MinimumReadsOfMinorAlleleInTumor = 5;
+    private const int DEFAULT_MinimumReadsOfMinorAlleleInTumor = 4;
 
     private const double DEFAULT_MaximumPercentageOfMinorAlleleInNormal = 0.02;
-    private const double DEFAULT_MinimumPercentageOfMinorAlleleInTumor = 0.1;
+    private const double DEFAULT_MinimumPercentageOfMinorAlleleInTumor = 0.08;
     public const double DEFAULT_FisherPvalue = 0.05;
 
     private const int DEFAULT_ThreadCount = 1;
@@ -59,7 +59,7 @@ namespace CQS.Genome.SomaticMutation
     public string MpileupFile { get; set; }
 
     [Option('d', "read_depth", MetaValue = "INT", DefaultValue = DEFAULT_MinimumReadDepth, HelpText = "Minimum read depth of base passed mapping quality filter in each sample")]
-    public int MinimumReadDepth { get; set; }
+    public override int MinimumReadDepth { get; set; }
 
     [Option("fisher_pvalue", MetaValue = "DOUBLE", DefaultValue = DEFAULT_FisherPvalue, HelpText = "Maximum pvalue used for fisher exact test")]
     public double FisherPvalue { get; set; }
@@ -297,7 +297,7 @@ namespace CQS.Genome.SomaticMutation
       Console.Out.WriteLine("#maximum percentage of minor allele in normal: " + this.MaximumPercentageOfMinorAlleleInNormal);
       Console.Out.WriteLine("#minimum percentage of minor allele in tumor: " + this.MinimumPercentageOfMinorAlleleInTumor);
       Console.Out.WriteLine("#minimum reads of minor allele in tumor: " + this.MinimumReadsOfMinorAlleleInTumor);
-      Console.Out.WriteLine("#pvalue: " + this.FisherPvalue);
+      Console.Out.WriteLine("#fisher exact test pvalue: " + this.FisherPvalue);
       Console.Out.WriteLine("#thread count: " + this.ThreadCount);
     }
   }

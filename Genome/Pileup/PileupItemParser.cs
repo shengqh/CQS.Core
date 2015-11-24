@@ -105,10 +105,141 @@ namespace CQS.Genome.Pileup
       return result;
     }
 
+    public bool HasEnoughReads(string[] parts)
+    {
+      for (var countIndex = 3; countIndex < parts.Length; countIndex += ColumnEachSample)
+      {
+        if (int.Parse(parts[countIndex]) < _minReadDepth)
+        {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    public bool HasMinorAllele(string[] parts)
+    {
+      for (var countIndex = 3; countIndex < parts.Length; countIndex += ColumnEachSample)
+      {
+        var seq = parts[countIndex + 1];
+        if (seq.Any(l => char.IsLetter(l)))
+        {
+          return true;
+        }
+      }
+      return false;
+    }
+
     public PileupItem GetValue(string line)
     {
       var parts = line.Split('\t');
       return GetValue(parts);
+    }
+
+    //Get major and minor allele only, without score and position information
+    public PileupItem GetSlimValue(string[] parts)
+    {
+      if (!Accept(parts))
+      {
+        return null;
+      }
+
+      var result = new PileupItem
+      {
+        SequenceIdentifier = parts[0],
+        Position = long.Parse(parts[1]),
+        Nucleotide = parts[2][0]
+      };
+
+      var sampleIndex = 0;
+      for (var countIndex = 3; countIndex < parts.Length; countIndex += ColumnEachSample)
+      {
+        var pbl = new PileupBaseList();
+
+        var seq = parts[countIndex + 1];
+        var seqLength = seq.Length;
+
+        var baseIndex = 0;
+        while (baseIndex < seqLength)
+        {
+          //A ’>’ or ’<’ for a reference skip.
+          //The deleted bases will be presented as ‘*’ in the following lines. 
+          if (seq[baseIndex] == '>' || seq[baseIndex] == '<' || seq[baseIndex] == '*')
+          {
+            baseIndex++;
+            continue;
+          }
+
+          var pb = new PileupBase();
+
+          //Is it the start of read?
+          if (seq[baseIndex] == '^')
+          {
+            baseIndex += 2;
+            ParseSlimMatchBase(result, pbl, pb, seq, seqLength, ref baseIndex);
+          }
+          else if (Matches.Contains(seq[baseIndex]))
+          {
+            ParseSlimMatchBase(result, pbl, pb, seq, seqLength, ref baseIndex);
+          }
+          //A pattern ‘\+[0-9]+[ACGTNacgtn]+’ indicates there is an insertion between this reference position and the next reference position. The length of the insertion is given by the integer in the pattern, followed by the inserted sequence. Similarly, a pattern ‘-[0-9]+[ACGTNacgtn]+’ represents a deletion from the reference.
+          else if (seq[baseIndex] == '+' || seq[baseIndex] == '-')
+          {
+            //ignore and move to next base
+            baseIndex++;
+
+            var num = ParseInsertionDeletionCount(seq, seqLength, ref baseIndex);
+            baseIndex += num;
+
+            if (baseIndex < seqLength && seq[baseIndex] == '$')
+            {
+              baseIndex++;
+            }
+          }
+          else
+          {
+            throw new Exception(string.Format("I don't know the mean of character {0}", seq[baseIndex]));
+          }
+        }
+
+        if (pbl.Count < _minReadDepth)
+        {
+          return null;
+        }
+
+        sampleIndex++;
+        pbl.SampleName = "S" + sampleIndex;
+        pbl.InitEventCountList();
+        result.Samples.Add(pbl);
+      }
+
+      return result;
+    }
+
+    private void ParseSlimMatchBase(PileupItem result, PileupBaseList pbl, PileupBase pb, string seq, int seqLength, ref int baseIndex)
+    {
+      //A dot stands for a match to the reference base on the forward strand, 
+      switch (seq[baseIndex])
+      {
+        case '.':
+          AssignMatch(result, pb);
+          break;
+        case ',':
+          AssignMatch(result, pb);
+          break;
+        default:
+          pb.EventType = AlignedEventType.MISMATCH;
+          pb.Event = seq[baseIndex].ToString().ToUpper();
+          break;
+      }
+      baseIndex++;
+
+      //is it the end of read?
+      if (baseIndex < seqLength && seq[baseIndex] == '$')
+      {
+        baseIndex++;
+      }
+      pbl.Add(pb);
     }
 
     public PileupItem GetValue(string[] parts)

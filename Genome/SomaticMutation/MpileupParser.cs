@@ -15,7 +15,6 @@ namespace CQS.Genome.SomaticMutation
     private readonly PileupItemNormalTest _normalTest;
     private readonly PileupProcessorOptions _options;
     private readonly PileupItemParser _parser;
-    private readonly PileupItemReadDepthFilter _rdFilter;
     private readonly PileupItemTumorTest _tumorTest;
     private MpileupResult _result;
 
@@ -36,7 +35,6 @@ namespace CQS.Genome.SomaticMutation
     public MpileupParser(PileupProcessorOptions options, MpileupResult result)
     {
       _options = options;
-      _rdFilter = new PileupItemReadDepthFilter(options.MinimumReadDepth, options.MinimumBaseQuality);
       _normalTest = new PileupItemNormalTest(options.MaximumPercentageOfMinorAlleleInNormal);
       _tumorTest = new PileupItemTumorTest(options.MinimumReadsOfMinorAlleleInTumor, options.MinimumPercentageOfMinorAlleleInTumor);
       _parser = options.GetPileupItemParser();
@@ -50,33 +48,34 @@ namespace CQS.Genome.SomaticMutation
 
     public MpileupFisherResult Parse(string line, bool writeCandidateFile = true)
     {
-      PileupItem item;
+      var parts = line.Split('\t');
       if (bedMap.Count > 0)
       {
-        var parts = line.Split('\t');
-        item = _parser.GetSequenceIdentifierAndPosition(parts);
-        if (IsIgnored(item.SequenceIdentifier, item.Position))
+        var sp = _parser.GetSequenceIdentifierAndPosition(parts);
+        if (IsIgnored(sp.SequenceIdentifier, sp.Position))
         {
           _result.Ignored++;
           return null;
         }
-        else
-        {
-          item = _parser.GetValue(parts);
-        }
-      }
-      else
-      {
-        item = _parser.GetValue(line);
       }
 
-      if (item == null)
+      //didn't consider minimum score requirment
+      if (!_parser.HasEnoughReads(parts))
       {
         _result.MinimumReadDepthFailed++;
         return null;
       }
 
-      if (!_rdFilter.Accept(item))
+      //didn't consider minimum score requirment
+      if (!_parser.HasMinorAllele(parts))
+      {
+        _result.OneEventFailed++;
+        return null;
+      }
+
+      var item = _parser.GetSlimValue(parts);
+      //check slim result without considering score limitation
+      if (item == null)
       {
         _result.MinimumReadDepthFailed++;
         return null;
@@ -95,12 +94,6 @@ namespace CQS.Genome.SomaticMutation
       var events = item.GetPairedEvent();
 
       var fisherresult = item.InitializeTable(events);
-
-      //if (item.SequenceIdentifier.Equals("1") && item.Position == 1663402)
-      //{
-      //  Console.WriteLine(fisherresult);
-      //  Console.WriteLine("{0}\t{1}", fisherresult.Sample1.FailedPercentage, fisherresult.Sample2.FailedPercentage);
-      //}
 
       if (fisherresult.Sample1.FailedPercentage > fisherresult.Sample2.FailedPercentage)
       {
@@ -128,6 +121,55 @@ namespace CQS.Genome.SomaticMutation
         return null;
       }
 
+      //parsing full result considering score limitation
+      item = _parser.GetValue(parts);
+      if (item == null)
+      {
+        _result.MinimumReadDepthFailed++;
+        return null;
+      }
+
+      //If the bases from all samples are same, ignore the entry.
+      if (item.OnlyOneEvent())
+      {
+        _result.OneEventFailed++;
+        return null;
+      }
+
+      item.Samples[0].SampleName = "NORMAL";
+      item.Samples[1].SampleName = "TUMOR";
+
+      events = item.GetPairedEvent();
+
+      fisherresult = item.InitializeTable(events);
+
+      if (fisherresult.Sample1.FailedPercentage > fisherresult.Sample2.FailedPercentage)
+      {
+        _result.MinorAlleleDecreasedFailed++;
+        return null;
+      }
+
+      if (!_tumorTest.Accept(fisherresult))
+      {
+        _result.MinorAlleleFailedInTumorSample++;
+        return null;
+      }
+
+      if (!_normalTest.Accept(fisherresult))
+      {
+        _result.MinorAlleleFailedInNormalSample++;
+        return null;
+      }
+
+      //group fisher exact test
+      fisherresult.CalculateTwoTailPValue();
+      if (fisherresult.PValue > _options.FisherPvalue)
+      {
+        _result.GroupFisherFailed++;
+        return null;
+      }
+
+      //passed all criteria
       _result.CandidateCount++;
 
       var result = new MpileupFisherResult

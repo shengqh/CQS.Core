@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using CommandLine;
 using RCPA.Utils;
+using System;
 
 namespace CQS.Genome.SomaticMutation
 {
@@ -9,7 +10,7 @@ namespace CQS.Genome.SomaticMutation
     [Option("error_rate", MetaValue = "DOUBLE", DefaultValue = FilterProcessorOptions.DEFAULT_ErrorRate, HelpText = "Sequencing error rate for normal sample test")]
     public double ErrorRate { get; set; }
 
-    [Option("glm_pvalue", MetaValue = "DOUBLE", DefaultValue = PileupProcessorOptions.DEFAULT_FisherPvalue, HelpText = "Maximum adjusted pvalue used for GLM test")]
+    [Option("glm_pvalue", MetaValue = "DOUBLE", DefaultValue = FilterProcessorOptions.DEFAULT_GlmPvalue, HelpText = "Maximum adjusted pvalue used for GLM test")]
     public double GlmPvalue { get; set; }
 
     [Option("glm_use_raw_pvalue", MetaValue = "BOOLEAN", HelpText = "Use GLM raw pvalue rather than FDR adjusted pvalue")]
@@ -92,6 +93,15 @@ namespace CQS.Genome.SomaticMutation
       }
 
       return ParsingErrors.Count == 0;
+    }
+
+    public override void PrintParameter()
+    {
+      base.PrintParameter();
+
+      Console.Out.WriteLine("#error rate: {0}", this.ErrorRate);
+      Console.Out.WriteLine("#glm pvalue: {0}", this.GlmPvalue);
+      Console.Out.WriteLine("#use glm raw pvalue: {0}", this.UseGlmRawPvalue);
     }
   }
 }

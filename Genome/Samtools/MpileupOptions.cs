@@ -14,6 +14,7 @@ namespace CQS.Genome.Samtools
   {
     public const int DEFAULT_MinimumBaseQuality = 20;
     private const int DEFAULT_MpileupMinimumReadQuality = 20;
+    private const int DEFAULT_MinimumReadDepth = 0;
 
     [Option("no-BAQ", MetaValue = "BOOL", HelpText = "disable BAQ (per-Base Alignment Quality) for samtools mpileup (when type==bam)")]
     public bool DisableBAQ { get; set; }
@@ -27,10 +28,15 @@ namespace CQS.Genome.Samtools
     [Option('f', "fasta", MetaValue = "FILE", Required = false, HelpText = "Genome fasta file for samtools mpileup (when type==bam)")]
     public string GenomeFastaFile { get; set; }
 
+    [Option('d', "read_depth", MetaValue = "INT", DefaultValue = DEFAULT_MinimumReadDepth, HelpText = "Minimum read depth of base passed mapping quality filter in each sample")]
+    public virtual int MinimumReadDepth { get; set; }
+
     public MpileupOptions()
     {
       this.MinimumBaseQuality = DEFAULT_MinimumBaseQuality;
       this.MinimumReadQuality = DEFAULT_MpileupMinimumReadQuality;
+      this.MinimumReadDepth = DEFAULT_MinimumReadDepth;
+      this.IgnoreDepthLimitation = false;
     }
 
     public string GetSamtoolsCommand()
@@ -68,5 +74,11 @@ namespace CQS.Genome.Samtools
       Console.Out.WriteLine("#disable BAQ (per-Base Alignment Quality): " + DisableBAQ.ToString());
       Console.Out.WriteLine("#genome fasta file: " + GenomeFastaFile);
     }
+
+    /// <summary>
+    /// For somatic mutation call, IgnoreDepthLimitation should be false to accerate the call.
+    /// For somatic mutation validation, IgnoreDepthLimitation should be true to keep all the information.
+    /// </summary>
+    public bool IgnoreDepthLimitation { get; set; }
   }
 }
