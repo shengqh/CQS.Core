@@ -9,6 +9,7 @@ namespace CQS.Genome.SomaticMutation
   {
     public const double DEFAULT_ErrorRate = 0.01;
     public const double DEFAULT_GlmPvalue = 0.1;
+    public const double DEFAULT_GlmMinimumMedianScoreDiff = 5;
 
     public FilterProcessorOptions()
     {
@@ -16,6 +17,8 @@ namespace CQS.Genome.SomaticMutation
       ErrorRate = DEFAULT_ErrorRate;
       GlmPvalue = DEFAULT_GlmPvalue;
       IsValidation = false;
+      GlmIgnoreScoreDifference = false;
+      GlmMinimumMedianScoreDiff = GlmMinimumMedianScoreDiff;
     }
 
     public string SourceRFile { get; set; }
@@ -26,8 +29,14 @@ namespace CQS.Genome.SomaticMutation
     [Option("glm_pvalue", MetaValue = "DOUBLE", DefaultValue = DEFAULT_GlmPvalue, HelpText = "Maximum pvalue used for GLM test")]
     public double GlmPvalue { get; set; }
 
-    [Option("glm_use_raw_pvalue", MetaValue = "BOOLEAN", HelpText = "Use GLM raw pvalue rather than FDR adjusted pvalue")]
+    [Option("glm_use_raw_pvalue", HelpText = "Use GLM raw pvalue rather than FDR adjusted pvalue")]
     public bool UseGlmRawPvalue { get; set; }
+
+    [Option("glm_ignore_score_diff", DefaultValue = false, HelpText = "Ignore score difference in GLM model")]
+    public bool GlmIgnoreScoreDifference { get; set; }
+
+    [Option("glm_min_median_score_diff", MetaValue = "DOUBLE", DefaultValue = DEFAULT_GlmPvalue, HelpText = "Minimum median score differience between minor alleles and major alleles")]
+    public double GlmMinimumMedianScoreDiff { get; set; }
 
     [Option('o', "output", MetaValue = "FILE", Required = true, HelpText = "Output file")]
     public string OutputFile { get; set; }
@@ -97,6 +106,8 @@ namespace CQS.Genome.SomaticMutation
           sw.WriteLine("pvalue<-{0}", GlmPvalue);
           sw.WriteLine("errorrate<-{0}", ErrorRate);
           sw.WriteLine("israwpvalue<-{0}", IsValidation || UseGlmRawPvalue ? "1" : "0");
+          sw.WriteLine("checkscore<-{0}", GlmIgnoreScoreDifference ? "0" : "1");
+          sw.WriteLine("min_median_score_diff<-{0}", GlmMinimumMedianScoreDiff);
 
           var inpredefined = true;
           foreach (var line in lines)

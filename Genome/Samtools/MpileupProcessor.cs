@@ -65,6 +65,7 @@ namespace CQS.Genome.Samtools
       var pos = string.IsNullOrEmpty(positionFile) ? "" : "-l " + positionFile;
       var mapq = _options.MinimumReadQuality == 0 ? "" : "-q " + _options.MinimumReadQuality.ToString();
       var baseq = _options.MinimumBaseQuality == 0 ? "" : "-Q " + _options.MinimumBaseQuality.ToString();
+      var maxDepth = _options.MaximumReadDepth == 0 ? "" : "-d " + _options.MaximumReadDepth.ToString();
       var disableBAQ = _options.DisableBAQ ? "-B" : string.Empty;
 
       string minDepth = string.Empty;
@@ -102,7 +103,7 @@ namespace CQS.Genome.Samtools
         StartInfo = new ProcessStartInfo
         {
           FileName = samtools,
-          Arguments = string.Format(" mpileup -A -O {0} {1} {2} {3} {4} {5} -f {6} {7}", chr, mapq, baseq, disableBAQ, pos, minDepth, _options.GenomeFastaFile, bamFiles.Merge(" ")),
+          Arguments = string.Format(" mpileup -A -O {0} {1} {2} {3} {4} {5} {6} -f {7} {8}", chr, mapq, baseq, disableBAQ, pos, minDepth, maxDepth, _options.GenomeFastaFile, bamFiles.Merge(" ")),
           UseShellExecute = false,
           RedirectStandardOutput = true,
           CreateNoWindow = true

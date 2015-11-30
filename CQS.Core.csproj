@@ -359,6 +359,7 @@
     <Compile Include="Genome\SmallRNA\SmallRNACategoryGroupBuilder.cs" />
     <Compile Include="Genome\SmallRNA\SmallRNACategoryGroupBuilderOptions.cs" />
     <Compile Include="Genome\SmallRNA\SmallRNACategoryGroupBuilderCommand.cs" />
+    <Compile Include="Genome\SomaticMutation\AbstractPileupFilterProcessorOptions.cs" />
     <Compile Include="Genome\SomaticMutation\AnnotationProcessor.cs" />
     <Compile Include="Genome\SomaticMutation\DataSourceType.cs" />
     <Compile Include="Genome\SomaticMutation\FilterItem.cs" />
@@ -375,7 +376,6 @@
     <Compile Include="Genome\SomaticMutation\ValidationProcessorCommand.cs" />
     <Compile Include="Genome\SomaticMutation\ValidationParser.cs" />
     <Compile Include="Genome\SomaticMutation\ValidationFile.cs" />
-    <Compile Include="Genome\SomaticMutation\ValidationProcessorOptions.cs" />
     <Compile Include="Genome\SomaticMutation\ValidationProcessor.cs" />
     <Compile Include="Genome\SomaticMutation\PipelineProcessorOptions.cs" />
     <Compile Include="Genome\SomaticMutation\PipelineProcessor.cs" />
@@ -400,6 +400,9 @@
     <Compile Include="Genome\SomaticMutation\SomaticMutationUtils.cs" />
     <Compile Include="Genome\SomaticMutation\Options.cs" />
     <Compile Include="Genome\SomaticMutation\PileupProcessorOptions.cs" />
+    <Compile Include="Genome\SomaticMutation\ValidationProcessorOptions.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Genome\TNBC\CallerResult.cs" />
     <Compile Include="Genome\TNBC\CallerResultReader.cs" />
     <Compile Include="Genome\Tophat\TophatSummaryBuilderCommand.cs" />

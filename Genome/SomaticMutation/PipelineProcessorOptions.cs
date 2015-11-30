@@ -5,16 +5,12 @@ using System;
 
 namespace CQS.Genome.SomaticMutation
 {
-  public class PipelineProcessorOptions : PileupProcessorOptions
+  public class PipelineProcessorOptions : AbstractPileupFilterProcessorOptions
   {
-    [Option("error_rate", MetaValue = "DOUBLE", DefaultValue = FilterProcessorOptions.DEFAULT_ErrorRate, HelpText = "Sequencing error rate for normal sample test")]
-    public double ErrorRate { get; set; }
-
-    [Option("glm_pvalue", MetaValue = "DOUBLE", DefaultValue = FilterProcessorOptions.DEFAULT_GlmPvalue, HelpText = "Maximum adjusted pvalue used for GLM test")]
-    public double GlmPvalue { get; set; }
-
-    [Option("glm_use_raw_pvalue", MetaValue = "BOOLEAN", HelpText = "Use GLM raw pvalue rather than FDR adjusted pvalue")]
-    public bool UseGlmRawPvalue { get; set; }
+    public PipelineProcessorOptions()
+    {
+      this.AnnovarSetDefault = false;
+    }
 
     public string AnnovarCommand { get; private set; }
 
@@ -48,22 +44,21 @@ namespace CQS.Genome.SomaticMutation
     [Option("rnaediting_db", MetaValue = "FILE", HelpText = "The rna editing database file")]
     public string RnaeditingDatabase { get; set; }
 
-    public FilterProcessorOptions GetFilterOptions()
+    private string FilterResultFile { get { return GetLinuxFile(OutputSuffix + ".tsv"); } }
+
+    public override FilterProcessorOptions GetFilterOptions()
     {
       var result = new FilterProcessorOptions();
+
+      BeanUtils.CopyPropeties(this, result);
 
       result.Config = Config;
       result.IsPileup = true;
       result.InputFile = BaseFilename;
       result.OutputFile = FilterResultFile;
-      result.GlmPvalue = GlmPvalue;
-      result.ErrorRate = ErrorRate;
-      result.UseGlmRawPvalue = UseGlmRawPvalue;
 
       return result;
     }
-
-    private string FilterResultFile { get { return GetLinuxFile(OutputSuffix + ".tsv"); } }
 
     public AnnotationProcessorOptions GetAnnotationOptions()
     {
@@ -93,15 +88,6 @@ namespace CQS.Genome.SomaticMutation
       }
 
       return ParsingErrors.Count == 0;
-    }
-
-    public override void PrintParameter()
-    {
-      base.PrintParameter();
-
-      Console.Out.WriteLine("#error rate: {0}", this.ErrorRate);
-      Console.Out.WriteLine("#glm pvalue: {0}", this.GlmPvalue);
-      Console.Out.WriteLine("#use glm raw pvalue: {0}", this.UseGlmRawPvalue);
     }
   }
 }

@@ -5,21 +5,13 @@ using System;
 
 namespace CQS.Genome.SomaticMutation
 {
-  public class ValidationProcessorOptions : PileupProcessorOptions
+  public class ValidationProcessorOptions : AbstractPileupFilterProcessorOptions
   {
     [Option('v', "validation_file", MetaValue = "FILE", Required = false, HelpText = "Bed format file for somatic mutation validation")]
     public string ValidationFile { get; set; }
 
-    [Option("glm_pvalue", MetaValue = "DOUBLE", DefaultValue = FilterProcessorOptions.DEFAULT_GlmPvalue, HelpText = "Maximum pvalue used for GLM test")]
-    public double GlmPvalue { get; set; }
-
-    [Option("error_rate", MetaValue = "DOUBLE", DefaultValue = FilterProcessorOptions.DEFAULT_ErrorRate, HelpText = "Sequencing error rate for normal sample test")]
-    public double ErrorRate { get; set; }
-
     public ValidationProcessorOptions()
     {
-      this.GlmPvalue = FilterProcessorOptions.DEFAULT_GlmPvalue;
-      this.ErrorRate = FilterProcessorOptions.DEFAULT_ErrorRate;
       this.IgnoreDepthLimitation = true;
     }
 
@@ -47,9 +39,21 @@ namespace CQS.Genome.SomaticMutation
     public override void PrintParameter()
     {
       base.PrintParameter();
-      Console.Out.WriteLine("#error rate: {0}", this.ErrorRate);
-      Console.Out.WriteLine("#glm pvalue: {0}", this.GlmPvalue);
-      Console.Out.WriteLine("#validation file: {0}", this.ValidationFile);
+      Console.Out.WriteLine("#validation_file={0}", this.ValidationFile);
+    }
+
+    public override FilterProcessorOptions GetFilterOptions()
+    {
+      var result = new FilterProcessorOptions();
+      BeanUtils.CopyPropeties(this, result);
+
+      result.Config = Config;
+      result.IsPileup = false;
+      result.IsValidation = true;
+      result.InputFile = BaseFilename;
+      result.OutputFile = GetLinuxFile(OutputSuffix + ".r.tsv");
+
+      return result;
     }
   }
 }

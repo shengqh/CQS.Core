@@ -140,11 +140,9 @@ namespace CQS.Genome.SomaticMutation
 
     public override IEnumerable<string> Process()
     {
-      var baseFile = base.Process().First();
+      var filterOptions = options.GetFilterOptions();
 
-      var filterOptions = GetFilterOptions(baseFile);
-
-      if (new FileInfo(baseFile).Length > 0)
+      if (new FileInfo(_options.BaseFilename).Length > 0)
       {
         if (!filterOptions.PrepareOptions())
         {
@@ -219,21 +217,6 @@ namespace CQS.Genome.SomaticMutation
       new FilterItemTextFormat().WriteToFile(_options.OutputSuffix + ".tsv", result);
 
       return new string[] { _options.OutputSuffix + ".tsv", _options.OutputSuffix + ".vcf" };
-    }
-
-    private FilterProcessorOptions GetFilterOptions(string baseFile)
-    {
-      var filterOptions = new FilterProcessorOptions();
-
-      filterOptions.Config = options.Config;
-      filterOptions.IsPileup = false;
-      filterOptions.InputFile = baseFile;
-      filterOptions.OutputFile = GetLinuxFile(options.OutputSuffix + ".r.tsv");
-      filterOptions.GlmPvalue = options.GlmPvalue;
-      filterOptions.ErrorRate = options.ErrorRate;
-      filterOptions.IsValidation = true;
-
-      return filterOptions;
     }
   }
 }

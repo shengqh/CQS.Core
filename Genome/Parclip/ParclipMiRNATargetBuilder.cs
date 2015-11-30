@@ -28,9 +28,12 @@ namespace CQS.Genome.Parclip
 
     public override IEnumerable<string> Process()
     {
-      var namemap = new MapReader(1, 12).ReadFromFile(options.RefgeneFile);
+      Progress.SetMessage("Reading T2C smallRNA...");
+      var mappedSmallRNA = GetSmallRNACoverageRegion(options.InputFile);
+      mappedSmallRNA.Sort((m1, m2) => m2.Coverages.Average().CompareTo(m1.Coverages.Average()));
 
       Progress.SetMessage("Build target {0} mers...", options.SeedLength);
+      var namemap = new MapReader(1, 12).ReadFromFile(options.RefgeneFile);
 
       //Read 6 mers from target
       var utr3seeds = BuildTargetSeeds(options.SeedLength);
@@ -39,36 +42,20 @@ namespace CQS.Genome.Parclip
         var gene = m.Name.StringBefore("_utr3");
         m.GeneSymbol = namemap.ContainsKey(gene) ? namemap[gene] : string.Empty;
       });
-
       var sixmerMap = utr3seeds.ToGroupDictionary(m => m.Sequence.ToUpper());
 
-      Console.WriteLine("Reading T2C smallRNA...");
-      var mappedSmallRNA = GetSmallRNACoverageRegion(options.InputFile);
-      mappedSmallRNA.Sort((m1, m2) => m2.Coverages.Average().CompareTo(m1.Coverages.Average()));
-
+      Progress.SetMessage("Finding target...");
       using (var sw = new StreamWriter(options.OutputFile))
       {
-        sw.WriteLine("SmallRNA\tChr\tStart\tEnd\tStrand\tSeed\tSeedOffset\tSeedCoverage\tTarget\tTargetCoverage\tTargetGeneSymbol\tTargetName");
+        sw.WriteLine("SmallRNA\tChr\tStart\tEnd\tStrand\tSeed\tSeedOffset\tSeedLength\tSeedCoverage\tTarget\tTargetCoverage\tTargetGeneSymbol\tTargetName");
         List<SeedItem> target;
 
         foreach (var t2c in mappedSmallRNA)
         {
           var seq = t2c.Sequence.ToUpper();
 
-          int[] offsets;
-          if (t2c.Name.StartsWith(SmallRNAConsts.miRNA))
-          {
-            offsets = new[] { 1 };
-          }
-          else
-          {
-            var lst = new List<int>();
-            for (int j = 1; j < t2c.Sequence.Length - options.SeedLength - 1; j++)
-            {
-              lst.Add(j);
-            }
-            offsets = lst.ToArray();
-          }
+          int[] offsets = new[] { 1 };
+
           foreach (var offset in offsets)
           {
             var seed = seq.Substring(offset, options.SeedLength);
@@ -85,9 +72,59 @@ namespace CQS.Genome.Parclip
                 return m2.Coverage.CompareTo(m1.Coverage);
               });
 
+              if (!t2c.Name.StartsWith(SmallRNAConsts.miRNA))
+              {
+                var extendSeedLength = options.SeedLength;
+                while (true)
+                {
+                  extendSeedLength++;
+
+                  //check the coverage in smallRNA
+                  var extendCoverage = t2c.Coverages.Skip(offset).Take(extendSeedLength).Average();
+                  if (extendCoverage < options.MinimumCoverage)
+                  {
+                    break;
+                  }
+                  var extendSeed = seq.Substring(offset, extendSeedLength);
+
+                  var extendTarget = new List<SeedItem>();
+                  foreach (var utrTarget in target)
+                  {
+                    var newoffset = utrTarget.Strand == '-' ? utrTarget.SourceOffset : utrTarget.SourceOffset - 1;
+                    if (newoffset < 0)
+                    {
+                      continue;
+                    }
+
+                    var newseed = GetSeed(utrTarget.Source, newoffset, extendSeedLength, options.MinimumCoverage);
+                    if (newseed == null)
+                    {
+                      continue;
+                    }
+
+                    if (extendSeed.Equals(newseed.Sequence))
+                    {
+                      extendTarget.Add(newseed);
+                    }
+                  }
+
+                  if (extendTarget.Count > 0)
+                  {
+                    target = extendTarget;
+                  }
+                  else
+                  {
+                    break;
+                  }
+                }
+              }
+
               for (int j = 0; j < target.Count; j++)
               {
-                sw.Write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}", t2c.Name, t2c.Seqname, t2c.Start, t2c.End, t2c.Strand, seed, offset, Math.Round(coverage));
+                var finalSeed = seq.Substring(offset, target[0].Sequence.Length);
+
+
+                sw.Write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}", t2c.Name, t2c.Seqname, t2c.Start, t2c.End, t2c.Strand, finalSeed, offset, finalSeed.Length, Math.Round(coverage));
 
                 var t = target[j];
                 sw.WriteLine("\t{0}:{1}-{2}:{3}\t{4}\t{5}\t{6}",

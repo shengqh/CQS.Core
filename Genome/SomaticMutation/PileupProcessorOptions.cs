@@ -13,6 +13,7 @@ namespace CQS.Genome.SomaticMutation
   public class PileupProcessorOptions : MpileupOptions
   {
     private const int DEFAULT_MinimumReadDepth = 10;
+    private const int DEFAULT_MaximumReadDepth = 8000;
     private const int DEFAULT_MinimumReadsOfMinorAlleleInTumor = 4;
 
     private const double DEFAULT_MaximumPercentageOfMinorAlleleInNormal = 0.02;
@@ -29,6 +30,7 @@ namespace CQS.Genome.SomaticMutation
       IgnoreN = true;
 
       MinimumReadDepth = DEFAULT_MinimumReadDepth;
+      MaximumReadDepth = DEFAULT_MaximumReadDepth;
 
       MaximumPercentageOfMinorAlleleInNormal = DEFAULT_MaximumPercentageOfMinorAlleleInNormal;
       MinimumReadsOfMinorAlleleInTumor = DEFAULT_MinimumReadsOfMinorAlleleInTumor;
@@ -58,8 +60,11 @@ namespace CQS.Genome.SomaticMutation
     [Option('m', "mpileup", MetaValue = "FILE", Required = false, HelpText = "Input samtools mpileup result file (when type==mpileup)")]
     public string MpileupFile { get; set; }
 
-    [Option('d', "read_depth", MetaValue = "INT", DefaultValue = DEFAULT_MinimumReadDepth, HelpText = "Minimum read depth of base passed mapping quality filter in each sample")]
+    [Option("min_read_depth", MetaValue = "INT", DefaultValue = DEFAULT_MinimumReadDepth, HelpText = "Minimum read depth of base passed mapping quality filter in each sample")]
     public override int MinimumReadDepth { get; set; }
+
+    [Option("max_read_depth", MetaValue = "INT", DefaultValue = DEFAULT_MaximumReadDepth, HelpText = "Maximum read depth of base passed mapping quality filter in each sample")]
+    public override int MaximumReadDepth { get; set; }
 
     [Option("fisher_pvalue", MetaValue = "DOUBLE", DefaultValue = DEFAULT_FisherPvalue, HelpText = "Maximum pvalue used for fisher exact test")]
     public double FisherPvalue { get; set; }
@@ -282,8 +287,44 @@ namespace CQS.Genome.SomaticMutation
 
     public override void PrintParameter()
     {
-      Console.Out.WriteLine("#output directory: " + this.OutputSuffix);
-      Console.Out.WriteLine("#minimum count: " + this.MinimumReadDepth);
+      Console.Out.WriteLine("#type={0}", this.From);
+
+      if (this.From == DataSourceType.BAM)
+      {
+        Console.Out.WriteLine("#normal={0}", this.NormalBam);
+        Console.Out.WriteLine("#tumor={0}", this.TumorBam);
+        base.PrintParameter();
+      }
+      else if (this.From == DataSourceType.Mpileup)
+      {
+        Console.Out.WriteLine("#mpileup={0}", this.TumorBam);
+        Console.Out.WriteLine("#base_quality={0}", MinimumBaseQuality);
+        Console.Out.WriteLine("#min_read_depth={0}", MinimumReadDepth);
+        Console.Out.WriteLine("#max_read_depth={0}", MaximumReadDepth);
+      }
+      else
+      {
+        Console.Out.WriteLine("#base_quality={0}", MinimumBaseQuality);
+        Console.Out.WriteLine("#min_read_depth={0}", MinimumReadDepth);
+        Console.Out.WriteLine("#max_read_depth={0}", MaximumReadDepth);
+      }
+
+      if (ChromosomeNames.Count() > 0)
+      {
+        Console.Out.WriteLine("#chromosomes={0}", this.ChromosomeNames.Merge(","));
+      }
+
+      Console.Out.WriteLine("#fisher_pvalue=" + this.FisherPvalue);
+      Console.Out.WriteLine("#max_normal_percentage=" + this.MaximumPercentageOfMinorAlleleInNormal);
+      Console.Out.WriteLine("#min_tumor_percentage=" + this.MinimumPercentageOfMinorAlleleInTumor);
+      Console.Out.WriteLine("#min_tumor_read=" + this.MinimumReadsOfMinorAlleleInTumor);
+      Console.Out.WriteLine("#thread_count=" + this.ThreadCount);
+      Console.Out.WriteLine("#output=" + this.OutputSuffix);
+
+      if (File.Exists(this.ExcludeBedFile))
+      {
+        Console.Out.WriteLine("#exclude_bed=" + this.ExcludeBedFile);
+      }
 
       if (this.From == DataSourceType.BAM)
       {
@@ -291,14 +332,8 @@ namespace CQS.Genome.SomaticMutation
       }
       else
       {
-        Console.Out.WriteLine("#minimum base quality: " + this.MinimumBaseQuality);
+        Console.Out.WriteLine("#base_quality=" + this.MinimumBaseQuality);
       }
-
-      Console.Out.WriteLine("#maximum percentage of minor allele in normal: " + this.MaximumPercentageOfMinorAlleleInNormal);
-      Console.Out.WriteLine("#minimum percentage of minor allele in tumor: " + this.MinimumPercentageOfMinorAlleleInTumor);
-      Console.Out.WriteLine("#minimum reads of minor allele in tumor: " + this.MinimumReadsOfMinorAlleleInTumor);
-      Console.Out.WriteLine("#fisher exact test pvalue: " + this.FisherPvalue);
-      Console.Out.WriteLine("#thread count: " + this.ThreadCount);
     }
   }
 }

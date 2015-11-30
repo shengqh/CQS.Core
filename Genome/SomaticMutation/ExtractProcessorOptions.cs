@@ -12,11 +12,14 @@ namespace CQS.Genome.SomaticMutation
 {
   public class ExtractProcessorOptions : MpileupOptions
   {
+    private const int DEFAULT_MaximumReadDepth = 8000;
+    
     public ExtractProcessorOptions()
     {
       IgnoreInsertionDeletion = true;
       IgnoreTerminalBase = false;
       IgnoreN = true;
+      MaximumReadDepth = DEFAULT_MaximumReadDepth;
     }
 
     public bool IgnoreInsertionDeletion { get; set; }
@@ -33,6 +36,9 @@ namespace CQS.Genome.SomaticMutation
 
     [OptionList("bam_names", MetaValue = "STRINGS", Required = true, Separator = ',', HelpText = "Bam names, separated by ','")]
     public IList<string> BamNames { get; set; }
+
+    [Option("max_read_depth", MetaValue = "INT", DefaultValue = DEFAULT_MaximumReadDepth, HelpText = "Maximum read depth of base passed mapping quality filter in each sample")]
+    public override int MaximumReadDepth { get; set; }
 
     [Option('o', "output", MetaValue = "STRING", Required = true, HelpText = "Output file")]
     public string OutputFile { get; set; }

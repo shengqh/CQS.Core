@@ -35,6 +35,8 @@ namespace CQS.Genome.SomaticMutation
       var mutationList = new ValidationFile().ReadFromFile(options.BedFile);
       var map = mutationList.Items.ToDictionary(m => GenomeUtils.GetKey(m.Chr, m.Pos));
 
+      options.PrintParameter();
+
       var posFile = Path.Combine(options.OutputFile + ".pos.txt");
       using (var sw = new StreamWriter(posFile))
       {

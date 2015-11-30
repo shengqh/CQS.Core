@@ -16,6 +16,29 @@ using System.Text.RegularExpressions;
 
 namespace CQS.Genome.Parclip
 {
+  public class CoverageRegion : SequenceRegion
+  {
+    public CoverageRegion()
+    {
+      this.Coverages = new List<int>();
+    }
+
+    public List<int> Coverages { get; private set; }
+  }
+
+  public class SeedItem : SequenceRegion
+  {
+    public double Coverage { get; set; }
+
+    public string GeneSymbol { get; set; }
+
+    public string FullSequence { get; set; }
+
+    public CoverageRegion Source { get; set; }
+
+    public int SourceOffset { get; set; }
+  }
+
   public abstract class AbstractTargetBuilder : AbstractThreadProcessor
   {
     private AbstractTargetBuilderOptions options;
@@ -23,23 +46,6 @@ namespace CQS.Genome.Parclip
     public AbstractTargetBuilder(AbstractTargetBuilderOptions options)
     {
       this.options = options;
-    }
-
-    protected class CoverageRegion : SequenceRegion
-    {
-      public CoverageRegion()
-      {
-        this.Coverages = new List<int>();
-      }
-
-      public List<int> Coverages { get; private set; }
-    }
-
-    protected class SeedItem : SequenceRegion
-    {
-      public double Coverage { get; set; }
-
-      public string GeneSymbol { get; set; }
     }
 
     protected List<SeedItem> BuildTargetSeeds(int seedLength)
@@ -51,36 +57,51 @@ namespace CQS.Genome.Parclip
       {
         for (int i = 0; i < l.Sequence.Length - seedLength; i++)
         {
-          var coverage = l.Coverages.Skip(i).Take(seedLength).Average();
-          if (coverage < options.MinimumCoverage)
+          SeedItem si = GetSeed(l, i, seedLength, options.MinimumCoverage);
+
+          if (si != null)
           {
-            continue;
+            seeds.Add(si);
           }
-
-          var newseq = l.Sequence.Substring(i, seedLength);
-          var start = l.Start + i;
-          var end = l.Start + i + seedLength - 1;
-          if (l.Strand == '+')
-          {
-            newseq = SequenceUtils.GetReverseComplementedSequence(newseq);
-          }
-
-          var si = new SeedItem()
-          {
-            Seqname = l.Seqname,
-            Start = start,
-            End = end,
-            Strand = l.Strand,
-            Coverage = coverage,
-            Name = l.Name,
-            Sequence = newseq
-          };
-
-          seeds.Add(si);
         }
       }
 
       return seeds;
+    }
+
+    public static SeedItem GetSeed(CoverageRegion cr, int offset, int seedLength, double minCoverage)
+    {
+      if (cr.Sequence.Length < offset + seedLength)
+      {
+        return null;
+      }
+
+      var coverage = cr.Coverages.Skip(offset).Take(seedLength).Average();
+      if (coverage < minCoverage)
+      {
+        return null;
+      }
+
+      var newseq = cr.Sequence.Substring(offset, seedLength);
+      var start = cr.Start + offset;
+      var end = cr.Start + offset + seedLength - 1;
+      if (cr.Strand == '+')
+      {
+        newseq = SequenceUtils.GetReverseComplementedSequence(newseq);
+      }
+
+      return new SeedItem()
+      {
+        Seqname = cr.Seqname,
+        Start = start,
+        End = end,
+        Strand = cr.Strand,
+        Coverage = coverage,
+        Name = cr.Name,
+        Sequence = newseq,
+        Source = cr,
+        SourceOffset = offset
+      };
     }
 
     private List<CoverageRegion> GetTargetCoverageRegion(string targetXmlFile)

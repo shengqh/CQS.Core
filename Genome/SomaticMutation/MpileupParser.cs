@@ -59,6 +59,16 @@ namespace CQS.Genome.SomaticMutation
         }
       }
 
+      //for debug
+      //var sptemp = _parser.GetSequenceIdentifierAndPosition(parts);
+      //if (sptemp.SequenceIdentifier == "2" && sptemp.Position == 89161431)
+      //{
+      //  var debugFile = string.Format("{0}/debug.txt", _options.CandidatesDirectory);
+      //  File.WriteAllLines(debugFile, new[] { line });
+      //  Console.WriteLine("Catched the line");
+      //  System.Windows.Forms.Application.Exit();
+      //}
+
       //didn't consider minimum score requirment
       if (!_parser.HasEnoughReads(parts))
       {

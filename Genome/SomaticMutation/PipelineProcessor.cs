@@ -21,8 +21,6 @@ namespace CQS.Genome.SomaticMutation
     public override IEnumerable<string> Process()
     {
       var filterOptions = _options.GetFilterOptions();
-      var annotationOptions = _options.GetAnnotationOptions();
-
       if (!File.Exists(filterOptions.InputFile))
       {
         //run initialize candidates
@@ -36,6 +34,7 @@ namespace CQS.Genome.SomaticMutation
         throw new Exception("Filter options failed: " + filterOptions.ParsingErrors.Merge("\n"));
       }
 
+      var annotationOptions = _options.GetAnnotationOptions();
       if (!File.Exists(annotationOptions.InputFile))
       {
         new FilterProcessor(filterOptions).Process();
@@ -48,7 +47,6 @@ namespace CQS.Genome.SomaticMutation
       }
 
       new AnnotationProcessor(annotationOptions).Process();
-
       return new[] { annotationOptions.AnnovarOutputFile };
     }
   }
