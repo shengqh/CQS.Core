@@ -61,5 +61,13 @@ namespace CQS.Genome.SomaticMutation
 
       return this;
     }
+
+    public void WriteToFile(string filename, int extension)
+    {
+      using (var sw = new StreamWriter(filename))
+      {
+        this.Items.ForEach(m => sw.WriteLine("{0}\t{1}\t{2}", m.Chr, Math.Max(int.Parse(m.Pos) - extension, 1), int.Parse(m.Pos) + extension));
+      }
+    }
   }
 }

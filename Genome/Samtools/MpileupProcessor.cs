@@ -59,7 +59,7 @@ namespace CQS.Genome.Samtools
       }
     }
 
-    public Process ExecuteSamtools(IEnumerable<string> bamFiles, string chromosome, string positionFile = null)
+    public Process ExecuteSamtools(IEnumerable<string> bamFiles, string chromosome = null, string positionFile = null)
     {
       var chr = string.IsNullOrEmpty(chromosome) ? "" : "-r " + chromosome;
       var pos = string.IsNullOrEmpty(positionFile) ? "" : "-l " + positionFile;

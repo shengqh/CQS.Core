@@ -25,11 +25,11 @@ namespace CQS.Genome.Fastq
 
       var except = new HashSet<string>(exceptQueryNames);
 
-      CountMap cm = new CountMap();
+      SmallRNACountMap cm = new SmallRNACountMap();
       StreamWriter swCount = null;
       if (File.Exists(countFile))
       {
-        var oldCm = new CountMap(countFile);
+        var oldCm = new SmallRNACountMap(countFile);
         foreach (var c in oldCm.Counts)
         {
           cm.Counts[c.Key.StringBefore(SmallRNAConsts.NTA_TAG)] = c.Value;

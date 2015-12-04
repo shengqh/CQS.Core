@@ -9,6 +9,7 @@ using CQS.Genome.Sam;
 using CQS.Genome.Gtf;
 using RCPA.Seq;
 using CQS.Genome.Feature;
+using CQS.Genome.SmallRNA;
 
 namespace CQS.Genome.Mapping
 {
@@ -18,7 +19,7 @@ namespace CQS.Genome.Mapping
 
     string CountFile { get; set; }
 
-    CountMap GetCountMap();
+    SmallRNACountMap GetCountMap();
 
     ICandidateBuilder GetCandidateBuilder();
   }

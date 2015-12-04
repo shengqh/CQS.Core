@@ -41,6 +41,15 @@ namespace CQS.Genome.SmallRNA
       //parsing reads
       HashSet<string> totalQueries;
       var reads = ParseCandidates(options.InputFiles, resultFilename, out totalQueries);
+      int totalQueryCount;
+      if (reads.Count == totalQueries.Count && File.Exists(options.CountFile))
+      {
+        totalQueryCount = Counts.GetTotalCount();
+      }
+      else
+      {
+        totalQueryCount = (from q in totalQueries select q.StringBefore(SmallRNAConsts.NTA_TAG)).Distinct().Sum(m => Counts.GetCount(m));
+      }
 
       //First of all, draw mapping position graph
       Progress.SetMessage("Drawing position pictures...");
@@ -123,10 +132,10 @@ namespace CQS.Genome.SmallRNA
         result.Add(mappedfile);
       }
 
-      var totalMappedQueries = new HashSet<string>(from q in reads select q.OriginalQname);
+      var totalMappedCount = (from q in reads select q.Qname.StringBefore(SmallRNAConsts.NTA_TAG)).Distinct().Sum(m => Counts.GetCount(m));
 
       var infoFile = Path.ChangeExtension(resultFilename, ".info");
-      WriteSummaryFile(allmapped, totalQueries, totalMappedQueries, infoFile);
+      WriteSummaryFile(allmapped, totalQueryCount, totalMappedCount, infoFile);
       result.Add(infoFile);
 
       Progress.End();

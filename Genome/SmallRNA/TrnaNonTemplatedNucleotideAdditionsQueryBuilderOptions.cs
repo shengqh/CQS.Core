@@ -57,13 +57,13 @@ namespace CQS.Genome.SmallRNA
       return true;
     }
 
-    private CountMap cm;
+    private SmallRNACountMap cm;
 
-    public virtual CountMap GetCountMap()
+    public virtual SmallRNACountMap GetCountMap()
     {
       if (cm == null)
       {
-        cm = new CountMap(this.CountFile);
+        cm = new SmallRNACountMap(this.CountFile);
       }
       return cm;
     }

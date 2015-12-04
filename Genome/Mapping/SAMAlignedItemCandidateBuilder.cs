@@ -40,8 +40,6 @@ namespace CQS.Genome.Mapping
         string line;
         while ((line = sr.ReadLine()) != null)
         {
-          count++;
-
           if (count % 1000 == 0)
           {
             if (Progress.IsCancellationPending())
@@ -50,10 +48,12 @@ namespace CQS.Genome.Mapping
             }
           }
 
-          if (count % 100000 == 0)
+          if (count % 100000 == 0 && count > 0)
           {
             Progress.SetMessage("{0} candidates from {1} reads", waitingcount, count);
           }
+
+          count++;
 
           var parts = line.Split('\t');
 

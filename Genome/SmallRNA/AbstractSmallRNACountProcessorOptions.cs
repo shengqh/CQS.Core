@@ -94,13 +94,13 @@ namespace CQS.Genome.SmallRNA
       return result && ParsingErrors.Count == 0;
     }
 
-    private CountMap cm;
+    private SmallRNACountMap cm;
 
-    public override CountMap GetCountMap()
+    public override SmallRNACountMap GetCountMap()
     {
       if (cm == null)
       {
-        cm = new CountMap(this.CountFile);
+        cm = new SmallRNACountMap(this.CountFile);
         var keys = cm.Counts.Keys.Where(m => m.Contains(SmallRNAConsts.NTA_TAG)).ToArray();
         foreach (var key in keys)
         {

@@ -6,6 +6,7 @@ using RCPA.Commandline;
 using CommandLine;
 using System.IO;
 using RCPA;
+using CQS.Genome.SmallRNA;
 
 namespace CQS.Genome.Mirna
 {
@@ -60,13 +61,13 @@ namespace CQS.Genome.Mirna
       return true;
     }
 
-    private CountMap cm;
+    private SmallRNACountMap cm;
 
-    public virtual CountMap GetCountMap()
+    public virtual SmallRNACountMap GetCountMap()
     {
       if (cm == null)
       {
-        cm = new CountMap(this.CountFile);
+        cm = new SmallRNACountMap(this.CountFile);
       }
       return cm;
     }

@@ -10,6 +10,7 @@ using CQS.Genome.Gtf;
 using RCPA.Seq;
 using CQS.Genome.Feature;
 using CQS.Genome.Gsnap;
+using CQS.Genome.SmallRNA;
 
 namespace CQS.Genome.Mapping
 {
@@ -52,13 +53,13 @@ namespace CQS.Genome.Mapping
       }
     }
 
-    private CountMap cm;
+    private SmallRNACountMap cm;
 
-    public virtual CountMap GetCountMap()
+    public virtual SmallRNACountMap GetCountMap()
     {
       if (cm == null)
       {
-        cm = new CountMap(this.CountFile);
+        cm = new SmallRNACountMap(this.CountFile);
       }
       return cm;
     }

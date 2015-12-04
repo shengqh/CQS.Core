@@ -40,15 +40,12 @@ namespace CQS.Genome.SomaticMutation
           pfile.Open(_options.MpileupFile);
           break;
         case DataSourceType.BAM:
-          var posFile = Path.Combine(_options.CandidatesDirectory, "pos.txt");
-          using (var sw = new StreamWriter(posFile))
-          {
-            mutationList.Items.ForEach(m => sw.WriteLine("{0} {1}", m.Chr, m.Pos));
-          }
+          var posFile = Path.Combine(_options.CandidatesDirectory, "pos.bed");
+          mutationList.WriteToFile(posFile, 500);
           var proc = new MpileupProcessor(_options).ExecuteSamtools(new[] { _options.NormalBam, _options.TumorBam }, "", posFile);
           if (proc == null)
           {
-            return null;
+            throw new Exception("Cannot execute mpileup.");
           }
 
           pfile.Open(proc.StandardOutput);
@@ -85,7 +82,7 @@ namespace CQS.Genome.SomaticMutation
               ValidationItem vitem = null;
               if (!map.TryGetValue(locusKey, out vitem))
               {
-                throw new Exception(string.Format("Cannot find {0} in validation list : {1}", locusKey, line));
+                continue;
               }
 
               //Console.WriteLine("Parsing " + line);
@@ -140,6 +137,8 @@ namespace CQS.Genome.SomaticMutation
 
     public override IEnumerable<string> Process()
     {
+      base.Process();
+
       var filterOptions = options.GetFilterOptions();
 
       if (new FileInfo(_options.BaseFilename).Length > 0)

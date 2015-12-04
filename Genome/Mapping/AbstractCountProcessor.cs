@@ -21,8 +21,8 @@ namespace CQS.Genome.Mapping
   {
     protected T options;
 
-    private CountMap _counts;
-    public CountMap Counts
+    private SmallRNACountMap _counts;
+    public SmallRNACountMap Counts
     {
       get
       {

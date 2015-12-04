@@ -45,7 +45,7 @@ namespace CQS.Genome.SmallRNA
                          select l.StringBefore(SmallRNAConsts.NTA_TAG));
       }
 
-      CountMap cm = options.GetCountMap();
+      SmallRNACountMap cm = options.GetCountMap();
       var keys = cm.Counts.Keys.Where(m => m.Contains(SmallRNAConsts.NTA_TAG)).ToArray();
       foreach (var key in keys)
       {

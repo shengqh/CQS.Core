@@ -28,63 +28,55 @@ namespace CQS.Genome.Parclip
 
     public override IEnumerable<string> Process()
     {
-      var seeds = File.ReadAllLines(options.InputFile);
-      var seedLengths = (from s in seeds select s.Length).Distinct().OrderBy(m => m).ToList();
+      var candidates = options.ReadSeeds();
+      Progress.SetMessage("Total {0} seeds readed.", candidates.Length);
+      var offsets = GetPossibleOffsets(string.Empty);
+      var seeds = new HashSet<string>(from seq in candidates
+                                      from offset in offsets
+                                      select seq.Substring(offset, options.MinimumSeedLength));
 
-      if (seedLengths.Count > 1)
-      {
-        throw new Exception(string.Format("The seed should be equal length, current are {0}", seedLengths.ConvertAll(m => m.ToString()).Merge(",")));
-      }
+      Progress.SetMessage("Build target {0} mers...", options.MinimumSeedLength);
+      var targetSeedMap = ParclipUtils.BuildTargetSeedMap(options, m => seeds.Contains(m.Sequence), this.Progress);
 
-      if (seedLengths.Count == 0)
-      {
-        throw new Exception(string.Format("No seed found in file {0}", options.InputFile));
-      }
-
-      var seedLength = seedLengths[0];
-
-      Progress.SetMessage("Total {0} seeds readed.", seeds.Length);
-
-      var namemap = new MapReader(1, 12).ReadFromFile(options.RefgeneFile);
-
-      Progress.SetMessage("Build target {0} mers...", seedLength);
-
-      //Read 6 mers from target
-      var utr3seeds = BuildTargetSeeds(seedLength);
-      utr3seeds.ForEach(m =>
-      {
-        var gene = m.Name.StringBefore("_utr3");
-        m.GeneSymbol = namemap.ContainsKey(gene) ? namemap[gene] : string.Empty;
-      });
-
-      var seedMap = utr3seeds.ToGroupDictionary(m => m.Sequence.ToUpper());
-
+      Progress.SetMessage("Finding target...");
       using (var sw = new StreamWriter(options.OutputFile))
       {
-        sw.WriteLine("Seed\tTarget\tTargetCoverage\tTargetGeneSymbol\tTargetName");
-        List<SeedItem> target;
+        sw.WriteLine("Sequence\tSeed\tSeedOffset\tSeedLength\tTarget\tTargetCoverage\tTargetGeneSymbol\tTargetName");
 
-        foreach (var seed in seeds)
+        foreach (var seq in candidates)
         {
-          if (seedMap.TryGetValue(seed, out target))
+          foreach (var offset in offsets)
           {
-            target.Sort((m1, m2) =>
-            {
-              return m2.Coverage.CompareTo(m1.Coverage);
-            });
+            var seed = seq.Substring(offset, options.MinimumSeedLength);
 
-            for (int j = 0; j < target.Count; j++)
+            List<SeedItem> target;
+
+            if (targetSeedMap.TryGetValue(seed, out target))
             {
-              var t = target[j];
-              sw.WriteLine("{0}\t{1}:{2}-{3}:{4}\t{5}\t{6}\t{7}",
-                seed,
-                t.Seqname,
-                t.Start,
-                t.End,
-                t.Strand,
-                t.Coverage,
-                t.GeneSymbol,
-                t.Name);
+              target.Sort((m1, m2) =>
+              {
+                return m2.Coverage.CompareTo(m1.Coverage);
+              });
+
+              target = ParclipUtils.FindLongestTarget(target, null, seq, offset, options.MinimumSeedLength, int.MaxValue, options.MinimumCoverage);
+
+              for (int j = 0; j < target.Count; j++)
+              {
+                var finalSeed = seq.Substring(offset, target[0].Sequence.Length);
+                var t = target[j];
+                sw.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}:{5}-{6}:{7}\t{8}\t{9}\t{10}",
+                  seq,
+                  finalSeed,
+                  offset,
+                  finalSeed.Length,
+                  t.Seqname,
+                  t.Start,
+                  t.End,
+                  t.Strand,
+                  t.Coverage,
+                  t.GeneSymbol,
+                  t.Name);
+              }
             }
           }
         }

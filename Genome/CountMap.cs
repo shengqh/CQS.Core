@@ -29,17 +29,27 @@ namespace CQS.Genome
 
       if (this.HasCountFile)
       {
-        Dictionary<string, string> counts = new MapReader(0, 1).ReadFromFile(countFile);
-        foreach (var c in counts)
-        {
-          Counts[c.Key] = int.Parse(c.Value);
-        }
+        ReadCountFile(countFile);
         func = DoGetIdenticalCount;
       }
       else
       {
         func = DoGetCountOne;
       }
+    }
+
+    protected virtual void ReadCountFile(string countFile)
+    {
+      Dictionary<string, string> counts = new MapReader(0, 1).ReadFromFile(countFile);
+      foreach (var c in counts)
+      {
+        Counts[c.Key] = int.Parse(c.Value);
+      }
+    }
+
+    public virtual int GetTotalCount()
+    {
+      return Counts.Values.Sum();
     }
 
     private int DoGetCountOne(params string[] qNames)

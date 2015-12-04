@@ -40,7 +40,16 @@ namespace CQS.Genome.Mapping
       //parsing reads
       var totalQueries = new HashSet<string>();
       var reads = ParseCandidates(options.InputFile, resultFilename, out totalQueries);
-      int totalReadCount = totalQueries.Sum(l => Counts.GetCount(l));
+
+      int totalQueryCount;
+      if (reads.Count == totalQueries.Count && File.Exists(options.CountFile))
+      {
+        totalQueryCount = Counts.GetTotalCount();
+      }
+      else
+      {
+        totalQueryCount = (from q in totalQueries select q.StringBefore(SmallRNAConsts.NTA_TAG)).Distinct().Sum(m => Counts.GetCount(m));
+      }
 
       if (reads.Count > 0 && reads[0].Qname.Contains(SmallRNAConsts.NTA_TAG))
       {
@@ -49,7 +58,7 @@ namespace CQS.Genome.Mapping
           reads.RemoveAll(m => !m.Qname.EndsWith(SmallRNAConsts.NTA_TAG));
         }
       }
-      int mappedReadCount = reads.Sum(l => Counts.GetCount(l.Qname));
+      var totalMappedCount = (from q in reads select q.Qname.StringBefore(SmallRNAConsts.NTA_TAG)).Distinct().Sum(m => Counts.GetCount(m));
 
       Progress.SetMessage("mapping reads to sequence regions...");
       MapReadToSequenceRegion(featureLocations, reads);
@@ -122,8 +131,9 @@ namespace CQS.Genome.Mapping
         {
           sw.WriteLine("#countFile\t{0}", options.CountFile);
         }
-        sw.WriteLine("TotalReads\t{0}", totalReadCount);
-        sw.WriteLine("MappedReads\t{0}", mappedReadCount);
+
+        sw.WriteLine("TotalReads\t{0}", totalQueryCount);
+        sw.WriteLine("MappedReads\t{0}", totalMappedCount);
         sw.WriteLine("MultipleMappedReads\t{0}", reads.Where(m => m.Locations.Count > 1).Sum(m => m.QueryCount));
         sw.WriteLine("FeatureReads\t{0}", featureReadCount);
       }

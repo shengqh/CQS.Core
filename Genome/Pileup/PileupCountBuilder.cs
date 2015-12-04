@@ -11,6 +11,7 @@ using System.IO;
 using CQS.Genome.Mirna;
 using RCPA.Seq;
 using CQS.Genome.Gtf;
+using CQS.Genome.SmallRNA;
 
 namespace CQS.Genome.Pileup
 {
@@ -30,7 +31,7 @@ namespace CQS.Genome.Pileup
 
       var format = options.GetSAMFormat();
 
-      var cm = new CountMap(options.CountFile);
+      var cm = new SmallRNACountMap(options.CountFile);
 
       var srItems = SequenceRegionUtils.GetSequenceRegions(options.CoordinateFile, "miRNA", options.BedAsGtf);
       srItems.ForEach(m =>

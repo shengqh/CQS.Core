@@ -144,8 +144,6 @@ namespace CQS.Genome.SomaticMutation
           Console.Out.WriteLine("#mpileup file: " + MpileupFile);
           break;
         case DataSourceType.BAM:
-          Console.WriteLine("BAM file...");
-
           if (null == NormalBam)
           {
             ParsingErrors.Add("Bam file for normal sample not defined.");
@@ -153,10 +151,6 @@ namespace CQS.Genome.SomaticMutation
           else if (!File.Exists(NormalBam))
           {
             ParsingErrors.Add(string.Format("Bam file for normal sample not exists {0}", NormalBam));
-          }
-          else
-          {
-            Console.Out.WriteLine("#mpileup normal file: " + this.NormalBam);
           }
 
           if (null == TumorBam)
@@ -166,10 +160,6 @@ namespace CQS.Genome.SomaticMutation
           else if (!File.Exists(TumorBam))
           {
             ParsingErrors.Add(string.Format("Bam file for tumor sample is not exists {0}", TumorBam));
-          }
-          else
-          {
-            Console.Out.WriteLine("#mpileup tumor file: " + this.TumorBam);
           }
 
           if (ThreadCount >= 2)
@@ -295,21 +285,18 @@ namespace CQS.Genome.SomaticMutation
         Console.Out.WriteLine("#tumor={0}", this.TumorBam);
         base.PrintParameter();
       }
-      else if (this.From == DataSourceType.Mpileup)
-      {
-        Console.Out.WriteLine("#mpileup={0}", this.TumorBam);
-        Console.Out.WriteLine("#base_quality={0}", MinimumBaseQuality);
-        Console.Out.WriteLine("#min_read_depth={0}", MinimumReadDepth);
-        Console.Out.WriteLine("#max_read_depth={0}", MaximumReadDepth);
-      }
       else
       {
+        if (this.From == DataSourceType.Mpileup)
+        {
+          Console.Out.WriteLine("#mpileup={0}", this.TumorBam);
+        }
         Console.Out.WriteLine("#base_quality={0}", MinimumBaseQuality);
         Console.Out.WriteLine("#min_read_depth={0}", MinimumReadDepth);
         Console.Out.WriteLine("#max_read_depth={0}", MaximumReadDepth);
       }
 
-      if (ChromosomeNames.Count() > 0)
+      if (ChromosomeNames != null && ChromosomeNames.Count() > 0)
       {
         Console.Out.WriteLine("#chromosomes={0}", this.ChromosomeNames.Merge(","));
       }
@@ -324,15 +311,6 @@ namespace CQS.Genome.SomaticMutation
       if (File.Exists(this.ExcludeBedFile))
       {
         Console.Out.WriteLine("#exclude_bed=" + this.ExcludeBedFile);
-      }
-
-      if (this.From == DataSourceType.BAM)
-      {
-        base.PrintParameter();
-      }
-      else
-      {
-        Console.Out.WriteLine("#base_quality=" + this.MinimumBaseQuality);
       }
     }
   }

@@ -150,6 +150,7 @@
     <Compile Include="Genome\Bed\BedSorterOptions.cs" />
     <Compile Include="Genome\CNV\CNVItemTableBuilder.cs" />
     <Compile Include="Genome\CNV\CNVItemTableBuilderOptions.cs" />
+    <Compile Include="Genome\CountMap.cs" />
     <Compile Include="Genome\Database\DatabaseReorderProcessor.cs" />
     <Compile Include="Genome\Database\DatabaseReorderProcessorCommand.cs" />
     <Compile Include="Genome\Database\DatabaseReorderProcessorOptions.cs" />
@@ -221,14 +222,17 @@
     <Compile Include="Genome\Mapping\CountToRPKMProcessor.cs" />
     <Compile Include="Genome\Mapping\CountToRPKMProcessorOptions.cs" />
     <Compile Include="Genome\Parclip\AbstractTargetBuilder.cs" />
+    <Compile Include="Genome\Parclip\ITargetBuilderOptions.cs" />
+    <Compile Include="Genome\Parclip\ParclipSmallRNATargetDirectBuilder.cs" />
+    <Compile Include="Genome\Parclip\ParclipUtils.cs" />
     <Compile Include="Genome\Parclip\SeedTargetBuilder.cs" />
-    <Compile Include="Genome\Parclip\ParclipMiRNATargetBuilder.cs" />
+    <Compile Include="Genome\Parclip\ParclipSmallRNATargetBuilder.cs" />
     <Compile Include="Genome\Parclip\SeedTargetBuilderCommand.cs" />
-    <Compile Include="Genome\Parclip\ParclipMiRNATargetBuilderCommand.cs" />
+    <Compile Include="Genome\Parclip\ParclipSmallRNATargetBuilderCommand.cs" />
     <Compile Include="Genome\Parclip\AbstractTargetBuilderOptions.cs" />
     <Compile Include="Genome\Parclip\SeedTargetBuilderOptions.cs" />
     <Compile Include="Genome\Parclip\ParclipSmallRNAT2CBuilderCommand.cs" />
-    <Compile Include="Genome\Parclip\ParclipMiRNATargetBuilderOptions.cs" />
+    <Compile Include="Genome\Parclip\ParclipSmallRNATargetBuilderOptions.cs" />
     <Compile Include="Genome\Parclip\ParclipSmallRNAT2CBuilderOptions.cs" />
     <Compile Include="Genome\Parclip\ParclipSmallRNAT2CBuilder.cs" />
     <Compile Include="Genome\QC\FastQCSummaryBuilder.cs" />
@@ -248,6 +252,10 @@
     <Compile Include="Genome\Sam\BamCleanerOptions.cs" />
     <Compile Include="Genome\SmallRNA\AbstractSmallRNACountProcessorOptions.cs" />
     <Compile Include="Genome\SmallRNA\AbstractSmallRNACountProcessor.cs" />
+    <Compile Include="Genome\SmallRNA\SmallRNACountMap.cs" />
+    <Compile Include="Genome\SmallRNA\SmallRNABamInfoFixer.cs" />
+    <Compile Include="Genome\SmallRNA\SmallRNABamInfoFixerCommand.cs" />
+    <Compile Include="Genome\SmallRNA\SmallRNABamInfoFixerOptions.cs" />
     <Compile Include="Genome\SmallRNA\SmallRNAT2CMutationSummaryBuilderCommand.cs" />
     <Compile Include="Genome\SmallRNA\SmallRNAT2CMutationSummaryBuilder.cs" />
     <Compile Include="Genome\SmallRNA\SmallRNAT2CMutationSummaryBuilderOptions.cs" />
@@ -665,7 +673,6 @@
     <Compile Include="Genome\Mirna\MirnaMappedOverlapBuilderCommand.cs" />
     <Compile Include="Genome\Mapping\SAMAlignedItemBestScoreCandidateBuilder.cs" />
     <Compile Include="Genome\Mapping\ICandidateBuilder.cs" />
-    <Compile Include="Genome\CountMap.cs" />
     <Compile Include="Genome\Mirna\MirnaUtils.cs" />
     <Compile Include="Genome\SequenceRegionMapped.cs" />
     <Compile Include="Genome\Pileup\PairedEvent.cs" />

@@ -176,11 +176,11 @@ namespace CQS.Genome.SmallRNA
         result.Add(mappedfile);
       }
 
-      var totalQueries = new HashSet<string>(trnaQueries.Union(otherrnaQueries));
-      var totalMappedQueries = new HashSet<string>((from q in trnaReads select q.OriginalQname).Union(from q in otherRNAReads select q.OriginalQname));
+      var totalQueryCount = trnaQueries.Union(otherrnaQueries).Sum(m => Counts.GetCount(m));
+      var totalMappedCount = (from q in trnaReads select q.OriginalQname).Union(from q in otherRNAReads select q.OriginalQname).Sum(m => Counts.GetCount(m));
 
       var infoFile = Path.ChangeExtension(resultFilename, ".info");
-      WriteSummaryFile(allmapped, totalQueries, totalMappedQueries, infoFile);
+      WriteSummaryFile(allmapped, totalQueryCount, totalMappedCount, infoFile);
       result.Add(infoFile);
 
       Progress.End();

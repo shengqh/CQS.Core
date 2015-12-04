@@ -9,7 +9,7 @@ using RCPA.Gui.Command;
 
 namespace CQS.Genome.Parclip
 {
-  public class ParclipMiRNATargetBuilderCommand : AbstractCommandLineCommand<ParclipMiRNATargetBuilderOptions>
+  public class ParclipSmallRNATargetBuilderCommand : AbstractCommandLineCommand<ParclipSmallRNATargetBuilderOptions>
   {
     #region ICommandLineTool
     public override string Name
@@ -22,9 +22,9 @@ namespace CQS.Genome.Parclip
       get { return "Find miRNA target 3'UTR sites"; }
     }
 
-    public override RCPA.IProcessor GetProcessor(ParclipMiRNATargetBuilderOptions options)
+    public override RCPA.IProcessor GetProcessor(ParclipSmallRNATargetBuilderOptions options)
     {
-      return new ParclipMiRNATargetBuilder(options);
+      return new ParclipSmallRNATargetBuilder(options);
     }
     #endregion ICommandLineTool
   }

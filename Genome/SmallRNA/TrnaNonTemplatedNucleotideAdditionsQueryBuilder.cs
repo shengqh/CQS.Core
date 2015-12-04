@@ -57,7 +57,7 @@ namespace CQS.Genome.SmallRNA
       return result;
     }
 
-    private void DoProcess(Func<FastqSequence, bool> accept, CountMap map, string outputFile, Dictionary<int, CountItem> dic)
+    private void DoProcess(Func<FastqSequence, bool> accept, SmallRNACountMap map, string outputFile, Dictionary<int, CountItem> dic)
     {
       Progress.SetMessage("Processing " + options.InputFile + " and writing to " + outputFile + "...");
 

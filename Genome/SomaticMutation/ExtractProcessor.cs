@@ -28,6 +28,8 @@ namespace CQS.Genome.SomaticMutation
 
     public override IEnumerable<string> Process()
     {
+      options.PrintParameter();
+
       Progress.SetMessage("Single thread mode ...");
       var parser = options.GetPileupItemParser();
       var pfile = new PileupFile(parser);
@@ -35,13 +37,8 @@ namespace CQS.Genome.SomaticMutation
       var mutationList = new ValidationFile().ReadFromFile(options.BedFile);
       var map = mutationList.Items.ToDictionary(m => GenomeUtils.GetKey(m.Chr, m.Pos));
 
-      options.PrintParameter();
-
-      var posFile = Path.Combine(options.OutputFile + ".pos.txt");
-      using (var sw = new StreamWriter(posFile))
-      {
-        mutationList.Items.ForEach(m => sw.WriteLine("{0} {1}", m.Chr, m.Pos));
-      }
+      var posFile = Path.Combine(options.OutputFile + ".pos.bed");
+      mutationList.WriteToFile(posFile, 500);
       var proc = new MpileupProcessor(options).ExecuteSamtools(options.BamFiles, "", posFile);
       if (proc == null)
       {
@@ -51,7 +48,7 @@ namespace CQS.Genome.SomaticMutation
       pfile.Open(proc.StandardOutput);
       pfile.Samtools = proc;
 
-      Progress.SetMessage("Total {0} entries in validation list", mutationList.Items.Length);
+      Progress.SetMessage("Total {0} entries in extraction list", mutationList.Items.Length);
 
       var result = new Dictionary<ValidationItem, PileupItem>();
 
@@ -105,6 +102,11 @@ namespace CQS.Genome.SomaticMutation
             }
           }
         }
+      }
+
+      if (result.Count == 0)
+      {
+        throw new Exception("Nothing found. Look at the log file for error please.");
       }
 
       using (var sw = new StreamWriter(options.OutputFile))
