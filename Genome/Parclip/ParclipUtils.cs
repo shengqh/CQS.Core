@@ -15,21 +15,23 @@ namespace CQS.Genome.Parclip
 {
   public static class ParclipUtils
   {
-    public static List<CoverageRegion> GetSmallRNACoverageRegion(string mappedFeatureXmlFile, string[] includeSmallRNATags, string[] excludeSmallRNATags)
+    public static List<CoverageRegion> GetSmallRNACoverageRegion(string mappedFeatureXmlFile, string[] includeSmallRNATags = null, string[] excudeSmallRNATags = null)
     {
-      var result = new List<CoverageRegion>();
-
       var smallRNAGroups = new FeatureItemGroupXmlFormat().ReadFromFile(mappedFeatureXmlFile);
-      if (excludeSmallRNATags != null && excludeSmallRNATags.Length > 0)
-      {
-        smallRNAGroups.ForEach(m => m.RemoveAll(l => excludeSmallRNATags.Any(k => l.Name.StartsWith(k))));
-      }
+
       if (includeSmallRNATags != null && includeSmallRNATags.Length > 0)
       {
-        smallRNAGroups.ForEach(m => m.RemoveAll(l => !includeSmallRNATags.Any(k => l.Name.StartsWith(k))));
+        smallRNAGroups.ForEach(m => m.RemoveAll(l => includeSmallRNATags.All(k => !m.Name.StartsWith(k))));
+        smallRNAGroups.RemoveAll(m => m.Count == 0);
       }
-      smallRNAGroups.RemoveAll(m => m.Count == 0);
 
+      if (excudeSmallRNATags != null && excudeSmallRNATags.Length > 0)
+      {
+        smallRNAGroups.ForEach(m => m.RemoveAll(l => excudeSmallRNATags.Any(k => m.Name.StartsWith(k))));
+        smallRNAGroups.RemoveAll(m => m.Count == 0);
+      }
+
+      var result = new List<CoverageRegion>();
       foreach (var sg in smallRNAGroups)
       {
         //since the items in same group shared same reads, only the first one will be used.
@@ -289,8 +291,10 @@ namespace CQS.Genome.Parclip
       return result;
     }
 
-    public static List<SeedItem> FindLongestTarget(List<SeedItem> target, CoverageRegion t2c, string seq, int offset, int minimumSeedLength, int maximumSeedLength, double minimumCoverage)
+    public static List<SeedItem> ExtendToLongestTarget(List<SeedItem> target, CoverageRegion t2c, string seq, int offset, int minimumSeedLength, int maximumSeedLength, double minimumCoverage)
     {
+      var individualSeeds = new List<SeedItem>();
+      var source = new List<SeedItem>(target);
       var extendSeedLength = minimumSeedLength;
       while (extendSeedLength < maximumSeedLength)
       {
@@ -309,36 +313,70 @@ namespace CQS.Genome.Parclip
         var extendSeed = seq.Substring(offset, extendSeedLength);
 
         var extendTarget = new List<SeedItem>();
-        foreach (var utrTarget in target)
+        var doneTarget = new List<SeedItem>();
+        foreach (var utrTarget in source)
         {
           var newoffset = utrTarget.Strand == '-' ? utrTarget.SourceOffset : utrTarget.SourceOffset - 1;
           if (newoffset < 0)
           {
+            doneTarget.Add(utrTarget);
             continue;
           }
 
           var newseed = GetSeed(utrTarget.Source, newoffset, extendSeedLength, minimumCoverage);
           if (newseed == null)
           {
+            doneTarget.Add(utrTarget);
             continue;
           }
 
-          if (extendSeed.Equals(newseed.Sequence))
+          if (!extendSeed.Equals(newseed.Sequence))
           {
-            extendTarget.Add(newseed);
+            doneTarget.Add(utrTarget);
+            continue;
           }
+
+          extendTarget.Add(newseed);
         }
+
+        individualSeeds.AddRange(doneTarget);
 
         if (extendTarget.Count > 0)
         {
-          target = extendTarget;
+          source = extendTarget;
         }
         else
         {
           break;
         }
       }
-      return target;
+
+      //For each gene, only the longest one will be kept
+      var individualGenes = (from cs in individualSeeds.GroupBy(m => m.GeneSymbol)
+                let csitem = cs.GroupBy(l => l.Length).OrderByDescending(k => k.Key).First()
+                from ls in csitem
+                select ls).OrderByDescending(l => l.Length).ToList();
+
+      //Merge the seeds with same gene symbol, same location but different name
+      var final = new List<SeedItem>();
+      var rmap = individualGenes.GroupBy(l => l.GeneSymbol + "_" + l.GetLocation()).ToList();
+      foreach (var rm in rmap)
+      {
+        var item = rm.First();
+        item.Name = (from r in rm
+                     select r.Name).Merge("/");
+        final.Add(item);
+      }
+
+      return final.OrderByDescending(l => l.Length).ToList();
+    }
+
+    public static List<SeedItem> FindLongestTarget(List<SeedItem> target, CoverageRegion t2c, string seq, int offset, int minimumSeedLength, int maximumSeedLength, double minimumCoverage)
+    {
+      var result = ExtendToLongestTarget(target, t2c, seq, offset, minimumSeedLength, maximumSeedLength, minimumCoverage);
+      var maxLength = result.Max(l => l.Length);
+      result.RemoveAll(l => l.Length < maxLength);
+      return result;
     }
   }
 }

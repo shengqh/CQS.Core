@@ -10,6 +10,7 @@ namespace CQS.Genome.SomaticMutation
     public const double DEFAULT_ErrorRate = 0.01;
     public const double DEFAULT_GlmPvalue = 0.1;
     public const double DEFAULT_GlmMinimumMedianScoreDiff = 5;
+    public const double DEFAULT_ZeroMinorAlleleStrategyGlmPvalue = 0.2;
 
     public FilterProcessorOptions()
     {
@@ -19,6 +20,7 @@ namespace CQS.Genome.SomaticMutation
       IsValidation = false;
       GlmIgnoreScoreDifference = false;
       GlmMinimumMedianScoreDiff = GlmMinimumMedianScoreDiff;
+      UseZeroMinorAlleleStrategy = false;
     }
 
     public string SourceRFile { get; set; }
@@ -37,6 +39,15 @@ namespace CQS.Genome.SomaticMutation
 
     [Option("glm_min_median_score_diff", MetaValue = "DOUBLE", DefaultValue = DEFAULT_GlmPvalue, HelpText = "Minimum median score differience between minor alleles and major alleles")]
     public double GlmMinimumMedianScoreDiff { get; set; }
+
+    [Option("use_zero_minor_allele_strategy", DefaultValue = false, HelpText = "Use loose criteria for the one with zero minor allele in normal sample")]
+    public bool UseZeroMinorAlleleStrategy { get; set; }
+
+    [Option("zero_minor_allele_strategy_fisher_pvalue", DefaultValue = PileupProcessorOptions.DEFAULT_ZeroMinorAlleleStrategyFisherPvalue, HelpText = "Maximum fisher exact test pvalue for the candidate with zero minor allele in normal sample")]
+    public double ZeroMinorAlleleStrategyFisherPvalue { get; set; }
+
+    [Option("zero_minor_allele_strategy_glm_pvalue", DefaultValue = DEFAULT_ZeroMinorAlleleStrategyGlmPvalue, HelpText = "Maximum GLM pvalue for the candidate with zero minor allele in normal sample")]
+    public double ZeroMinorAlleleStrategyGlmPvalue { get; set; }
 
     [Option('o', "output", MetaValue = "FILE", Required = true, HelpText = "Output file")]
     public string OutputFile { get; set; }
@@ -108,6 +119,8 @@ namespace CQS.Genome.SomaticMutation
           sw.WriteLine("israwpvalue<-{0}", IsValidation || UseGlmRawPvalue ? "1" : "0");
           sw.WriteLine("checkscore<-{0}", GlmIgnoreScoreDifference ? "0" : "1");
           sw.WriteLine("min_median_score_diff<-{0}", GlmMinimumMedianScoreDiff);
+          sw.WriteLine("use_zero_minor_allele_strategy<-{0}", UseZeroMinorAlleleStrategy ? "1" : "0");
+          sw.WriteLine("zero_minor_allele_strategy_glm_pvalue<-{0}", ZeroMinorAlleleStrategyGlmPvalue);
 
           var inpredefined = true;
           foreach (var line in lines)

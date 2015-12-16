@@ -22,12 +22,15 @@ namespace CQS.Genome.SomaticMutation
     [Option("glm_min_median_score_diff", MetaValue = "DOUBLE", DefaultValue = FilterProcessorOptions.DEFAULT_GlmMinimumMedianScoreDiff, HelpText = "Minimum median score differience between minor alleles and major alleles")]
     public double GlmMinimumMedianScoreDiff { get; set; }
 
+    [Option("zero_minor_allele_strategy_glm_pvalue", DefaultValue = FilterProcessorOptions.DEFAULT_ZeroMinorAlleleStrategyGlmPvalue, HelpText = "Maximum GLM pvalue for the candidate with zero minor allele in normal sample")]
+    public double ZeroMinorAlleleStrategyGlmPvalue { get; set; }
+
     public AbstractPileupFilterProcessorOptions()
     {
       this.ErrorRate = FilterProcessorOptions.DEFAULT_ErrorRate;
       this.GlmPvalue = FilterProcessorOptions.DEFAULT_GlmPvalue;
       this.GlmMinimumMedianScoreDiff = FilterProcessorOptions.DEFAULT_GlmMinimumMedianScoreDiff;
-      this.IgnoreDepthLimitation = true;
+      this.ZeroMinorAlleleStrategyGlmPvalue = FilterProcessorOptions.DEFAULT_ZeroMinorAlleleStrategyGlmPvalue;
     }
 
     public override void PrintParameter()

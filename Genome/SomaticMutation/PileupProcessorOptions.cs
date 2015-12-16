@@ -5,7 +5,6 @@ using System.Linq;
 using CommandLine;
 using CQS.Genome.Pileup;
 using RCPA.Seq;
-using System.Windows.Forms;
 using CQS.Genome.Samtools;
 
 namespace CQS.Genome.SomaticMutation
@@ -19,6 +18,8 @@ namespace CQS.Genome.SomaticMutation
     private const double DEFAULT_MaximumPercentageOfMinorAlleleInNormal = 0.02;
     private const double DEFAULT_MinimumPercentageOfMinorAlleleInTumor = 0.08;
     public const double DEFAULT_FisherPvalue = 0.05;
+
+    public const double DEFAULT_ZeroMinorAlleleStrategyFisherPvalue = 0.2;
 
     private const int DEFAULT_ThreadCount = 1;
 
@@ -77,6 +78,12 @@ namespace CQS.Genome.SomaticMutation
 
     [Option("min_tumor_percentage", MetaValue = "DOUBLE", DefaultValue = DEFAULT_MinimumPercentageOfMinorAlleleInTumor, HelpText = "Minimum percentage of minor allele at tumor sample")]
     public double MinimumPercentageOfMinorAlleleInTumor { get; set; }
+
+    [Option("use_zero_minor_allele_strategy", DefaultValue = false, HelpText = "Use loose criteria for the one with zero minor allele in normal sample")]
+    public bool UseZeroMinorAlleleStrategy { get; set; }
+
+    [Option("zero_minor_allele_strategy_fisher_pvalue", DefaultValue = DEFAULT_ZeroMinorAlleleStrategyFisherPvalue, HelpText = "Maximum fisher exact test pvalue for the candidate with zero minor allele in normal sample")]
+    public double ZeroMinorAlleleStrategyFisherPvalue { get; set; }
 
     [Option('c', "thread_count", MetaValue = "INT", DefaultValue = DEFAULT_ThreadCount, HelpText = "Number of thread, only valid when type is bam")]
     public int ThreadCount { get; set; }

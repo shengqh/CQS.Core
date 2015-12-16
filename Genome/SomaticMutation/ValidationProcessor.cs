@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using CQS.Genome.Pileup;
+using CQS.Genome.Samtools;
+using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Threading;
-using CQS.Genome.Pileup;
-using CQS.Genome.Statistics;
-using RCPA.Seq;
-using CQS.Genome.Samtools;
 
 namespace CQS.Genome.SomaticMutation
 {
@@ -32,6 +27,8 @@ namespace CQS.Genome.SomaticMutation
       var pfile = new PileupFile(parser);
 
       var mutationList = GetValidationList();
+      result.TotalCount = mutationList.Items.Length;
+
       var map = mutationList.Items.ToDictionary(m => GenomeUtils.GetKey(m.Chr, m.Pos));
 
       switch (_options.From)
@@ -71,12 +68,10 @@ namespace CQS.Genome.SomaticMutation
           string line;
           while ((line = pfile.ReadLine()) != null)
           {
-            result.TotalCount++;
-
             try
             {
               var locus = parser.GetSequenceIdentifierAndPosition(line);
-              var locusKey =  GenomeUtils.GetKey(locus.SequenceIdentifier, locus.Position);
+              var locusKey = GenomeUtils.GetKey(locus.SequenceIdentifier, locus.Position);
 
               //Console.WriteLine(locusKey);
               ValidationItem vitem = null;
@@ -119,8 +114,7 @@ namespace CQS.Genome.SomaticMutation
         }
       }
 
-      result.NotCovered = mutationList.Items.Length - result.TotalCount;
-      result.TotalCount = mutationList.Items.Length;
+      result.NotCovered = result.TotalCount - result.Results.Count;
 
       return result;
     }
@@ -137,7 +131,14 @@ namespace CQS.Genome.SomaticMutation
 
     public override IEnumerable<string> Process()
     {
-      base.Process();
+      if (!File.Exists(_options.BaseFilename) || new FileInfo(_options.BaseFilename).Length == 0)
+      {
+        base.Process();
+      }
+      else
+      {
+        Progress.SetMessage("Base file {0} exists, ignore pileup ...", _options.BaseFilename);
+      }
 
       var filterOptions = options.GetFilterOptions();
 
@@ -152,10 +153,13 @@ namespace CQS.Genome.SomaticMutation
 
         var lines = File.ReadAllLines(filterOptions.ROutputFile).Skip(1).ToArray();
         var glmfailed = lines.Count(m => m.Contains("GLM_PVALUE"));
-        using (var sw = new StreamWriter(_options.SummaryFilename, true))
+        var summarylines = File.ReadAllLines(_options.SummaryFilename).ToList();
+        if (summarylines.Last().StartsWith("glm pvalue"))
         {
-          sw.WriteLine("glm pvalue > {0}\t{1}\t{2}", options.GlmPvalue, glmfailed, lines.Length - glmfailed);
+          summarylines.RemoveAt(summarylines.Count - 1);
         }
+        summarylines.Add(string.Format("glm pvalue > {0}\t{1}\t{2}", options.GlmPvalue, glmfailed, lines.Length - glmfailed));
+        File.WriteAllLines(_options.SummaryFilename, summarylines);
       }
 
       var mutationList = GetValidationList();

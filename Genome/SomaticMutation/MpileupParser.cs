@@ -69,22 +69,22 @@ namespace CQS.Genome.SomaticMutation
       //  System.Windows.Forms.Application.Exit();
       //}
 
-      //didn't consider minimum score requirment
+      //didn't consider minimum score requirement
       if (!_parser.HasEnoughReads(parts))
       {
         _result.MinimumReadDepthFailed++;
         return null;
       }
 
-      //didn't consider minimum score requirment
+      //didn't consider minimum score requirement
       if (!_parser.HasMinorAllele(parts))
       {
         _result.OneEventFailed++;
         return null;
       }
 
-      var item = _parser.GetSlimValue(parts);
-      //check slim result without considering score limitation
+      //parsing full result considering score limitation
+      var item = _parser.GetValue(parts);
       if (item == null)
       {
         _result.MinimumReadDepthFailed++;
@@ -125,55 +125,16 @@ namespace CQS.Genome.SomaticMutation
 
       //group fisher exact test
       fisherresult.CalculateTwoTailPValue();
-      if (fisherresult.PValue > _options.FisherPvalue)
+      if (_options.UseZeroMinorAlleleStrategy && fisherresult.Sample1.Failed == 0)
       {
-        _result.GroupFisherFailed++;
-        return null;
+        //Console.WriteLine("UseZeroMinorAlleleStrategy : {0}", fisherresult);
+        if (fisherresult.PValue > _options.ZeroMinorAlleleStrategyFisherPvalue)
+        {
+          _result.GroupFisherFailed++;
+          return null;
+        }
       }
-
-      //parsing full result considering score limitation
-      item = _parser.GetValue(parts);
-      if (item == null)
-      {
-        _result.MinimumReadDepthFailed++;
-        return null;
-      }
-
-      //If the bases from all samples are same, ignore the entry.
-      if (item.OnlyOneEvent())
-      {
-        _result.OneEventFailed++;
-        return null;
-      }
-
-      item.Samples[0].SampleName = "NORMAL";
-      item.Samples[1].SampleName = "TUMOR";
-
-      events = item.GetPairedEvent();
-
-      fisherresult = item.InitializeTable(events);
-
-      if (fisherresult.Sample1.FailedPercentage > fisherresult.Sample2.FailedPercentage)
-      {
-        _result.MinorAlleleDecreasedFailed++;
-        return null;
-      }
-
-      if (!_tumorTest.Accept(fisherresult))
-      {
-        _result.MinorAlleleFailedInTumorSample++;
-        return null;
-      }
-
-      if (!_normalTest.Accept(fisherresult))
-      {
-        _result.MinorAlleleFailedInNormalSample++;
-        return null;
-      }
-
-      //group fisher exact test
-      fisherresult.CalculateTwoTailPValue();
-      if (fisherresult.PValue > _options.FisherPvalue)
+      else if (fisherresult.PValue > _options.FisherPvalue)
       {
         _result.GroupFisherFailed++;
         return null;

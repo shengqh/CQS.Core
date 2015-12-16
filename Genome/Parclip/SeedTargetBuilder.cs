@@ -1,18 +1,6 @@
-﻿using CQS.Genome;
-using CQS.Genome.Bed;
-using CQS.Genome.Gtf;
-using CQS.Genome.Mapping;
-using CQS.Genome.Mirna;
-using CQS.Genome.SmallRNA;
-using CQS.Genome.Feature;
-using RCPA;
-using RCPA.Seq;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 
 namespace CQS.Genome.Parclip
 {
@@ -58,12 +46,12 @@ namespace CQS.Genome.Parclip
                 return m2.Coverage.CompareTo(m1.Coverage);
               });
 
-              target = ParclipUtils.FindLongestTarget(target, null, seq, offset, options.MinimumSeedLength, int.MaxValue, options.MinimumCoverage);
+              var longest = ParclipUtils.ExtendToLongestTarget(target, null, seq, offset, options.MinimumSeedLength, int.MaxValue, options.MinimumCoverage);
 
-              for (int j = 0; j < target.Count; j++)
+              for (int j = 0; j < longest.Count; j++)
               {
-                var finalSeed = seq.Substring(offset, target[0].Sequence.Length);
-                var t = target[j];
+                var t = longest[j];
+                var finalSeed = seq.Substring(offset, (int)t.Length);
                 sw.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}:{5}-{6}:{7}\t{8}\t{9}\t{10}",
                   seq,
                   finalSeed,

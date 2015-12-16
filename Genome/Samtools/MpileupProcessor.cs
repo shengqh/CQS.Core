@@ -25,6 +25,7 @@ namespace CQS.Genome.Samtools
       runable = false;
       supportMinDepth = false;
 
+      //Progress.SetMessage("Checking {0} ...", samtools);
       var si = new ProcessStartInfo
       {
         FileName = samtools,
@@ -47,6 +48,7 @@ namespace CQS.Genome.Samtools
               if (line.Contains("--min-depth"))
               {
                 supportMinDepth = true;
+                //Progress.SetMessage("{0} mpileup supports min-depth.");
                 break;
               }
             }
@@ -70,8 +72,12 @@ namespace CQS.Genome.Samtools
 
       string minDepth = string.Empty;
       var samtools = _options.GetSamtoolsCommand();
+
+      //Progress.SetMessage("MinimumReadDepth = {0}, IgnoreDepthLimitation = {1}", _options.MinimumReadDepth, _options.IgnoreDepthLimitation);
       if (_options.MinimumReadDepth > 0 && !_options.IgnoreDepthLimitation)
       {
+        //Progress.SetMessage("Checking depth...");
+
         var fileRunable = false;
         var fileSupportMinDepth = false;
         if (File.Exists(samtools))

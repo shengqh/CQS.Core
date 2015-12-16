@@ -35,6 +35,12 @@ namespace CQS.Genome.Samtools
     [Option("max_read_depth", MetaValue = "INT", DefaultValue = DEFAULT_MaximumReadDepth, HelpText = "Maximum read depth of base passed mapping quality filter in each sample")]
     public virtual int MaximumReadDepth { get; set; }
 
+    /// <summary>
+    /// For somatic mutation call, IgnoreDepthLimitation should be false to accerate the call.
+    /// For somatic mutation validation, IgnoreDepthLimitation should be true to keep all the information.
+    /// </summary>
+    public bool IgnoreDepthLimitation { get; set; }
+
     public MpileupOptions()
     {
       this.MinimumBaseQuality = DEFAULT_MinimumBaseQuality;
@@ -81,11 +87,5 @@ namespace CQS.Genome.Samtools
       Console.Out.WriteLine("#min_read_depth={0}", MinimumReadDepth);
       Console.Out.WriteLine("#max_read_depth={0}", MaximumReadDepth);
     }
-
-    /// <summary>
-    /// For somatic mutation call, IgnoreDepthLimitation should be false to accerate the call.
-    /// For somatic mutation validation, IgnoreDepthLimitation should be true to keep all the information.
-    /// </summary>
-    public bool IgnoreDepthLimitation { get; set; }
   }
 }

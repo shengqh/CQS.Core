@@ -223,7 +223,6 @@
     <Compile Include="Genome\Mapping\CountToRPKMProcessorOptions.cs" />
     <Compile Include="Genome\Parclip\AbstractTargetBuilder.cs" />
     <Compile Include="Genome\Parclip\ITargetBuilderOptions.cs" />
-    <Compile Include="Genome\Parclip\ParclipSmallRNATargetDirectBuilder.cs" />
     <Compile Include="Genome\Parclip\ParclipUtils.cs" />
     <Compile Include="Genome\Parclip\SeedTargetBuilder.cs" />
     <Compile Include="Genome\Parclip\ParclipSmallRNATargetBuilder.cs" />
@@ -235,6 +234,7 @@
     <Compile Include="Genome\Parclip\ParclipSmallRNATargetBuilderOptions.cs" />
     <Compile Include="Genome\Parclip\ParclipSmallRNAT2CBuilderOptions.cs" />
     <Compile Include="Genome\Parclip\ParclipSmallRNAT2CBuilder.cs" />
+    <Compile Include="Genome\Pileup\AbstractPileupItemParser.cs" />
     <Compile Include="Genome\QC\FastQCSummaryBuilder.cs" />
     <Compile Include="Genome\QC\FastQCSummaryBuilderCommand.cs" />
     <Compile Include="Genome\QC\FastQCSummaryBuilderOptions.cs" />
