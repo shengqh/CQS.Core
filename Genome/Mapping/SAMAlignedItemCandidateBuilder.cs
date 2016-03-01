@@ -115,9 +115,10 @@ namespace CQS.Genome.Mapping
             Sequence = seq
           };
 
-          var loc = new SamAlignedLocation(sam)
+          var seqname = parts[SAMFormatConst.RNAME_INDEX].StartsWith("chr") ? parts[SAMFormatConst.RNAME_INDEX].StringAfter("chr") : parts[SAMFormatConst.RNAME_INDEX];
+          var loc = new SAMAlignedLocation(sam)
           {
-            Seqname = parts[SAMFormatConst.RNAME_INDEX].StringAfter("chr"),
+            Seqname = seqname,
             Start = int.Parse(parts[SAMFormatConst.POS_INDEX]),
             Strand = strand,
             Cigar = parts[SAMFormatConst.CIGAR_INDEX],

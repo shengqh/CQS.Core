@@ -21,12 +21,16 @@ namespace CQS.Genome.Mapping
       var countFiles = options.GetCountFiles();
       countFiles.Sort((m1, m2) => m1.Name.CompareTo(m2.Name));
 
-      var format = new ChromosomeCountXmlFormat();
+      var format = new ChromosomeCountSlimItemXmlFormat();
 
-      var countMap = new Dictionary<string, ChromosomeCountItem>();
+      var countMap = new Dictionary<string, ChromosomeCountSlimItem>();
 
-      foreach (var file in options.GetCountFiles())
+      int fileIndex = 0;
+      foreach (var file in countFiles)
       {
+        fileIndex++;
+        Progress.SetMessage("Reading {0}/{1}: {2} ...", fileIndex, countFiles.Count, file.File);
+
         var curcounts = format.ReadFromFile(file.File);
         curcounts.ForEach(m =>
         {
@@ -41,7 +45,7 @@ namespace CQS.Genome.Mapping
           var name = c.Names.First();
           if (countMap.ContainsKey(name))
           {
-            countMap[name].UnionQueryWith(c.Queries);
+            countMap[name].Queries.AddRange(c.Queries);
           }
           else
           {
@@ -52,34 +56,25 @@ namespace CQS.Genome.Mapping
 
       var counts = countMap.Values.ToList();
 
-      counts.CalculateAndSortByEstimatedCount();
+      Progress.SetMessage("Sorting queries in each chromosome for merging ...");
+      counts.ForEach(l => l.Queries.Sort((m1, m2) => m1.Qname.CompareTo(m2.Qname)));
+      //counts.Sort((m1,m2) => m2.Queries.Count.CompareTo(m1.Queries.Count));
 
-      //if (options.ExportXml)
-      //{
-      //  Progress.SetMessage("Writing mapped details to " + options.OutputFile + ".mapped.xml ...");
-      //  format.WriteToFile(options.OutputFile + ".mapped.xml", counts);
-      //}
+      Progress.SetMessage("Merging, calculating and sorting ...");
+      counts.MergeCalculateSortByEstimatedCount();
 
-      Progress.SetMessage("Writing count to " + options.OutputFile + " ...");
+      Progress.SetMessage("Writing xml file {0} ...", options.OutputFile + ".xml");
+      format.WriteToFile(options.OutputFile + ".xml", counts);
+
+      Progress.SetMessage("Writing count file {0} ...", options.OutputFile);
       using (var sw = new StreamWriter(options.OutputFile))
       {
         sw.WriteLine("Name\t{0}", countFiles.ConvertAll(m => m.Name).Merge("\t"));
         foreach (var count in counts)
         {
-          //if (mirna.Names.Any(m => m.StartsWith("hsa")))
-          //{
-          //  mirna.Names.RemoveWhere(m => !m.StartsWith("hsa"));
-          //}
-
           var individualCounts = (from f in countFiles
-                                  let queries = count.Queries.Where(m => m.Sample.Equals(f.Name))
-                                  let cr = new ChromosomeCountItem()
-                                  {
-                                    Names = count.Names,
-                                    Queries = queries.ToList()
-                                  }
-                                  let ec = cr.CalculateEstimatedCount()
-                                  select string.Format("{0:0.##}", ec)).Merge("\t");
+                                  let estimatedCount = count.Queries.Where(m => m.Sample.Equals(f.Name)).Sum(m => m.GetEstimatedCount()) * count.Names.Count
+                                  select string.Format("{0:0.##}", estimatedCount)).Merge("\t");
 
           sw.WriteLine("{0}\t{1}", (from m in count.Names orderby m select m).Merge(";"), individualCounts);
         }

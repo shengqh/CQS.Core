@@ -21,7 +21,7 @@ namespace CQS.Genome
 
       XElement root = XElement.Load(fileName);
 
-      var qmmap = root.ToSAMAlignedLocationMap();
+      var qmmap = root.ToSAMAlignedItems().ToSAMAlignedLocationMap();
 
       foreach (var regionEle in root.Element("regions").Elements("region"))
       {
@@ -35,7 +35,7 @@ namespace CQS.Genome
         {
           var qname = queryEle.Attribute("qname").Value;
           var loc = queryEle.Attribute("loc").Value;
-          var key = SamAlignedLocation.GetKey(qname, loc);
+          var key = SAMAlignedLocation.GetKey(qname, loc);
           var query = qmmap[key];
           position.AlignedLocations.Add(query);
           query.Features.Add(position.Region);

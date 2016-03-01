@@ -19,7 +19,7 @@ namespace CQS.Genome.SmallRNA
 
     public void WriteToFile(string fileName, List<FeatureItemGroup> mirnas)
     {
-      var items = mirnas.OrderByDescending(m => m.EstimateCount).ToList();
+      var items = mirnas.OrderByDescending(m => m.GetEstimatedCount()).ToList();
                   
       using (StreamWriter sw = new StreamWriter(fileName))
       {
@@ -28,7 +28,7 @@ namespace CQS.Genome.SmallRNA
         foreach (var mirna in items)
         {
           var counts = (from p in this.offsets
-                        select (from m in mirna select m.GetEstimateCount(l => l.Offset == p)).Sum()).ToList();
+                        select (from m in mirna select m.GetEstimatedCount(l => l.Offset == p)).Sum()).ToList();
 
           sw.WriteLine("{0}\t{1}\t{2}\t{3:0.##}\t{4}",
             (from m in mirna select m.Name.StringAfter(SmallRNAConsts.miRNA + ":")).Merge(";"),

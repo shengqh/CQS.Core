@@ -60,7 +60,22 @@ namespace CQS.Genome.Pileup
   {
     public string SampleName { get; set; }
 
-    public List<EventCount> EventCountList { get; set; }
+    private List<EventCount> _eventCountList;
+    public List<EventCount> EventCountList
+    {
+      get
+      {
+        if (_eventCountList == null)
+        {
+          InitEventCountList();
+        }
+        return _eventCountList;
+      }
+      set
+      {
+        _eventCountList = value;
+      }
+    }
 
     public void InitEventCountList(bool orderByCount = true)
     {
@@ -81,13 +96,13 @@ namespace CQS.Genome.Pileup
 
       if (orderByCount)
       {
-        this.EventCountList = (from ec in map.Values
+        _eventCountList = (from ec in map.Values
                                orderby ec.Count descending
                                select ec).ToList();
       }
       else
       {
-        this.EventCountList = (from ec in map.Values
+        _eventCountList = (from ec in map.Values
                                orderby ec.Event
                                select ec).ToList();
       }
@@ -117,13 +132,13 @@ namespace CQS.Genome.Pileup
 
       if (orderByCount)
       {
-        this.EventCountList = (from ec in map.Values
+        _eventCountList = (from ec in map.Values
                                orderby ec.Count descending
                                select ec).ToList();
       }
       else
       {
-        this.EventCountList = (from ec in map.Values
+        _eventCountList = (from ec in map.Values
                                orderby ec.Event
                                select ec).ToList();
       }

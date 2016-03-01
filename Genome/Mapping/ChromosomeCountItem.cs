@@ -9,40 +9,21 @@ namespace CQS.Genome.Mapping
   {
     public ChromosomeCountItem()
     {
-      this.Names = new List<string>();
-      this.Queries = new List<SAMAlignedItem>();
+      this.Names = new HashSet<string>();
+      this.Queries = new HashSet<SAMAlignedItem>();
     }
 
-    public List<string> Names { get; set; }
+    public HashSet<string> Names { get; set; }
 
-    public List<SAMAlignedItem> Queries { get; set; }
+    public HashSet<SAMAlignedItem> Queries { get; set; }
 
-    public int QueryCount
-    {
-      get
-      {
-        return (from q in Queries
-                select q.QueryCount).Sum();
-      }
-    }
-
-    public void UnionQueryWith(IEnumerable<SAMAlignedItem> items)
-    {
-      this.Queries = this.Queries.Union(items).Distinct().ToList();
-    }
-
-    public void UnionNameWith(IEnumerable<string> items)
-    {
-      this.Names = this.Names.Union(items).Distinct().ToList();
-    }
-
+    public int QueryCount { get; private set; }
     public double EstimatedCount { get; private set; }
 
-    public double CalculateEstimatedCount()
+    public void CalculateCount()
     {
-      this.EstimatedCount = (from q in Queries
-                             select q.QueryCount * Names.Count * 1.0 / q.DistinctSeqnameCount).Sum();
-      return this.EstimatedCount;
+      this.QueryCount = this.Queries.Sum(l => l.QueryCount);
+      this.EstimatedCount = this.Queries.Sum(l => l.QueryCount * 1.0 / l.DistinctSeqnameCount) * Names.Count;
     }
   }
 
@@ -51,8 +32,8 @@ namespace CQS.Genome.Mapping
     public static List<SAMAlignedItem> GetQueries(this List<ChromosomeCountItem> items)
     {
       return (from item in items
-              from loc in item.Queries
-              select loc).Distinct().OrderBy(m => m.Qname).ToList();
+              from query in item.Queries
+              select query).Distinct().OrderBy(m => m.Qname).ToList();
     }
 
 
@@ -61,24 +42,23 @@ namespace CQS.Genome.Mapping
       var index = 0;
       while (index < chroms.Count)
       {
-        Console.WriteLine("Merging {0} / {1} ...", index, chroms.Count);
+        Console.WriteLine("Merging {0} / {1} ...", index + 1, chroms.Count);
         var vi = chroms[index];
-        var vseti = new HashSet<SAMAlignedItem>(vi.Queries);
         for (int j = chroms.Count - 1; j > index; j--)
         {
           var vj = chroms[j];
-          if (vj.Queries.All(l => vseti.Contains(l)))
+          if (vj.Queries.All(l => vi.Queries.Contains(l)))
           {
             if (vi.Queries.Count == vj.Queries.Count)
             {
-              vi.UnionNameWith(vj.Names);
+              vi.Names.UnionWith(vj.Names);
             }
             else
             {
               //remove all mapped information from SAMAlignedItem
               foreach (var q in vj.Queries)
               {
-                q.RemoveLocation(l => vj.Names.Contains(l.Parent.Qname));
+                q.RemoveLocation(l => vj.Names.Contains(l.Seqname));
               }
             }
 
@@ -90,40 +70,9 @@ namespace CQS.Genome.Mapping
       }
     }
 
-    //public static void MergeItems2(this List<ChromosomeCountItem> chroms)
-    //{
-    //  for (int i = chroms.Count - 1; i >= 0; i--)
-    //  {
-    //    var vi = chroms[i];
-    //    var vseti = new HashSet<SAMAlignedItem>(vi.Queries);
-    //    for (int j = i - 1; j >= 0; j--)
-    //    {
-    //      var vj = chroms[j];
-    //      if (vseti.IsSubsetOf(vj.Queries))
-    //      {
-    //        if (vi.Queries.Count == vj.Queries.Count)
-    //        {
-    //          vj.UnionNameWith(vi.Names);
-    //        }
-    //        else
-    //        {
-    //          //remove all mapped information from SAMAlignedItem
-    //          foreach (var q in vi.Queries)
-    //          {
-    //            q.RemoveLocation(l => vi.Names.Contains(l.Parent.Qname));
-    //          }
-    //        }
-
-    //        chroms.RemoveAt(i);
-    //        break;
-    //      }
-    //    }
-    //  }
-    //}
-
-    public static void CalculateAndSortByEstimatedCount(this List<ChromosomeCountItem> counts)
+    public static void MergeCalculateSortByEstimatedCount(this List<ChromosomeCountItem> counts)
     {
-      counts.Sort((m1, m2) => m2.QueryCount.CompareTo(m1.QueryCount));
+      counts.Sort((m1, m2) => m2.Queries.Count.CompareTo(m1.Queries.Count));
 
       counts.MergeItems();
 
@@ -133,10 +82,22 @@ namespace CQS.Genome.Mapping
         {
           q.InitializeDistinctSeqnameCount();
         }
-        m.CalculateEstimatedCount();
+        m.CalculateCount();
       });
 
-      counts.Sort((m1, m2) => m2.EstimatedCount.CompareTo(m1.EstimatedCount));
+      counts.Sort((m1, m2) =>
+      {
+        var result = m2.EstimatedCount.CompareTo(m1.EstimatedCount);
+        if (result == 0)
+        {
+          result = m2.QueryCount.CompareTo(m1.QueryCount);
+        }
+        if (result == 0)
+        {
+          result = m1.Names.OrderBy(m => m).First().CompareTo(m2.Names.OrderBy(m => m).First());
+        }
+        return result;
+      });
     }
   }
 }

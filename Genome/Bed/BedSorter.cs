@@ -27,7 +27,7 @@ namespace CQS.Genome.Bed
     public override IEnumerable<string> Process()
     {
       Progress.SetMessage("Reading " + _options.InputFile + " ...");
-      var items = (from line in File.ReadAllLines(_options.InputFile)
+      var items = (from line in FileUtils.ReadFileLines(_options.InputFile)
                    where !string.IsNullOrWhiteSpace(line)
                    let parts = line.Split('\t')
                    select new BedEntry() { Seqname = parts[0], Start = int.Parse(parts[1]), End = int.Parse(parts[2]), Line = line }).ToList();

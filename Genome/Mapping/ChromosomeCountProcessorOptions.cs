@@ -1,20 +1,15 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using CommandLine;
+using CQS.Genome.SmallRNA;
 using RCPA.Commandline;
-using CommandLine;
 using System.IO;
-using CQS.Genome.Sam;
-using System;
 
 namespace CQS.Genome.Mapping
 {
-  public class ChromosomeCountProcessorOptions : AbstractCountProcessorOptions
+  public class ChromosomeCountProcessorOptions : AbstractOptions
   {
-    public static readonly long[] DEFAULT_Offsets = new long[] { 0, 1, 2 };
-
     public ChromosomeCountProcessorOptions()
     {
-      this.Offsets = DEFAULT_Offsets.ToList();
+      this.MergeChromosomesByReads = false;
     }
 
     [Option('i', "inputFile", Required = true, MetaValue = "FILE", HelpText = "Alignment sam/bam file")]
@@ -23,32 +18,41 @@ namespace CQS.Genome.Mapping
     [Option('p', "perferPrefix", Required = false, DefaultValue = "hsa", MetaValue = "String", HelpText = "The prefer prefix of chromosome name (miRNA name) that kept for multiple mapped reads")]
     public string PreferPrefix { get; set; }
 
-    [Option('n', "perfectMappedNameFile", Required = false, MetaValue = "FILE", HelpText = "The name of reads that perfect mapped to genome")]
-    public string PerfectMappedNameFile { get; set; }
+    [Option('o', "outputFile", Required = true, MetaValue = "FILE", HelpText = "Output count file")]
+    public string OutputFile { get; set; }
 
-    [OptionList("offsets", Required = false, Separator = ',', HelpText = "Allowed (prilority ordered) offsets from miRNA locus, default: 0,1,2")]
-    public List<long> Offsets { get; set; }
+    [Option('c', "countFile", Required = false, MetaValue = "FILE", HelpText = "Sequence/count file")]
+    public string CountFile { get; set; }
+
+    [Option('n', "perfectNameFile", Required = false, MetaValue = "FILE", HelpText = "Perfect matched query names (depercated)")]
+    public string PerfectNameFile { get; set; }
+
+    [Option('m', "mergeChromosomesByReads", Required = false, MetaValue = "BOOLEAN", HelpText = "Merge chromosomes by mapped reads")]
+    public bool MergeChromosomesByReads { get; set; }
+
+    private SmallRNACountMap cm;
+    public virtual SmallRNACountMap GetCountMap()
+    {
+      if (cm == null)
+      {
+        cm = new SmallRNACountMap(this.CountFile);
+      }
+      return cm;
+    }
 
     public override bool PrepareOptions()
     {
-      var result = base.PrepareOptions();
-
       if (!File.Exists(this.InputFile))
       {
         ParsingErrors.Add(string.Format("Input file not exists {0}.", this.InputFile));
       }
 
-      if (!string.IsNullOrEmpty(this.PerfectMappedNameFile) && !File.Exists(this.PerfectMappedNameFile))
+      if (!string.IsNullOrEmpty(this.CountFile) && !File.Exists(this.CountFile))
       {
-        ParsingErrors.Add(string.Format("Perfect mapped name file not exists {0}.", this.PerfectMappedNameFile));
+        ParsingErrors.Add(string.Format("Count file not exists {0}.", this.CountFile));
       }
 
-      if (this.Offsets == null || this.Offsets.Count == 0)
-      {
-        this.Offsets = DEFAULT_Offsets.ToList();
-      }
-
-      return result && ParsingErrors.Count == 0;
+      return ParsingErrors.Count == 0;
     }
   }
 }

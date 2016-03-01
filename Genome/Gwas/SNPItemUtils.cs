@@ -91,7 +91,7 @@ namespace CQS.Genome.Gwas
 
       if (progress == null)
       {
-        progress = new ConsoleProgressCallback();
+        progress = new  EmptyProgressCallback();
       }
 
       var dic = snpItems.ToDoubleDictionary(m => m.Chrom, m => m.Position);

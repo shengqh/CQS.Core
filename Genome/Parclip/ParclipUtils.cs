@@ -100,7 +100,7 @@ namespace CQS.Genome.Parclip
       };
     }
 
-    public static List<CoverageRegion> GetTargetCoverageRegion(ITargetBuilderOptions options, IProgressCallback progress)
+    public static List<CoverageRegion> GetTargetCoverageRegion(ITargetBuilderOptions options, IProgressCallback progress, bool removeRegionWithoutSequence = true)
     {
       List<CoverageRegion> result;
       if (options.TargetFile.EndsWith(".xml"))
@@ -129,11 +129,27 @@ namespace CQS.Genome.Parclip
             foreach (var l in lst)
             {
               l.Sequence = seq.SeqString.Substring((int)(l.Start - 1), (int)l.Length);
+              if(l.Strand == '+')
+              {
+                l.ReverseComplementedSequence = SequenceUtils.GetReverseComplementedSequence(l.Sequence);
+              }
             }
           }
         }
       }
+      if (removeRegionWithoutSequence)
+      {
+        result.RemoveAll(l => string.IsNullOrEmpty(l.Sequence));
+      }
+
       progress.SetMessage("Filling sequence finished.");
+
+      var namemap = new MapReader(1, 12).ReadFromFile(options.RefgeneFile);
+      result.ForEach(m =>
+      {
+        var gene = m.Name.StringBefore("_utr3");
+        m.GeneSymbol = namemap.ContainsKey(gene) ? namemap[gene] : string.Empty;
+      });
 
       return result;
     }
@@ -220,6 +236,12 @@ namespace CQS.Genome.Parclip
       return result;
     }
 
+    /// <summary>
+    /// Transfer bed format (zero-based) to gff format (one-based)
+    /// </summary>
+    /// <param name="options"></param>
+    /// <param name="progress"></param>
+    /// <returns></returns>
     public static List<CoverageRegion> GetTargetCoverageRegionFromBed(ITargetBuilderOptions options, IProgressCallback progress)
     {
       var result = new List<CoverageRegion>();
@@ -232,15 +254,58 @@ namespace CQS.Genome.Parclip
         var rg = new CoverageRegion();
         rg.Name = utr.Name;
         rg.Seqname = utr.Seqname.StringAfter("chr");
-        rg.Start = utr.Start;
+        rg.Start = utr.Start + 1;
         rg.End = utr.End;
         rg.Strand = utr.Strand;
-        for (var i = rg.Start; i <= rg.End; i++)
+        for (var i = rg.Start; i < rg.End; i++)
         {
           rg.Coverages.Add(1000);
         }
         result.Add(rg);
       }
+
+      return result;
+    }
+
+
+    public static List<SeedItem> BuildTargetSeeds(ITargetBuilderOptions options, List<string> seeds, IProgressCallback progress)
+    {
+      List<SeedItem> result = new List<SeedItem>();
+
+      var mapped = GetTargetCoverageRegion(options, progress);
+
+      progress.SetMessage("Building seeds ...");
+      progress.SetRange(0, mapped.Count);
+      progress.SetPosition(0);
+      foreach (var l in mapped)
+      {
+        progress.Increment(1);
+        foreach (var seed in seeds)
+        {
+          var curseq = l.Strand == '+' ? l.ReverseComplementedSequence : l.Sequence;
+          int lastpos = -1;
+          while (true)
+          {
+            int pos = curseq.IndexOf(seed, lastpos + 1);
+            if (pos == -1)
+            {
+              break;
+            }
+
+            if (l.Strand == '+')
+            {
+              result.Add(GetSeed(l, curseq.Length - pos - options.MinimumSeedLength, options.MinimumSeedLength, options.MinimumCoverage));
+            }
+            else
+            {
+              result.Add(GetSeed(l, pos, options.MinimumSeedLength, options.MinimumCoverage));
+            }
+            lastpos = pos;
+          }
+        }
+      }
+      progress.End();
+      progress.SetMessage("Total {0} {1}mers seeds were built.", result.Count, options.MinimumSeedLength);
 
       return result;
     }
@@ -251,14 +316,6 @@ namespace CQS.Genome.Parclip
 
       var mapped = GetTargetCoverageRegion(options, progress);
 
-      var namemap = new MapReader(1, 12).ReadFromFile(options.RefgeneFile);
-
-      mapped.ForEach(m =>
-      {
-        var gene = m.Name.StringBefore("_utr3");
-        m.GeneSymbol = namemap.ContainsKey(gene) ? namemap[gene] : string.Empty;
-      });
-
       progress.SetMessage("Building seeds ...");
       progress.SetRange(0, mapped.Count);
       progress.SetPosition(0);
@@ -267,7 +324,7 @@ namespace CQS.Genome.Parclip
         progress.Increment(1);
         for (int i = 0; i < l.Sequence.Length - options.MinimumSeedLength; i++)
         {
-          SeedItem si = ParclipUtils.GetSeed(l, i, options.MinimumSeedLength, options.MinimumCoverage);
+          SeedItem si = GetSeed(l, i, options.MinimumSeedLength, options.MinimumCoverage);
 
           if (si != null && acceptSeed(si))
           {
@@ -279,6 +336,16 @@ namespace CQS.Genome.Parclip
       progress.SetMessage("Total {0} {1}mers seeds were built.", seeds.Count, options.MinimumSeedLength);
 
       return seeds;
+    }
+
+    public static Dictionary<string, List<SeedItem>> BuildTargetSeedMap(ITargetBuilderOptions options, List<string> seeds, IProgressCallback progress)
+    {
+      //Read 6 mers from target
+      var targetSeeds = BuildTargetSeeds(options, seeds, progress);
+      progress.SetMessage("Grouping seeds by sequence ...");
+      var result = targetSeeds.ToGroupDictionary(m => m.Sequence.ToUpper());
+      progress.SetMessage("Total {0} unique {1}mers seeds were built.", result.Count, options.MinimumSeedLength);
+      return result;
     }
 
     public static Dictionary<string, List<SeedItem>> BuildTargetSeedMap(ITargetBuilderOptions options, Func<SeedItem, bool> acceptSeed, IProgressCallback progress)
@@ -308,6 +375,12 @@ namespace CQS.Genome.Parclip
           {
             break;
           }
+        }
+
+        if (seq.Length < offset + extendSeedLength)
+        {
+          individualSeeds.AddRange(source);
+          break;
         }
 
         var extendSeed = seq.Substring(offset, extendSeedLength);

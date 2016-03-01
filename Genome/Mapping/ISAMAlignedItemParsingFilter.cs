@@ -51,7 +51,7 @@ namespace CQS.Genome.Mapping
     /// </summary>
     /// <param name="loc"></param>
     /// <returns></returns>
-    bool AcceptLocus(SamAlignedLocation loc);
+    bool AcceptLocus(SAMAlignedLocation loc);
   }
 
   /// <summary>
@@ -84,7 +84,7 @@ namespace CQS.Genome.Mapping
       return true;
     }
 
-    public virtual bool AcceptLocus(SamAlignedLocation loc)
+    public virtual bool AcceptLocus(SAMAlignedLocation loc)
     {
       return true;
     }

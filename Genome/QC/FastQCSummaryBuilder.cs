@@ -23,6 +23,53 @@ namespace CQS.Genome.QC
 
       result.AddRange(SummarizeBasicResult());
       result.AddRange(SummarizeCount());
+      result.AddRange(SummarizeOverrepresentSequence());
+
+      return result;
+    }
+
+    private List<string> SummarizeOverrepresentSequence()
+    {
+      var key = ">>Overrepresented sequences";
+      var result = new List<string>();
+      var datafile = Path.ChangeExtension(options.OutputFile, ".overrepresented.tsv");
+
+      var qcitems = (from dir in Directory.GetDirectories(options.InputDir)
+                     from subdir in Directory.GetDirectories(dir, "*_fastqc")
+                     let dataFile = Path.Combine(subdir, "fastqc_data.txt")
+                     let lines = File.ReadAllLines(dataFile).ToList()
+                     let index = lines.FindIndex(m => m.StartsWith(key))
+                     let res = lines[index].StringAfter(key).Trim()
+                     let nextline = lines[index + 1]
+                     let header = nextline.StartsWith("#") ? nextline : string.Empty
+                     let value = string.IsNullOrEmpty(header) ? string.Empty : lines[index + 2]
+                     select new
+                     {
+                       File = Path.GetFileName(subdir).StringBefore("_fastqc"),
+                       Passed = res,
+                       Header = header,
+                       Value = value
+                     }).ToList();
+
+      using (var sw = new StreamWriter(datafile))
+      {
+        if (qcitems.All(l => string.IsNullOrEmpty(l.Header)))
+        {
+          sw.WriteLine("File\tQCResult");
+          foreach (var qc in qcitems)
+          {
+            sw.WriteLine("{0}\t{1}", qc.File, qc.Passed);
+          }
+        }
+        else {
+          sw.WriteLine("File\tQCResult\t{0}", qcitems.Where(l => !string.IsNullOrEmpty(l.Header)).First().Header);
+          foreach (var qc in qcitems)
+          {
+            sw.WriteLine("{0}\t{1}\t{2}", qc.File, qc.Passed, qc.Value);
+          }
+        }
+      }
+      result.Add(datafile);
 
       return result;
     }
@@ -30,7 +77,6 @@ namespace CQS.Genome.QC
     private List<string> SummarizeCount()
     {
       var result = new List<string>();
-      var datafile = Path.ChangeExtension(options.OutputFile, ".reads.tsv");
 
       var qcitems = (from dir in Directory.GetDirectories(options.InputDir)
                      select new
@@ -42,8 +88,10 @@ namespace CQS.Genome.QC
                                select int.Parse(line.StringAfter("\t"))).ToArray()
                      }).ToList();
 
+      var datafile = Path.ChangeExtension(options.OutputFile, ".reads.tsv");
+
       var errors = qcitems.Where(m => m.Data.Any(l => l != m.Data.First())).ToArray();
-      if(errors.Length > 0)
+      if (errors.Length > 0)
       {
         var errorFile = datafile + ".error";
         using (var sw = new StreamWriter(errorFile))
@@ -66,7 +114,7 @@ namespace CQS.Genome.QC
         }
       }
 
-      result.Add(options.OutputFile);
+      result.Add(datafile);
 
       var rfile = new FileInfo(FileUtils.GetTemplateDir() + "/fastqc_summary_count.r").FullName;
       if (File.Exists(rfile))

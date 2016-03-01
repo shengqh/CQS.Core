@@ -22,7 +22,7 @@ namespace CQS.Genome.SmallRNA
 
     public override RCPA.IProcessor GetProcessor(SmallRNACountTableBuilderOptions options)
     {
-      return new SmallRNACountTableBuilderPlus(options);
+      return new SmallRNACountTableBuilder(options);
     }
   }
 }

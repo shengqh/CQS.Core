@@ -14,7 +14,7 @@ namespace CQS.Genome.Sam
   {
     public SAMAlignedItem()
     {
-      this._locations = new List<SamAlignedLocation>();
+      this._locations = new List<SAMAlignedLocation>();
     }
 
     /// <summary>
@@ -59,7 +59,7 @@ namespace CQS.Genome.Sam
       }
     }
 
-    public void AddLocation(SamAlignedLocation loc)
+    public void AddLocation(SAMAlignedLocation loc)
     {
       if (loc.Parent != this && loc.Parent != null)
       {
@@ -73,7 +73,7 @@ namespace CQS.Genome.Sam
       }
     }
 
-    public void RemoveLocation(Func<SamAlignedLocation, bool> func)
+    public void RemoveLocation(Func<SAMAlignedLocation, bool> func)
     {
       var locs = (from l in _locations
                   where func(l)
@@ -81,7 +81,7 @@ namespace CQS.Genome.Sam
       locs.ForEach(l => RemoveLocation(l));
     }
 
-    public void RemoveLocation(SamAlignedLocation loc)
+    public void RemoveLocation(SAMAlignedLocation loc)
     {
       if (this._locations.Contains(loc))
       {
@@ -93,9 +93,9 @@ namespace CQS.Genome.Sam
       }
     }
 
-    public void AddLocations(IEnumerable<SamAlignedLocation> locs)
+    public void AddLocations(IEnumerable<SAMAlignedLocation> locs)
     {
-      var temps = new List<SamAlignedLocation>(locs);
+      var temps = new List<SAMAlignedLocation>(locs);
       foreach (var loc in temps)
       {
         AddLocation(loc);
@@ -105,8 +105,8 @@ namespace CQS.Genome.Sam
     /// <summary>
     /// The locations that query sequence mapped to.
     /// </summary>
-    private List<SamAlignedLocation> _locations;
-    public ReadOnlyCollection<SamAlignedLocation> Locations
+    private List<SAMAlignedLocation> _locations;
+    public ReadOnlyCollection<SAMAlignedLocation> Locations
     {
       get
       {
@@ -171,12 +171,21 @@ namespace CQS.Genome.Sam
               select fea).Count();
     }
 
-    public double EstimatedCount
+    private double _estimatedCount = -1.0;
+
+    public void InitializeEstimatedCount()
     {
-      get
+      _estimatedCount = ((double)QueryCount) / GetFeatureCount();
+    }
+
+    public double GetEstimatedCount()
+    {
+      if (_estimatedCount == -1.0)
       {
-        return ((double)QueryCount) / GetFeatureCount();
+        InitializeEstimatedCount();
       }
+
+      return _estimatedCount;
     }
 
     private Regex cigarReg = new Regex(@"(\d+)([MIDNSHPX=])");
@@ -492,10 +501,11 @@ namespace CQS.Genome.Sam
         query.Qname = queryEle.Attribute("name").Value;
         query.Sequence = queryEle.Attribute("sequence").Value;
         query.QueryCount = int.Parse(queryEle.Attribute("count").Value);
+        query.Sample = queryEle.GetAttributeValue("sample", null);
         result.Add(query);
         foreach (var locEle in queryEle.Elements("location"))
         {
-          var loc = new SamAlignedLocation(query);
+          var loc = new SAMAlignedLocation(query);
           loc.ParseLocation(locEle);
           loc.Cigar = locEle.Attribute("cigar").Value;
           loc.AlignmentScore = int.Parse(locEle.Attribute("score").Value);
@@ -530,34 +540,6 @@ namespace CQS.Genome.Sam
                     new XAttribute("mdz", l.MismatchPositions),
                     new XAttribute("nmi", l.NumberOfMismatch),
                     new XAttribute("nnpm", l.NumberOfNoPenaltyMutation))));
-    }
-
-    public static void WriteTo(this IEnumerable<SAMAlignedItem> queries, XmlWriter xw)
-    {
-      xw.WriteStartElement("queries");
-      foreach (var q in queries)
-      {
-        xw.WriteStartElement("query");
-        xw.WriteAttributeString("name", q.Qname);
-        xw.WriteAttributeString("sequence", q.Sequence);
-        xw.WriteAttributeString("count", q.QueryCount.ToString());
-        foreach (var l in q.Locations)
-        {
-          xw.WriteStartElement("location");
-          xw.WriteAttributeString("seqname", l.Seqname);
-          xw.WriteAttributeString("start", l.Start.ToString());
-          xw.WriteAttributeString("end", l.End.ToString());
-          xw.WriteAttributeString("strand", l.Strand.ToString());
-          xw.WriteAttributeString("cigar", l.Cigar);
-          xw.WriteAttributeString("score", l.AlignmentScore.ToString());
-          xw.WriteAttributeString("mdz", l.MismatchPositions);
-          xw.WriteAttributeString("nmi", l.NumberOfMismatch.ToString());
-          xw.WriteAttributeString("nnpm", l.NumberOfNoPenaltyMutation.ToString());
-          xw.WriteEndElement();
-        }
-        xw.WriteEndElement();
-      }
-      xw.WriteEndElement();
     }
   }
 }

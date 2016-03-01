@@ -58,7 +58,7 @@ namespace CQS.Genome.Gsnap
 
       totalQueryNames = new HashSet<string>();
 
-      using (var sr = new StreamReader(fileName))
+      using (var sr = StreamUtils.GetReader(fileName))
       {
         int count = 0;
         int waitingcount = 0;
@@ -157,7 +157,7 @@ namespace CQS.Genome.Gsnap
             var end = int.Parse(match.Groups[4].Value);
             string mismatchPosition = GetMismatchPositions(seq, matchgenome);
 
-            var loc = new SamAlignedLocation(sam)
+            var loc = new SAMAlignedLocation(sam)
             {
               Seqname = chr,
               Start = strand == '+' ? start : end,

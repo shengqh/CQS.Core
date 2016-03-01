@@ -17,12 +17,12 @@ namespace CQS.Genome.Mapping
 
     public string Name { get; set; }
 
-    public double EstimateCount
+    public double GetEstimatedCount()
     {
-      get { return GetEstimateCount(m => true); }
+      return MappedRegions.Sum(m => m.GetEstimatedCount());
     }
 
-    public double GetEstimateCount(Func<SamAlignedLocation, bool> func)
+    public double GetEstimateCount(Func<SAMAlignedLocation, bool> func)
     {
       return MappedRegions.Sum(m => m.GetEstimatedCount(func));
     }

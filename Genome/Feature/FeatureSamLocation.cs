@@ -14,9 +14,8 @@ namespace CQS.Genome.Feature
       this.FeatureLocation.SamLocations.Add(this);
     }
 
-    private SamAlignedLocation _samLocation;
-
-    public SamAlignedLocation SamLocation
+    private SAMAlignedLocation _samLocation;
+    public SAMAlignedLocation SamLocation
     {
       get
       {
@@ -25,9 +24,6 @@ namespace CQS.Genome.Feature
       set
       {
         _samLocation = value;
-
-        CalculateOffset();
-
         if (value != null && !value.Features.Contains(this.FeatureLocation))
         {
           value.Features.Add(this.FeatureLocation);
@@ -37,7 +33,22 @@ namespace CQS.Genome.Feature
 
     public FeatureLocation FeatureLocation { get; private set; }
 
-    public long Offset { get; set; }
+    private long _offset = int.MaxValue;
+    public long Offset
+    {
+      get
+      {
+        if (_offset == int.MaxValue)
+        {
+          CalculateOffset();
+        }
+        return _offset;
+      }
+      set
+      {
+        _offset = value;
+      }
+    }
 
     public int NumberOfMismatch { get; set; }
 
@@ -49,11 +60,11 @@ namespace CQS.Genome.Feature
     {
       if (FeatureLocation == null || _samLocation == null)
       {
-        this.Offset = int.MaxValue;
-        return;
+        _offset = int.MaxValue;
       }
-
-      this.Offset = _samLocation.Offset(FeatureLocation);
+      else {
+        _offset = _samLocation.Offset(FeatureLocation);
+      }
     }
   }
 }

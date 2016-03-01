@@ -74,10 +74,6 @@
     <Reference Include="HtmlAgilityPack">
       <HintPath>..\SQH.Lib\HtmlAgilityPack.dll</HintPath>
     </Reference>
-    <Reference Include="ICSharpCode.SharpZipLib, Version=0.86.0.518, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
-      <HintPath>..\packages\SharpZipLib.0.86.0\lib\20\ICSharpCode.SharpZipLib.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="LumenWorks.Framework.IO">
       <HintPath>..\SQH.Lib\LumenWorks.Framework.IO.dll</HintPath>
     </Reference>
@@ -186,6 +182,7 @@
     </Compile>
     <Compile Include="Genome\Feature\FeatureItemGroupTIGRTCountWriter.cs" />
     <Compile Include="Genome\Feature\FeatureItemGroupT2CWriter.cs" />
+    <Compile Include="Genome\Feature\FeatureItemGroupXmlFormatLinq.cs" />
     <Compile Include="Genome\Feature\FeatureLocation.cs" />
     <Compile Include="Genome\Feature\FeatureSamLocation.cs" />
     <Compile Include="Genome\Feature\FeatureItem.cs" />
@@ -212,18 +209,39 @@
     <Compile Include="Genome\Mapping\ChromosomeCountProcessor.cs" />
     <Compile Include="Genome\Mapping\ChromosomeCountProcessorOptions.cs" />
     <Compile Include="Genome\Mapping\ChromosomeCountProcessorCommand.cs" />
-    <Compile Include="Genome\Mapping\ChromosomeCountSlimXmReader.cs" />
-    <Compile Include="Genome\Mapping\ChromosomeCountSlimTableBuilder.cs" />
-    <Compile Include="Genome\Mapping\ChromosomeCountXmFormat.cs" />
+    <Compile Include="Genome\Mapping\ChromosomeCountSlimItemXmlFormat.cs" />
+    <Compile Include="Genome\Mapping\SequenceCountTableBuilder.cs" />
     <Compile Include="Genome\Mapping\ChromosomeCountTableBuilder.cs" />
+    <Compile Include="Genome\Mapping\ChromosomeCountItemXmlFormat.cs" />
+    <Compile Include="Genome\Mapping\SequenceCountTableBuilderCommand.cs" />
     <Compile Include="Genome\Mapping\ChromosomeCountTableBuilderCommand.cs" />
+    <Compile Include="Genome\Mapping\SequenceCountTableBuilderOptions.cs" />
     <Compile Include="Genome\Mapping\ChromosomeCountTableBuilderOptions.cs" />
     <Compile Include="Genome\Mapping\AbstractCountProcessorOptions.cs" />
     <Compile Include="Genome\Mapping\CountToRPKMProcessor.cs" />
     <Compile Include="Genome\Mapping\CountToRPKMProcessorOptions.cs" />
+    <Compile Include="Genome\Mapping\ChromosomeCountSlimItemBuilder.cs" />
+    <Compile Include="Genome\Mapping\SamExtractor.cs" />
+    <Compile Include="Genome\Mapping\SamExtractorCommand.cs" />
+    <Compile Include="Genome\Mapping\SamExtractorOptions.cs" />
+    <Compile Include="Genome\Mirna\MappedMirna.cs" />
+    <Compile Include="Genome\Mirna\MappedMirnaGroup.cs" />
+    <Compile Include="Genome\Mirna\MappedMirnaGroupXmlFileFormat.cs" />
+    <Compile Include="Genome\Mirna\MappedMirnaRegion.cs" />
+    <Compile Include="Genome\Mirna\MirnaCountFileWriter.cs" />
+    <Compile Include="Genome\Mirna\MirnaMappedOverlapBuilder.cs" />
+    <Compile Include="Genome\Mirna\MirnaMappedOverlapBuilderCommand.cs" />
+    <Compile Include="Genome\Mirna\MirnaMappedOverlapBuilderOptions.cs" />
+    <Compile Include="Genome\Mirna\MirnaMappedOverlapBuilderUI.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Genome\Mirna\MirnaMappedOverlapBuilderUI.Designer.cs" />
+    <Compile Include="Genome\Mirna\MirnaNTACountTableBuilder.cs" />
+    <Compile Include="Genome\Mirna\MirnaNTACountTableBuilderCommand.cs" />
     <Compile Include="Genome\Parclip\AbstractTargetBuilder.cs" />
     <Compile Include="Genome\Parclip\ITargetBuilderOptions.cs" />
     <Compile Include="Genome\Parclip\ParclipUtils.cs" />
+    <Compile Include="Genome\Parclip\SingleSeedTargetBuilder.cs" />
     <Compile Include="Genome\Parclip\SeedTargetBuilder.cs" />
     <Compile Include="Genome\Parclip\ParclipSmallRNATargetBuilder.cs" />
     <Compile Include="Genome\Parclip\SeedTargetBuilderCommand.cs" />
@@ -247,11 +265,16 @@
     <Compile Include="Genome\Quantification\HTSeqCountToFPKMCalculator.cs" />
     <Compile Include="Genome\Quantification\HTSeqCountToFPKMCalculatorCommand.cs" />
     <Compile Include="Genome\Quantification\HTSeqCountToFPKMCalculatorOptions.cs" />
+    <Compile Include="Genome\Sam\AbstractBAMParser.cs" />
     <Compile Include="Genome\Sam\BamCleaner.cs" />
     <Compile Include="Genome\Sam\BamCleanerCommand.cs" />
     <Compile Include="Genome\Sam\BamCleanerOptions.cs" />
+    <Compile Include="Genome\Sam\SAMAlignedItemBAMParser.cs" />
+    <Compile Include="Genome\Sam\SAMAlignedItemUtils.cs" />
+    <Compile Include="Genome\Sam\SAMAlignedSequenceBAMParser.cs" />
     <Compile Include="Genome\SmallRNA\AbstractSmallRNACountProcessorOptions.cs" />
     <Compile Include="Genome\SmallRNA\AbstractSmallRNACountProcessor.cs" />
+    <Compile Include="Genome\SmallRNA\MirnaNTACountTableWriter.cs" />
     <Compile Include="Genome\SmallRNA\SmallRNACountMap.cs" />
     <Compile Include="Genome\SmallRNA\SmallRNABamInfoFixer.cs" />
     <Compile Include="Genome\SmallRNA\SmallRNABamInfoFixerCommand.cs" />
@@ -273,12 +296,11 @@
     <Compile Include="Genome\SmallRNA\SmallRNAUnmappedReadBuilder.cs" />
     <Compile Include="Genome\SmallRNA\SmallRNAUnmappedReadBuilderCommand.cs" />
     <Compile Include="Genome\SmallRNA\SmallRNAUnmappedReadBuilderOptions.cs" />
-    <Compile Include="Genome\SmallRNA\SmallRNACountTableBuilderPlus.cs" />
+    <Compile Include="Genome\SmallRNA\SmallRNACountTableBuilder.cs" />
     <Compile Include="Genome\SmallRNA\SmallRNACountTableWriter.cs" />
     <Compile Include="Genome\SmallRNA\SmallRNACountTableBuilderOptions.cs" />
-    <Compile Include="Genome\SmallRNA\SmallRNACountTableBuilder.cs" />
     <Compile Include="Genome\SmallRNA\SmallRNACountTableBuilderCommand.cs" />
-    <Compile Include="Genome\SmallRNA\MirnaNTACountTableWriter.cs" />
+    <Compile Include="Genome\SmallRNA\MirnaNTACountTableWriterSlow.cs" />
     <Compile Include="Genome\SmallRNA\SmallRNAMappedPositionBuilder.cs" />
     <Compile Include="Genome\SmallRNA\SmallRNAConsts.cs" />
     <Compile Include="Genome\SmallRNA\SmallRNACountMicroRNAWriter.cs" />
@@ -306,8 +328,6 @@
     <Compile Include="Genome\Mapping\SAMAlignedItemParsingMRNAFilter.cs" />
     <Compile Include="Genome\Mapping\SAMAlignedItemParsingMiRNAFilter.cs" />
     <Compile Include="Genome\Mirna\MirnaConsts.cs" />
-    <Compile Include="Genome\Mirna\MirnaNTACountTableBuilderCommand.cs" />
-    <Compile Include="Genome\Mirna\MirnaNTACountTableBuilder.cs" />
     <Compile Include="Genome\Mirna\MirnaNonTemplatedNucleotideAdditionsQueryBuilder.cs" />
     <Compile Include="Genome\Mirna\MirnaNonTemplatedNucleotideAdditionsQueryBuilderCommand.cs" />
     <Compile Include="Genome\Mirna\MirnaNonTemplatedNucleotideAdditionsQueryBuilderOptions.cs" />
@@ -347,7 +367,6 @@
     <Compile Include="Genome\Sam\AlignmentResultCleanerOptions.cs" />
     <Compile Include="Genome\Sam\BamSummaryBuilderOptions.cs" />
     <Compile Include="Genome\Sam\BAMWindowReader.cs" />
-    <Compile Include="Genome\Sam\AbstractBAMParser.cs" />
     <Compile Include="Genome\Sam\ISAMAlignedItemParserOptions.cs" />
     <Compile Include="Genome\Sam\SAMAlignedItemParserOptions.cs" />
     <Compile Include="Genome\Sam\BamSummaryBuilder.cs" />
@@ -355,8 +374,6 @@
     <Compile Include="Genome\Sam\TrimedSAMAlignedItem.cs" />
     <Compile Include="Genome\Sam\SAMItemSlimFastqBAMParser.cs" />
     <Compile Include="Genome\Sam\ISAMAlignedItemParser.cs" />
-    <Compile Include="Genome\Sam\SAMAlignedItemBAMParser.cs" />
-    <Compile Include="Genome\Sam\SAMAlignedSequenceBAMParser.cs" />
     <Compile Include="Genome\Sam\SAMFactory.cs" />
     <Compile Include="Genome\Sam\BAMFilter.cs" />
     <Compile Include="Genome\SingleNucleotidePolymorphism.cs" />
@@ -444,7 +461,6 @@
     <Compile Include="Ncbi\Geo\GeoFileDownloaderOptions.cs" />
     <Compile Include="Ncbi\Geo\GeoSummaryBuilder.cs" />
     <Compile Include="Ncbi\Geo\GeoSummaryBuilderOptions.cs" />
-    <Compile Include="MapReader.cs" />
     <Compile Include="Microarray\DatasetBuilder.cs" />
     <Compile Include="Ncbi\Geo\GeoFileDownloader.cs" />
     <Compile Include="Ncbi\Geo\GsmRecord.cs" />
@@ -503,8 +519,6 @@
     <Compile Include="Genome\Mapping\MappedCountItem.cs" />
     <Compile Include="Genome\Mapping\MappedPositionBuilderCommand.cs" />
     <Compile Include="Genome\Mapping\MappedPositionBuilder.cs" />
-    <Compile Include="Genome\Mirna\MappedMirnaGroup.cs" />
-    <Compile Include="Genome\Mirna\MirnaMappedOverlapBuilderOptions.cs" />
     <Compile Include="Genome\Mirna\SmallRNAUtils.cs" />
     <Compile Include="Genome\Pileup\PileupCountBuilderOptions.cs" />
     <Compile Include="ILineFile.cs" />
@@ -531,7 +545,6 @@
     <Compile Include="Genome\Pileup\PileupCountList.cs" />
     <Compile Include="Genome\Pileup\PileupCountListFixed.cs" />
     <Compile Include="Genome\SequenceRegionMappedXmlFileFormat.cs" />
-    <Compile Include="Genome\SequenceRegionMappedFileWriter.cs" />
     <Compile Include="Genome\Mapping\MappedCountProcessorOptions.cs" />
     <Compile Include="Genome\Mirna\MiRBaseGff3SequenceCombiner.cs" />
     <Compile Include="Genome\Mirna\MiRBaseGff3SequenceCombinerOptions.cs" />
@@ -655,22 +668,10 @@
     <Compile Include="Genome\Gtf\GtfItem.cs" />
     <Compile Include="Genome\Gtf\GtfTranscriptItemFile.cs" />
     <Compile Include="Genome\Fastq\IdenticalQueryBuilderCommand.cs" />
-    <Compile Include="Genome\Mirna\MappedMirnaGroupXmlFileFormat.cs" />
     <Compile Include="Genome\Mapping\SAMAlignedItemCandidateBuilder.cs" />
     <Compile Include="Genome\Mirna\CombinedSequence.cs" />
     <Compile Include="DataTableBuilder.cs" />
     <Compile Include="DataTableBuilderCommand.cs" />
-    <Compile Include="Genome\Mirna\MirnaMappedOverlapBuilderUI.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Genome\Mirna\MirnaMappedOverlapBuilderUI.Designer.cs">
-      <DependentUpon>MirnaMappedOverlapBuilderUI.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Genome\Mirna\MappedMirna.cs" />
-    <Compile Include="Genome\Mirna\MappedMirnaRegion.cs" />
-    <Compile Include="Genome\Mirna\MirnaCountFileWriter.cs" />
-    <Compile Include="Genome\Mirna\MirnaMappedOverlapBuilder.cs" />
-    <Compile Include="Genome\Mirna\MirnaMappedOverlapBuilderCommand.cs" />
     <Compile Include="Genome\Mapping\SAMAlignedItemBestScoreCandidateBuilder.cs" />
     <Compile Include="Genome\Mapping\ICandidateBuilder.cs" />
     <Compile Include="Genome\Mirna\MirnaUtils.cs" />
@@ -688,7 +689,6 @@
     <Compile Include="Genome\Sam\AlignmentResultCleaner.cs" />
     <Compile Include="Genome\Sam\AlignmentResultCleanerCommand.cs" />
     <Compile Include="Genome\Sam\SAMAlignedItem.cs" />
-    <Compile Include="Genome\Sam\SAMAlignedItemFileFormat.cs" />
     <Compile Include="Genome\Sam\SAMFormat.cs" />
     <Compile Include="Genome\Sam\ISAMItem.cs" />
     <Compile Include="Genome\Sam\SAMLinuxReader.cs" />
@@ -882,9 +882,7 @@
     <EmbeddedResource Include="Genome\Mapping\MappedCountProcessorUI.resx">
       <DependentUpon>MappedCountProcessorUI.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Genome\Mirna\MirnaMappedOverlapBuilderUI.resx">
-      <DependentUpon>MirnaMappedOverlapBuilderUI.cs</DependentUpon>
-    </EmbeddedResource>
+    <EmbeddedResource Include="Genome\Mirna\MirnaMappedOverlapBuilderUI.resx" />
     <EmbeddedResource Include="Genome\Mirna\MirnaToDNAConverterUI.resx">
       <DependentUpon>MirnaToDNAConverterUI.cs</DependentUpon>
       <SubType>Designer</SubType>

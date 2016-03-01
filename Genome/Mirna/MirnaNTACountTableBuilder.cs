@@ -113,7 +113,7 @@ namespace CQS.Genome.Mirna
           {
             if (MirnaConsts.NO_OFFSET == offset)
             {
-              sw.Write("\t{0:0.###}", group.EstimateCount);
+              sw.Write("\t{0:0.###}", group.GetEstimatedCount());
             }
             else
             {

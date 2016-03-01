@@ -18,7 +18,7 @@ namespace CQS.Genome.Plink
 
     public override IEnumerable<string> Process()
     {
-      using (var file = new PlinkBedRandomFile(_options.InputFile))
+      using (var file = new PlinkBedRandomFile(_options.InputFile) { Progress = this.Progress })
       {
         var locusList = file.Data.Locus;
         var individualList = file.Data.Individual;

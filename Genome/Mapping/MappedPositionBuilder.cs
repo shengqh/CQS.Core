@@ -40,7 +40,7 @@ namespace CQS.Genome.Mapping
         {
           var xmlfile = file.File.EndsWith(".xml") ? file.File : file.File + ".mapped.xml";
 
-          var count = format.ReadFromFile(xmlfile).OrderByDescending(m => m.EstimateCount).ToList();
+          var count = format.ReadFromFile(xmlfile).OrderByDescending(m => m.GetEstimatedCount()).ToList();
 
           foreach (var group in count)
           {
@@ -58,12 +58,12 @@ namespace CQS.Genome.Mapping
                   {
                     v = 0;
                   }
-                  positionCount[offset] = v + loc.Parent.EstimatedCount;
+                  positionCount[offset] = v + loc.Parent.GetEstimatedCount();
                 }
               }
             }
 
-            var allcount = item.EstimateCount;
+            var allcount = item.GetEstimatedCount();
             var keys = positionCount.Keys.ToList();
             keys.Sort();
             foreach (var key in keys)
@@ -72,7 +72,7 @@ namespace CQS.Genome.Mapping
                 file.Name,
                 item.Name,
                 item.MappedRegions.First().Region.Strand,
-                item.EstimateCount,
+                item.GetEstimatedCount(),
                 key,
                 positionCount[key] / allcount);
             }

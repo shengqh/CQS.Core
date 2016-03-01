@@ -1,4 +1,6 @@
 ﻿using RCPA;
+using RCPA.Gui;
+using RCPA.Utils;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,7 +10,7 @@ using System.Text;
 
 namespace CQS.Genome.Plink
 {
-  public class PlinkPedFile:IFileFormat<PlinkData>
+  public class PlinkPedFile : ProgressClass, IFileFormat<PlinkData>
   {
     private bool _withIndel;
 
@@ -19,7 +21,7 @@ namespace CQS.Genome.Plink
 
     public PlinkData ReadFromFile(string fileName)
     {
-      Console.WriteLine("Reading plink data from " + fileName + "...");
+      Progress.SetMessage("Reading plink data from " + fileName + "...");
       PlinkData result;
       if (_withIndel)
       {
@@ -183,7 +185,7 @@ namespace CQS.Genome.Plink
       }
 
       var mapFile = FileUtils.ChangeExtension(fileName, ".map");
-      if (!File.Exists(mapFile))
+      if (File.Exists(mapFile))
       {
         result.Locus = PlinkLocus.ReadFromMapFile(mapFile);
         return result;

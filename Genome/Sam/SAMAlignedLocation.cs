@@ -9,9 +9,9 @@ using RCPA.Seq;
 
 namespace CQS.Genome.Sam
 {
-  public class SamAlignedLocation : SequenceRegion
+  public class SAMAlignedLocation : SequenceRegion
   {
-    public SamAlignedLocation(SAMAlignedItem parent)
+    public SAMAlignedLocation(SAMAlignedItem parent)
     {
       this.Features = new List<ISequenceRegion>();
       if (parent != null)
@@ -133,11 +133,9 @@ namespace CQS.Genome.Sam
 
   public static class SAMAlignedLocationExtension
   {
-    public static Dictionary<string, SamAlignedLocation> ToSAMAlignedLocationMap(this XElement root)
+    public static Dictionary<string, SAMAlignedLocation> ToSAMAlignedLocationMap(this List<SAMAlignedItem> items)
     {
-      var items = root.ToSAMAlignedItems();
-
-      var result = new Dictionary<string, SamAlignedLocation>();
+      var result = new Dictionary<string, SAMAlignedLocation>();
       foreach (var item in items)
       {
         foreach (var loc in item.Locations)
@@ -155,11 +153,6 @@ namespace CQS.Genome.Sam
       }
 
       return result;
-    }
-
-    public static Dictionary<string, SAMAlignedItem> ToSAMAlignedItemMap(this XElement root)
-    {
-      return root.ToSAMAlignedItems().ToDictionary(m => m.Qname);
     }
   }
 }

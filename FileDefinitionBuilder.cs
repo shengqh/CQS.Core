@@ -59,9 +59,35 @@ namespace CQS
         }
       }).ToDictionary(n => n.Key);
 
+
       var names = (from k in map.Keys
                    orderby k
                    select k).ToList();
+
+      if (_options.AutoFill)
+      {
+        var nameMap = names.ToDictionary(l => l, l => l);
+        Regex number = new Regex(@"(.+?)(\d+)$");
+
+        var numbers = (from n in names
+                       let m = number.Match(n)
+                       where m.Success
+                       select new { OldName = n, Prefix = m.Groups[1].Value, Value = m.Groups[2].Value }).ToList();
+
+        var numberMax = numbers.Max(l => l.Value.Length);
+        foreach (var num in numbers)
+        {
+          if (num.Value.Length != numberMax)
+          {
+            nameMap[num.OldName] = num.Prefix + new string('0', numberMax - num.Value.Length) + num.Value;
+          }
+        }
+
+        map = map.ToDictionary(l => nameMap[l.Key], l => l.Value);
+        names = (from k in map.Keys
+                 orderby k
+                 select k).ToList();
+      }
 
       var result = new List<string> { "files => {" };
       foreach (var name in names)

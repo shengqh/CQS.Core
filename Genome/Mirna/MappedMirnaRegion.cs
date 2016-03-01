@@ -27,9 +27,9 @@ namespace CQS.Genome.Mirna
     /// </summary>
     public Dictionary<int, SequenceRegionMapped> Mapped { get; set; }
 
-    public double GetTotalReadCount()
+    public double GetEstimatedCount()
     {
-      return this.Mapped.Sum(n => n.Value.AlignedLocations.Sum(l => l.Parent.EstimatedCount));
+      return this.Mapped.Sum(n => n.Value.AlignedLocations.Sum(l => l.Parent.GetEstimatedCount()));
     }
   }
 }

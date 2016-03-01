@@ -26,6 +26,8 @@ namespace CQS.Genome.Parclip
     public string GeneSymbol { get; set; }
 
     public List<int> Coverages { get; private set; }
+
+    public string ReverseComplementedSequence { get; set; }
   }
 
   public class SeedItem : SequenceRegion

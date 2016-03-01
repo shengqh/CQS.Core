@@ -62,7 +62,7 @@ namespace CQS.Genome.Mirna
           var pmcount = items.Count(m => m.NumberOfMismatch == 0);
           var mis5 = items.Count(m =>
           {
-            SamAlignedLocation loc = m;
+            SAMAlignedLocation loc = m;
 
             if (loc.NumberOfMismatch == 0)
             {
@@ -100,7 +100,7 @@ namespace CQS.Genome.Mirna
       return new string[] { options.OutputFile };
     }
 
-    private void FindLocation(List<SamAlignedLocation> list, List<MappedMirnaRegion> list_2, out SamAlignedLocation loc, out MappedMirnaRegion reg)
+    private void FindLocation(List<SAMAlignedLocation> list, List<MappedMirnaRegion> list_2, out SAMAlignedLocation loc, out MappedMirnaRegion reg)
     {
       throw new NotImplementedException();
     }

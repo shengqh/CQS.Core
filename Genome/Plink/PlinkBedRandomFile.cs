@@ -1,14 +1,12 @@
 ﻿using RCPA;
+using RCPA.Gui;
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 
 namespace CQS.Genome.Plink
 {
-  public class PlinkBedRandomFile : IDisposable
+  public class PlinkBedRandomFile : ProgressClass, IDisposable
   {
     private BinaryReader _reader;
     private long _startPosition;
@@ -115,9 +113,9 @@ namespace CQS.Genome.Plink
           IsSNPMajor = b[0];
 
           if (IsSNPMajor)
-            Console.WriteLine("Detected that binary PED file is v1.00 SNP-major mode\n");
+            Progress.SetMessage("Detected that binary PED file is v1.00 SNP-major mode\n");
           else
-            Console.WriteLine("Detected that binary PED file is v1.00 individual-major mode\n");
+            Progress.SetMessage("Detected that binary PED file is v1.00 individual-major mode\n");
 
         }
         else v1_bfile = false;
@@ -129,7 +127,7 @@ namespace CQS.Genome.Plink
       // Reset file if < v1
       if (!v1_bfile)
       {
-        Console.WriteLine("Warning, old BED file <v1.00 : will try to recover...\n");
+        Progress.SetMessage("Warning, old BED file <v1.00 : will try to recover...\n");
         DoOpenFile(fileName);
         b = ReadByte();
       }
@@ -137,8 +135,8 @@ namespace CQS.Genome.Plink
       // If 0.99 file format
       if ((!v1_bfile) && (b[1] || b[2] || b[3] || b[4] || b[5] || b[6] || b[7]))
       {
-        Console.WriteLine(" *** Possible problem: guessing that BED is < v0.99   *** ");
-        Console.WriteLine(" *** High chance of data corruption, spurious results *** ");
+        Progress.SetMessage(" *** Possible problem: guessing that BED is < v0.99   *** ");
+        Progress.SetMessage(" *** High chance of data corruption, spurious results *** ");
 
         IsSNPMajor = false;
         DoOpenFile(fileName);
@@ -147,12 +145,12 @@ namespace CQS.Genome.Plink
       {
         IsSNPMajor = b[0];
 
-        Console.WriteLine("Binary PED file is v0.99\n");
+        Progress.SetMessage("Binary PED file is v0.99\n");
 
         if (IsSNPMajor)
-          Console.WriteLine("Detected that binary PED file is in SNP-major mode\n");
+          Progress.SetMessage("Detected that binary PED file is in SNP-major mode\n");
         else
-          Console.WriteLine("Detected that binary PED file is in individual-major mode\n");
+          Progress.SetMessage("Detected that binary PED file is in individual-major mode\n");
       }
 
       _startPosition = _reader.BaseStream.Position;

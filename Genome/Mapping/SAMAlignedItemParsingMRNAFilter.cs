@@ -62,7 +62,7 @@ namespace CQS.Genome.Mapping
       return DoAcceptQueryName(qname);
     }
 
-    public override bool AcceptLocus(SamAlignedLocation loc)
+    public override bool AcceptLocus(SAMAlignedLocation loc)
     {
       var result = false;
       if (!loc.Seqname.Equals(lastSeqname))

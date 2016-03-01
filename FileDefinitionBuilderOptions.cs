@@ -31,6 +31,9 @@ namespace CQS
     [Option('d', "useDirName", HelpText = "Use sub directory name as name, must use with -r option")]
     public bool UseDirName { get; set; }
 
+    [Option('a', "autoFill", HelpText = "Auto fill lastest number to longest number, for example, CMS-1 and CMS-100, CMS-1 will be filled as CMS-001")]
+    public bool AutoFill { get; set; }
+
     [Option('g', "groupPattern", MetaValue = "STRING", HelpText = "Regex pattern of group name in filename, example: \\(2280-RDB-\\\\d+\\)")]
     public string GroupPattern { get; set; }
 

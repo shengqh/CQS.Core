@@ -18,7 +18,7 @@ namespace CQS.Genome.Feature
           foreach (var g in groups)
           {
             var queryCount = g.QueryCount;
-            var estimateCount = g.Sum(m => m.EstimateCount);
+            var estimateCount = g.Sum(m => m.GetEstimatedCount());
             var ntaCount = GetNTACount(g);
             var ccCount = GetCCCount(g);
 
@@ -42,7 +42,7 @@ namespace CQS.Genome.Feature
           foreach (var g in groups)
           {
             var queryCount = g.QueryCount;
-            var estimateCount = g.Sum(m => m.EstimateCount);
+            var estimateCount = g.Sum(m => m.GetEstimatedCount());
             var ntaCount = GetNTACount(g);
             var ccCount = GetCCCount(g);
 
@@ -60,12 +60,12 @@ namespace CQS.Genome.Feature
 
     private static double GetCCCount(FeatureItemGroup g)
     {
-      return g.Sum(m => m.GetEstimateCount(l => l.SamLocation.Parent.Qname.EndsWith("TRNA_") && l.SamLocation.Parent.Sequence.EndsWith("CC")));
+      return g.Sum(m => m.GetEstimatedCount(l => l.SamLocation.Parent.Qname.EndsWith("TRNA_") && l.SamLocation.Parent.Sequence.EndsWith("CC")));
     }
 
     private static double GetNTACount(FeatureItemGroup g)
     {
-      var ntaCount = g.Sum(m => m.GetEstimateCount(l => l.SamLocation.Parent.Qname.EndsWith("TRNA_CCA") || l.SamLocation.Parent.Qname.EndsWith("TRNA_CCAA")));
+      var ntaCount = g.Sum(m => m.GetEstimatedCount(l => l.SamLocation.Parent.Qname.EndsWith("TRNA_CCA") || l.SamLocation.Parent.Qname.EndsWith("TRNA_CCAA")));
       return ntaCount;
     }
   }

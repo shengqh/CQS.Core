@@ -135,7 +135,7 @@ namespace CQS.Genome.Sam
       var match = _reg.Match(xaz);
       for (var i = 0; i < count; i++)
       {
-        var loc = new SamAlignedLocation(item)
+        var loc = new SAMAlignedLocation(item)
         {
           Seqname = match.Groups[1].Value,
           Strand = match.Groups[2].Value[0],

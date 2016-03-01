@@ -30,29 +30,33 @@ namespace CQS.Genome.SomaticMutation
     public static MpileupFisherResult ParseString(string line, char separator = '_')
     {
       var parts = line.Split(separator);
-
       var result = new MpileupFisherResult();
       try
       {
+        double pvalue;
+        bool hasReason = !double.TryParse(parts[parts.Length - 1], out pvalue) && double.TryParse(parts[parts.Length - 2], out pvalue);
+
+        var partStart = parts.Length - (hasReason ? 10 : 9);
+
         result.Item = new PileupItem()
         {
-          SequenceIdentifier = parts[0],
-          Position = long.Parse(parts[1]),
-          Nucleotide = parts[2][0]
+          SequenceIdentifier = parts.Take(partStart).Merge(separator),
+          Position = long.Parse(parts[partStart]),
+          Nucleotide = parts[partStart + 1][0]
         };
         result.Group = new FisherExactTestResult()
         {
-          SucceedName = parts[3],
-          FailedName = parts[4]
+          SucceedName = parts[partStart + 2],
+          FailedName = parts[partStart + 3]
         };
-        result.Group.Sample1.Succeed = int.Parse(parts[5]);
-        result.Group.Sample1.Failed = int.Parse(parts[6]);
-        result.Group.Sample2.Succeed = int.Parse(parts[7]);
-        result.Group.Sample2.Failed = int.Parse(parts[8]);
-        result.Group.PValue = double.Parse(parts[9]);
-        if (parts.Length > 10)
+        result.Group.Sample1.Succeed = int.Parse(parts[partStart + 4]);
+        result.Group.Sample1.Failed = int.Parse(parts[partStart + 5]);
+        result.Group.Sample2.Succeed = int.Parse(parts[partStart + 6]);
+        result.Group.Sample2.Failed = int.Parse(parts[partStart + 7]);
+        result.Group.PValue = double.Parse(parts[partStart + 8]);
+        if (hasReason)
         {
-          result.FailedReason = parts[10];
+          result.FailedReason = parts[partStart + 9];
         }
         else
         {

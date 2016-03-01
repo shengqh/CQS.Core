@@ -9,8 +9,9 @@ namespace CQS.Genome.Feature
 {
   public class FeatureItemGroup : List<FeatureItem>
   {
-    private string _displayLocations;
-    private string _displayName;
+    private string _displayLocations = null;
+    private string _displaySequence = null;
+    private string _displayName = null;
     private string _queryNames = string.Empty;
 
     public FeatureItemGroup()
@@ -30,21 +31,21 @@ namespace CQS.Genome.Feature
       }
     }
 
-    public double EstimateCount
+    public double GetEstimatedCount()
     {
-      get { return this.Sum(m => m.EstimateCount); }
+      return this.Sum(m => m.GetEstimatedCount());
     }
 
-    public double GetEstimateCount(Func<FeatureSamLocation, bool> accept)
+    public double GetEstimatedCount(Func<FeatureSamLocation, bool> accept)
     {
-      return this.Sum(m => m.GetEstimateCount(accept));
+      return this.Sum(m => m.GetEstimatedCount(accept));
     }
 
     public string DisplayName
     {
       get
       {
-        if (!string.IsNullOrEmpty(_displayName))
+        if (_displayName != null)
         {
           return _displayName;
         }
@@ -58,7 +59,7 @@ namespace CQS.Genome.Feature
     {
       get
       {
-        if (!string.IsNullOrEmpty(_displayLocations))
+        if (_displayLocations != null)
         {
           return _displayLocations;
         }
@@ -72,6 +73,11 @@ namespace CQS.Genome.Feature
     {
       get
       {
+        if (_displaySequence != null)
+        {
+          return _displaySequence;
+        }
+
         if (this.All(l => string.IsNullOrEmpty(l.Sequence)))
         {
           return string.Empty;
@@ -80,6 +86,10 @@ namespace CQS.Genome.Feature
         {
           return (from id in this select id.Sequence).Merge(";");
         }
+      }
+      set
+      {
+        _displaySequence = value;
       }
     }
 
@@ -111,7 +121,7 @@ namespace CQS.Genome.Feature
       return Name;
     }
 
-    public List<SamAlignedLocation> GetAlignedLocations()
+    public List<SAMAlignedLocation> GetAlignedLocations()
     {
       return (from id in this
               from pos in id.Locations

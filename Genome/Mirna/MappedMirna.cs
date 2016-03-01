@@ -56,14 +56,14 @@ namespace CQS.Genome.Mirna
       return result;
     }
 
-    public double EstimatedCount
+    public double GetEstimatedCount()
     {
-      get { return MappedRegions.Sum(m => m.Mapped.Sum(n => n.Value.EstimatedCount)); }
+      return MappedRegions.Sum(m => m.Mapped.Sum(n => n.Value.GetEstimatedCount()));
     }
 
-    public double GetEstimatedCount(int offset = MirnaConsts.NO_OFFSET, string nta = MirnaConsts.NO_NTA)
+    public double GetEstimatedCount(int offset, string nta)
     {
-      List<SamAlignedLocation> locs;
+      List<SAMAlignedLocation> locs;
 
       if (MirnaConsts.NO_OFFSET == offset)
       {
@@ -86,7 +86,7 @@ namespace CQS.Genome.Mirna
         locs.RemoveAll(m => !m.Parent.ClippedNTA.Equals(nta));
       }
 
-      return locs.Sum(m => m.Parent.EstimatedCount);
+      return locs.Sum(m => m.Parent.GetEstimatedCount());
     }
 
     public long Length

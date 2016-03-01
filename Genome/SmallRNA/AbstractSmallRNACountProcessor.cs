@@ -52,11 +52,11 @@ namespace CQS.Genome.SmallRNA
         var res = m1[0].Locations[0].Category.CompareTo(m2[0].Locations[0].Category);
         if (res == 0)
         {
-          res = m2.EstimateCount.CompareTo(m1.EstimateCount);
+          res = m2.GetEstimatedCount().CompareTo(m1.GetEstimatedCount());
         }
         if (res == 0)
         {
-          res = m2.GetEstimateCount(l => l.Offset == options.Offsets[0]).CompareTo(m1.GetEstimateCount(l => l.Offset == options.Offsets[0]));
+          res = m2.GetEstimatedCount(l => l.Offset == options.Offsets[0]).CompareTo(m1.GetEstimatedCount(l => l.Offset == options.Offsets[0]));
         }
         if (res == 0)
         {
@@ -73,7 +73,7 @@ namespace CQS.Genome.SmallRNA
                                          select l.SamLocation.Parent);
     }
 
-    protected void RemoveReadsFromMap(Dictionary<string, Dictionary<char, List<SamAlignedLocation>>> chrStrandMatchedMap, HashSet<SAMAlignedItem> mappedReads)
+    protected void RemoveReadsFromMap(Dictionary<string, Dictionary<char, List<SAMAlignedLocation>>> chrStrandMatchedMap, HashSet<SAMAlignedItem> mappedReads)
     {
       var qnames = new HashSet<string>(from r in mappedReads
                                        select r.Qname.StringBefore(SmallRNAConsts.NTA_TAG));
@@ -97,14 +97,14 @@ namespace CQS.Genome.SmallRNA
       public double OverlapPercentage { get; set; }
     }
 
-    protected void DoMapReadsToFeatures(List<FeatureLocation> smallRNAs, Dictionary<string, Dictionary<char, List<SamAlignedLocation>>> chrStrandMatchedMap, int maxMismatch, Func<FeatureLocation, SamAlignedLocation, int, AcceptResult> accept)
+    protected void DoMapReadsToFeatures(List<FeatureLocation> smallRNAs, Dictionary<string, Dictionary<char, List<SAMAlignedLocation>>> chrStrandMatchedMap, int maxMismatch, Func<FeatureLocation, SAMAlignedLocation, int, AcceptResult> accept)
     {
       //mapping to genome, considering offset limitation
       Progress.SetRange(0, smallRNAs.Count);
       foreach (var smallRNA in smallRNAs)
       {
         Progress.Increment(1);
-        Dictionary<char, List<SamAlignedLocation>> curMatchedMap;
+        Dictionary<char, List<SAMAlignedLocation>> curMatchedMap;
 
         if (!chrStrandMatchedMap.TryGetValue(smallRNA.Seqname, out curMatchedMap))
         {
@@ -128,7 +128,7 @@ namespace CQS.Genome.SmallRNA
       }
     }
 
-    public AcceptResult AcceptLocationPairMiRNA(FeatureLocation floc, SamAlignedLocation sloc, int maxMismatch)
+    public AcceptResult AcceptLocationPairMiRNA(FeatureLocation floc, SAMAlignedLocation sloc, int maxMismatch)
     {
       var result = AcceptLocationPairSmallRNA(floc, sloc, maxMismatch);
 
@@ -143,7 +143,7 @@ namespace CQS.Genome.SmallRNA
       return result;
     }
 
-    public AcceptResult AcceptLocationPairSmallRNA(FeatureLocation floc, SamAlignedLocation sloc, int maxMismatch)
+    public AcceptResult AcceptLocationPairSmallRNA(FeatureLocation floc, SAMAlignedLocation sloc, int maxMismatch)
     {
       var result = CheckNoPenaltyMutation(floc, sloc, maxMismatch);
       if (!result.Accepted)
@@ -157,7 +157,7 @@ namespace CQS.Genome.SmallRNA
       return result;
     }
 
-    public AcceptResult CheckNoPenaltyMutation(FeatureLocation floc, SamAlignedLocation sloc, int maxMismatch)
+    public AcceptResult CheckNoPenaltyMutation(FeatureLocation floc, SAMAlignedLocation sloc, int maxMismatch)
     {
       if (sloc.NumberOfNoPenaltyMutation > 0)
       {
@@ -206,7 +206,7 @@ namespace CQS.Genome.SmallRNA
       }
     }
 
-    public AcceptResult AcceptLocationPairLincRNA(FeatureLocation floc, SamAlignedLocation sloc, int maxMismatch)
+    public AcceptResult AcceptLocationPairLincRNA(FeatureLocation floc, SAMAlignedLocation sloc, int maxMismatch)
     {
       if (sloc.Parent.Sequence.Length < options.MinimumReadLengthForLincRNA)
       {
@@ -219,19 +219,19 @@ namespace CQS.Genome.SmallRNA
       return AcceptLocationPairSmallRNA(floc, sloc, maxMismatch);
     }
 
-    protected void MapReadsToSmallRNA(List<FeatureLocation> smallRNAs, Dictionary<string, Dictionary<char, List<SamAlignedLocation>>> chrStrandMatchedMap)
+    protected void MapReadsToSmallRNA(List<FeatureLocation> smallRNAs, Dictionary<string, Dictionary<char, List<SAMAlignedLocation>>> chrStrandMatchedMap)
     {
       DoMapReadsToFeatures(smallRNAs, chrStrandMatchedMap, options.MaximumMismatch, AcceptLocationPairSmallRNA);
     }
 
-    protected void MapReadsToLincRNA(List<FeatureLocation> lincRNAs, Dictionary<string, Dictionary<char, List<SamAlignedLocation>>> chrStrandMatchedMap)
+    protected void MapReadsToLincRNA(List<FeatureLocation> lincRNAs, Dictionary<string, Dictionary<char, List<SAMAlignedLocation>>> chrStrandMatchedMap)
     {
       Progress.SetMessage("Filtering lincRNA with maximum mismatch {0} and minimum read length {1} ...", options.MaximumMismatchForLincRNA, options.MinimumReadLengthForLincRNA);
 
       DoMapReadsToFeatures(lincRNAs, chrStrandMatchedMap, options.MaximumMismatchForLincRNA, AcceptLocationPairLincRNA);
     }
 
-    protected void MapReadsToMiRNA(List<FeatureLocation> miRNAs, Dictionary<string, Dictionary<char, List<SamAlignedLocation>>> readMap)
+    protected void MapReadsToMiRNA(List<FeatureLocation> miRNAs, Dictionary<string, Dictionary<char, List<SAMAlignedLocation>>> readMap)
     {
       if (readMap.Count == 0 || miRNAs.Count == 0)
       {
@@ -276,7 +276,7 @@ namespace CQS.Genome.SmallRNA
 
         var map = mappedReads.GroupBy(m => m.Qname);
 
-        var sals = new HashSet<SamAlignedLocation>();
+        var sals = new HashSet<SAMAlignedLocation>();
         foreach (var locs in map)
         {
           //get smallest number of mismatch, then get shortest NTA
@@ -301,22 +301,22 @@ namespace CQS.Genome.SmallRNA
       }
     }
 
-    protected Dictionary<string, Dictionary<char, List<SamAlignedLocation>>> BuildStrandMap(List<SAMAlignedItem> reads)
+    protected Dictionary<string, Dictionary<char, List<SAMAlignedLocation>>> BuildStrandMap(List<SAMAlignedItem> reads)
     {
       //build chr/strand/samlist map
       Progress.SetMessage("building chr/strand/samlist map ...");
 
-      var chrStrandMatchedMap = new Dictionary<string, Dictionary<char, List<SamAlignedLocation>>>();
+      var chrStrandMatchedMap = new Dictionary<string, Dictionary<char, List<SAMAlignedLocation>>>();
       foreach (var read in reads)
       {
         foreach (var loc in read.Locations)
         {
-          Dictionary<char, List<SamAlignedLocation>> map;
+          Dictionary<char, List<SAMAlignedLocation>> map;
           if (!chrStrandMatchedMap.TryGetValue(loc.Seqname, out map))
           {
-            map = new Dictionary<char, List<SamAlignedLocation>>();
-            map['+'] = new List<SamAlignedLocation>();
-            map['-'] = new List<SamAlignedLocation>();
+            map = new Dictionary<char, List<SAMAlignedLocation>>();
+            map['+'] = new List<SAMAlignedLocation>();
+            map['-'] = new List<SAMAlignedLocation>();
             chrStrandMatchedMap[loc.Seqname] = map;
           }
           map[loc.Strand].Add(loc);
@@ -355,7 +355,7 @@ namespace CQS.Genome.SmallRNA
             var count = (from c in allmapped
                          from l in c
                          where l.Name.StartsWith(cat)
-                         select l.EstimateCount).Sum();
+                         select l.GetEstimatedCount()).Sum();
             if (count > 0)
             {
               sw.WriteLine("{0}\t{1:0.#}", cat, count);

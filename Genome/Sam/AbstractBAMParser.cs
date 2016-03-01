@@ -1,14 +1,13 @@
-﻿using System;
+﻿using Bio;
+using Bio.IO.BAM;
+using Bio.IO.SAM;
+using Bio.Util;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Text;
-using Bio;
-using Bio.IO.BAM;
-using Bio.IO.SAM;
-using Bio.Util;
-using ICSharpCode.SharpZipLib.GZip;
 
 namespace CQS.Genome.Sam
 {
@@ -338,9 +337,9 @@ namespace CQS.Genome.Sam
     /// <param name="outStream">Out stream.</param>
     private static void Decompress(Stream compressedStream, Stream outStream)
     {
-      using (var decompress = new GZipInputStream(compressedStream))
+      using (GZipStream decompressionStream = new GZipStream(compressedStream, CompressionMode.Decompress))
       {
-        decompress.CopyTo(outStream);
+        decompressionStream.CopyTo(outStream);
       }
     }
 

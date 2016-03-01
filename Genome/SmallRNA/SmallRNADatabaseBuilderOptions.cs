@@ -28,7 +28,7 @@ namespace CQS.Genome.SmallRNA
     [Option('f', "config", Required = false, MetaValue = "FILE", HelpText = "Input parameter file")]
     public string ParamFile { get; set; }
 
-    [Option('m', "mirbase", Required = false, MetaValue = "FILE", HelpText = "Input miRBase file in gff format")]
+    [Option('m', "mirbase", Required = false, MetaValue = "FILE", HelpText = "Input miRBase file in gff/bed format")]
     public string MiRBaseFile { get; set; }
 
     [Option('k', "mirbase_key", Required = false, MetaValue = "STRING", DefaultValue = DEFAULT_MiRBaseKey, HelpText = "Input miRBase category (miRNA or miRNA_primary_transcript)")]
@@ -91,7 +91,7 @@ namespace CQS.Genome.SmallRNA
         }
       }
 
-      if (!File.Exists(this.MiRBaseFile))
+      if (!string.IsNullOrEmpty(this.MiRBaseFile) && !File.Exists(this.MiRBaseFile))
       {
         ParsingErrors.Add(string.Format("Input miRBase file not exists {0}.", this.MiRBaseFile));
       }

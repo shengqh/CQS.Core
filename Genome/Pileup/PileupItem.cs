@@ -51,9 +51,9 @@ namespace CQS.Genome.Pileup
     public int GetEventNumber(int minimumMappingQuality)
     {
       return (from s in Samples
-        from gi in s
-        where gi.PassScoreFilter(minimumMappingQuality)
-        select gi.Event).Distinct().Count();
+              from gi in s
+              where gi.PassScoreFilter(minimumMappingQuality)
+              select gi.Event).Distinct().Count();
     }
 
     public PileupItem CloneByFilter(Func<PileupBase, bool> accept)
@@ -102,8 +102,8 @@ namespace CQS.Genome.Pileup
     {
       var result = new FisherExactTestResult
       {
-        Sample1 = {Name = Samples[0].SampleName},
-        Sample2 = {Name = Samples[1].SampleName},
+        Sample1 = { Name = Samples[0].SampleName },
+        Sample2 = { Name = Samples[1].SampleName },
         SucceedName = events.MajorEvent,
         FailedName = events.MinorEvent
       };
@@ -135,6 +135,14 @@ namespace CQS.Genome.Pileup
       {
         throw new Exception("No sample defined in PileupItem!");
       }
+
+      _samples.ForEach(m =>
+      {
+        if (m.EventCountList == null)
+        {
+          m.InitEventCountList();
+        }
+      });
 
       string majorEvent = string.Empty;
       string minorEvent = string.Empty;

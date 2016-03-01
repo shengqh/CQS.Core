@@ -104,7 +104,7 @@ namespace CQS.Genome.SmallRNA
         MapReadToSequenceRegion(trnaLocations, trnaReads);
 
         var trnaMapped = trnaLocations.GroupByName();
-        trnaMapped.RemoveAll(m => m.EstimateCount == 0);
+        trnaMapped.RemoveAll(m => m.GetEstimatedCount() == 0);
         trnaMapped.ForEach(m => m.CombineLocations());
 
         var trnaGroups = trnaMapped.GroupByIdenticalQuery();
@@ -139,7 +139,7 @@ namespace CQS.Genome.SmallRNA
         MapReadToSequenceRegion(notTrnaLocations, otherRNAReads);
 
         var notTrnaMapped = notTrnaLocations.GroupByName();
-        notTrnaMapped.RemoveAll(m => m.EstimateCount == 0);
+        notTrnaMapped.RemoveAll(m => m.GetEstimatedCount() == 0);
         notTrnaMapped.ForEach(m => m.CombineLocations());
 
         var mirnaGroups = notTrnaMapped.Where(m => m.Name.StartsWith(SmallRNAConsts.miRNA)).GroupBySequence();

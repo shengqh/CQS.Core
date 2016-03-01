@@ -67,7 +67,7 @@ namespace CQS.Genome.Mapping
       Console.WriteLine("feature reads = {0}", featureReadCount);
 
       var mappedItems = featureLocations.GroupByName();
-      mappedItems.RemoveAll(m => m.EstimateCount == 0);
+      mappedItems.RemoveAll(m => m.GetEstimatedCount() == 0);
 
       mappedItems.ForEach(m => m.CombineLocations());
 
@@ -83,7 +83,7 @@ namespace CQS.Genome.Mapping
       }
 
       Progress.SetMessage("write result ...");
-      mappedGroups.Sort((m1, m2) => m2.EstimateCount.CompareTo(m1.EstimateCount));
+      mappedGroups.Sort((m1, m2) => m2.GetEstimatedCount().CompareTo(m1.GetEstimatedCount()));
       new FeatureItemGroupCountWriter().WriteToFile(resultFilename, mappedGroups);
 
       if (options.ExportLengthDistribution)
@@ -162,17 +162,17 @@ namespace CQS.Genome.Mapping
       //build chr/strand/samlist map
       Progress.SetMessage("building chr/strand/samlist map ...");
 
-      var chrStrandMatchedMap = new Dictionary<string, Dictionary<char, List<SamAlignedLocation>>>();
+      var chrStrandMatchedMap = new Dictionary<string, Dictionary<char, List<SAMAlignedLocation>>>();
       foreach (var read in reads)
       {
         foreach (var loc in read.Locations)
         {
-          Dictionary<char, List<SamAlignedLocation>> map;
+          Dictionary<char, List<SAMAlignedLocation>> map;
           if (!chrStrandMatchedMap.TryGetValue(loc.Seqname, out map))
           {
-            map = new Dictionary<char, List<SamAlignedLocation>>();
-            map['+'] = new List<SamAlignedLocation>();
-            map['-'] = new List<SamAlignedLocation>();
+            map = new Dictionary<char, List<SAMAlignedLocation>>();
+            map['+'] = new List<SAMAlignedLocation>();
+            map['-'] = new List<SAMAlignedLocation>();
             chrStrandMatchedMap[loc.Seqname] = map;
           }
           map[loc.Strand].Add(loc);
@@ -182,7 +182,7 @@ namespace CQS.Genome.Mapping
       var gmapped = new Dictionary<string, SAMAlignedItem>();
       foreach (var curmapped in mapped)
       {
-        Dictionary<char, List<SamAlignedLocation>> curMatchedMap;
+        Dictionary<char, List<SAMAlignedLocation>> curMatchedMap;
 
         if (!chrStrandMatchedMap.TryGetValue(curmapped.Seqname, out curMatchedMap))
         {
@@ -206,15 +206,15 @@ namespace CQS.Genome.Mapping
       //build chr/samlist map
       Progress.SetMessage("building chr/samlist map ...");
 
-      var chrStrandMatchedMap = new Dictionary<string, List<SamAlignedLocation>>();
+      var chrStrandMatchedMap = new Dictionary<string, List<SAMAlignedLocation>>();
       foreach (var read in reads)
       {
         foreach (var loc in read.Locations)
         {
-          List<SamAlignedLocation> map;
+          List<SAMAlignedLocation> map;
           if (!chrStrandMatchedMap.TryGetValue(loc.Seqname, out map))
           {
-            map = new List<SamAlignedLocation>();
+            map = new List<SAMAlignedLocation>();
             chrStrandMatchedMap[loc.Seqname] = map;
           }
           map.Add(loc);
@@ -224,7 +224,7 @@ namespace CQS.Genome.Mapping
       var gmapped = new Dictionary<string, SAMAlignedItem>();
       foreach (var curmapped in mapped)
       {
-        List<SamAlignedLocation> matches;
+        List<SAMAlignedLocation> matches;
 
         if (!chrStrandMatchedMap.TryGetValue(curmapped.Seqname, out matches))
         {

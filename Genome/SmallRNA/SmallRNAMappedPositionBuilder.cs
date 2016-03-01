@@ -27,7 +27,7 @@ namespace CQS.Genome.SmallRNA
     {
       var format = new MappedItemGroupXmlFileFormat();
 
-      features.Sort((m1, m2) => m2.EstimateCount.CompareTo(m1.EstimateCount));
+      features.Sort((m1, m2) => m2.GetEstimatedCount().CompareTo(m1.GetEstimatedCount()));
 
       using (StreamWriter sw = new StreamWriter(outputFile))
       {
@@ -49,12 +49,12 @@ namespace CQS.Genome.SmallRNA
                 {
                   v = 0;
                 }
-                positionCount[offset] = v + loc.SamLocation.Parent.EstimatedCount;
+                positionCount[offset] = v + loc.SamLocation.Parent.GetEstimatedCount();
               }
             }
           }
 
-          var allcount = item.EstimateCount;
+          var allcount = item.GetEstimatedCount();
           var keys = positionCount.Keys.ToList();
           keys.Sort();
           foreach (var key in keys)
@@ -63,7 +63,7 @@ namespace CQS.Genome.SmallRNA
               title,
               item.Name,
               item.Locations[0].Strand,
-              item.EstimateCount,
+              item.GetEstimatedCount(),
               key,
               positionCount[key] / allcount);
           }

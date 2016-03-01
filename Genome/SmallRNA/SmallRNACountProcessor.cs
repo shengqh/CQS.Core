@@ -77,7 +77,7 @@ namespace CQS.Genome.SmallRNA
         MapReadToSequenceRegion(featureLocations, reads);
 
         var featureMapped = featureLocations.GroupByName();
-        featureMapped.RemoveAll(m => m.EstimateCount == 0);
+        featureMapped.RemoveAll(m => m.GetEstimatedCount() == 0);
         featureMapped.ForEach(m => m.CombineLocations());
 
         var mirnaGroups = featureMapped.Where(m => m.Name.StartsWith(SmallRNAConsts.miRNA)).GroupBySequence();
@@ -93,18 +93,29 @@ namespace CQS.Genome.SmallRNA
           allmapped.AddRange(mirnaGroups);
         }
 
-        var trnaGroups = featureMapped.Where(m => m.Name.StartsWith(SmallRNAConsts.tRNA)).GroupByIdenticalQuery();
-        if (trnaGroups.Count > 0)
-        {
+        var trnaCodeGroups = featureMapped.Where(m => m.Name.StartsWith(SmallRNAConsts.tRNA)).GroupByFunction(SmallRNAUtils.GetTRNACode, false); 
+        if(trnaCodeGroups.Count > 0) { 
+          OrderFeatureItemGroup(trnaCodeGroups);
+
+          Progress.SetMessage("writing tRNA code count ...");
+          var trnaCodeCountFile = Path.ChangeExtension(resultFilename, "." + SmallRNAConsts.tRNA + ".count");
+
+          new FeatureItemGroupCountWriter().WriteToFile(trnaCodeCountFile, trnaCodeGroups);
+          result.Add(trnaCodeCountFile);
+
+          allmapped.AddRange(trnaCodeGroups);
+          /*
+          var trnaGroups = featureMapped.Where(m => m.Name.StartsWith(SmallRNAConsts.tRNA)).GroupByIdenticalQuery();
           OrderFeatureItemGroup(trnaGroups);
 
           Progress.SetMessage("writing tRNA count ...");
-          var trnaCountFile = Path.ChangeExtension(resultFilename, "." + SmallRNAConsts.tRNA + ".count");
+          var trnaCountFile = Path.ChangeExtension(resultFilename, "." + SmallRNAConsts.tRNA + ".byquery.count");
 
           new FeatureItemGroupCountWriter().WriteToFile(trnaCountFile, trnaGroups);
           result.Add(trnaCountFile);
 
           allmapped.AddRange(trnaGroups);
+          */
         }
 
         var otherGroups = featureMapped.Where(m => !m.Name.StartsWith(SmallRNAConsts.miRNA) && !m.Name.StartsWith(SmallRNAConsts.tRNA)).GroupByIdenticalQuery();
@@ -112,7 +123,7 @@ namespace CQS.Genome.SmallRNA
         {
           OrderFeatureItemGroup(otherGroups);
 
-          if (mirnaGroups.Count > 0 || trnaGroups.Count > 0)
+          if (mirnaGroups.Count > 0 || trnaCodeGroups.Count > 0)
           {
             Progress.SetMessage("writing other smallRNA count ...");
             var otherCountFile = Path.ChangeExtension(resultFilename, ".other.count");

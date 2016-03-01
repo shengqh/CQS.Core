@@ -31,22 +31,40 @@ namespace CQS.Genome.SmallRNA
 
       var bedfile = new BedItemFile<BedItem>();
 
-      Progress.SetMessage("Processing {0} ...", options.MiRBaseFile);
       var mirnas = new List<BedItem>();
-      using (var gf = new GtfItemFile(options.MiRBaseFile))
+      if (File.Exists(options.MiRBaseFile))
       {
-        GtfItem item;
-        while ((item = gf.Next(options.MiRBaseKey)) != null)
+        Progress.SetMessage("Processing {0} ...", options.MiRBaseFile);
+
+        if (options.MiRBaseFile.EndsWith(".bed"))
         {
-          BedItem loc = new BedItem();
-          loc.Seqname = item.Seqname.StringAfter("chr");
-          loc.Start = item.Start - 1;
-          loc.End = item.End;
-          loc.Name = options.MiRBaseKey + ":" + item.Attributes.StringAfter("Name=").StringBefore(";");
-          loc.Score = 1000;
-          loc.Strand = item.Strand;
-          mirnas.Add(loc);
+          mirnas = bedfile.ReadFromFile(options.MiRBaseFile);
+          mirnas.ForEach(m =>
+          {
+            m.Seqname = m.Seqname.StringAfter("chr");
+            m.Name = options.MiRBaseKey + ":" + m.Name;
+          });
         }
+        else
+        {
+          using (var gf = new GtfItemFile(options.MiRBaseFile))
+          {
+            GtfItem item;
+            while ((item = gf.Next(options.MiRBaseKey)) != null)
+            {
+              BedItem loc = new BedItem();
+              loc.Seqname = item.Seqname.StringAfter("chr");
+              loc.Start = item.Start - 1;
+              loc.End = item.End;
+              loc.Name = options.MiRBaseKey + ":" + item.Attributes.StringAfter("Name=").StringBefore(";");
+              loc.Score = 1000;
+              loc.Strand = item.Strand;
+              mirnas.Add(loc);
+            }
+          }
+        }
+
+        Progress.SetMessage("{0} miRNA read.", mirnas.Count);
       }
 
       List<BedItem> trnas = new List<BedItem>();
@@ -65,6 +83,8 @@ namespace CQS.Genome.SmallRNA
         trnas.RemoveAll(m => m.Seqname.Equals("M") || m.Seqname.Equals("MT"));
 
         trnas.ForEach(m => m.Name = SmallRNAConsts.tRNA + ":" + m.Name);
+
+        Progress.SetMessage("{0} tRNA from ucsc read.", trnas.Count);
       }
 
       //reading smallRNA/tRNA from ensembl gtf file
@@ -79,7 +99,20 @@ namespace CQS.Genome.SmallRNA
         int count = 0;
         while ((item = gf.Next("gene")) != null)
         {
-          var biotype = item.Attributes.StringAfter("gene_biotype \"").StringBefore("\"");
+          string biotype;
+          if (item.Attributes.Contains("gene_biotype"))
+          {
+            biotype = item.Attributes.StringAfter("gene_biotype \"").StringBefore("\"");
+          }
+          else if (item.Attributes.Contains("gene_type"))
+          {
+            biotype = item.Attributes.StringAfter("gene_type \"").StringBefore("\"");
+          }
+          else
+          {
+            continue;
+          }
+
           if (File.Exists(options.UcscTrnaFile) && biotype.Equals(SmallRNAConsts.tRNA))
           {
             continue;

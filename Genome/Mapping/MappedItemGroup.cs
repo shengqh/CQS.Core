@@ -30,9 +30,9 @@ namespace CQS.Genome.Mapping
       }
     }
 
-    public double EstimateCount
+    public double GetEstimatedCount()
     {
-      get { return this.Sum(m => m.EstimateCount); }
+      return this.Sum(m => m.GetEstimatedCount());
     }
 
     public string DisplayName
@@ -100,7 +100,7 @@ namespace CQS.Genome.Mapping
       return Name;
     }
 
-    public List<SamAlignedLocation> GetAlignedLocations()
+    public List<SAMAlignedLocation> GetAlignedLocations()
     {
       return (from id in this
               from pos in id.MappedRegions

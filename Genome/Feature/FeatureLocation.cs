@@ -25,12 +25,12 @@ namespace CQS.Genome.Feature
 
     public double GetEstimateCount(Func<FeatureSamLocation, bool> accept)
     {
-      return SamLocations.Where(m => accept(m)).Sum(m => m.SamLocation.Parent.EstimatedCount);
+      return SamLocations.Where(m => accept(m)).Sum(m => m.SamLocation.Parent.GetEstimatedCount());
     }
 
     public double GetEstimateCount()
     {
-      return SamLocations.Sum(m => m.SamLocation.Parent.EstimatedCount);
+      return SamLocations.Sum(m => m.SamLocation.Parent.GetEstimatedCount());
     }
 
     public int QueryCount

@@ -1,97 +1,158 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using RCPA;
-using System.IO;
-using CQS.Genome.Sam;
-using CQS.Genome.Gtf;
-using Bio.IO.SAM;
-using CQS.Genome.Bed;
-using CQS.Genome.Fastq;
-using System.Collections.Concurrent;
-using System.Threading;
-using RCPA.Commandline;
-using CommandLine;
-using System.Text.RegularExpressions;
-using CQS.Genome.Mapping;
-using CQS.Genome.Feature;
+﻿using CQS.Genome.Feature;
 using CQS.Genome.Mirna;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace CQS.Genome.SmallRNA
 {
   public class MirnaNTACountTableWriter : SmallRNACountTableWriter
   {
-    protected override List<string> DoWriteToFile(string outputFile, Dictionary<string, Dictionary<string, FeatureItemGroup>> dic, List<string> samples, List<string> orderedFeatures, string removeNamePrefix)
+    private static string GetIsomiRKey(long offset)
     {
-      var result = base.DoWriteToFile(outputFile, dic, samples, orderedFeatures, removeNamePrefix);
+      return string.Format("_+_{0}", offset);
+    }
 
-      var ntaFile = Path.ChangeExtension(outputFile, ".NTA.count");
-      var isomiRFile = Path.ChangeExtension(outputFile, ".isomiR.count");
-      var isomiRntaFile = Path.ChangeExtension(outputFile, ".isomiR_NTA.count");
-      using (StreamWriter swNTA = new StreamWriter(ntaFile))
-      using (StreamWriter swIso = new StreamWriter(isomiRFile))
-      using (StreamWriter swIsoNTA = new StreamWriter(isomiRntaFile))
-      {
-        swNTA.WriteLine("Feature\tLocation\tSequence\t{0}", samples.Merge("\t"));
-        swIso.WriteLine("Feature\tLocation\tSequence\t{0}", samples.Merge("\t"));
-        swIsoNTA.WriteLine("Feature\tLocation\tSequence\t{0}", samples.Merge("\t"));
+    private static string GetNTAKey(string nta)
+    {
+      return string.Format("_NTA_{0}", nta);
+    }
 
-        foreach (var feature in orderedFeatures)
-        {
-          OutputCount(swNTA, dic, feature, samples, MirnaConsts.NO_OFFSET, true, "", removeNamePrefix);
+    private static string GetNTAIsomiRKey(string nta, long offset)
+    {
+      return GetIsomiRKey(offset) + GetNTAKey(nta);
+    }
 
-          OutputCount(swIso, dic, feature, samples, 0, false, "_+_0", removeNamePrefix);
-          OutputCount(swIso, dic, feature, samples, 1, false, "_+_1", removeNamePrefix);
-          OutputCount(swIso, dic, feature, samples, 2, false, "_+_2", removeNamePrefix);
-
-          OutputCount(swIsoNTA, dic, feature, samples, 0, true, "_+_0", removeNamePrefix);
-          OutputCount(swIsoNTA, dic, feature, samples, 1, true, "_+_1", removeNamePrefix);
-          OutputCount(swIsoNTA, dic, feature, samples, 2, true, "_+_2", removeNamePrefix);
-        }
-      }
-
-      result.Add(ntaFile);
-      result.Add(isomiRFile);
-      result.Add(isomiRntaFile);
-
-      return result;
+    private static string GetSampleKey(string sample, string prefix)
+    {
+      return prefix + sample;
     }
 
     public override IEnumerable<string> WriteToFile(string outputFile, List<FeatureItemGroup> features, List<string> samples, string removeNamePrefix)
     {
-      var result = base.WriteToFile(outputFile, features, samples, removeNamePrefix).ToList();
+      var header = "Feature\tLocation\tSequence\t" + samples.Merge("\t");
+
+      var dicList = new List<Dictionary<string, double>>();
+      var ntaList = new List<string[]>();
+      var isomiRList = new List<string[]>();
+      var ntaIsomiRList = new List<string[]>();
+      foreach (var featureGroup in features)
+      {
+        var dic = new Dictionary<string, double>();
+        var ntas = new HashSet<string>();
+        var isomiRs = new HashSet<string>();
+        var ntaIsomiRs = new HashSet<string>();
+        foreach (var feature in featureGroup)
+        {
+          foreach (var featureLoc in feature.Locations)
+          {
+            foreach (var samLoc in featureLoc.SamLocations)
+            {
+              var ntaKey = GetNTAKey(samLoc.SamLocation.Parent.ClippedNTA);
+              var isomiRkey = GetIsomiRKey(samLoc.Offset);
+              var ntaIsomiRKey = GetNTAIsomiRKey(samLoc.SamLocation.Parent.ClippedNTA, samLoc.Offset);
+
+              ntas.Add(ntaKey);
+              isomiRs.Add(isomiRkey);
+              ntaIsomiRs.Add(ntaIsomiRKey);
+
+              var samCount = samLoc.SamLocation.Parent.GetEstimatedCount();
+
+              string sampleKey = samLoc.SamLocation.Parent.Sample;
+              AddCount(dic, sampleKey, samCount);
+
+              var sampleNTAKey = GetSampleKey(samLoc.SamLocation.Parent.Sample, ntaKey);
+              AddCount(dic, sampleNTAKey, samCount);
+
+              string sampleIsomiRKey = GetSampleKey(samLoc.SamLocation.Parent.Sample, isomiRkey);
+              AddCount(dic, sampleIsomiRKey, samCount);
+
+              var sampleNTAIsomiRKey = GetSampleKey(samLoc.SamLocation.Parent.Sample, ntaIsomiRKey);
+              AddCount(dic, sampleNTAIsomiRKey, samCount);
+            }
+          }
+        }
+
+        dicList.Add(dic);
+        ntaList.Add(ntas.OrderBy(m => m).ToArray());
+        isomiRList.Add(isomiRs.OrderBy(m => m).ToArray());
+        ntaIsomiRList.Add(ntaIsomiRs.OrderBy(m => m).ToArray());
+      }
 
       var ntaFile = Path.ChangeExtension(outputFile, ".NTA.count");
       var isomiRFile = Path.ChangeExtension(outputFile, ".isomiR.count");
-      var isomiRntaFile = Path.ChangeExtension(outputFile, ".isomiR_NTA.count");
-      using (StreamWriter swNTA = new StreamWriter(ntaFile))
-      using (StreamWriter swIso = new StreamWriter(isomiRFile))
-      using (StreamWriter swIsoNTA = new StreamWriter(isomiRntaFile))
+      var ntaIsomiRFile = Path.ChangeExtension(outputFile, ".isomiR_NTA.count");
+      using (var sw = new StreamWriter(outputFile))
+      using (var swNTA = new StreamWriter(ntaFile))
+      using (var swIsomiR = new StreamWriter(isomiRFile))
+      using (var swNTAIsomiR = new StreamWriter(ntaIsomiRFile))
       {
-        swNTA.WriteLine("Feature\tLocation\tSequence\t{0}", samples.Merge("\t"));
-        swIso.WriteLine("Feature\tLocation\tSequence\t{0}", samples.Merge("\t"));
-        swIsoNTA.WriteLine("Feature\tLocation\tSequence\t{0}", samples.Merge("\t"));
+        sw.WriteLine(header);
+        swNTA.WriteLine(header);
+        swIsomiR.WriteLine(header);
+        swNTAIsomiR.WriteLine(header);
 
-        foreach (var feature in features)
+        for (int i = 0; i < features.Count; i++)
         {
-          OutputCount(swNTA, feature, samples, MirnaConsts.NO_OFFSET, true, "", removeNamePrefix);
+          var feature = features[i];
+          var dic = dicList[i];
+          var ntas = ntaList[i];
+          var isomiRs = isomiRList[i];
+          var ntaIsomiRs = ntaIsomiRList[i];
 
-          OutputCount(swIso, feature, samples, 0, false, "_+_0", removeNamePrefix);
-          OutputCount(swIso, feature, samples, 1, false, "_+_1", removeNamePrefix);
-          OutputCount(swIso, feature, samples, 2, false, "_+_2", removeNamePrefix);
+          var featureName = (from f in feature select f.Name.StringAfter(removeNamePrefix)).Merge(";");
+          var featureSequences = (from l in feature select l.Sequence).ToArray();
+          var sequence = featureSequences.Distinct().Count() == 1 ? featureSequences.First() : featureSequences.Merge(";");
+          var featureLocations = feature.DisplayLocations;
 
-          OutputCount(swIsoNTA, feature, samples, 0, true, "_+_0", removeNamePrefix);
-          OutputCount(swIsoNTA, feature, samples, 1, true, "_+_1", removeNamePrefix);
-          OutputCount(swIsoNTA, feature, samples, 2, true, "_+_2", removeNamePrefix);
+          WriteCounts(samples, sw, dic, new[] { string.Empty }, featureName, sequence, featureLocations);
+          WriteCounts(samples, swNTA, dic, ntas, featureName, sequence, featureLocations);
+          WriteCounts(samples, swIsomiR, dic, isomiRs, featureName, sequence, featureLocations);
+          WriteCounts(samples, swNTAIsomiR, dic, ntaIsomiRs, featureName, sequence, featureLocations);
         }
       }
+      return new[] { outputFile, ntaFile, isomiRFile, ntaIsomiRFile };
+    }
 
-      result.Add(ntaFile);
-      result.Add(isomiRFile);
-      result.Add(isomiRntaFile);
+    private static void WriteCounts(List<string> samples, StreamWriter swNTA, Dictionary<string, double> dic, string[] ntas, string featureName, string sequence, string featureLocations)
+    {
+      //output nta result
+      foreach (var nta in ntas)
+      {
+        swNTA.Write("{0}{1}\t{2}\t{3}", featureName, nta, featureLocations, sequence);
+        foreach (var sample in samples)
+        {
+          WriteCount(swNTA, dic, GetSampleKey(sample, nta));
+        }
+        swNTA.WriteLine();
+      }
+    }
 
-      return result;
+    private static void WriteCount(StreamWriter sw, Dictionary<string, double> dic, string key)
+    {
+      double count;
+      if (dic.TryGetValue(key, out count))
+      {
+        sw.Write("\t{0:0.#}", count);
+      }
+      else
+      {
+        sw.Write("\t0");
+      }
+    }
+
+    private static void AddCount(Dictionary<string, double> dic, string key, double samCount)
+    {
+      double count;
+      if (dic.TryGetValue(key, out count))
+      {
+        dic[key] = count + samCount;
+      }
+      else
+      {
+        dic[key] = samCount;
+      }
     }
   }
 }

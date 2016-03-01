@@ -52,7 +52,7 @@ namespace CQS.Genome.Fastq
             }
 
             readcount++;
-            if (readcount % 100000 == 0)
+            if (readcount % 1000000 == 0)
             {
               Progress.SetMessage("{0} reads processed", readcount);
             }

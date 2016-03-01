@@ -11,12 +11,12 @@ namespace CQS.Genome.Mapping
 
     public override string Description
     {
-      get { return "Build chromosome data table from files located in subdirectories of root directory"; }
+      get { return "Build chromosome count table from count xml file"; }
     }
 
     public override RCPA.IProcessor GetProcessor(ChromosomeCountTableBuilderOptions options)
     {
-      return new ChromosomeCountSlimTableBuilder(options);
+      return new ChromosomeCountTableBuilder(options);
     }
   }
 }

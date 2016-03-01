@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Xml.Linq;
-using CQS.Genome.Sam;
+﻿using CQS.Genome.Sam;
 using RCPA;
-using System.IO;
+using RCPA.Gui;
+using RCPA.Utils;
+using System.Collections.Generic;
+using System.Xml;
 
 namespace CQS.Genome.Feature
 {
-  public class FeatureItemGroupXmlFormat : IFileFormat<List<FeatureItemGroup>>
+  public class FeatureItemGroupXmlFormat : ProgressClass, IFileFormat<List<FeatureItemGroup>>
   {
     private bool exportPValue;
 
@@ -19,131 +18,171 @@ namespace CQS.Genome.Feature
 
     public List<FeatureItemGroup> ReadFromFile(string fileName)
     {
-      Console.WriteLine("read file {0} ...", fileName);
       var result = new List<FeatureItemGroup>();
 
-      XElement root = XElement.Load(fileName);
-
-      //Console.WriteLine("read locations ...");
-      Dictionary<string, SamAlignedLocation> qmmap = root.ToSAMAlignedLocationMap();
-
-      //Console.WriteLine("read mapped items ...");
-      foreach (XElement groupEle in root.Element("subjectResult").Elements("subjectGroup"))
+      using (XmlReader source = XmlReader.Create(fileName))
       {
-        var group = new FeatureItemGroup();
-        result.Add(group);
+        Progress.SetMessage("reading queries ...");
 
-        foreach (XElement featureEle in groupEle.Elements("subject"))
+        List<SAMAlignedItem> queries = SAMAlignedItemUtils.ReadFrom(source);
+
+        Progress.SetMessage("{0} queries read.", queries.Count);
+
+        var qmmap = queries.ToSAMAlignedLocationMap();
+        queries.Clear();
+
+        Progress.SetMessage("reading subjects ...");
+        string value;
+        source.ReadToFollowing("subjectResult");
+        if (source.ReadToDescendant("subjectGroup"))
         {
-          var item = new FeatureItem();
-          group.Add(item);
-          item.Name = featureEle.Attribute("name").Value;
-
-          foreach (XElement locEle in featureEle.Elements("region"))
+          do
           {
-            var fl = new FeatureLocation();
-            item.Locations.Add(fl);
+            var featureGroup = new FeatureItemGroup();
+            result.Add(featureGroup);
 
-            fl.Name = item.Name;
-            fl.ParseLocation(locEle);
-
-            if (locEle.Attribute("sequence") != null)
+            if (source.ReadToDescendant("subject"))
             {
-              fl.Sequence = locEle.Attribute("sequence").Value;
+              do
+              {
+                var item = new FeatureItem();
+                featureGroup.Add(item);
+                item.Name = source.GetAttribute("name");
+
+                if (source.ReadToDescendant("region"))
+                {
+                  do
+                  {
+                    var fl = new FeatureLocation();
+                    item.Locations.Add(fl);
+
+                    fl.Name = item.Name;
+                    fl.Seqname = source.GetAttribute("seqname");
+                    fl.Start = long.Parse(source.GetAttribute("start"));
+                    fl.End = long.Parse(source.GetAttribute("end"));
+                    fl.Strand = source.GetAttribute("strand")[0];
+                    fl.Sequence = source.GetAttribute("sequence");
+
+                    value = source.GetAttribute("query_count_before_filter");
+                    if (value != null)
+                    {
+                      fl.QueryCountBeforeFilter = int.Parse(value);
+                    }
+
+                    value = source.GetAttribute("pvalue");
+                    if (value != null)
+                    {
+                      fl.PValue = double.Parse(value);
+                    }
+
+                    if (source.ReadToDescendant("query"))
+                    {
+                      do
+                      {
+                        string qname = source.GetAttribute("qname");
+                        string loc = source.GetAttribute("loc");
+                        string key = SAMAlignedLocation.GetKey(qname, loc);
+                        SAMAlignedLocation query = qmmap[key];
+
+                        FeatureSamLocation fsl = new FeatureSamLocation(fl);
+                        fsl.SamLocation = query;
+
+                        fsl.Offset = int.Parse(source.GetAttribute("offset"));
+
+                        var attr = source.GetAttribute("overlap");
+                        if (attr == null)
+                        {
+                          fsl.OverlapPercentage = query.OverlapPercentage(fl);
+                        }
+                        else
+                        {
+                          fsl.OverlapPercentage = double.Parse(attr);
+                        }
+
+                        var nmi = source.GetAttribute("nmi");
+                        if (nmi != null)
+                        {
+                          fsl.NumberOfMismatch = int.Parse(nmi);
+                        }
+
+                        var nnpm = source.GetAttribute("nnpm");
+                        if (nnpm != null)
+                        {
+                          fsl.NumberOfNoPenaltyMutation = int.Parse(nnpm);
+                        }
+                      } while (source.ReadToNextSibling("query"));
+                    }
+                  } while (source.ReadToNextSibling("region"));
+                }
+              } while (source.ReadToNextSibling("subject"));
             }
-
-            if (locEle.Attribute("query_count_before_filter") != null)
-            {
-              fl.QueryCountBeforeFilter = int.Parse(locEle.Attribute("query_count_before_filter").Value);
-            }
-
-            if (locEle.Attribute("pvalue") != null)
-            {
-              fl.PValue = double.Parse(locEle.Attribute("pvalue").Value);
-            }
-
-            foreach (XElement queryEle in locEle.Elements("query"))
-            {
-              string qname = queryEle.Attribute("qname").Value;
-              string loc = queryEle.Attribute("loc").Value;
-              string key = SamAlignedLocation.GetKey(qname, loc);
-              SamAlignedLocation query = qmmap[key];
-
-              FeatureSamLocation fsl = new FeatureSamLocation(fl);
-              fsl.SamLocation = query;
-              var attr = queryEle.FindAttribute("overlap");
-              if (attr == null)
-              {
-                fsl.OverlapPercentage = query.OverlapPercentage(fl);
-              }
-              else
-              {
-                fsl.OverlapPercentage = double.Parse(attr.Value);
-              }
-
-              var nnpm = queryEle.FindAttribute("nnpm");
-              if (nnpm == null)
-              {
-                nnpm = queryEle.FindAttribute("nnmp");
-              }
-              if (nnpm != null)
-              {
-                fsl.NumberOfNoPenaltyMutation = int.Parse(nnpm.Value);
-              }
-
-              var nmi = queryEle.FindAttribute("nmi");
-              if (nmi != null)
-              {
-                fsl.NumberOfMismatch = int.Parse(nmi.Value);
-              }
-            }
-          }
+          } while (source.ReadToNextSibling("subjectGroup"));
         }
+        qmmap.Clear();
       }
-      qmmap.Clear();
 
+      Progress.SetMessage("{0} subjects read.", result.Count);
       return result;
     }
 
+
     public void WriteToFile(string fileName, List<FeatureItemGroup> groups)
     {
-      List<SAMAlignedItem> queries = groups.GetQueries();
-
-      var xml = new XElement("root",
-        queries.ToXElement(),
-        new XElement("subjectResult",
-          from itemgroup in groups
-          select new XElement("subjectGroup",
-            from item in itemgroup
-            select new XElement("subject",
-              new XAttribute("name", item.Name),
-              from region in item.Locations
-              select new XElement("region",
-                new XAttribute("seqname", region.Seqname),
-                new XAttribute("start", region.Start),
-                new XAttribute("end", region.End),
-                new XAttribute("strand", region.Strand),
-                new XAttribute("sequence", XmlUtils.ToXml(region.Sequence)),
-                this.exportPValue ? new XAttribute("query_count_before_filter", region.QueryCountBeforeFilter) : null,
-                this.exportPValue ? new XAttribute("query_count", region.QueryCount) : null,
-                this.exportPValue ? new XAttribute("pvalue", region.PValue) : null,
-                new XAttribute("size", region.Length),
-                from sl in region.SamLocations
-                let loc = sl.SamLocation
-                select new XElement("query",
-                  new XAttribute("qname", loc.Parent.Qname),
-                  new XAttribute("loc", loc.GetLocation()),
-                  new XAttribute("overlap", string.Format("{0:0.##}", sl.OverlapPercentage)),
-                  new XAttribute("offset", sl.Offset),
-                  new XAttribute("query_count", loc.Parent.QueryCount),
-                  new XAttribute("seq_len", loc.Parent.Sequence.Length),
-                  new XAttribute("nmi", loc.NumberOfMismatch),
-                  new XAttribute("nnpm", loc.NumberOfNoPenaltyMutation)
-                  ))))));
-      using (var sw = new StreamWriter(fileName))
+      using (var xw = XmlUtils.CreateWriter(fileName))
       {
-        sw.NewLine = Environment.NewLine;
-        xml.Save(sw);
+        xw.WriteStartDocument();
+
+        xw.WriteStartElement("root");
+
+        SAMAlignedItemUtils.WriteTo(xw, groups.GetQueries());
+
+        xw.WriteStartElement("subjectResult");
+        foreach (var itemgroup in groups)
+        {
+          xw.WriteStartElement("subjectGroup");
+          foreach (var item in itemgroup)
+          {
+            xw.WriteStartElement("subject");
+            xw.WriteAttribute("name", item.Name);
+            foreach (var region in item.Locations)
+            {
+              xw.WriteStartElement("region");
+              xw.WriteAttribute("seqname", region.Seqname);
+              xw.WriteAttribute("start", region.Start);
+              xw.WriteAttribute("end", region.End);
+              xw.WriteAttribute("strand", region.Strand);
+              xw.WriteAttribute("sequence", XmlUtils.ToXml(region.Sequence));
+              if (this.exportPValue)
+              {
+                xw.WriteAttribute("query_count_before_filter", region.QueryCountBeforeFilter);
+                xw.WriteAttribute("query_count", region.QueryCount);
+                xw.WriteAttribute("pvalue", region.PValue);
+              }
+              xw.WriteAttribute("size", region.Length);
+              foreach (var sl in region.SamLocations)
+              {
+                var loc = sl.SamLocation;
+                xw.WriteStartElement("query");
+                xw.WriteAttribute("qname", loc.Parent.Qname);
+                xw.WriteAttribute("loc", loc.GetLocation());
+                xw.WriteAttribute("overlap", string.Format("{0:0.##}", sl.OverlapPercentage));
+                xw.WriteAttribute("offset", sl.Offset);
+                xw.WriteAttribute("query_count", loc.Parent.QueryCount);
+                xw.WriteAttribute("seq_len", loc.Parent.Sequence.Length);
+                xw.WriteAttribute("nmi", loc.NumberOfMismatch);
+                xw.WriteAttribute("nnpm", loc.NumberOfNoPenaltyMutation);
+                xw.WriteEndElement();
+              }
+              xw.WriteEndElement();
+            }
+            xw.WriteEndElement();
+          }
+          xw.WriteEndElement();
+        }
+        xw.WriteEndElement();
+        xw.WriteEndElement();
+
+        xw.WriteEndDocument();
       }
     }
   }

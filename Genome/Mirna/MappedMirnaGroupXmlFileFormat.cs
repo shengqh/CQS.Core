@@ -15,7 +15,7 @@ namespace CQS.Genome.Mirna
       List<MappedMirnaGroup> result = new List<MappedMirnaGroup>();
 
       XElement root = XElement.Load(fileName);
-      var qmmap = root.ToSAMAlignedLocationMap();
+      var qmmap = root.ToSAMAlignedItems().ToSAMAlignedLocationMap();
 
       foreach (var mirnaGroupEle in root.Element("mirnas").Elements("mirnagroup"))
       {

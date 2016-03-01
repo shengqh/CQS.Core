@@ -91,7 +91,7 @@ namespace CQS.Genome.Mapping
       {
         //Filter location by number of miss cleavage
         var minMiss = sam.Locations.Min(l => l.NumberOfMismatch);
-        var locs = new List<SamAlignedLocation>(sam.Locations);
+        var locs = new List<SAMAlignedLocation>(sam.Locations);
         foreach (var loc in locs)
         {
           if (loc.NumberOfMismatch != minMiss)

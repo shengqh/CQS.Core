@@ -18,7 +18,7 @@ namespace CQS.Genome.Mapping
           foreach (var g in groups)
           {
             var queryCount = g.QueryCount;
-            var estimateCount = g.Sum(m => m.EstimateCount);
+            var estimateCount = g.Sum(m => m.GetEstimatedCount());
 
             sw.WriteLine("{0}\t{1}\t{2}\t{3:0.##}\t{4}",
               g.DisplayName,
@@ -38,7 +38,7 @@ namespace CQS.Genome.Mapping
           foreach (var g in groups)
           {
             var queryCount = g.QueryCount;
-            var estimateCount = g.Sum(m => m.EstimateCount);
+            var estimateCount = g.Sum(m => m.GetEstimatedCount());
 
             sw.WriteLine("{0}\t{1}\t{2:0.##}\t{3}",
               g.DisplayName,

@@ -17,12 +17,12 @@ namespace CQS.Genome.Feature
 
     public string Name { get; set; }
 
-    public double EstimateCount
+    public double GetEstimatedCount()
     {
-      get { return GetEstimateCount(m => true); }
+      return Locations.Sum(m => m.GetEstimateCount());
     }
 
-    public double GetEstimateCount(Func<FeatureSamLocation, bool> accept)
+    public double GetEstimatedCount(Func<FeatureSamLocation, bool> accept)
     {
       return Locations.Sum(m => m.GetEstimateCount(accept));
     }
@@ -124,42 +124,65 @@ namespace CQS.Genome.Feature
   {
     public static List<FeatureItemGroup> GroupByIdenticalQuery(this IEnumerable<FeatureItem> items)
     {
-      var dic = items.GroupBy(m => (from r in m.Locations
-                                    from l in r.SamLocations
-                                    select l.SamLocation.Parent.Qname).Distinct().OrderBy(l => l).Merge(";")).ToList();
-      var result = new List<FeatureItemGroup>();
-      foreach (var curItems in dic)
+      Func<FeatureItem, string> func = m =>
       {
-        var group = new FeatureItemGroup();
-        group.AddRange(from item in curItems orderby item.Name select item);
-        result.Add(group);
-      }
+        return (from r in m.Locations
+                from l in r.SamLocations
+                select l.SamLocation.Parent.Qname).Distinct().OrderBy(l => l).Merge(";");
+      };
 
-      return result;
+      return items.GroupByFunction(func);
     }
 
     public static List<FeatureItemGroup> GroupBySequence(this IEnumerable<FeatureItem> items)
     {
-      var result = new List<FeatureItemGroup>();
-      foreach (var item in items)
+      Func<FeatureItem, string> func = m =>
       {
-        if (string.IsNullOrEmpty(item.Sequence))
+        if (string.IsNullOrEmpty(m.Sequence))
         {
-          var group = new FeatureItemGroup();
-          group.Add(item);
-          result.Add(group);
+          return m.GetHashCode().ToString();
         }
-      }
+        else
+        {
+          return m.Sequence;
+        }
+      };
 
-      var dic = items.Where(m => !string.IsNullOrEmpty(m.Sequence)).GroupBy(m => m.Sequence).ToList();
+      return items.GroupByFunction(func);
+    }
+
+    public static List<FeatureItemGroup> GroupByFunction(this IEnumerable<FeatureItem> items, Func<FeatureItem, string> func, bool updateName = false)
+    {
+      var result = new List<FeatureItemGroup>();
+
+      var dic = items.GroupBy(m => func(m)).ToList();
       foreach (var curItems in dic)
       {
         var group = new FeatureItemGroup();
         group.AddRange(from item in curItems orderby item.Name select item);
+        if (updateName)
+        {
+          group.DisplayName = func(curItems.First());
+        }
         result.Add(group);
       }
 
       return result;
     }
+
+    public static List<FeatureItemGroup> ConvertToGroup(this IEnumerable<FeatureItem> items)
+    {
+      var result = new List<FeatureItemGroup>();
+
+      foreach (var curItem in items)
+      {
+        var group = new FeatureItemGroup();
+        group.Add(curItem);
+        result.Add(group);
+      }
+
+      return result;
+    }
+
   }
 }

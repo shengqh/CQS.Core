@@ -108,7 +108,7 @@ namespace CQS.Genome.Mapping
           }
 
           var sam = new T();
-          var loc = new SamAlignedLocation(sam)
+          var loc = new SAMAlignedLocation(sam)
           {
             Seqname = seqname,
             Start = start,

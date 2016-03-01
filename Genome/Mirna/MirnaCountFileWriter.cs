@@ -18,7 +18,7 @@ namespace CQS.Genome.Mirna
 
     public void WriteToFile(string fileName, List<MappedMirnaGroup> mirnas)
     {
-      var items = mirnas.OrderByDescending(m => m.EstimateCount).ToList();
+      var items = mirnas.OrderByDescending(m => m.GetEstimatedCount()).ToList();
 
       using (StreamWriter sw = new StreamWriter(fileName))
       {

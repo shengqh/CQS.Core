@@ -104,7 +104,7 @@ namespace CQS.Genome.Plink
         }
       }
 
-      using (var reader = new PlinkBedRandomFile(options.InputFile))
+      using (var reader = new PlinkBedRandomFile(options.InputFile) { Progress = this.Progress })
       {
         var data = reader.Data;
 

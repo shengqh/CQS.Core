@@ -1,10 +1,6 @@
-﻿using System;
+﻿using RCPA.Utils;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
-using CQS.TCGA;
-using CQS.Ncbi.Geo;
 
 namespace CQS.BreastCancer.parser
 {

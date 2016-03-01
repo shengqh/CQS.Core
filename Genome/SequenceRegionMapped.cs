@@ -10,7 +10,7 @@ namespace CQS.Genome
   {
     public SequenceRegionMapped()
     {
-      this.AlignedLocations = new List<SamAlignedLocation>();
+      this.AlignedLocations = new List<SAMAlignedLocation>();
       this.Region = new SequenceRegion();
     }
 
@@ -36,14 +36,6 @@ namespace CQS.Genome
       }
     }
 
-    public double EstimatedCount
-    {
-      get
-      {
-        return this.AlignedLocations.Sum(m => m.Parent.EstimatedCount);
-      }
-    }
-
     public int QueryCount
     {
       get
@@ -52,13 +44,18 @@ namespace CQS.Genome
       }
     }
 
-    public List<SamAlignedLocation> AlignedLocations { get; private set; }
+    public List<SAMAlignedLocation> AlignedLocations { get; private set; }
 
-    public double GetEstimatedCount(Func<SamAlignedLocation, bool> func)
+    public double GetEstimatedCount()
+    {
+      return this.AlignedLocations.Sum(m => m.Parent.GetEstimatedCount());
+    }
+
+    public double GetEstimatedCount(Func<SAMAlignedLocation, bool> accept)
     {
       return (from loc in this.AlignedLocations
-              where func(loc)
-              select loc.Parent.EstimatedCount).Sum();
+              where accept(loc)
+              select loc.Parent.GetEstimatedCount()).Sum();
     }
 
     public double PValue { get; set; }

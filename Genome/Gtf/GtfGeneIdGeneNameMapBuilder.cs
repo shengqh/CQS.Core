@@ -1,11 +1,9 @@
-﻿using System;
+﻿using RCPA;
+using RCPA.Utils;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using RCPA;
 using System.IO;
-using RCPA.Commandline;
-using CommandLine;
+using System.Linq;
 
 namespace CQS.Genome.Gtf
 {

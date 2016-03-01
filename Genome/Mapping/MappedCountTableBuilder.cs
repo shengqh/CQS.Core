@@ -35,7 +35,7 @@ namespace CQS.Genome.Mapping
 
       var featureCounts = (from feature in features
                            let count = MathNet.Numerics.Statistics.Statistics.Median(from c in counts
-                                                                                     select c.DisplayNameGroupMap.ContainsKey(feature) ? c.DisplayNameGroupMap[feature].EstimateCount : 0)
+                                                                                     select c.DisplayNameGroupMap.ContainsKey(feature) ? c.DisplayNameGroupMap[feature].GetEstimatedCount() : 0)
                            select new { Feature = feature, Count = count }).OrderByDescending(m => m.Count).ToList();
 
       using (StreamWriter sw = new StreamWriter(options.OutputFile))
@@ -65,7 +65,7 @@ namespace CQS.Genome.Mapping
           {
             if (counts[i].DisplayNameGroupMap.ContainsKey(feature))
             {
-              sw.Write("\t{0:0.##}", counts[i].DisplayNameGroupMap[feature].EstimateCount);
+              sw.Write("\t{0:0.##}", counts[i].DisplayNameGroupMap[feature].GetEstimatedCount());
             }
             else
             {
