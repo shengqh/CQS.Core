@@ -1,15 +1,22 @@
 ﻿using CommandLine;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CQS.Genome.Mapping
 {
   public class ChromosomeCountTableBuilderOptions : SimpleDataTableBuilderOptions
   {
-    //[Option("exportXml", DefaultValue = false, MetaValue = "BOOLEAN", HelpText = "Export default mapped result to xml, may huge and slow")]
-    //public bool ExportXml { get; set; }
+    [Option("categoryMapFile", Required = false, MetaValue = "FILE", HelpText = "Category mapping file, each line contains Id and Species")]
+    public string CategoryMapFile { get; set; }
+
+    public override bool PrepareOptions()
+    {
+      base.PrepareOptions();
+
+      if (!string.IsNullOrEmpty(CategoryMapFile))
+      {
+        CheckFile("categoryMapFile", CategoryMapFile);
+      }
+
+      return ParsingErrors.Count == 0;
+    }
   }
 }

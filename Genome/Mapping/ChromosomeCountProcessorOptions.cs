@@ -30,6 +30,9 @@ namespace CQS.Genome.Mapping
     [Option('m', "mergeChromosomesByReads", Required = false, MetaValue = "BOOLEAN", HelpText = "Merge chromosomes by mapped reads")]
     public bool MergeChromosomesByReads { get; set; }
 
+    [Option("categoryMapFile", Required = false, MetaValue = "FILE", HelpText = "Category mapping file, each line contains Id and Species")]
+    public string CategoryMapFile { get; set; }
+
     private SmallRNACountMap cm;
     public virtual SmallRNACountMap GetCountMap()
     {
@@ -50,6 +53,11 @@ namespace CQS.Genome.Mapping
       if (!string.IsNullOrEmpty(this.CountFile) && !File.Exists(this.CountFile))
       {
         ParsingErrors.Add(string.Format("Count file not exists {0}.", this.CountFile));
+      }
+
+      if (!string.IsNullOrEmpty(CategoryMapFile))
+      {
+        CheckFile("categoryMapFile", CategoryMapFile);
       }
 
       return ParsingErrors.Count == 0;

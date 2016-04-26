@@ -72,11 +72,11 @@ namespace CQS.Genome.SmallRNA
       Progress.SetMessage("Parsing tRNA alignment result ...");
 
       //Parsing reads
-      HashSet<string> trnaQueries;
+      List<string> trnaQueries;
       var trnaReads = ParseCandidates(options.InputFiles, resultFilename, out trnaQueries);
       trnaReads.AssignOriginalName();
 
-      HashSet<string> otherrnaQueries;
+      List<string> otherrnaQueries;
       var otherRNAReads = ParseCandidates(options.OtherFile, resultFilename + ".other", out otherrnaQueries);
       otherRNAReads.AssignOriginalName();
 

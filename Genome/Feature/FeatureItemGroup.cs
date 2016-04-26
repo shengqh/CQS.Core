@@ -142,9 +142,18 @@ namespace CQS.Genome.Feature
   {
     public static List<SAMAlignedItem> GetQueries(this IEnumerable<FeatureItemGroup> items)
     {
-      return (from mirna in items
-              from item in mirna.GetAlignedLocations()
-              select item.Parent).Distinct().OrderBy(m => m.Qname).ToList();
+      var set = new HashSet<SAMAlignedItem>();
+      foreach (var mirna in items)
+      {
+        foreach (var item in mirna.GetAlignedLocations())
+        {
+          set.Add(item.Parent);
+        }
+      }
+
+      var result = set.ToList();
+      result.SortByName();
+      return result;
     }
 
     public static void RemoveRead(this IEnumerable<FeatureItemGroup> items, string qname)

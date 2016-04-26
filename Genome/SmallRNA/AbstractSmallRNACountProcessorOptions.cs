@@ -117,7 +117,10 @@ namespace CQS.Genome.SmallRNA
       var items = SequenceRegionUtils.GetSequenceRegions(CoordinateFile);
       items.ForEach(m =>
       {
-        m.Seqname = m.Seqname.StringAfter("chr");
+        if (m.Seqname.StartsWith("chr"))
+        {
+          m.Seqname = m.Seqname.StringAfter("chr");
+        }
       });
 
       //Fill sequence information, only miRNA and tRNA will be filled.

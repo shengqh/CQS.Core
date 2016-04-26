@@ -38,7 +38,7 @@ namespace CQS.Genome.Mapping
       result.Add(resultFilename);
 
       //parsing reads
-      var totalQueries = new HashSet<string>();
+      var totalQueries = new List<string>();
       var reads = ParseCandidates(options.InputFile, resultFilename, out totalQueries);
 
       int totalQueryCount;

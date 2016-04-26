@@ -56,18 +56,54 @@ namespace CQS.Genome.Mapping
 
       var counts = countMap.Values.ToList();
 
+      WriteOutput(options.OutputFile, countFiles, format, counts);
+
+      if (File.Exists(options.CategoryMapFile))
+      {
+        var categoryMap = new MapItemReader(0, 1).ReadFromFile(options.CategoryMapFile);
+        var queries = new HashSet<SAMChromosomeItem>(from c in counts
+                                                     from q in c.Queries
+                                                     select q);
+
+        var dic = new Dictionary<string, ChromosomeCountSlimItem>();
+        foreach (var q in queries)
+        {
+          q.Chromosomes = (from chrom in q.Chromosomes
+                           select categoryMap[chrom].Value).Distinct().OrderBy(m => m).ToList();
+          foreach (var chrom in q.Chromosomes)
+          {
+            ChromosomeCountSlimItem item;
+            if (!dic.TryGetValue(chrom, out item))
+            {
+              item = new ChromosomeCountSlimItem();
+              item.Names.Add(chrom);
+              dic[chrom] = item;
+            }
+            item.Queries.Add(q);
+          }
+        }
+
+        WriteOutput(Path.ChangeExtension(options.OutputFile, ".category" + Path.GetExtension(options.OutputFile)), countFiles, format, dic.Values.ToList());
+      }
+
+      Progress.End();
+
+      return new string[] { Path.GetFullPath(options.OutputFile) };
+    }
+
+    private void WriteOutput(string outputFile, List<FileItem> countFiles, ChromosomeCountSlimItemXmlFormat format, List<ChromosomeCountSlimItem> counts)
+    {
       Progress.SetMessage("Sorting queries in each chromosome for merging ...");
       counts.ForEach(l => l.Queries.Sort((m1, m2) => m1.Qname.CompareTo(m2.Qname)));
-      //counts.Sort((m1,m2) => m2.Queries.Count.CompareTo(m1.Queries.Count));
 
       Progress.SetMessage("Merging, calculating and sorting ...");
       counts.MergeCalculateSortByEstimatedCount();
 
-      Progress.SetMessage("Writing xml file {0} ...", options.OutputFile + ".xml");
-      format.WriteToFile(options.OutputFile + ".xml", counts);
+      Progress.SetMessage("Writing xml file {0} ...", outputFile + ".xml");
+      format.WriteToFile(outputFile + ".xml", counts);
 
-      Progress.SetMessage("Writing count file {0} ...", options.OutputFile);
-      using (var sw = new StreamWriter(options.OutputFile))
+      Progress.SetMessage("Writing count file {0} ...", outputFile);
+      using (var sw = new StreamWriter(outputFile))
       {
         sw.WriteLine("Name\t{0}", countFiles.ConvertAll(m => m.Name).Merge("\t"));
         foreach (var count in counts)
@@ -79,10 +115,6 @@ namespace CQS.Genome.Mapping
           sw.WriteLine("{0}\t{1}", (from m in count.Names orderby m select m).Merge(";"), individualCounts);
         }
       }
-
-      Progress.End();
-
-      return new string[] { Path.GetFullPath(options.OutputFile) };
     }
   }
 }

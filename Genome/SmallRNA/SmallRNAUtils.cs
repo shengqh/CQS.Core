@@ -17,7 +17,7 @@ namespace CQS.Genome.SmallRNA
       }
     }
 
-    private static Regex tRNACodeRegex1 = new Regex(@"\-([A-Za-z]{3,})[\-]{0,1}([A-Za-z]{3})[\-0-9]*$");
+    private static Regex tRNACodeRegex1 = new Regex(@"\-([A-Za-z]{3,})[\-]{0,1}([A-Za-z]{3})(-|\z)");
     private static Regex tRNACodeRegex2 = new Regex(@"tRNA[0-9]*\-(.+)", RegexOptions.IgnoreCase);
     public static string GetTRNACode(string name)
     {
@@ -44,6 +44,35 @@ namespace CQS.Genome.SmallRNA
     public static string GetTRNACode(FeatureItem item)
     {
       return GetTRNACode(item.Name);
+    }
+
+    private static Regex tRNAAminoacidRegex1 = new Regex(@"\-([A-Za-z()]{3,})[\-]{0,1}[?A-Za-z]{3}(-|\z)");
+    private static Regex tRNAAminoacidRegex2 = new Regex(@"tRNA[0-9]*\-(.+)", RegexOptions.IgnoreCase);
+    public static string GetTRNAAminoacid(string name)
+    {
+      var m = tRNAAminoacidRegex1.Match(name);
+      if (!m.Success)
+      {
+        var m2 = tRNAAminoacidRegex2.Match(name);
+        if (!m2.Success)
+        {
+          Console.Error.WriteLine("Warning: cannot find tRNA code from " + name);
+          return name;
+        }
+        else
+        {
+          return m2.Groups[1].Value;
+        }
+      }
+      else
+      {
+        return m.Groups[1].Value;
+      }
+    }
+
+    public static string GetTRNAAminoacid(FeatureItem item)
+    {
+      return GetTRNAAminoacid(item.Name);
     }
 
     public static Dictionary<string, Dictionary<string, FeatureItemGroup>> GroupByTRNACode(Dictionary<string, Dictionary<string, FeatureItemGroup>> dic, bool updateGroupName = false)

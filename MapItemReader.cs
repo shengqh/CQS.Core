@@ -26,12 +26,13 @@ namespace CQS
     /// </summary>
     public string CommentKey { get; set; }
 
-    public MapItemReader(string key, string value, char delimiter = '\t', string information = "")
+    public MapItemReader(string key, string value, char delimiter = '\t', bool hasHeader = true, string information = "")
     {
       this.key = key;
       this.value = value;
       this.information = information;
       this.delimiter = delimiter;
+      this.hasHeader = hasHeader;
       this.CommentKey = "#";
     }
 

@@ -68,7 +68,6 @@ namespace CQS.Genome.SmallRNA
       }
 
       List<BedItem> trnas = new List<BedItem>();
-
       if (File.Exists(options.UcscTrnaFile))
       {
         //reading tRNA from ucsc table without mitocondrom tRNA
@@ -87,65 +86,85 @@ namespace CQS.Genome.SmallRNA
         Progress.SetMessage("{0} tRNA from ucsc read.", trnas.Count);
       }
 
-      //reading smallRNA/tRNA from ensembl gtf file
-      Progress.SetMessage("Processing {0} ...", options.EnsemblGtfFile);
       var others = new List<BedItem>();
-      using (var gf = new GtfItemFile(options.EnsemblGtfFile))
+      if (File.Exists(options.EnsemblGtfFile))
       {
-        var biotypes = new HashSet<string>(SmallRNAConsts.Biotypes);
-        biotypes.Remove(SmallRNAConsts.miRNA);
-
-        GtfItem item;
-        int count = 0;
-        while ((item = gf.Next("gene")) != null)
+        //reading smallRNA/tRNA from ensembl gtf file
+        Progress.SetMessage("Processing {0} ...", options.EnsemblGtfFile);
+        using (var gf = new GtfItemFile(options.EnsemblGtfFile))
         {
-          string biotype;
-          if (item.Attributes.Contains("gene_biotype"))
-          {
-            biotype = item.Attributes.StringAfter("gene_biotype \"").StringBefore("\"");
-          }
-          else if (item.Attributes.Contains("gene_type"))
-          {
-            biotype = item.Attributes.StringAfter("gene_type \"").StringBefore("\"");
-          }
-          else
-          {
-            continue;
-          }
+          var biotypes = new HashSet<string>(SmallRNAConsts.Biotypes);
+          biotypes.Remove(SmallRNAConsts.miRNA);
 
-          if (File.Exists(options.UcscTrnaFile) && biotype.Equals(SmallRNAConsts.tRNA))
+          GtfItem item;
+          int count = 0;
+          while ((item = gf.Next("gene")) != null)
           {
-            continue;
-          }
-
-          if (biotype.Equals("Mt_tRNA"))
-          {
-            count++;
-            var gene_name = item.Attributes.Contains("gene_name") ? item.Attributes.StringAfter("gene_name \"").StringBefore("\"") : item.GeneId;
-            BedItem loc = new BedItem();
-            loc.Seqname = "MT";
-            loc.Start = item.Start - 1;
-            loc.End = item.End;
-            loc.Name = string.Format(SmallRNAConsts.tRNA + ":chrMT.tRNA{0}-{1}", count, gene_name.StringAfter("-"));
-            loc.Score = 1000;
-            loc.Strand = item.Strand;
-            trnas.Add(loc);
-          }
-          else if (biotypes.Contains(biotype))
-          {
-            var gene_name = item.Attributes.StringAfter("gene_name \"").StringBefore("\"");
-            BedItem loc = new BedItem();
-            loc.Seqname = item.Seqname.StringAfter("chr");
-            if (loc.Seqname.Equals("M"))
+            string biotype;
+            if (item.Attributes.Contains("gene_biotype"))
             {
-              loc.Seqname = "MT";
+              biotype = item.Attributes.StringAfter("gene_biotype \"").StringBefore("\"");
             }
-            loc.Start = item.Start - 1;
-            loc.End = item.End;
-            loc.Name = biotype + ":" + gene_name + ":" + item.GeneId;
-            loc.Score = 1000;
-            loc.Strand = item.Strand;
-            others.Add(loc);
+            else if (item.Attributes.Contains("gene_type"))
+            {
+              biotype = item.Attributes.StringAfter("gene_type \"").StringBefore("\"");
+            }
+            else
+            {
+              continue;
+            }
+
+            if (File.Exists(options.UcscTrnaFile) && biotype.Equals(SmallRNAConsts.tRNA))
+            {
+              continue;
+            }
+
+            if (biotype.Equals("Mt_tRNA"))
+            {
+              count++;
+              var gene_name = item.Attributes.Contains("gene_name") ? item.Attributes.StringAfter("gene_name \"").StringBefore("\"") : item.GeneId;
+              BedItem loc = new BedItem();
+              loc.Seqname = "MT";
+              loc.Start = item.Start - 1;
+              loc.End = item.End;
+              loc.Name = string.Format(SmallRNAConsts.tRNA + ":chrMT.tRNA{0}-{1}", count, gene_name.StringAfter("-"));
+              loc.Score = 1000;
+              loc.Strand = item.Strand;
+              trnas.Add(loc);
+            }
+            else if (biotypes.Contains(biotype))
+            {
+              string seqName;
+              if (item.Seqname.ToLower().StartsWith("chr"))
+              {
+                seqName = item.Seqname.Substring(3);
+              }
+              else
+              {
+                seqName = item.Seqname;
+              }
+              if (seqName.Equals("M"))
+              {
+                seqName = "MT";
+              }
+
+              //ignore all smallRNA coordinates on scaffold or contig.
+              if (seqName.Length > 5)
+              {
+                continue;
+              }
+
+              var gene_name = item.Attributes.StringAfter("gene_name \"").StringBefore("\"");
+
+              BedItem loc = new BedItem();
+              loc.Seqname = seqName;
+              loc.Start = item.Start - 1;
+              loc.End = item.End;
+              loc.Name = biotype + ":" + gene_name + ":" + item.GeneId;
+              loc.Score = 1000;
+              loc.Strand = item.Strand;
+              others.Add(loc);
+            }
           }
         }
       }

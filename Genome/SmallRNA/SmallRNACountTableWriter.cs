@@ -44,13 +44,13 @@ namespace CQS.Genome.SmallRNA
 
       if (!hasNTA)
       {
-        sw.Write("{0}{1}\t{2}\t{3}", featureName, indexSuffix, feature.DisplayLocations, sequence);
-        foreach (var sample in samples)
+        var counts = (from sample in samples
+                      select feature.GetEstimatedCount(m => m.SamLocation.Parent.Sample.Equals(sample) && acceptOffset(m))).ToArray();
+        if (counts.Any(l => l >= 0.05))
         {
-          var count = feature.GetEstimatedCount(m => m.SamLocation.Parent.Sample.Equals(sample) && acceptOffset(m));
-          sw.Write("\t{0:0.#}", count);
+          sw.WriteLine("{0}{1}\t{2}\t{3}\t{4}", featureName, indexSuffix, feature.DisplayLocations, sequence,
+            (from count in counts select string.Format("{0:0.#}", count)).Merge("\t"));
         }
-        sw.WriteLine();
       }
       else
       {
@@ -62,13 +62,13 @@ namespace CQS.Genome.SmallRNA
 
         foreach (var nta in ntas)
         {
-          sw.Write("{0}{1}_NTA_{2}\t{3}\t{4}", featureName, indexSuffix, nta, feature.DisplayLocations, sequence);
-          foreach (var sample in samples)
+          var counts = (from sample in samples
+                        select feature.GetEstimatedCount(m => m.SamLocation.Parent.Sample.Equals(sample) && acceptOffset(m) && m.SamLocation.Parent.ClippedNTA.Equals(nta))).ToArray();
+          if (counts.Any(l => l >= 0.05))
           {
-            var count = feature.GetEstimatedCount(m => m.SamLocation.Parent.Sample.Equals(sample) && acceptOffset(m) && m.SamLocation.Parent.ClippedNTA.Equals(nta));
-            sw.Write("\t{0:0.#}", count);
+            sw.Write("{0}{1}_NTA_{2}\t{3}\t{4}\t{5}", featureName, indexSuffix, nta, feature.DisplayLocations, sequence,
+              (from count in counts select string.Format("{0:0.#}", count)).Merge("\t"));
           }
-          sw.WriteLine();
         }
       }
     }

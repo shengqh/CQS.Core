@@ -51,7 +51,7 @@ namespace CQS.Genome.SmallRNA
         }
 
         Progress.SetMessage("Reading " + file.File + "...");
-        counts[file.Name] = new MapItemReader("Sequence", "Count", '\t', "Query").ReadFromFile(file.File).Where(m => accept(m)).ToDictionary(m => m.Key, m => double.Parse(m.Value.Value));
+        counts[file.Name] = new MapItemReader("Sequence", "Count", '\t', true, "Query").ReadFromFile(file.File).Where(m => accept(m)).ToDictionary(m => m.Key, m => double.Parse(m.Value.Value));
       }
 
       var samples = counts.Keys.OrderBy(m => m).ToArray();

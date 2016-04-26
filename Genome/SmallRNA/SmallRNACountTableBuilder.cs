@@ -96,6 +96,13 @@ namespace CQS.Genome.SmallRNA
       result.AddRange(new SmallRNACountTableWriter().WriteToFile(tRNAFile, tRNAGroup, samples, SmallRNAConsts.tRNA + ":"));
       allGroups.AddRange(tRNAGroup);
 
+      //output tRNA
+      Progress.SetMessage("Grouping tRNA by amino acid ...");
+      tRNAGroup = tRNAs.GroupByFunction(SmallRNAUtils.GetTRNAAminoacid, true).OrderByDescending(m => m.GetEstimatedCount()).ThenBy(m => m.Name).ToList();
+      tRNAFile = Path.ChangeExtension(options.OutputFile, SmallRNAConsts.tRNA + ".aminoacid.count");
+      Progress.SetMessage("Writing tRNA aminoacid...");
+      result.AddRange(new SmallRNACountTableWriter().WriteToFile(tRNAFile, tRNAGroup, samples, SmallRNAConsts.tRNA + ":"));
+
       //Progress.SetMessage("Grouping tRNA by identical query ...");
       //var tRNAGroup2 = tRNAs.GroupByIdenticalQuery().OrderByDescending(m => m.GetEstimateCount()).ThenBy(m => m.Name).ToList();
       //var tRNAFile2 = Path.ChangeExtension(options.OutputFile, SmallRNAConsts.tRNA + ".byquery.count");
@@ -109,6 +116,8 @@ namespace CQS.Genome.SmallRNA
       Progress.SetMessage("Writing other smallRNA ...");
       result.AddRange(new SmallRNACountTableWriter().WriteToFile(otherFile, otherGroups, samples, ""));
       allGroups.AddRange(otherGroups);
+
+      //new FeatureItemGroupXmlFormat().WriteToFile(options.OutputFile + ".other.xml", miRNAGroup);
 
       //output all smallRNA
       Progress.SetMessage("Writing all smallRNA ...");

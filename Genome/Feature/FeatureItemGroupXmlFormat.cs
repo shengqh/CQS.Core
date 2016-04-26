@@ -2,6 +2,7 @@
 using RCPA;
 using RCPA.Gui;
 using RCPA.Utils;
+using System;
 using System.Collections.Generic;
 using System.Xml;
 
@@ -125,17 +126,25 @@ namespace CQS.Genome.Feature
       return result;
     }
 
-
     public void WriteToFile(string fileName, List<FeatureItemGroup> groups)
     {
+      //Console.WriteLine("Creating xml writer ... ");
+      Progress.SetMessage("Creating xml writer ... ");
       using (var xw = XmlUtils.CreateWriter(fileName))
       {
+        //Console.WriteLine("Start writing ... ");
+        Progress.SetMessage("Start writing ... ");
         xw.WriteStartDocument();
 
         xw.WriteStartElement("root");
 
-        SAMAlignedItemUtils.WriteTo(xw, groups.GetQueries());
+        Progress.SetMessage("Getting queries ... ");
+        var queries = groups.GetQueries();
 
+        Progress.SetMessage("Writing {0} queries ...", queries.Count);
+        SAMAlignedItemUtils.WriteTo(xw, queries);
+
+        Progress.SetMessage("Writing {0} subjects ...", groups.Count);
         xw.WriteStartElement("subjectResult");
         foreach (var itemgroup in groups)
         {
@@ -183,6 +192,8 @@ namespace CQS.Genome.Feature
         xw.WriteEndElement();
 
         xw.WriteEndDocument();
+
+        Progress.SetMessage("Writing xml file finished.");
       }
     }
   }

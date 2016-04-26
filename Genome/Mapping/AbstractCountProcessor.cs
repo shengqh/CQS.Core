@@ -41,16 +41,16 @@ namespace CQS.Genome.Mapping
       this.options = options;
     }
 
-    protected virtual List<SAMAlignedItem> ParseCandidates(string fileName, string outputFile, out HashSet<string> queryNames)
+    protected virtual List<SAMAlignedItem> ParseCandidates(string fileName, string outputFile,  out List<string> queryNames)
     {
       return ParseCandidates(new string[] { fileName }.ToList(), outputFile, out queryNames);
     }
 
-    protected virtual List<SAMAlignedItem> ParseCandidates(IList<string> fileNames, string outputFile, out HashSet<string> queryNames)
+    protected virtual List<SAMAlignedItem> ParseCandidates(IList<string> fileNames, string outputFile, out List<string> queryNames)
     {
       var candiateBuilder = GetCandidateBuilder();
 
-      queryNames = new HashSet<string>();
+      queryNames = new List<string>();
 
       var result = new List<SAMAlignedItem>();
       foreach (var fileName in fileNames)
@@ -60,7 +60,7 @@ namespace CQS.Genome.Mapping
         HashSet<string> curQueryNames;
         var curResult = candiateBuilder.Build<SAMAlignedItem>(fileName, out curQueryNames);
 
-        queryNames.UnionWith(curQueryNames);
+        queryNames.AddRange(curQueryNames);
         result.AddRange(curResult);
       }
 

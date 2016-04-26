@@ -4,28 +4,68 @@ using RCPA;
 using RCPA.Gui;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace CQS.Genome.Mapping
 {
   public class ChromosomeCountSlimItemBuilder : ProgressClass
   {
     private string preferPrefix;
+    private string categoryMapFile;
+    private Dictionary<string, string> nameMap = null;
+
     /// <summary>
     /// Constructor of ChromosomeCountSlimItemBuilder
     /// </summary>
-    public ChromosomeCountSlimItemBuilder(string preferPrefix)
+    public ChromosomeCountSlimItemBuilder(string preferPrefix, string categoryMapFile)
     {
       this.preferPrefix = preferPrefix;
+      this.categoryMapFile = categoryMapFile;
+    }
+
+    private string GetName(string sourceName)
+    {
+      if (this.nameMap == null)
+      {
+        if (sourceName.StartsWith("chr"))
+        {
+          return sourceName.StringAfter("chr");
+        }
+        else
+        {
+          return sourceName;
+        }
+      }
+      else
+      {
+        string value;
+        if (nameMap.TryGetValue(sourceName, out value))
+        {
+          return nameMap[sourceName];
+        }
+        else
+        {
+          throw new Exception(string.Format("Cannot get name {0} from file {1}", sourceName, categoryMapFile));
+        }
+      }
     }
 
     public List<ChromosomeCountSlimItem> Build(string fileName)
     {
+      if (File.Exists(categoryMapFile))
+      {
+        Progress.SetMessage("Reading name map file " + categoryMapFile + " ...");
+        nameMap = new MapItemReader(0, 1).ReadFromFile(categoryMapFile).ToDictionary(m => m.Key, m => m.Value.Value);
+      }
+
       var result = new List<ChromosomeCountSlimItem>();
 
       var queries = new Dictionary<string, SAMChromosomeItem>();
       var chromosomes = new Dictionary<string, ChromosomeCountSlimItem>();
 
+      Progress.SetMessage("Parsing alignment file " + fileName + " ...");
       using (var sr = SAMFactory.GetReader(fileName, true))
       {
         int count = 0;
@@ -60,18 +100,18 @@ namespace CQS.Genome.Mapping
 
           var qname = parts[SAMFormatConst.QNAME_INDEX];
           SAMChromosomeItem query;
-          if(!queries.TryGetValue(qname, out query))
+          if (!queries.TryGetValue(qname, out query))
           {
             query = new SAMChromosomeItem();
             query.Qname = qname;
             queries[qname] = query;
           }
 
-          var seqname = parts[SAMFormatConst.RNAME_INDEX].StartsWith("chr") ? parts[SAMFormatConst.RNAME_INDEX].StringAfter("chr") : parts[SAMFormatConst.RNAME_INDEX];
+          var seqname = GetName(parts[SAMFormatConst.RNAME_INDEX]);
           query.Chromosomes.Add(seqname);
 
           ChromosomeCountSlimItem item;
-          if(!chromosomes.TryGetValue(seqname, out item))
+          if (!chromosomes.TryGetValue(seqname, out item))
           {
             item = new ChromosomeCountSlimItem();
             item.Names.Add(seqname);
@@ -86,19 +126,24 @@ namespace CQS.Genome.Mapping
         Progress.SetMessage("Finally, there are {0} candidates from {1} reads", waitingcount, count);
       }
 
-      foreach(var query in queries.Values)
+      foreach (var query in queries.Values)
       {
         query.Chromosomes = query.Chromosomes.Distinct().OrderBy(m => m).ToList();
+      }
+
+      foreach (var sam in chromosomes.Values)
+      {
+        sam.Queries = sam.Queries.Distinct().OrderBy(m => m.Qname).ToList();
       }
 
       if (!string.IsNullOrEmpty(this.preferPrefix))
       {
         foreach (var query in queries.Values)
         {
-          if(query.Chromosomes.Any(l => l.StartsWith(this.preferPrefix)))
+          if (query.Chromosomes.Any(l => l.StartsWith(this.preferPrefix)))
           {
             var chroms = query.Chromosomes.Where(l => l.StartsWith(this.preferPrefix)).ToArray();
-            foreach(var chrom in chroms)
+            foreach (var chrom in chroms)
             {
               chromosomes[chrom].Queries.Remove(query);
               query.Chromosomes.Remove(chrom);

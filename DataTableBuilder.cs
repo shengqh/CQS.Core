@@ -27,9 +27,8 @@ namespace CQS
     {
       var countfiles = _options.GetCountFiles();
 
-      var reader = new MapItemReader(_options.KeyIndex, _options.ValueIndex, informationIndex: _options.InformationIndex,
-                        hasHeader: !_options.HasNoHeader);
-      reader.CheckEnd = m => m.StartsWith("no_feature");
+      var reader = new MapItemReader(_options.KeyIndex, _options.ValueIndex, informationIndex: _options.InformationIndex, hasHeader: !_options.HasNoHeader);
+      reader.CheckEnd = m => m.StartsWith("__no_feature") || m.StartsWith("no_feature");
 
       var counts = new List<SampleData>();
       foreach (var file in countfiles)

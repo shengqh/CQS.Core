@@ -101,7 +101,7 @@ namespace CQS.Genome.SmallRNA
         ParsingErrors.Add(string.Format("Input tRNA file not exists {0}.", this.UcscTrnaFile));
       }
 
-      if (!File.Exists(this.EnsemblGtfFile))
+      if (!string.IsNullOrEmpty(this.EnsemblGtfFile) && !File.Exists(this.EnsemblGtfFile))
       {
         ParsingErrors.Add(string.Format("Input ensembl GTF file not exists {0}.", this.EnsemblGtfFile));
       }
