@@ -68,6 +68,10 @@ namespace CQS.Genome.Annotation
       get { return "Extract bam file for annovar entries"; }
     }
 
+    public string SoftwareName { get; set; }
+
+    public string SoftwareVersion { get; set; }
+
     public bool Process(string[] args)
     {
       AnnovarSummaryBamDistillerOptions options;

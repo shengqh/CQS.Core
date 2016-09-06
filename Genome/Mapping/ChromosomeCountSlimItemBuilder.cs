@@ -12,31 +12,32 @@ namespace CQS.Genome.Mapping
 {
   public class ChromosomeCountSlimItemBuilder : ProgressClass
   {
-    private string preferPrefix;
-    private string categoryMapFile;
+    private ChromosomeCountProcessorOptions options;
     private Dictionary<string, string> nameMap = null;
 
     /// <summary>
     /// Constructor of ChromosomeCountSlimItemBuilder
     /// </summary>
-    public ChromosomeCountSlimItemBuilder(string preferPrefix, string categoryMapFile)
+    public ChromosomeCountSlimItemBuilder(ChromosomeCountProcessorOptions options)
     {
-      this.preferPrefix = preferPrefix;
-      this.categoryMapFile = categoryMapFile;
+      this.options = options;
     }
 
     private string GetName(string sourceName)
     {
       if (this.nameMap == null)
       {
-        if (sourceName.StartsWith("chr"))
-        {
-          return sourceName.StringAfter("chr");
-        }
-        else
+        if (options.KeepChrInName)
         {
           return sourceName;
         }
+        
+        if (sourceName.Length >= 4 && sourceName.StartsWith("chr") && char.IsLetterOrDigit(sourceName[3]))
+        {
+          return sourceName.StringAfter("chr");
+        }
+
+        return sourceName;
       }
       else
       {
@@ -47,17 +48,17 @@ namespace CQS.Genome.Mapping
         }
         else
         {
-          throw new Exception(string.Format("Cannot get name {0} from file {1}", sourceName, categoryMapFile));
+          throw new Exception(string.Format("Cannot get name {0} from file {1}", sourceName, options.CategoryMapFile));
         }
       }
     }
 
     public List<ChromosomeCountSlimItem> Build(string fileName)
     {
-      if (File.Exists(categoryMapFile))
+      if (File.Exists(options.CategoryMapFile))
       {
-        Progress.SetMessage("Reading name map file " + categoryMapFile + " ...");
-        nameMap = new MapItemReader(0, 1).ReadFromFile(categoryMapFile).ToDictionary(m => m.Key, m => m.Value.Value);
+        Progress.SetMessage("Reading name map file " + options.CategoryMapFile + " ...");
+        nameMap = new MapItemReader(0, 1).ReadFromFile(options.CategoryMapFile).ToDictionary(m => m.Key, m => m.Value.Value);
       }
 
       var result = new List<ChromosomeCountSlimItem>();
@@ -105,6 +106,11 @@ namespace CQS.Genome.Mapping
             query = new SAMChromosomeItem();
             query.Qname = qname;
             queries[qname] = query;
+
+            if (options.KeepSequence)
+            {
+              query.Sequence = parts[SAMFormatConst.SEQ_INDEX];
+            }
           }
 
           var seqname = GetName(parts[SAMFormatConst.RNAME_INDEX]);
@@ -136,13 +142,13 @@ namespace CQS.Genome.Mapping
         sam.Queries = sam.Queries.Distinct().OrderBy(m => m.Qname).ToList();
       }
 
-      if (!string.IsNullOrEmpty(this.preferPrefix))
+      if (!string.IsNullOrEmpty(options.PreferPrefix))
       {
         foreach (var query in queries.Values)
         {
-          if (query.Chromosomes.Any(l => l.StartsWith(this.preferPrefix)))
+          if (query.Chromosomes.Any(l => l.StartsWith(options.PreferPrefix)))
           {
-            var chroms = query.Chromosomes.Where(l => l.StartsWith(this.preferPrefix)).ToArray();
+            var chroms = query.Chromosomes.Where(l => l.StartsWith(options.PreferPrefix)).ToArray();
             foreach (var chrom in chroms)
             {
               chromosomes[chrom].Queries.Remove(query);

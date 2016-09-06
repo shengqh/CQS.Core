@@ -6,7 +6,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Linq;
-using CQS.Genome.Bed;
 
 namespace CQS.Genome.SomaticMutation
 {
@@ -17,6 +16,10 @@ namespace CQS.Genome.SomaticMutation
     protected bool? _samtoolsOk;
 
     protected virtual bool outputNotCoveredSite { get { return false; } }
+
+    public string SoftwareName { get; set; }
+
+    public string SoftwareVersion { get; set; }
 
     public AbstractPileupProcessor(PileupProcessorOptions options)
     {
@@ -29,7 +32,7 @@ namespace CQS.Genome.SomaticMutation
     {
       Progress.SetMessage("initialize process started at {0}", DateTime.Now);
 
-      _options.PrintParameter();
+      _options.PrintParameter(Console.Out);
 
       var watch = new Stopwatch();
       watch.Start();

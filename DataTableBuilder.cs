@@ -35,7 +35,15 @@ namespace CQS
       {
         Progress.SetMessage("Reading data from {0} ...", file.File);
         var data = reader.ReadFromFile(file.File);
-        counts.Add(new SampleData() { Name = file.Name, Data = data });
+        if (!string.IsNullOrEmpty(_options.KeyRegex))
+        {
+          var reg = new Regex(_options.KeyRegex);
+          counts.Add(new SampleData() { Name = file.Name, Data = data.ToDictionary(l => reg.Match(l.Key).Groups[1].Value, l => l.Value) });
+        }
+        else
+        {
+          counts.Add(new SampleData() { Name = file.Name, Data = data });
+        }
       }
 
       MapData namemap = null;
@@ -43,6 +51,12 @@ namespace CQS
       {
         Progress.SetMessage("Reading name map from {0} ...", _options.MapFile);
         namemap = new MapDataReader(0, 1).ReadFromFile(_options.MapFile);
+
+        if (!string.IsNullOrEmpty(_options.KeyRegex))
+        {
+          var reg = new Regex(_options.KeyRegex);
+          namemap.Data = namemap.Data.ToDictionary(l => reg.Match(l.Key).Groups[1].Value, l => l.Value);
+        }
       }
 
       if (!string.IsNullOrEmpty(_options.KeyRegex))
@@ -73,11 +87,11 @@ namespace CQS
 
         if (namemap != null)
         {
-          sw.Write("\tFeature_{0}", namemap.ValueName);
           if (_options.ExportExtra)
           {
             sw.Write("\t{0}", (from v in namemap.InfoNames select "Feature_" + v).Merge("\t"));
           }
+          sw.Write("\tFeature_{0}", namemap.ValueName);
         }
 
         sw.WriteLine("\t" + (from c in counts select c.Name).Merge("\t"));
@@ -94,13 +108,14 @@ namespace CQS
           sw.Write(feature);
           if (namemap != null)
           {
+            var feature2 = feature.StringBefore(".");
             if (namemap.Data.ContainsKey(feature))
             {
-              sw.Write("\t{0}", namemap.Data[feature].Value);
               if (_options.ExportExtra)
               {
                 sw.Write("\t{0}", namemap.Data[feature].Informations.Merge("\t"));
               }
+              sw.Write("\t{0}", namemap.Data[feature].Value);
             }
             else
             {
@@ -112,16 +127,14 @@ namespace CQS
               var findFeature = feas.FirstOrDefault(m => namemap.Data.ContainsKey(m));
               if (findFeature == null)
               {
-                sw.Write("\t{0}", feature);
                 if (_options.ExportExtra)
                 {
                   sw.Write("\t{0}", (from f in namemap.InfoNames select string.Empty).Merge("\t"));
                 }
+                sw.Write("\t{0}", feature);
               }
               else
               {
-                sw.Write("\t{0}", (from f in feas
-                                   select namemap.Data.ContainsKey(f) ? namemap.Data[f].Value : f).Merge("+") + suffix);
                 if (_options.ExportExtra)
                 {
                   for (int i = 0; i < namemap.InfoNames.Count; i++)
@@ -130,6 +143,8 @@ namespace CQS
                                        select namemap.Data.ContainsKey(f) ? namemap.Data[f].Informations[i] : string.Empty).Merge(";"));
                   }
                 }
+                sw.Write("\t{0}", (from f in feas
+                                   select namemap.Data.ContainsKey(f) ? namemap.Data[f].Value : f).Merge("+") + suffix);
               }
             }
           }
@@ -149,30 +164,34 @@ namespace CQS
         }
       }
 
-      if (File.Exists(_options.MapFile))
+      if (!_options.NoFPKM)
       {
-        bool hasLength = false;
-        using (var sr = new StreamReader(_options.MapFile))
+        if (File.Exists(_options.MapFile))
         {
-          var line = sr.ReadLine();
-          if (line != null)
+          bool hasLength = false;
+          using (var sr = new StreamReader(_options.MapFile))
           {
-            hasLength = line.Contains("length");
+            var line = sr.ReadLine();
+            if (line != null)
+            {
+              hasLength = line.Contains("length");
+            }
           }
-        }
 
-        if (hasLength)
-        {
-          Progress.SetMessage("Calculating FPKM values...");
-          new HTSeqCountToFPKMCalculator(new HTSeqCountToFPKMCalculatorOptions()
+          if (hasLength)
           {
-            InputFile = _options.OutputFile,
-            GeneLengthFile = _options.MapFile,
-            OutputFile = Path.ChangeExtension(_options.OutputFile, ".fpkm.tsv")
-          })
-          {
-            Progress = this.Progress
-          }.Process();
+            Progress.SetMessage("Calculating FPKM values...");
+            new HTSeqCountToFPKMCalculator(new HTSeqCountToFPKMCalculatorOptions()
+            {
+              InputFile = _options.OutputFile,
+              GeneLengthFile = _options.MapFile,
+              KeyRegex = _options.KeyRegex,
+              OutputFile = Path.ChangeExtension(_options.OutputFile, ".fpkm.tsv")
+            })
+            {
+              Progress = this.Progress
+            }.Process();
+          }
         }
       }
 

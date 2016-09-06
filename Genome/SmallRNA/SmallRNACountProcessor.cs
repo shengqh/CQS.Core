@@ -22,6 +22,95 @@ namespace CQS.Genome.SmallRNA
       noPaneltyMutations['G'] = 'A';
     }
 
+    //public void WriteToFile(string fileName, List<FeatureItemGroup> groups, bool exportPValue)
+    //{
+    //  //var utf8 = new UTF8Encoding(false);
+
+    //  Progress.SetMessage("Ready for writing ...");
+
+    //  using (var ft = new FileStream(fileName, FileMode.Create))
+    //  //using (var xw = new StreamWriter(ft, utf8))
+    //  using (var xw = new StreamWriter(ft))
+    //  {
+    //    //Console.WriteLine("Start writing ... ");
+    //    Progress.SetMessage("Start writing ... ");
+    //    //xw.WriteLine("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+    //    xw.WriteLine("<?xml version=\"1.0\"?>");
+    //    xw.WriteLine("<root>");
+
+    //    Progress.SetMessage("Getting queries ... ");
+    //    var queries = groups.GetQueries();
+
+    //    Progress.SetMessage("Writing {0} queries ...", queries.Count);
+    //    xw.WriteLine("  <queries>");
+    //    foreach (var query in queries)
+    //    {
+    //      xw.WriteLine(@"    <query name=""{0}"" sequence=""{1}"" count=""{2}"">", query.Qname, query.Sequence, query.QueryCount);
+    //      foreach (var loc in query.Locations)
+    //      {
+    //        xw.WriteLine(@"      <location seqname=""{0}"" start=""{1}"" end=""{2}"" strand=""{3}"" cigar=""{4}"" score=""{5}"" mdz=""{6}"" nmi=""{7}"" nnpm=""{8}"" />",
+    //          loc.Seqname,
+    //          loc.Start,
+    //          loc.End,
+    //          loc.Strand,
+    //          loc.Cigar,
+    //          loc.AlignmentScore,
+    //          loc.MismatchPositions,
+    //          loc.NumberOfMismatch,
+    //          loc.NumberOfNoPenaltyMutation);
+    //      }
+    //      xw.WriteLine("    </query>");
+    //    }
+    //    xw.WriteLine("  </queries>");
+
+    //    Progress.SetMessage("Writing {0} subjects ...", groups.Count);
+    //    xw.WriteLine("  <subjectResult>");
+    //    foreach (var itemgroup in groups)
+    //    {
+    //      xw.WriteLine("    <subjectGroup>");
+    //      foreach (var item in itemgroup)
+    //      {
+    //        xw.WriteLine("      <subject name=\"{0}\">", item.Name);
+    //        foreach (var region in item.Locations)
+    //        {
+    //          xw.Write("        <region seqname=\"{0}\" start=\"{1}\" end=\"{2}\" strand=\"{3}\" sequence=\"{4}\"",
+    //            region.Seqname,
+    //            region.Start,
+    //            region.End,
+    //            region.Strand,
+    //            XmlUtils.ToXml(region.Sequence));
+    //          if (exportPValue)
+    //          {
+    //            xw.Write(" query_count_before_filter=\"{0}\"", region.QueryCountBeforeFilter);
+    //            xw.Write(" query_count=\"{0}\"", region.QueryCount);
+    //            xw.Write(" pvalue=\"{0}\"", region.PValue);
+    //          }
+    //          xw.WriteLine(" size=\"{0}\">", region.Length);
+    //          foreach (var sl in region.SamLocations)
+    //          {
+    //            var loc = sl.SamLocation;
+    //            xw.Write("          <query qname=\"{0}\"", loc.Parent.Qname);
+    //            xw.Write(" loc=\"{0}\"", loc.GetLocation());
+    //            xw.Write(" overlap=\"{0}\"", string.Format("{0:0.##}", sl.OverlapPercentage));
+    //            xw.Write(" offset=\"{0}\"", sl.Offset);
+    //            xw.Write(" query_count=\"{0}\"", loc.Parent.QueryCount);
+    //            xw.Write(" seq_len=\"{0}\"", loc.Parent.Sequence.Length);
+    //            xw.Write(" nmi=\"{0}\"", loc.NumberOfMismatch);
+    //            xw.WriteLine(" nnpm=\"{0}\" />", loc.NumberOfNoPenaltyMutation);
+    //          }
+    //          xw.WriteLine("        </region>");
+    //        }
+    //        xw.WriteLine("      </subject>");
+    //      }
+    //      xw.WriteLine("    </subjectGroup>");
+    //    }
+    //    xw.WriteLine("  </subjectResult>");
+    //    xw.Write("</root>");
+    //  }
+    //  Progress.SetMessage("Writing xml file finished.");
+    //}
+
+
     public override IEnumerable<string> Process()
     {
       var result = new List<string>();
@@ -41,6 +130,9 @@ namespace CQS.Genome.SmallRNA
       var resultFilename = options.OutputFile;
       result.Add(resultFilename);
 
+      //var xmlFormat = new FeatureItemGroupXmlFormatHand();
+      //var xmlFormat = new FeatureItemGroupXmlFormat();
+
       //parsing reads
       List<string> totalQueries;
       var reads = ParseCandidates(options.InputFiles, resultFilename, out totalQueries);
@@ -55,17 +147,22 @@ namespace CQS.Genome.SmallRNA
       }
 
       //First of all, draw mapping position graph
-      Progress.SetMessage("Drawing position pictures...");
-
       var miRNAPositionFile = Path.ChangeExtension(options.OutputFile, SmallRNAConsts.miRNA + ".position");
       var tRNAPositionFile = Path.ChangeExtension(options.OutputFile, SmallRNAConsts.tRNA + ".position");
       if (!options.NotOverwrite || (!File.Exists(miRNAPositionFile) && !File.Exists(tRNAPositionFile)))
       {
-        var notNTAreads = reads.Where(m => m.Qname.Contains(SmallRNAConsts.NTA_TAG) && m.Qname.StringAfter(SmallRNAConsts.NTA_TAG).Length > 0).ToList();
+        Progress.SetMessage("Drawing position pictures...");
+        var notNTAreads = reads.Where(m => !m.Qname.Contains(SmallRNAConsts.NTA_TAG) || m.Qname.StringAfter(SmallRNAConsts.NTA_TAG).Length == 0).ToList();
+
         DrawPositionImage(notNTAreads, featureLocations.Where(m => m.Category.Equals(SmallRNAConsts.miRNA)).ToList(), "miRNA", miRNAPositionFile);
         DrawPositionImage(notNTAreads, featureLocations.Where(m => m.Category.Equals(SmallRNAConsts.tRNA)).ToList(), "tRNA", tRNAPositionFile);
+
+        var snRNAPositionFile = Path.ChangeExtension(options.OutputFile, ".snRNA.position");
+        var snoRNAPositionFile = Path.ChangeExtension(options.OutputFile, ".snoRNA.position");
+        new SmallRNACountProcessor(options).DrawPositionImage(notNTAreads, featureLocations.Where(m => m.Name.StartsWith("snRNA")).ToList(), "snRNA", snRNAPositionFile, true);
+        new SmallRNACountProcessor(options).DrawPositionImage(notNTAreads, featureLocations.Where(m => m.Name.StartsWith("snoRNA")).ToList(), "snoRNA", snoRNAPositionFile, true);
       }
-      
+
       var allmapped = new List<FeatureItemGroup>();
       var mappedfile = resultFilename + ".mapped.xml";
       if (File.Exists(mappedfile) && options.NotOverwrite)
@@ -96,6 +193,10 @@ namespace CQS.Genome.SmallRNA
           new SmallRNACountMicroRNAWriter(options.Offsets).WriteToFile(mirnaCountFile, mirnaGroups);
           result.Add(mirnaCountFile);
           allmapped.AddRange(mirnaGroups);
+
+          //Progress.SetMessage("writing miRNA mapping details...");
+          //WriteToFile(mirnaCountFile + ".xml", mirnaGroups, false);
+          //Progress.SetMessage("writing miRNA mapping details done.");
         }
         mirnaGroups.Clear();
 
@@ -111,6 +212,11 @@ namespace CQS.Genome.SmallRNA
           result.Add(trnaCodeCountFile);
 
           allmapped.AddRange(trnaCodeGroups);
+
+          //Progress.SetMessage("writing tRNA mapping details...");
+          //WriteToFile(trnaCodeCountFile + ".xml", trnaCodeGroups, false);
+          //Progress.SetMessage("writing tRNA mapping details done.");
+
           /*
           var trnaGroups = featureMapped.Where(m => m.Name.StartsWith(SmallRNAConsts.tRNA)).GroupByIdenticalQuery();
           OrderFeatureItemGroup(trnaGroups);
@@ -137,6 +243,10 @@ namespace CQS.Genome.SmallRNA
             var otherCountFile = Path.ChangeExtension(resultFilename, ".other.count");
             new FeatureItemGroupCountWriter().WriteToFile(otherCountFile, otherGroups);
             result.Add(otherCountFile);
+
+            //Progress.SetMessage("writing other smallRNA mapping details...");
+            //WriteToFile(otherCountFile + ".xml", otherGroups, false);
+            //Progress.SetMessage("writing other smallRNA mapping details done.");
           }
 
           allmapped.AddRange(otherGroups);
@@ -149,12 +259,10 @@ namespace CQS.Genome.SmallRNA
 
         WriteInfoFile(result, resultFilename, reads, totalQueryCount, allmapped);
 
-        var format = new FeatureItemGroupXmlFormat();
-        format.Progress = this.Progress;
-
         Progress.SetMessage("writing mapping details...");
-
-        format.WriteToFile(mappedfile, allmapped);
+        new FeatureItemGroupXmlFormatHand().WriteToFile(mappedfile, allmapped);
+        //new FeatureItemGroupXmlFormat().WriteToFile(mappedfile, allmapped);
+        Progress.SetMessage("writing mapping details done.");
 
         result.Add(mappedfile);
       }

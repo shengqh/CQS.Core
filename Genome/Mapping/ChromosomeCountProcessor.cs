@@ -21,7 +21,7 @@ namespace CQS.Genome.Mapping
     {
       var result = new List<string>();
 
-      var builder = new ChromosomeCountSlimItemBuilder(options.PreferPrefix, options.CategoryMapFile);
+      var builder = new ChromosomeCountSlimItemBuilder(options);
       var chroms = builder.Build(options.InputFile);
 
       Progress.SetMessage("Assigning query count ...");

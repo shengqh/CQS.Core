@@ -27,7 +27,7 @@ namespace CQS
     public string KeyName { get; set; }
     public string ValueName { get; set; }
     public List<string> InfoNames { get; private set; }
-    public Dictionary<string, MapDataItem> Data { get; private set; }
+    public Dictionary<string, MapDataItem> Data { get; set; }
   }
 
   public class MapDataReader

@@ -12,7 +12,7 @@ namespace CQS.Genome.SmallRNA
   public static class SmallRNAConsts
   {
     /// <summary>
-    /// The feature name of miRNA in miRBase gff file. It will be the prefix of tRNA feature name.
+    /// The feature name of miRNA in miRBase gff file. It will be the prefix of microRNA feature name.
     /// </summary>
     public static readonly string miRNA = SmallRNABiotype.miRNA.ToString();
 

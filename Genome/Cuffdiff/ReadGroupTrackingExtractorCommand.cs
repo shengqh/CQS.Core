@@ -6,6 +6,7 @@ using RCPA.Commandline;
 using CommandLine;
 using System.IO;
 using RCPA.Gui.Command;
+using RCPA;
 
 namespace CQS.Genome.Cuffdiff
 {
@@ -53,52 +54,21 @@ namespace CQS.Genome.Cuffdiff
     }
   }
 
-  public class ReadGroupTrackingExtractorCommand : ICommandLineCommand, IToolCommand
+  public class ReadGroupTrackingExtractorCommand : AbstractCommandLineCommand<ReadGroupTrackingExtractorOptions>, IToolCommand
   {
-    public string Name
+    public override string Name
     {
       get { return "cuffdiff_count"; }
     }
 
-    public string Description
+    public override string Description
     {
       get { return "Extract count/rpkm from cuffdiff read_group_tracking file"; }
     }
 
-    public bool Process(string[] args)
+    public override IProcessor GetProcessor(ReadGroupTrackingExtractorOptions options)
     {
-      ReadGroupTrackingExtractorOptions options;
-      bool result = true;
-      try
-      {
-        options = CommandLine.Parser.Default.ParseArguments<ReadGroupTrackingExtractorOptions>(args,
-          () =>
-          {
-            result = false;
-          }
-        );
-
-        if (result)
-        {
-          if (!options.PrepareOptions())
-          {
-            Console.Out.WriteLine(options.GetUsage());
-            result = false;
-          }
-          else
-          {
-            var files = new ReadGroupTrackingExtractor(options.InputFiles, options.SignificantFiles, options.MapFile).Process(options.OutputFilePrefix);
-            Console.WriteLine("File saved to :\n" + files.Merge("\n"));
-          }
-        }
-      }
-      catch (Exception ex)
-      {
-        Console.Error.WriteLine(ex.Message);
-        result = false;
-      }
-
-      return result;
+      return new ReadGroupTrackingExtractor(options);
     }
 
     public string GetClassification()

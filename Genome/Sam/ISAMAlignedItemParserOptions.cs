@@ -29,6 +29,6 @@ namespace CQS.Genome.Sam
 
     ISAMFormat GetSAMFormat();
 
-    bool IgnoreScore { get; set; }
+    bool BestScore { get; set; }
   }
 }

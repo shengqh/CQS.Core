@@ -11,7 +11,6 @@ namespace CQS.Genome.Mapping
     private const int DEFAULT_MinimumReadLength = 16;
     private const int DEFAULT_MaximumMismatchCount = 1;
     public const int DEFAULT_MaximumNoPenaltyMutationCount = 3;
-    private const bool DEFAULT_IgnoreScore = false;
 
     public SAMAlignedItemParserOptions()
     {
@@ -20,7 +19,6 @@ namespace CQS.Genome.Mapping
       this.MaximumReadLength = int.MaxValue;
       this.MaximumMismatch = DEFAULT_MaximumMismatchCount;
       this.MaximumNoPenaltyMutationCount = DEFAULT_MaximumNoPenaltyMutationCount;
-      this.IgnoreScore = DEFAULT_IgnoreScore;
     }
 
     [Option('e', "engineType", DefaultValue = DEFAULT_EngineType, MetaValue = "INT", HelpText = "Engine type (1:bowtie1, 2:bowtie2, 3:bwa, 4:gsnap, 5:star)")]
@@ -38,8 +36,8 @@ namespace CQS.Genome.Mapping
     [Option("maxNoPenaltyMutation", MetaValue = "INT", DefaultValue = DEFAULT_MaximumNoPenaltyMutationCount, HelpText = "Maximum no penalty mutation count (such as T2C for Parclip, gsnap only)")]
     public virtual int MaximumNoPenaltyMutationCount { get; set; }
 
-    [Option('s', "ignoreScore", DefaultValue = DEFAULT_IgnoreScore, HelpText = "Ignore score difference between matches from same query")]
-    public bool IgnoreScore { get; set; }
+    [Option('s', "bestScore", HelpText = "Consider score difference between matches from same query")]
+    public bool BestScore { get; set; }
 
     public virtual ISAMFormat GetSAMFormat()
     {

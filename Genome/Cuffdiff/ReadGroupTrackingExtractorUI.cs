@@ -1,18 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
-using RCPA.Gui;
+﻿using RCPA.Gui;
 using RCPA.Gui.Command;
 using RCPA.Gui.FileArgument;
+using System.IO;
 
 namespace CQS.Genome.Cuffdiff
 {
-  public partial class ReadGroupTrackingExtractorUI : AbstractFileProcessorUI
+  public partial class ReadGroupTrackingExtractorUI : AbstractProcessorUI
   {
     public static string title = "Cuffdiff Read Group Tracking Extractor";
     public static string version = "1.0.3";
@@ -21,7 +14,7 @@ namespace CQS.Genome.Cuffdiff
     {
       InitializeComponent();
 
-      SetFileArgument("TrackingFile", new OpenFileArgument("Cuffdiff Read Group Tracking", "read_group_tracking"));
+      trackingFile.FileArgument = new OpenFileArgument("Cuffdiff Read Group Tracking", "read_group_tracking");
 
       significantFile.FileArgument = new OpenFileArgument("Cuffdiff Significant", new[] { "sig", "diff" });
 
@@ -30,9 +23,17 @@ namespace CQS.Genome.Cuffdiff
       this.Text = Constants.GetSqhVanderbiltTitle(title, version);
     }
 
-    protected override RCPA.IFileProcessor GetFileProcessor()
+    protected override RCPA.IProcessor GetProcessor()
     {
-      return new ReadGroupTrackingExtractor(new string[] { this.GetOriginFile() }, new string[] { significantFile.FullName }, mapFile.FullName);
+      var options = new ReadGroupTrackingExtractorOptions()
+      {
+        InputFiles = new[] { trackingFile.FullName },
+        SignificantFiles = new[] { significantFile.FullName },
+        MapFile = mapFile.FullName,
+        OutputFilePrefix = Path.ChangeExtension(trackingFile.FullName, "")
+      };
+
+      return new ReadGroupTrackingExtractor(options);
     }
   }
 }

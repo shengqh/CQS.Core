@@ -89,5 +89,21 @@ namespace CQS.Genome.SomaticMutation
 
       return ParsingErrors.Count == 0;
     }
+
+    public override void PrintParameter(TextWriter tw)
+    {
+      base.PrintParameter(tw);
+
+      tw.WriteLine("#annovar_set_default={0}", this.AnnovarSetDefault);
+      tw.WriteLine("#annovar_buildver={0}", this.AnnovarBuildVersion);
+      tw.WriteLine("#annovar_db={0}", this.AnnovarDatabaseDirectory);
+      tw.WriteLine("#annovar_protocol={0}", this.AnnovarProtocol);
+      tw.WriteLine("#annovar_operation={0}", this.AnnovarOperation);
+      tw.WriteLine("#distance_insertion_bed={0}", this.DistanceInsertionBed);
+      tw.WriteLine("#distance_deletion_bed={0}", this.DistanceDeletionBed);
+      tw.WriteLine("#distance_junction_bed={0}", this.DistanceJunctionBed);
+      tw.WriteLine("#distance_exon_gtf={0}", this.GtfFile);
+      tw.WriteLine("#rnaediting_db={0}", this.RnaeditingDatabase);
+    }
   }
 }

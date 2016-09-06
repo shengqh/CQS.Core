@@ -32,7 +32,7 @@ namespace CQS.Genome.SomaticMutation
     public double GlmPvalue { get; set; }
 
     [Option("glm_use_raw_pvalue", HelpText = "Use GLM raw pvalue rather than FDR adjusted pvalue")]
-    public bool UseGlmRawPvalue { get; set; }
+    public bool GlmFilterByRawPvalue { get; set; }
 
     [Option("glm_ignore_score_diff", DefaultValue = false, HelpText = "Ignore score difference in GLM model")]
     public bool GlmIgnoreScoreDifference { get; set; }
@@ -116,7 +116,7 @@ namespace CQS.Genome.SomaticMutation
           }
           sw.WriteLine("pvalue<-{0}", GlmPvalue);
           sw.WriteLine("errorrate<-{0}", ErrorRate);
-          sw.WriteLine("israwpvalue<-{0}", IsValidation || UseGlmRawPvalue ? "1" : "0");
+          sw.WriteLine("israwpvalue<-{0}", IsValidation || GlmFilterByRawPvalue ? "1" : "0");
           sw.WriteLine("checkscore<-{0}", GlmIgnoreScoreDifference ? "0" : "1");
           sw.WriteLine("min_median_score_diff<-{0}", GlmMinimumMedianScoreDiff);
           sw.WriteLine("use_zero_minor_allele_strategy<-{0}", UseZeroMinorAlleleStrategy ? "1" : "0");

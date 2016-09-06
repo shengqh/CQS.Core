@@ -1,4 +1,5 @@
 ﻿using CommandLine;
+using CQS.Genome.Parclip;
 using RCPA.Commandline;
 using System;
 using System.Collections.Generic;
@@ -10,11 +11,27 @@ namespace CQS.Genome.SmallRNA
 {
   public class SmallRNAT2CMutationSummaryBuilderOptions : AbstractOptions
   {
+    public SmallRNAT2CMutationSummaryBuilderOptions()
+    {
+      this.ExpectRate = ParclipSmallRNAT2CBuilderOptions.DEFAULT_ExpectRate;
+      this.Pvalue = ParclipSmallRNAT2CBuilderOptions.DEFAULT_Pvalue;
+      this.MinimumCount = ParclipSmallRNAT2CBuilderOptions.DEFAULT_MinimumCount;
+    }
+
     [Option('l', "list", Required = true, MetaValue = "FILE", HelpText = "File contains count xml files, one file per line")]
     public string ListFile { get; set; }
 
     [Option('o', "output", Required = true, MetaValue = "FILE", HelpText = "Output file")]
     public string OutputFile { get; set; }
+
+    [Option('e', "expectRate", Required = false, DefaultValue = ParclipSmallRNAT2CBuilderOptions.DEFAULT_ExpectRate, MetaValue = "DOUBLE", HelpText = "Expect T2C rate in next generation sequencing data")]
+    public double ExpectRate { get; set; }
+
+    [Option('p', "pvalue", Required = false, DefaultValue = ParclipSmallRNAT2CBuilderOptions.DEFAULT_Pvalue, MetaValue = "DOUBLE", HelpText = "Maximum pvalue for T2C mutation")]
+    public double Pvalue { get; set; }
+
+    [Option('c', "minimumCount", Required = false, DefaultValue = ParclipSmallRNAT2CBuilderOptions.DEFAULT_MinimumCount, MetaValue = "INT", HelpText = "Minumim T2C count and not T2C count in the sample")]
+    public int MinimumCount { get; set; }
 
     public List<FileItem> GetCountXmlFiles()
     {

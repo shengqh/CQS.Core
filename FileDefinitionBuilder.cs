@@ -89,6 +89,16 @@ namespace CQS
                  select k).ToList();
       }
 
+      if (File.Exists(_options.MapFile))
+      {
+        Progress.SetMessage("Reading name map from {0} ...", _options.MapFile);
+        var namemap = new MapDataReader(0, 1).ReadFromFile(_options.MapFile);
+        map = map.ToDictionary(l => namemap.Data[l.Key].Value, l => l.Value);
+        names = (from k in map.Keys
+                 orderby k
+                 select k).ToList();
+      }
+
       var result = new List<string> { "files => {" };
       foreach (var name in names)
       {

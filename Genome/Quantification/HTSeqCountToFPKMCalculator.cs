@@ -65,6 +65,13 @@ namespace CQS.Genome.Quantification
       Progress.SetMessage("Reading count table from {0} ...", options.InputFile);
       var counts = new GeneCountTableFormat().ReadFromFile(options.InputFile);
 
+      if (!string.IsNullOrEmpty(options.KeyRegex))
+      {
+        var reg = new Regex(options.KeyRegex);
+        geneLengthMap = geneLengthMap.ToDictionary(l => reg.Match(l.Key).Groups[1].Value, l => l.Value);
+        counts.GeneValues[0][0] = reg.Match(counts.GeneValues[0][0]).Groups[1].Value;
+      }
+
       Dictionary<string, double> sampleReads;
       if (File.Exists(options.SampleReadsFile))
       {

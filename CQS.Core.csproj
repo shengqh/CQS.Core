@@ -34,7 +34,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <OutputPath>bin\x64\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>x64</PlatformTarget>
@@ -78,8 +79,8 @@
     <Reference Include="LumenWorks.Framework.IO">
       <HintPath>..\SQH.Lib\LumenWorks.Framework.IO.dll</HintPath>
     </Reference>
-    <Reference Include="MathNet.Numerics, Version=3.11.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MathNet.Numerics.3.11.0\lib\net40\MathNet.Numerics.dll</HintPath>
+    <Reference Include="MathNet.Numerics, Version=3.12.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MathNet.Numerics.3.12.0\lib\net40\MathNet.Numerics.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Meta.Numerics, Version=3.0.0.0, Culture=neutral, PublicKeyToken=67d25c65a6631347, processorArchitecture=MSIL">
@@ -92,16 +93,16 @@
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Data.SQLite, Version=1.0.100.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Data.SQLite.Core.1.0.100.0\lib\net45\System.Data.SQLite.dll</HintPath>
+    <Reference Include="System.Data.SQLite, Version=1.0.101.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Data.SQLite.Core.1.0.101.0\lib\net45\System.Data.SQLite.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="System.Data.SQLite.EF6, Version=1.0.100.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Data.SQLite.EF6.1.0.100.0\lib\net45\System.Data.SQLite.EF6.dll</HintPath>
+    <Reference Include="System.Data.SQLite.EF6, Version=1.0.101.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Data.SQLite.EF6.1.0.101.0\lib\net45\System.Data.SQLite.EF6.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="System.Data.SQLite.Linq, Version=1.0.100.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Data.SQLite.Linq.1.0.100.0\lib\net45\System.Data.SQLite.Linq.dll</HintPath>
+    <Reference Include="System.Data.SQLite.Linq, Version=1.0.101.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Data.SQLite.Linq.1.0.101.0\lib\net45\System.Data.SQLite.Linq.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Drawing" />
@@ -145,8 +146,12 @@
     <Compile Include="Genome\Bed\BedSorter.cs" />
     <Compile Include="Genome\Bed\BedSorterCommand.cs" />
     <Compile Include="Genome\Bed\BedSorterOptions.cs" />
+    <Compile Include="Genome\CNV\CnMOPSCallProcessor.cs" />
+    <Compile Include="Genome\CNV\CnMOPsItem.cs" />
     <Compile Include="Genome\CNV\CNVItemTableBuilder.cs" />
+    <Compile Include="Genome\CNV\CnMOPSCallProcessorOptions.cs" />
     <Compile Include="Genome\CNV\CNVItemTableBuilderOptions.cs" />
+    <Compile Include="Genome\CNV\CnMOPSCallProcessorCommand.cs" />
     <Compile Include="Genome\CountMap.cs" />
     <Compile Include="Genome\Database\DatabaseReorderProcessor.cs" />
     <Compile Include="Genome\Database\DatabaseReorderProcessorCommand.cs" />
@@ -183,6 +188,8 @@
     </Compile>
     <Compile Include="Genome\Feature\FeatureItemGroupTIGRTCountWriter.cs" />
     <Compile Include="Genome\Feature\FeatureItemGroupT2CWriter.cs" />
+    <Compile Include="Genome\Feature\AbstractFeatureItemGroupXmlFormat.cs" />
+    <Compile Include="Genome\Feature\FeatureItemGroupXmlFormatHand.cs" />
     <Compile Include="Genome\Feature\FeatureItemGroupXmlFormatLinq.cs" />
     <Compile Include="Genome\Feature\FeatureLocation.cs" />
     <Compile Include="Genome\Feature\FeatureSamLocation.cs" />
@@ -280,6 +287,11 @@
     <Compile Include="Genome\SmallRNA\SmallRNABamInfoFixer.cs" />
     <Compile Include="Genome\SmallRNA\SmallRNABamInfoFixerCommand.cs" />
     <Compile Include="Genome\SmallRNA\SmallRNABamInfoFixerOptions.cs" />
+    <Compile Include="Genome\SmallRNA\SmallRNACountTableSequenceWriter.cs" />
+    <Compile Include="Genome\SmallRNA\SmallRNASequenceFormat.cs" />
+    <Compile Include="Genome\SmallRNA\SmallRNASequence.cs" />
+    <Compile Include="Genome\SmallRNA\SmallRNASequenceCountTableBuilder.cs" />
+    <Compile Include="Genome\SmallRNA\SmallRNASequenceUtils.cs" />
     <Compile Include="Genome\SmallRNA\SmallRNAT2CMutationSummaryBuilderCommand.cs" />
     <Compile Include="Genome\SmallRNA\SmallRNAT2CMutationSummaryBuilder.cs" />
     <Compile Include="Genome\SmallRNA\SmallRNAT2CMutationSummaryBuilderOptions.cs" />
@@ -293,7 +305,6 @@
     <Compile Include="Genome\SmallRNA\SmallRNACategoryGroupPlusBuilder.cs" />
     <Compile Include="Genome\SmallRNA\SmallRNASequenceCountTableBuilderOptions.cs" />
     <Compile Include="Genome\SmallRNA\SmallRNASequenceCountTableBuilderCommand.cs" />
-    <Compile Include="Genome\SmallRNA\SmallRNASequenceCountTableBuilder.cs" />
     <Compile Include="Genome\SmallRNA\SmallRNAUnmappedReadBuilder.cs" />
     <Compile Include="Genome\SmallRNA\SmallRNAUnmappedReadBuilderCommand.cs" />
     <Compile Include="Genome\SmallRNA\SmallRNAUnmappedReadBuilderOptions.cs" />
@@ -972,12 +983,12 @@
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
-  <Import Project="..\packages\System.Data.SQLite.Core.1.0.100.0\build\net45\System.Data.SQLite.Core.targets" Condition="Exists('..\packages\System.Data.SQLite.Core.1.0.100.0\build\net45\System.Data.SQLite.Core.targets')" />
+  <Import Project="..\packages\System.Data.SQLite.Core.1.0.101.0\build\net45\System.Data.SQLite.Core.targets" Condition="Exists('..\packages\System.Data.SQLite.Core.1.0.101.0\build\net45\System.Data.SQLite.Core.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\System.Data.SQLite.Core.1.0.100.0\build\net45\System.Data.SQLite.Core.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\System.Data.SQLite.Core.1.0.100.0\build\net45\System.Data.SQLite.Core.targets'))" />
+    <Error Condition="!Exists('..\packages\System.Data.SQLite.Core.1.0.101.0\build\net45\System.Data.SQLite.Core.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\System.Data.SQLite.Core.1.0.101.0\build\net45\System.Data.SQLite.Core.targets'))" />
   </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

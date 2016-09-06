@@ -112,9 +112,12 @@ namespace CQS.Genome.SmallRNA
       //output other smallRNA
       Progress.SetMessage("Grouping other smallRNA by identical query ...");
       var otherGroups = features.Where(m => !m.Name.StartsWith(SmallRNAConsts.miRNA) && !m.Name.StartsWith(SmallRNAConsts.tRNA)).GroupByIdenticalQuery().OrderByDescending(m => m.GetEstimatedCount()).ThenBy(m => m.Name).ToList();
-      var otherFile = Path.ChangeExtension(options.OutputFile, "other.count");
+      var otherFile = Path.ChangeExtension(options.OutputFile, ".other.count");
       Progress.SetMessage("Writing other smallRNA ...");
       result.AddRange(new SmallRNACountTableWriter().WriteToFile(otherFile, otherGroups, samples, ""));
+
+      var otherSequenceFile = Path.ChangeExtension(options.OutputFile, ".other.sequence.count");
+      result.AddRange(new SmallRNACountTableSequenceWriter().WriteToFile(otherSequenceFile, otherGroups, ""));
       allGroups.AddRange(otherGroups);
 
       //new FeatureItemGroupXmlFormat().WriteToFile(options.OutputFile + ".other.xml", miRNAGroup);

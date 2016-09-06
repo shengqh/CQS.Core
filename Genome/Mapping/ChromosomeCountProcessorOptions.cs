@@ -10,6 +10,7 @@ namespace CQS.Genome.Mapping
     public ChromosomeCountProcessorOptions()
     {
       this.MergeChromosomesByReads = false;
+      this.KeepChrInName = false;
     }
 
     [Option('i', "inputFile", Required = true, MetaValue = "FILE", HelpText = "Alignment sam/bam file")]
@@ -29,6 +30,12 @@ namespace CQS.Genome.Mapping
 
     [Option('m', "mergeChromosomesByReads", Required = false, MetaValue = "BOOLEAN", HelpText = "Merge chromosomes by mapped reads")]
     public bool MergeChromosomesByReads { get; set; }
+
+    [Option("keepChrInName", Required = false, MetaValue = "BOOLEAN", HelpText = "Keep 'chr' in chromosome name")]
+    public bool KeepChrInName { get; set; }
+
+    [Option("keepSequence", Required = false, MetaValue = "BOOLEAN", HelpText = "Save query sequence in result")]
+    public bool KeepSequence { get; set; }
 
     [Option("categoryMapFile", Required = false, MetaValue = "FILE", HelpText = "Category mapping file, each line contains Id and Species")]
     public string CategoryMapFile { get; set; }

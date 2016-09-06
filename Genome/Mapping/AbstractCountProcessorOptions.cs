@@ -43,13 +43,13 @@ namespace CQS.Genome.Mapping
       {
         return new SAMAlignedItemCandidateGsnapBuilder(this);
       }
-      else if (this.IgnoreScore)
+      else if (this.BestScore)
       {
-        return new SAMAlignedItemCandidateBuilder(this);
+        return new SAMAlignedItemBestScoreCandidateBuilder(this);
       }
       else
       {
-        return new SAMAlignedItemBestScoreCandidateBuilder(this);
+        return new SAMAlignedItemCandidateBuilder(this);
       }
     }
 

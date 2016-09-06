@@ -53,6 +53,10 @@ namespace CQS.Genome.Cuffdiff
       get { return "Merging multiple cuffdiff result as one whole report"; }
     }
 
+    public string SoftwareName { get; set; }
+
+    public string SoftwareVersion { get; set; }
+
     public bool Process(string[] args)
     {
       CuffdiffSignificantFileMergerOptions options;

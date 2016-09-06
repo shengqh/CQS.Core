@@ -1,6 +1,7 @@
 ﻿using CQS.Genome.Feature;
 using CQS.Genome.Mapping;
 using CQS.Genome.Statistics;
+using Meta.Numerics.Statistics;
 using RCPA.Gui;
 using System;
 using System.Collections.Generic;
@@ -79,25 +80,30 @@ namespace CQS.Genome.SmallRNA
         {
           foreach (var region in smallRNA.Locations)
           {
-            var fisher = new FisherExactTestResult();
-            fisher.Sample1.Succeed = region.QueryCountBeforeFilter - region.QueryCount;
-            fisher.Sample1.Failed = region.QueryCount;
-            fisher.Sample2.Succeed = (int)(region.QueryCountBeforeFilter * (1 - t2cRate));
-            fisher.Sample2.Failed = (int)(region.QueryCountBeforeFilter * t2cRate);
-
-            if (fisher.Sample1.Failed < fisher.Sample2.Failed)
-            {
-              region.PValue = 1;
-            }
-            else
-            {
-              region.PValue = fisher.CalculateTwoTailPValue();
-            }
+            region.PValue = CalculateT2CPvalue(region.QueryCountBeforeFilter, region.QueryCount, this.t2cRate);
           }
         }
       }
 
       return result;
+    }
+
+    public static double CalculateT2CPvalue(int totalRead, int t2cRead, double expectT2CRate)
+    {
+      var fisher = new FisherExactTestResult();
+      fisher.Sample1.Succeed = totalRead - t2cRead;
+      fisher.Sample1.Failed = t2cRead;
+      fisher.Sample2.Succeed = (int)(totalRead * (1 - expectT2CRate));
+      fisher.Sample2.Failed = (int)(totalRead * expectT2CRate);
+
+      if (fisher.Sample1.Failed < fisher.Sample2.Failed)
+      {
+        return 1;
+      }
+      else
+      {
+        return fisher.CalculateTwoTailPValue();
+      }
     }
   }
 }

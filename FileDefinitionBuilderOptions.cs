@@ -37,6 +37,9 @@ namespace CQS
     [Option('g', "groupPattern", MetaValue = "STRING", HelpText = "Regex pattern of group name in filename, example: \\(2280-RDB-\\\\d+\\)")]
     public string GroupPattern { get; set; }
 
+    [Option('m', "mapFile", Required = false, MetaValue = "FILE", HelpText = "key/name map file, the first two columns are key and name. The key should be equals to the name extract from file")]
+    public string MapFile { get; set; }
+
     public override bool PrepareOptions()
     {
       if (!Directory.Exists(this.InputDir))

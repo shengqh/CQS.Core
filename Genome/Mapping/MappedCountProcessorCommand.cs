@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using RCPA;
 using RCPA.Commandline;
-using CommandLine;
-using System.IO;
 using RCPA.Gui.Command;
-using CQS.Genome.Sam;
 
 namespace CQS.Genome.Mapping
 {
-  public class MappedCountProcessorCommand : ICommandLineCommand, IToolCommand
+  public class MappedCountProcessorCommand : AbstractCommandLineCommand<MappedCountProcessorOptions>, IToolCommand
   {
     #region IToolCommand Members
 
@@ -36,50 +30,19 @@ namespace CQS.Genome.Mapping
 
     #endregion
 
-    public string Name
+    public override string Name
     {
       get { return "mapped_count"; }
     }
 
-    public string Description
+    public override string Description
     {
       get { return "Parsing mapping count from bam/sam file"; }
     }
 
-    public bool Process(string[] args)
+    public override IProcessor GetProcessor(MappedCountProcessorOptions options)
     {
-     MappedCountProcessorOptions options;
-      bool result = true;
-      try
-      {
-        options = CommandLine.Parser.Default.ParseArguments<MappedCountProcessorOptions>(args,
-          () =>
-          {
-            result = false;
-          }
-        );
-
-        if (result)
-        {
-          if (!options.PrepareOptions())
-          {
-            Console.Out.WriteLine(options.GetUsage());
-            result = false;
-          }
-          else
-          {
-            var files = new MappedCountProcessor(options).Process();
-            Console.WriteLine("File saved to :\n" + files.Merge("\n"));
-          }
-        }
-      }
-      catch (Exception ex)
-      {
-        Console.Error.WriteLine("{0}\n{1}", ex.Message, ex.StackTrace);
-        result = false;
-      }
-
-      return result;
+      return new MappedCountProcessor(options);
     }
   }
 }

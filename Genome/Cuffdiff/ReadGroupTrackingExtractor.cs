@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace CQS.Genome.Cuffdiff
 {
-  public class ReadGroupTrackingExtractor : AbstractThreadFileProcessor
+  public class ReadGroupTrackingExtractor : AbstractThreadProcessor
   {
     class SignificantItem
     {
@@ -24,26 +24,22 @@ namespace CQS.Genome.Cuffdiff
       public string FPKM { get; set; }
     }
 
-    private IEnumerable<string> inputFiles;
-    private IEnumerable<string> significantFiles;
-    private string groupSampleMapFile;
+    private ReadGroupTrackingExtractorOptions options;
 
-    public ReadGroupTrackingExtractor(IEnumerable<string> inputFiles, IEnumerable<string> significantFiles, string groupSampleMapFile)
+    public ReadGroupTrackingExtractor(ReadGroupTrackingExtractorOptions options)
     {
-      this.inputFiles = inputFiles;
-      this.significantFiles = significantFiles;
-      this.groupSampleMapFile = groupSampleMapFile;
+      this.options = options;
     }
 
-    public override IEnumerable<string> Process(string outputFilePrefix)
+    public override IEnumerable<string> Process()
     {
       this.Progress.SetMessage("Reading group sample map file ...");
-      var groupSampleMap = new MapReader(0, 1).ReadFromFile(this.groupSampleMapFile);
+      var groupSampleMap = new MapReader(0, 1).ReadFromFile(options.MapFile);
 
       Dictionary<string, SignificantItem> geneNameMap = new Dictionary<string, SignificantItem>();
 
       this.Progress.SetMessage("Reading cuffdiff significant files ...");
-      var sigs = (from file in this.significantFiles
+      var sigs = (from file in options.SignificantFiles
                   from line in File.ReadAllLines(file).Skip(1)
                   let parts = line.Split('\t')
                   where parts.Length >= 3
@@ -60,11 +56,11 @@ namespace CQS.Genome.Cuffdiff
         }
       }
       Func<string, bool> acceptGene = m => geneNameMap.ContainsKey(m);
-      var countFile = outputFilePrefix + ".count";
-      var fpkmFile = outputFilePrefix + ".fpkm";
+      var countFile = options.OutputFilePrefix + ".count";
+      var fpkmFile = options.OutputFilePrefix + ".fpkm";
 
       var items = new List<TrackingItem>();
-      foreach (var trackingFile in this.inputFiles)
+      foreach (var trackingFile in options.InputFiles)
       {
         this.Progress.SetMessage("Reading cuffdiff read_group_tracking file " + trackingFile + "...");
         using (StreamReader sr = new StreamReader(trackingFile))

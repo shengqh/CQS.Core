@@ -21,7 +21,7 @@ namespace CQS.Genome.CNV
     {
       var hasheader = new StreamReader(options.BedFile).ReadLine().Contains("start");
       var beds = new BedItemFile<BedItem>() { HasHeader = hasheader }.ReadFromFile(options.BedFile);
-      var items = new CNVItemReader().ReadFromFile(options.InputFile);
+      var items = new CNVItemReader<CNVItem>().ReadFromFile(options.InputFile);
       var itemsgroup = items.GroupBy(m => m.Seqname.StringAfter("chr"));
       var bedgroups = beds.GroupBy(m => m.Seqname).ToDictionary(m => m.Key);
 

@@ -13,7 +13,7 @@ namespace CQS.Genome.SomaticMutation
   public class ExtractProcessorOptions : MpileupOptions
   {
     private const int DEFAULT_MaximumReadDepth = 8000;
-    
+
     public ExtractProcessorOptions()
     {
       IgnoreInsertionDeletion = true;
@@ -88,13 +88,13 @@ namespace CQS.Genome.SomaticMutation
       return Path.GetFullPath(filename).Replace("\\", "/");
     }
 
-    public override void PrintParameter()
+    public override void PrintParameter(TextWriter tw)
     {
-      base.PrintParameter();
-      Console.Out.WriteLine("#bam files: {0}", this.BamFiles.Merge(","));
-      Console.Out.WriteLine("#bam names: {0}", this.BamNames.Merge(","));
-      Console.Out.WriteLine("#output file: {0}", this.OutputFile);
-      Console.Out.WriteLine("#bed file: {0}", this.BedFile);
+      base.PrintParameter(tw);
+      tw.WriteLine("#bam files: {0}", this.BamFiles.Merge(","));
+      tw.WriteLine("#bam names: {0}", this.BamNames.Merge(","));
+      tw.WriteLine("#output file: {0}", this.OutputFile);
+      tw.WriteLine("#bed file: {0}", this.BedFile);
     }
   }
 }

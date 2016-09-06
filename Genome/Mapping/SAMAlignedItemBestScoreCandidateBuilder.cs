@@ -23,8 +23,8 @@ namespace CQS.Genome.Mapping
 
       Progress.SetMessage("Sorting mapped reads by name and score...");
       samlist.SortByNameAndScore(_options.GetSAMFormat());
-      Progress.SetMessage("Sorting mapped reads by name and score finished...");
 
+      Progress.SetMessage("Merge reads from same query...");
       var result = new List<T> {samlist[0]};
       var last = samlist[0];
 
@@ -39,12 +39,16 @@ namespace CQS.Genome.Mapping
         else if (last.AlignmentScore == sam.AlignmentScore)
         {
           last.AddLocations(sam.Locations);
+          sam.ClearLocations();
+
         }
       }
 
       samlist.Clear();
+      samlist = null;
 
       KeepUniqueLocation<T>(result);
+      Progress.SetMessage("Total {0} read(s) mapped.", result.Count);
 
       return result;
     }

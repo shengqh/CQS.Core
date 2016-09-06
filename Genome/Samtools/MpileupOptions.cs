@@ -78,14 +78,14 @@ namespace CQS.Genome.Samtools
       return ParsingErrors.Count == 0;
     }
 
-    public virtual void PrintParameter()
+    public virtual void PrintParameter(TextWriter tw)
     {
-      Console.Out.WriteLine("#no-BAQ={0}", DisableBAQ.ToString());
-      Console.Out.WriteLine("#read_quality={0}", MinimumReadQuality);
-      Console.Out.WriteLine("#base_quality={0}", MinimumBaseQuality);
-      Console.Out.WriteLine("#fasta={0}", GenomeFastaFile);
-      Console.Out.WriteLine("#min_read_depth={0}", MinimumReadDepth);
-      Console.Out.WriteLine("#max_read_depth={0}", MaximumReadDepth);
+      tw.WriteLine("#no-BAQ={0}", DisableBAQ.ToString());
+      tw.WriteLine("#read_quality={0}", MinimumReadQuality);
+      tw.WriteLine("#base_quality={0}", MinimumBaseQuality);
+      tw.WriteLine("#fasta={0}", GenomeFastaFile);
+      tw.WriteLine("#min_read_depth={0}", MinimumReadDepth);
+      tw.WriteLine("#max_read_depth={0}", MaximumReadDepth);
     }
   }
 }

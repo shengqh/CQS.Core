@@ -1,55 +1,66 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using CQS.Genome.Feature;
 using RCPA;
-using System.IO;
-using CQS.Genome.Sam;
-using CQS.Genome.Gtf;
-using Bio.IO.SAM;
-using CQS.Genome.Bed;
-using CQS.Genome.Fastq;
-using System.Collections.Concurrent;
-using System.Threading;
-using RCPA.Commandline;
-using CommandLine;
-using System.Text.RegularExpressions;
-using CQS.Genome.Mapping;
-using CQS.Genome.Mirna;
 using RCPA.Utils;
-using CQS.Genome.Feature;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace CQS.Genome.SmallRNA
 {
   public class SmallRNAMappedPositionBuilder
   {
-    public static void DrawImage(List<FeatureItemGroup> features, string title, string outputFile)
+    public static void DrawImage(List<FeatureItemGroup> features, string title, string outputFile, bool positionByPercentage=false, int minimumReadCount = 5)
     {
-      var format = new MappedItemGroupXmlFileFormat();
+      //var format = new MappedItemGroupXmlFileFormat();
 
-      features.Sort((m1, m2) => m2.GetEstimatedCount().CompareTo(m1.GetEstimatedCount()));
+      var groups = minimumReadCount > 0 ? features.Where(l => l.GetEstimatedCount() >= minimumReadCount).ToList() : features;
+
+      groups.Sort((m1, m2) => m2.GetEstimatedCount().CompareTo(m1.GetEstimatedCount()));
 
       using (StreamWriter sw = new StreamWriter(outputFile))
       {
         sw.WriteLine("File\tFeature\tStrand\tCount\tPosition\tPercentage");
 
-        foreach (var group in features)
+        foreach (var group in groups)
         {
           var item = group[0];
           Dictionary<long, double> positionCount = new Dictionary<long, double>();
           foreach (var region in item.Locations)
           {
+            var regionLength = region.Length;
             foreach (var loc in region.SamLocations)
             {
-              for (long p = loc.SamLocation.Start; p <= loc.SamLocation.End; p++)
+              Dictionary<long, double> curCount = new Dictionary<long, double>();
+              var estimatedCount = loc.SamLocation.Parent.GetEstimatedCount();
+
+              var offsetStart = region.Strand == '+' ? loc.SamLocation.Start - region.Start : region.End - loc.SamLocation.End;
+              var offsetEnd = region.Strand == '+' ? loc.SamLocation.End - region.Start : region.End - loc.SamLocation.Start;
+              if (positionByPercentage)
               {
-                var offset = region.Strand == '+' ? p - region.Start : region.End - p;
-                double v;
-                if (!positionCount.TryGetValue(offset, out v))
+                offsetStart = offsetStart * 100 / regionLength;
+                offsetEnd = offsetEnd * 100 / regionLength;
+              }
+
+              double v;
+              for (var offset = offsetStart; offset <= offsetEnd; offset++)
+              {
+                if (!curCount.TryGetValue(offset, out v) || v < estimatedCount)
                 {
-                  v = 0;
+                  curCount[offset] = estimatedCount;
                 }
-                positionCount[offset] = v + loc.SamLocation.Parent.GetEstimatedCount();
+              }
+
+              foreach(var cc in curCount)
+              {
+                double vv;
+                if(!positionCount.TryGetValue(cc.Key, out vv))
+                {
+                  positionCount[cc.Key] = cc.Value;
+                }
+                else
+                {
+                  positionCount[cc.Key] = vv + cc.Value;
+                }
               }
             }
           }
@@ -63,7 +74,7 @@ namespace CQS.Genome.SmallRNA
               title,
               item.Name,
               item.Locations[0].Strand,
-              item.GetEstimatedCount(),
+              allcount,
               key,
               positionCount[key] / allcount);
           }

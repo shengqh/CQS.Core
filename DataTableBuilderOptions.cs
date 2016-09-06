@@ -48,6 +48,9 @@ namespace CQS
     [Option('e', "exportExtra", DefaultValue = DEFAULT_ExportExtra, MetaValue = "BOOL", HelpText = "Export extra information rather than name from map file")]
     public bool ExportExtra { get; set; }
 
+    [Option("noFPKM", MetaValue = "BOOL", HelpText = "Don't generate FPKM value if it is gene count")]
+    public bool NoFPKM { get; set; }
+
     public override bool PrepareOptions()
     {
       if (!base.PrepareOptions())

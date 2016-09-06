@@ -6,6 +6,7 @@ using System.IO;
 using CQS.Genome.Feature;
 using CQS.Genome.Sam;
 using RCPA;
+using CQS.Genome.Parclip;
 
 namespace CQS.Genome.SmallRNA
 {
@@ -18,14 +19,36 @@ namespace CQS.Genome.SmallRNA
       this.options = options;
     }
 
+    class SampleCount
+    {
+      public string Name { get; set; }
+      public int GoodReadCount { get; set; }
+      public int GoodT2CReadCount { get; set; }
+      public double GoodT2CRate { get { return GoodT2CReadCount * 1.0 / GoodReadCount; } }
+      public int MiRNACount { get; set; }
+      public int TRNACount { get; set; }
+      public int OtherSmallRNACount { get; set; }
+      public int SmallRNACount { get { return MiRNACount + TRNACount + OtherSmallRNACount; } }
+    }
+
     public override IEnumerable<string> Process()
     {
+      var sampleInfos = new List<SampleCount>();
       using (var sw = new StreamWriter(options.OutputFile))
+      using (var swUnfiltered = new StreamWriter(Path.ChangeExtension(options.OutputFile, ".unfiltered.tsv")))
       {
-        sw.WriteLine("File\tCategory\tName\tUniqueRead\tUniqueT2CRead\tUniqueT2CRate\tAvergeT2CIn10BasesOfUniqueRead\tAvergeT2COfUniqueRead\tTotalRead\tTotalT2CRead\tTotalT2CRate\tAverageT2CIn10BasesOfTotalRead\tAverageT2COfTotalRead");
+        var header = "File\tCategory\tName\tUniqueRead\tUniqueT2CRead\tUniqueT2CRate\tAvergeT2CIn10BasesOfUniqueRead\tAvergeT2COfUniqueRead\tTotalRead\tTotalT2CRead\tTotalT2CRate\tT2C_pvalue\tAverageT2CIn10BasesOfTotalRead\tAverageT2COfTotalRead";
+        swUnfiltered.WriteLine(header);
+        sw.WriteLine(header);
+
         var inputFiles = options.GetCountXmlFiles();
+
         foreach (var file in inputFiles)
         {
+          var sc = new SampleCount();
+          sc.Name = file.Name;
+          sampleInfos.Add(sc);
+
           var subjects = new FeatureItemGroupXmlFormat().ReadFromFile(file.File);
           var group = subjects.GroupBy(m => m[0].Name.StringBefore(":")).ToList();
           foreach (var g in group)
@@ -73,7 +96,11 @@ namespace CQS.Genome.SmallRNA
                 ave_t2c_perread_allreads = perread_values.Average();
               }
 
-              sw.WriteLine("{0}\t{1}\t{2}\t{3:0.###}\t{4:0.###}\t{5:0.###}\t{6:0.###}\t{7:0.###}\t{8:0.###}\t{9:0.###}\t{10:0.###}\t{11:0.###}\t{12:0.###}",
+              var totalCount = locs.Sum(l => l.SamLocation.Parent.QueryCount);
+              var totalT2CCount = t2c.Sum(l => l.SamLocation.Parent.QueryCount);
+              var pvalue = SmallRNAT2CMutationBuilder.CalculateT2CPvalue(totalCount, totalT2CCount, options.ExpectRate);
+              var t2crate = totalT2CCount == 0 ? 0 : totalT2CCount * 1.0 / totalCount;
+              var value = string.Format("{0}\t{1}\t{2}\t{3:0.###}\t{4:0.###}\t{5:0.###}\t{6:0.###}\t{7:0.###}\t{8:0.###}\t{9:0.###}\t{10:0.###}\t{11:0.###E+0}\t{12:0.###}\t{13:0.###}",
                 file.Name,
                 g.Key,
                 item.Name,
@@ -82,17 +109,57 @@ namespace CQS.Genome.SmallRNA
                 t2c.Count * 1.0 / locs.Count,
                 ave_t2c_uniquereads,
                 ave_t2c_perread_uniquereads,
-                locs.Sum(l => l.SamLocation.Parent.QueryCount),
-                t2c.Sum(l => l.SamLocation.Parent.QueryCount),
-                t2c.Sum(l => l.SamLocation.Parent.QueryCount) * 1.0 / locs.Sum(l => l.SamLocation.Parent.QueryCount),
+                totalCount,
+                totalT2CCount,
+                t2crate,
+                pvalue,
                 ave_t2c_allreads,
                 ave_t2c_perread_allreads);
+
+              swUnfiltered.WriteLine(value);
+              if(!ParclipSmallRNAT2CBuilder.Accept(pvalue, totalCount, totalT2CCount, options.Pvalue, options.MinimumCount, options.ExpectRate))
+              {
+                continue;
+              }
+
+              sw.WriteLine(value);
+
+              sc.GoodReadCount += totalCount;
+              sc.GoodT2CReadCount += totalT2CCount;
+              if (g.Key.Equals(SmallRNAConsts.miRNA))
+              {
+                sc.MiRNACount++;
+              }
+              else if (g.Key.Equals(SmallRNAConsts.tRNA))
+              {
+                sc.TRNACount++;
+              }
+              else
+              {
+                sc.OtherSmallRNACount++;
+              }
             }
           }
         }
       }
+      using (var sw = new StreamWriter(options.OutputFile + ".summary"))
+      {
+        sw.WriteLine("File\tTotalRead\tT2CRead\tT2CRate\tSmallRNA\tMicroRNA\ttRNA\tOtherSmallRNA");
+        foreach (var si in sampleInfos)
+        {
+          sw.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}",
+            si.Name,
+            si.GoodReadCount,
+            si.GoodT2CReadCount,
+            si.GoodT2CRate,
+            si.SmallRNACount,
+            si.MiRNACount,
+            si.TRNACount,
+            si.OtherSmallRNACount);
+        }
+      }
 
-      return new[] { Path.GetFullPath(options.OutputFile) };
+      return new[] { Path.GetFullPath(options.OutputFile), Path.GetFullPath(options.OutputFile + ".summary") };
     }
   }
 }

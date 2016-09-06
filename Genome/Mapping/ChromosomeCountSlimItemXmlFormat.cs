@@ -11,8 +11,11 @@ namespace CQS.Genome.Mapping
 {
   public class ChromosomeCountSlimItemXmlFormat : ProgressClass, IFileFormat<List<ChromosomeCountSlimItem>>
   {
-    public ChromosomeCountSlimItemXmlFormat(bool showProgress = true)
+    private bool outputSample;
+    public ChromosomeCountSlimItemXmlFormat(bool outputSample = false, bool showProgress = true)
     {
+      this.outputSample = outputSample;
+
       if (!showProgress)
       {
         this.Progress = new EmptyProgressCallback();
@@ -38,6 +41,16 @@ namespace CQS.Genome.Mapping
 
             query.Qname = source.GetAttribute("name");
             query.QueryCount = int.Parse(source.GetAttribute("count"));
+            var seqAtrr = source.GetAttribute("seq");
+            if(seqAtrr != null)
+            {
+              query.Sequence = seqAtrr;
+            }
+            var sampleAtrr = source.GetAttribute("sample");
+            if (sampleAtrr != null)
+            {
+              query.Sample = sampleAtrr;
+            }
             if (source.ReadToDescendant("location"))
             {
               do
@@ -111,6 +124,14 @@ namespace CQS.Genome.Mapping
         {
           xw.WriteStartElement("query");
           xw.WriteAttributeString("name", q.Qname);
+          if (!string.IsNullOrEmpty(q.Sequence))
+          {
+            xw.WriteAttributeString("seq", q.Sequence);
+          }
+          if (this.outputSample)
+          {
+            xw.WriteAttributeString("sample", q.Sample);
+          }
           xw.WriteAttributeString("count", q.QueryCount.ToString());
           foreach (var l in q.Chromosomes)
           {

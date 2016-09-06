@@ -28,7 +28,7 @@ namespace CQS.Genome.SomaticMutation
 
     public override IEnumerable<string> Process()
     {
-      options.PrintParameter();
+      options.PrintParameter(Console.Out);
 
       Progress.SetMessage("Single thread mode ...");
       var parser = options.GetPileupItemParser();

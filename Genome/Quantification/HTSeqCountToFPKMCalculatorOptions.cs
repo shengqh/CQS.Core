@@ -10,11 +10,18 @@ namespace CQS.Genome.Quantification
 {
   public class HTSeqCountToFPKMCalculatorOptions : AbstractOptions
   {
+    private const string DEFAULT_KEY_REGEX = "";
+
     public HTSeqCountToFPKMCalculatorOptions()
-    { }
+    {
+      KeyRegex = DEFAULT_KEY_REGEX;
+    }
 
     [Option('i', "inputFile", Required = true, MetaValue = "FILE", HelpText = "Count table file, row is gene and column is sample")]
     public string InputFile { get; set; }
+
+    [Option('p', "keyRegex", DefaultValue = DEFAULT_KEY_REGEX, MetaValue = "REGEX", HelpText = "Regex of gene name")]
+    public string KeyRegex { get; set; }
 
     [Option('l', "geneLengthFile", Required = true, MetaValue = "FILE", HelpText = "Gene length file, the first column is gene_id and the column name of length should be 'length'")]
     public string GeneLengthFile { get; set; }

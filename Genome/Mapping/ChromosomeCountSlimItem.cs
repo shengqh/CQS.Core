@@ -9,9 +9,11 @@ namespace CQS.Genome.Mapping
     public SAMChromosomeItem()
     {
       this.Chromosomes = new List<string>();
+      this.Sequence = string.Empty;
     }
 
     public string Qname { get; set; }
+    public string Sequence { get; set; }
     public int QueryCount { get; set; }
     public List<string> Chromosomes { get; set; }
     public string Sample { get; set; }

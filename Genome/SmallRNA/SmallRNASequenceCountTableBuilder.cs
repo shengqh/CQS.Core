@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace CQS.Genome.SmallRNA
 {
@@ -23,11 +24,11 @@ namespace CQS.Genome.SmallRNA
       var result = new List<string>();
 
       var countfiles = options.GetCountFiles();
-      var counts = new Dictionary<string, Dictionary<string, double>>();
+      var counts = new Dictionary<string, List<SmallRNASequence>>();
       foreach (var file in countfiles)
       {
         var keptNames = new HashSet<string>();
-        Func<KeyValuePair<string, MapItem>, bool> accept;
+        Func<string, bool> accept;
         if (File.Exists(file.AdditionalFile)) // keep the read in fastq file only
         {
           Progress.SetMessage("Reading " + file.AdditionalFile + "...");
@@ -43,7 +44,7 @@ namespace CQS.Genome.SmallRNA
             }
           }
 
-          accept = m => keptNames.Contains(m.Value.Information);
+          accept = m => keptNames.Contains(m);
         }
         else
         {
@@ -51,61 +52,83 @@ namespace CQS.Genome.SmallRNA
         }
 
         Progress.SetMessage("Reading " + file.File + "...");
-        counts[file.Name] = new MapItemReader("Sequence", "Count", '\t', true, "Query").ReadFromFile(file.File).Where(m => accept(m)).ToDictionary(m => m.Key, m => double.Parse(m.Value.Value));
+
+        counts[file.Name] = ReadCountFile(file, accept);
       }
 
       var samples = counts.Keys.OrderBy(m => m).ToArray();
 
-      var sequences = (from map in counts.Values
-                       let smap = map.OrderByDescending(m => m.Value)
-                       let count = Math.Min(map.Count, options.TopNumber)
-                       from seq in smap.Take(count)
-                       select seq.Key).Distinct().ToArray();
+      OutputGroup(result, counts, samples);
 
-      Progress.SetMessage("Total {0} distinct sequences selected", sequences.Length);
-
-      var seqCounts = (from seq in sequences
-                       let totalCount = (from c in counts.Values where c.ContainsKey(seq) select c[seq]).Sum()
-                       select new { Sequence = seq, TotalCount = totalCount }).OrderByDescending(m => m.TotalCount).ToArray();
-
-      Progress.SetMessage("Writing " + options.OutputFile + "...");
-      using (var sw = new StreamWriter(options.OutputFile))
-      {
-        sw.WriteLine("Sequence\t{0}", samples.Merge("\t"));
-        foreach (var sc in seqCounts)
-        {
-          sw.WriteLine("{0}\t{1}", sc.Sequence, (from sample in samples
-                                                 let map = counts[sample]
-                                                 select map.ContainsKey(sc.Sequence) ? map[sc.Sequence].ToString() : "0").Merge("\t"));
-        }
-      }
-
-      result.Add(options.OutputFile);
-
-      if (options.ExportFasta)
-      {
-        var fastaFile = options.OutputFile + ".fasta";
-        Progress.SetMessage("Writing " + fastaFile + " ...");
-        using (var sw = new StreamWriter(fastaFile))
-        {
-          int number = 0;
-          foreach (var sc in seqCounts)
-          {
-            sw.WriteLine(">{0}_{1}", sc.Sequence, sc.TotalCount);
-            sw.WriteLine("{0}", sc.Sequence);
-            number++;
-            if (number == options.ExportFastaNumber)
-            {
-              break;
-            }
-          }
-        }
-        result.Add(fastaFile);
-      }
+      var readOutput = Path.ChangeExtension(options.OutputFile, ".read.count");
+      var readFormat = new SmallRNASequenceFormat(options.TopNumber, options.ExportFasta);
+      readFormat.WriteToFile(readOutput, counts);
+      result.Add(readOutput);
 
       Progress.End();
 
       return result;
+    }
+
+    private void OutputGroup(List<string> result, Dictionary<string, List<SmallRNASequence>> counts, string[] samples)
+    {
+      var outputFile = options.OutputFile;
+      var topNumber = options.TopNumber;
+      var minOverlapRate = options.MinimumOverlapRate;
+
+      Progress.SetMessage("Building sequence contig...");
+      var mergedSequences = SmallRNASequenceUtils.BuildContigByIdenticalSimilarity(counts, topNumber, minOverlapRate);
+
+      Progress.SetMessage("Saving sequence contig...");
+      new SmallRNASequenceContigFormat().WriteToFile(options.OutputFile, mergedSequences);
+
+      Progress.SetMessage("Saving sequence contig details...");
+      new SmallRNASequenceContigDetailFormat().WriteToFile(options.OutputFile + ".details", mergedSequences);
+
+      result.Add(options.OutputFile);
+      result.Add(options.OutputFile + ".details");
+
+      if (options.ExportFasta)
+      {
+        var fastaFile = options.OutputFile + ".fasta";
+        Progress.SetMessage("Saving " + fastaFile + " ...");
+        new SmallRNASequenceContigFastaFormat(options.TopNumber).WriteToFile(fastaFile, mergedSequences);
+        result.Add(fastaFile);
+      }
+    }
+
+    public static List<SmallRNASequence> ReadCountFile(FileItem file, Func<string, bool> accept)
+    {
+      var countList = new List<SmallRNASequence>();
+      using (var sr = new StreamReader(file.File))
+      {
+        var header = sr.ReadLine();
+        string line;
+        while ((line = sr.ReadLine()) != null)
+        {
+          var parts = line.Split('\t');
+          if (parts.Length < 3)
+          {
+            continue;
+          }
+          var query = parts[0];
+          if (!accept(query))
+          {
+            continue;
+          }
+
+          var seq = new SmallRNASequence()
+          {
+            Sample = file.Name,
+            Sequence = parts[2],
+            Count = int.Parse(parts[1])
+          };
+
+          countList.Add(seq);
+        }
+      }
+
+      return countList;
     }
   }
 }

@@ -36,10 +36,10 @@ namespace CQS.Genome.SomaticMutation
       return new ValidationProcessor(this);
     }
 
-    public override void PrintParameter()
+    public override void PrintParameter(TextWriter tw)
     {
-      base.PrintParameter();
-      Console.Out.WriteLine("#validation_file={0}", this.ValidationFile);
+      base.PrintParameter(tw);
+      tw.WriteLine("#validation_file={0}", this.ValidationFile);
     }
 
     public override FilterProcessorOptions GetFilterOptions()

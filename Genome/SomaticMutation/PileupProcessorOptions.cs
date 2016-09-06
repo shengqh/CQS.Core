@@ -148,7 +148,7 @@ namespace CQS.Genome.SomaticMutation
             ParsingErrors.Add(string.Format("Mpileup file not exists {0}.", MpileupFile));
             return false;
           }
-          Console.Out.WriteLine("#mpileup file: " + MpileupFile);
+          Console.WriteLine("#mpileup file: " + MpileupFile);
           break;
         case DataSourceType.BAM:
           if (null == NormalBam)
@@ -210,13 +210,13 @@ namespace CQS.Genome.SomaticMutation
           {
             if (ChromosomeNames != null && ChromosomeNames.Count > 0)
             {
-              Console.Out.WriteLine("#mpileup chromosome names: " + ChromosomeNames.Merge(","));
+              Console.WriteLine("#mpileup chromosome names: " + ChromosomeNames.Merge(","));
             }
           }
 
           break;
         case DataSourceType.Console:
-          Console.Out.WriteLine("#mpileup from console.");
+          Console.WriteLine("#mpileup from console.");
           break;
       }
 
@@ -282,43 +282,46 @@ namespace CQS.Genome.SomaticMutation
         return new PileupProcessorParallelChromosome(this);
     }
 
-    public override void PrintParameter()
+    public override void PrintParameter(TextWriter tw)
     {
-      Console.Out.WriteLine("#type={0}", this.From);
+      tw.WriteLine("#type={0}", this.From);
 
       if (this.From == DataSourceType.BAM)
       {
-        Console.Out.WriteLine("#normal={0}", this.NormalBam);
-        Console.Out.WriteLine("#tumor={0}", this.TumorBam);
-        base.PrintParameter();
+        tw.WriteLine("#normal={0}", this.NormalBam);
+        tw.WriteLine("#tumor={0}", this.TumorBam);
+        base.PrintParameter(tw);
       }
       else
       {
         if (this.From == DataSourceType.Mpileup)
         {
-          Console.Out.WriteLine("#mpileup={0}", this.TumorBam);
+          tw.WriteLine("#mpileup={0}", this.TumorBam);
         }
-        Console.Out.WriteLine("#base_quality={0}", MinimumBaseQuality);
-        Console.Out.WriteLine("#min_read_depth={0}", MinimumReadDepth);
-        Console.Out.WriteLine("#max_read_depth={0}", MaximumReadDepth);
+        tw.WriteLine("#base_quality={0}", MinimumBaseQuality);
+        tw.WriteLine("#min_read_depth={0}", MinimumReadDepth);
+        tw.WriteLine("#max_read_depth={0}", MaximumReadDepth);
       }
 
       if (ChromosomeNames != null && ChromosomeNames.Count() > 0)
       {
-        Console.Out.WriteLine("#chromosomes={0}", this.ChromosomeNames.Merge(","));
+        tw.WriteLine("#chromosomes={0}", this.ChromosomeNames.Merge(","));
       }
 
-      Console.Out.WriteLine("#fisher_pvalue=" + this.FisherPvalue);
-      Console.Out.WriteLine("#max_normal_percentage=" + this.MaximumPercentageOfMinorAlleleInNormal);
-      Console.Out.WriteLine("#min_tumor_percentage=" + this.MinimumPercentageOfMinorAlleleInTumor);
-      Console.Out.WriteLine("#min_tumor_read=" + this.MinimumReadsOfMinorAlleleInTumor);
-      Console.Out.WriteLine("#thread_count=" + this.ThreadCount);
-      Console.Out.WriteLine("#output=" + this.OutputSuffix);
+      tw.WriteLine("#fisher_pvalue={0}", this.FisherPvalue);
+      tw.WriteLine("#max_normal_percentage={0}", this.MaximumPercentageOfMinorAlleleInNormal);
+      tw.WriteLine("#min_tumor_percentage={0}", this.MinimumPercentageOfMinorAlleleInTumor);
+      tw.WriteLine("#min_tumor_read={0}", this.MinimumReadsOfMinorAlleleInTumor);
+      tw.WriteLine("#thread_count={0}", this.ThreadCount);
+      tw.WriteLine("#output={0}", this.OutputSuffix);
 
       if (File.Exists(this.ExcludeBedFile))
       {
-        Console.Out.WriteLine("#exclude_bed=" + this.ExcludeBedFile);
+        tw.WriteLine("#exclude_bed={0}", this.ExcludeBedFile);
       }
+
+      tw.WriteLine("#use_zero_minor_allele_strategy={0}", this.UseZeroMinorAlleleStrategy);
+      tw.WriteLine("#zero_minor_allele_strategy_fisher_pvalue={0}", this.ZeroMinorAlleleStrategyFisherPvalue);
     }
   }
 }

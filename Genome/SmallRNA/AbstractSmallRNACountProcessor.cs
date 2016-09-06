@@ -17,7 +17,7 @@ namespace CQS.Genome.SmallRNA
       : base(options)
     { }
 
-    protected void DrawPositionImage(List<SAMAlignedItem> notNTAreads, List<FeatureLocation> features, string category, string positionFile)
+    public void DrawPositionImage(List<SAMAlignedItem> notNTAreads, List<FeatureLocation> features, string category, string positionFile, bool positionByPercentage = false, int minimumReadCount = 5)
     {
       if (features.Count > 0)
       {
@@ -27,7 +27,7 @@ namespace CQS.Genome.SmallRNA
         var map = BuildStrandMap(notNTAreads);
         MapReadsToSmallRNA(features, map);
 
-        SmallRNAMappedPositionBuilder.DrawImage(features.GroupByName().GroupBySequence(), Path.GetFileName(positionFile), positionFile);
+        SmallRNAMappedPositionBuilder.DrawImage(features.GroupByName().GroupBySequence(), Path.GetFileName(positionFile), positionFile, positionByPercentage, minimumReadCount);
 
         //clear all mapping information
         foreach (var read in notNTAreads)
@@ -301,7 +301,7 @@ namespace CQS.Genome.SmallRNA
       }
     }
 
-    protected Dictionary<string, Dictionary<char, List<SAMAlignedLocation>>> BuildStrandMap(List<SAMAlignedItem> reads)
+    public Dictionary<string, Dictionary<char, List<SAMAlignedLocation>>> BuildStrandMap(List<SAMAlignedItem> reads)
     {
       //build chr/strand/samlist map
       Progress.SetMessage("building chr/strand/samlist map ...");

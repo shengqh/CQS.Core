@@ -30,13 +30,28 @@ namespace CQS.Genome.Parclip
       new FeatureItemGroupT2CWriter(options.ExpectRate).WriteToFile(unfiltered, groups);
       new FeatureItemGroupXmlFormat(true).WriteToFile(unfiltered + ".xml", groups);
 
-      groups.RemoveByLocation(m => m.PValue > options.PValue);
-      Progress.SetMessage("There are {0} groups containing T2C mutation with pValue < {1}", groups.Count, options.PValue);
+
+      groups.RemoveByLocation(m =>
+      {
+        return !Accept(m.PValue, m.QueryCountBeforeFilter, m.QueryCount, options.Pvalue, options.MinimumCount, options.ExpectRate);
+      });
+      Progress.SetMessage("There are {0} groups containing T2C mutation with pValue < {1} or T2C/Not T2C reads less than {2} with expect error rate {3}", groups.Count, options.Pvalue, options.MinimumCount, options.ExpectRate);
 
       new FeatureItemGroupT2CWriter(options.ExpectRate).WriteToFile(options.OutputFile, groups);
       new FeatureItemGroupXmlFormat(true).WriteToFile(options.OutputFile + ".xml", groups);
 
       return new string[] { options.OutputFile, options.OutputFile + ".xml" };
+    }
+
+    public static bool Accept(double pvalue, int totalRead, int t2cRead, double maxPvalue, int mininumCount, double expectRate)
+    {
+      if (pvalue > maxPvalue)
+      {
+        return false;
+      }
+      var minCount = Math.Round(Math.Max(mininumCount, totalRead * expectRate));
+
+      return t2cRead >= minCount && (totalRead - t2cRead) >= minCount;
     }
   }
 }
