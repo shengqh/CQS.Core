@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using RCPA;
 
 namespace CQS.Genome.SmallRNA
 {
@@ -112,7 +113,10 @@ namespace CQS.Genome.SmallRNA
           WriteCounts(samples, swNTAIsomiR, dic, ntaIsomiRs, featureName, sequence, featureLocations);
         }
       }
-      return new[] { outputFile, ntaFile, isomiRFile, ntaIsomiRFile };
+
+      string readFile = WriteReadCountTable(outputFile, features, samples);
+
+      return new[] { outputFile, ntaFile, isomiRFile, ntaIsomiRFile, readFile };
     }
 
     private static void WriteCounts(List<string> samples, StreamWriter swNTA, Dictionary<string, double> dic, string[] ntas, string featureName, string sequence, string featureLocations)

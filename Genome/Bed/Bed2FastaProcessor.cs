@@ -81,6 +81,10 @@ namespace CQS.Genome.Bed
               Progress.SetMessage("  there are {0} entries in {1} ...", items.Count, name);
               foreach (var item in items)
               {
+                if(item.Start - 1 + item.Length >= seq.SeqString.Length)
+                {
+                  throw new Exception(string.Format("{0} exceed chromosome {1} length {2}", item, name, seq.SeqString.Length));
+                }
                 var newseq = seq.SeqString.Substring((int)item.Start - 1, (int)item.Length);
                 if (item.Strand == '-')
                 {

@@ -29,7 +29,7 @@ namespace CQS.Genome.SmallRNA
         options.SaveToFile(options.OutputFile + ".param");
       }
 
-      var bedfile = new BedItemFile<BedItem>();
+      var bedfile = new BedItemFile<BedItem>(6);
 
       var mirnas = new List<BedItem>();
       if (File.Exists(options.MiRBaseFile))
@@ -173,6 +173,22 @@ namespace CQS.Genome.SmallRNA
       all.AddRange(mirnas);
       all.AddRange(trnas);
       all.AddRange(others);
+
+      if (File.Exists(options.RRNAFile))
+      {
+        var seqs = SequenceUtils.Read(options.RRNAFile);
+        foreach(var seq in seqs)
+        {
+          all.Add(new BedItem()
+          {
+            Seqname = seq.Name,
+            Start = 0,
+            End = seq.SeqString.Length,
+            Strand = '+',
+            Name = "rRNA:" + seq.Name
+          });
+        }
+      }
 
       Progress.SetMessage("Saving smallRNA coordinates to " + options.OutputFile + "...");
       using (var sw = new StreamWriter(options.OutputFile))

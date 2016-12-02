@@ -2,6 +2,7 @@
 using CQS.Genome.Sam;
 using RCPA;
 using RCPA.Gui;
+using RCPA.Seq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -110,6 +111,10 @@ namespace CQS.Genome.Mapping
             if (options.KeepSequence)
             {
               query.Sequence = parts[SAMFormatConst.SEQ_INDEX];
+              if (flag.HasFlag(SAMFlags.QueryOnReverseStrand))
+              {
+                query.Sequence = SequenceUtils.GetReverseComplementedSequence(query.Sequence);
+              }
             }
           }
 

@@ -23,13 +23,27 @@ namespace CQS.Genome.SmallRNA
     {
       var result = new List<string>();
 
+      var specificSequencesOnly = options.Sequences != null && options.Sequences.Count > 0;
+
       var countfiles = options.GetCountFiles();
       var counts = new Dictionary<string, List<SmallRNASequence>>();
+
+
       foreach (var file in countfiles)
       {
         var keptNames = new HashSet<string>();
-        Func<string, bool> accept;
-        if (File.Exists(file.AdditionalFile)) // keep the read in fastq file only
+        Func<string[], bool> accept;
+
+        if (specificSequencesOnly)
+        {
+          foreach (var seq in options.Sequences)
+          {
+            keptNames.Add(seq);
+            Console.WriteLine(seq);
+          }
+          accept = m => keptNames.Contains(m[2]);
+        }
+        else if (File.Exists(file.AdditionalFile)) // keep the read in fastq file only
         {
           Progress.SetMessage("Reading " + file.AdditionalFile + "...");
           var fastqReader = new FastqReader();
@@ -44,7 +58,7 @@ namespace CQS.Genome.SmallRNA
             }
           }
 
-          accept = m => keptNames.Contains(m);
+          accept = m => keptNames.Contains(m[0]);
         }
         else
         {
@@ -58,13 +72,27 @@ namespace CQS.Genome.SmallRNA
 
       var samples = counts.Keys.OrderBy(m => m).ToArray();
 
-      OutputGroup(result, counts, samples);
-
-      var readOutput = Path.ChangeExtension(options.OutputFile, ".read.count");
-      var readFormat = new SmallRNASequenceFormat(options.TopNumber, options.ExportFasta);
-      readFormat.WriteToFile(readOutput, counts);
-      result.Add(readOutput);
-
+      if (specificSequencesOnly)
+      {
+        using (var sw = new StreamWriter(options.OutputFile))
+        {
+          sw.WriteLine("Sequence\t{0}", samples.Merge("\t"));
+          foreach (var seq in options.Sequences)
+          {
+            sw.WriteLine("{0}\t{1}", seq, (from sample in samples
+                                           let count = counts[sample]
+                                           let find = count.Where(l => l.Sequence.Equals(seq)).FirstOrDefault()
+                                           select find == null ? "0" : find.Count.ToString()).Merge("\t"));
+          }
+        }
+      }
+      else {
+        OutputGroup(result, counts, samples);
+        var readOutput = Path.ChangeExtension(options.OutputFile, ".read.count");
+        var readFormat = new SmallRNASequenceFormat(options.TopNumber, options.ExportFasta);
+        readFormat.WriteToFile(readOutput, counts);
+        result.Add(readOutput);
+      }
       Progress.End();
 
       return result;
@@ -73,11 +101,9 @@ namespace CQS.Genome.SmallRNA
     private void OutputGroup(List<string> result, Dictionary<string, List<SmallRNASequence>> counts, string[] samples)
     {
       var outputFile = options.OutputFile;
-      var topNumber = options.TopNumber;
-      var minOverlapRate = options.MinimumOverlapRate;
 
       Progress.SetMessage("Building sequence contig...");
-      var mergedSequences = SmallRNASequenceUtils.BuildContigByIdenticalSimilarity(counts, topNumber, minOverlapRate);
+      var mergedSequences = SmallRNASequenceUtils.BuildContigByIdenticalSimilarity(counts, options.MinimumOverlapRate, options.MaximumExtensionBase, options.TopNumber);
 
       Progress.SetMessage("Saving sequence contig...");
       new SmallRNASequenceContigFormat().WriteToFile(options.OutputFile, mergedSequences);
@@ -85,8 +111,19 @@ namespace CQS.Genome.SmallRNA
       Progress.SetMessage("Saving sequence contig details...");
       new SmallRNASequenceContigDetailFormat().WriteToFile(options.OutputFile + ".details", mergedSequences);
 
+      var miniContigFile = Path.ChangeExtension(options.OutputFile, ".minicontig.count");
+      Progress.SetMessage("Saving mini sequence contig...");
+      var miniContig = SmallRNASequenceUtils.BuildMiniContig(mergedSequences, options.TopNumber);
+      new SmallRNASequenceContigFormat().WriteToFile(miniContigFile, miniContig);
+
+      Progress.SetMessage("Saving mini sequence contig details...");
+      new SmallRNASequenceContigDetailFormat().WriteToFile(miniContigFile + ".details", miniContig);
+
       result.Add(options.OutputFile);
       result.Add(options.OutputFile + ".details");
+
+      result.Add(miniContigFile);
+      result.Add(miniContigFile + ".details");
 
       if (options.ExportFasta)
       {
@@ -94,10 +131,15 @@ namespace CQS.Genome.SmallRNA
         Progress.SetMessage("Saving " + fastaFile + " ...");
         new SmallRNASequenceContigFastaFormat(options.TopNumber).WriteToFile(fastaFile, mergedSequences);
         result.Add(fastaFile);
+
+        var miniContigFastaFile = miniContigFile + ".fasta";
+        Progress.SetMessage("Saving " + fastaFile + " ...");
+        new SmallRNASequenceContigFastaFormat(options.TopNumber).WriteToFile(miniContigFastaFile, miniContig);
+        result.Add(miniContigFastaFile);
       }
     }
 
-    public static List<SmallRNASequence> ReadCountFile(FileItem file, Func<string, bool> accept)
+    public static List<SmallRNASequence> ReadCountFile(FileItem file, Func<string[], bool> accept)
     {
       var countList = new List<SmallRNASequence>();
       using (var sr = new StreamReader(file.File))
@@ -111,8 +153,7 @@ namespace CQS.Genome.SmallRNA
           {
             continue;
           }
-          var query = parts[0];
-          if (!accept(query))
+          if (!accept(parts))
           {
             continue;
           }

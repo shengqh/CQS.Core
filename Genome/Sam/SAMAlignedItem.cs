@@ -166,26 +166,12 @@ namespace CQS.Genome.Sam
 
     public int GetFeatureCount()
     {
-      return (from loc in Locations
-              from fea in loc.Features
-              select fea).Count();
-    }
-
-    private double _estimatedCount = -1.0;
-
-    public void InitializeEstimatedCount()
-    {
-      _estimatedCount = ((double)QueryCount) / GetFeatureCount();
+      return Locations.Sum(l => l.Features.Count);
     }
 
     public double GetEstimatedCount()
     {
-      if (_estimatedCount == -1.0)
-      {
-        InitializeEstimatedCount();
-      }
-
-      return _estimatedCount;
+      return ((double)QueryCount) / GetFeatureCount();
     }
 
     private Regex cigarReg = new Regex(@"(\d+)([MIDNSHPX=])");

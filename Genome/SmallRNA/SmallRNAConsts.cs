@@ -23,6 +23,8 @@ namespace CQS.Genome.SmallRNA
 
     public static readonly string lincRNA = SmallRNABiotype.lincRNA.ToString();
 
+    public static readonly string rRNA = SmallRNABiotype.rRNA.ToString();
+
     public const string NTA_TAG = ":CLIP_";
 
     public static string[] Biotypes;

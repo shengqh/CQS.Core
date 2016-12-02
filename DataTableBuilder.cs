@@ -80,6 +80,10 @@ namespace CQS
                       from k in c.Data.Keys
                       select k).Distinct().OrderBy(m => m).ToList();
 
+      var missing = _options.FillMissingWithZero ? "0" : "NA";
+
+      var outputExtra = _options.ExportExtra && namemap != null && namemap.InfoNames.Count > 0;
+
       Progress.SetMessage("Writing {0} features to {1} ...", features.Count, _options.OutputFile);
       using (var sw = new StreamWriter(_options.OutputFile))
       {
@@ -87,7 +91,7 @@ namespace CQS
 
         if (namemap != null)
         {
-          if (_options.ExportExtra)
+          if (outputExtra)
           {
             sw.Write("\t{0}", (from v in namemap.InfoNames select "Feature_" + v).Merge("\t"));
           }
@@ -111,7 +115,7 @@ namespace CQS
             var feature2 = feature.StringBefore(".");
             if (namemap.Data.ContainsKey(feature))
             {
-              if (_options.ExportExtra)
+              if (outputExtra)
               {
                 sw.Write("\t{0}", namemap.Data[feature].Informations.Merge("\t"));
               }
@@ -127,7 +131,7 @@ namespace CQS
               var findFeature = feas.FirstOrDefault(m => namemap.Data.ContainsKey(m));
               if (findFeature == null)
               {
-                if (_options.ExportExtra)
+                if (outputExtra)
                 {
                   sw.Write("\t{0}", (from f in namemap.InfoNames select string.Empty).Merge("\t"));
                 }
@@ -135,7 +139,7 @@ namespace CQS
               }
               else
               {
-                if (_options.ExportExtra)
+                if (outputExtra)
                 {
                   for (int i = 0; i < namemap.InfoNames.Count; i++)
                   {
@@ -157,7 +161,7 @@ namespace CQS
             }
             else
             {
-              sw.Write("\tNA");
+              sw.Write("\t" + missing);
             }
           }
           sw.WriteLine();

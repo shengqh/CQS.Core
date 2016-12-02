@@ -159,8 +159,8 @@ namespace CQS.Genome.SmallRNA
 
         var snRNAPositionFile = Path.ChangeExtension(options.OutputFile, ".snRNA.position");
         var snoRNAPositionFile = Path.ChangeExtension(options.OutputFile, ".snoRNA.position");
-        new SmallRNACountProcessor(options).DrawPositionImage(notNTAreads, featureLocations.Where(m => m.Name.StartsWith("snRNA")).ToList(), "snRNA", snRNAPositionFile, true);
-        new SmallRNACountProcessor(options).DrawPositionImage(notNTAreads, featureLocations.Where(m => m.Name.StartsWith("snoRNA")).ToList(), "snoRNA", snoRNAPositionFile, true);
+        DrawPositionImage(notNTAreads, featureLocations.Where(m => m.Name.StartsWith("snRNA")).ToList(), "snRNA", snRNAPositionFile, true);
+        DrawPositionImage(notNTAreads, featureLocations.Where(m => m.Name.StartsWith("snoRNA")).ToList(), "snoRNA", snoRNAPositionFile, true);
       }
 
       var allmapped = new List<FeatureItemGroup>();
@@ -325,7 +325,7 @@ namespace CQS.Genome.SmallRNA
       }
 
       //mapping to other smallRNA
-      var otherRNAs = mapped.Where(m => !m.Category.Equals(SmallRNAConsts.miRNA) && !m.Category.Equals(SmallRNAConsts.tRNA) && !m.Category.Equals(SmallRNAConsts.lincRNA)).ToList();
+      var otherRNAs = mapped.Where(m => !m.Category.Equals(SmallRNAConsts.miRNA) && !m.Category.Equals(SmallRNAConsts.tRNA) && !m.Category.Equals(SmallRNAConsts.lincRNA) && !m.Name.Contains("SILVA_")).ToList();
       if (otherRNAs.Count > 0)
       {
         Progress.SetMessage("Mapping reads to {0} other smallRNA entries.", otherRNAs.Count);
@@ -340,7 +340,7 @@ namespace CQS.Genome.SmallRNA
       }
 
       //mapping to lincRNA
-      var lincRNAs = mapped.Where(m => m.Category.Equals(SmallRNAConsts.lincRNA)).ToList();
+      var lincRNAs = mapped.Where(m => m.Category.Equals(SmallRNAConsts.lincRNA) ||  m.Name.Contains("SILVA_")).ToList();
       if (lincRNAs.Count > 0)
       {
         Progress.SetMessage("Mapping reads to {0} lincRNA entries.", lincRNAs.Count);

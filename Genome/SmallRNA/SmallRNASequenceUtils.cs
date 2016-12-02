@@ -8,35 +8,36 @@ namespace CQS.Genome.SmallRNA
 {
   public static class SmallRNASequenceUtils
   {
-    public const double MINIMUM_OVERLAP_RATE = 0.9;
-
     public static Dictionary<string, List<SmallRNASequence>> ConvertFrom(List<ChromosomeCountSlimItem> items)
     {
-      var result = new Dictionary<string, List<SmallRNASequence>>();
+      var result = new Dictionary<string, Dictionary<string, SmallRNASequence>>();
       foreach (var c in items)
       {
         foreach (var q in c.Queries)
         {
-          List<SmallRNASequence> seqList;
+          Dictionary<string, SmallRNASequence> seqList;
           if (!result.TryGetValue(q.Sample, out seqList))
           {
-            seqList = new List<SmallRNASequence>();
+            seqList = new Dictionary<string, SmallRNASequence>();
             result[q.Sample] = seqList;
           }
 
-          seqList.Add(new SmallRNASequence()
+          if (!seqList.ContainsKey(q.Sequence))
           {
-            Sample = q.Sample,
-            Sequence = q.Sequence,
-            Count = q.QueryCount
-          });
+            seqList[q.Sequence] = new SmallRNASequence()
+            {
+              Sample = q.Sample,
+              Sequence = q.Sequence,
+              Count = q.QueryCount
+            };
+          }
         }
       }
 
-      return result;
+      return result.ToDictionary(l => l.Key, l => l.Value.Values.ToList());
     }
 
-    public static List<SmallRNASequenceContig> GetTopContig(List<SmallRNASequence> sequences, double minimumOverlapRate = MINIMUM_OVERLAP_RATE)
+    public static List<SmallRNASequenceContig> GetTopContig(List<SmallRNASequence> sequences, double minimumOverlapRate, int maximumExtensionBase)
     {
       List<SmallRNASequenceContig> result = new List<SmallRNASequenceContig>();
       foreach (var seq in sequences)
@@ -48,14 +49,14 @@ namespace CQS.Genome.SmallRNA
         result.Add(contig);
       }
 
-      return GetTopContig(result, minimumOverlapRate);
+      return GetTopContig(result, minimumOverlapRate, maximumExtensionBase);
     }
 
-    public static List<SmallRNASequenceContig> GetTopContig(List<SmallRNASequenceContig> result, double minimumOverlapRate = MINIMUM_OVERLAP_RATE)
+    public static List<SmallRNASequenceContig> GetTopContig(List<SmallRNASequenceContig> result, double minimumOverlapRate, int maximumExtensionBase)
     {
       result.Sort((m1, m2) => m2.ContigCount.CompareTo(m1.ContigCount));
 
-      //merge all contig contains in another contig
+      //merge all contig contained in another contig
       int index = 0;
       while (index < result.Count)
       {
@@ -98,7 +99,9 @@ namespace CQS.Genome.SmallRNA
         {
           var nextContig = result[next];
 
-          var concatSequence = StringUtils.ConcatOverlap(contig.ContigSequence, nextContig.ContigSequence, minimumOverlapRate);
+          var concatSequence = maximumExtensionBase > 0 ?
+            StringUtils.ConcatOverlapByExtensionNumber(contig.ContigSequence, nextContig.ContigSequence, maximumExtensionBase) :
+            StringUtils.ConcatOverlapByPercentage(contig.ContigSequence, nextContig.ContigSequence, minimumOverlapRate);
           if (concatSequence != null)
           {
             contig.ContigSequence = concatSequence;
@@ -118,19 +121,46 @@ namespace CQS.Genome.SmallRNA
       return result;
     }
 
-    public static List<SmallRNASequenceContig> BuildContigByIdenticalSimilarity(Dictionary<string, List<SmallRNASequence>> counts, int topNumber = int.MaxValue, double minOverlapRate = MINIMUM_OVERLAP_RATE, IProgressCallback progress = null)
+    public static List<SmallRNASequenceContig> BuildMiniContig(List<SmallRNASequenceContig> contigs, int topNumber)
+    {
+      var result = new List<SmallRNASequenceContig>();
+      for (int i = 0; i < contigs.Count && i < topNumber; i++)
+      {
+        var contig = contigs[i];
+        var seqCount = (from seq in contig.Sequences.GroupBy(l => l.Sequence)
+                        select new { Seq = seq.Key, SeqCount = seq.Sum(l => l.Count), SeqIndex = contig.ContigSequence.IndexOf(seq.Key) }).OrderByDescending(l => l.SeqCount).ToList();
+        //seqCount.ForEach(l => Console.WriteLine("{0}\t{1}\t{2}", l.Seq, l.SeqCount, l.SeqIndex));
+
+        var fq = seqCount[0];
+        var list = seqCount.Where(l => Math.Abs(l.SeqIndex - fq.SeqIndex) < 3 && l.SeqCount >= fq.SeqCount * 0.1).ToList();
+        var start = list.Min(l => l.SeqIndex);
+        var end = list.Max(l => l.SeqIndex + l.Seq.Length);
+        var contigSeq = contig.ContigSequence.Substring(start, end - start);
+        var contigSequences = new HashSet<string>(list.ConvertAll(l => l.Seq));
+
+        var miniContig = new SmallRNASequenceContig();
+        miniContig.ContigSequence = contigSeq;
+        miniContig.ContigCount = list.Sum(l => l.SeqCount);
+        miniContig.Sequences.AddRange(contig.Sequences.Where(l => contigSequences.Contains(l.Sequence)));
+        result.Add(miniContig);
+      }
+
+      return result;
+    }
+
+    public static List<SmallRNASequenceContig> BuildContigByIdenticalSimilarity(Dictionary<string, List<SmallRNASequence>> counts, double minOverlapRate, int maxExtensionBase, int topNumber = int.MaxValue, IProgressCallback progress = null)
     {
       List<SmallRNASequenceContig> sequences;
       if (topNumber == int.MaxValue)
       {
         sequences = (from lst in counts.Values
-                     let smap = GetTopContig(lst, minOverlapRate)
+                     let smap = GetTopContig(lst, minOverlapRate, maxExtensionBase)
                      from seq in smap
                      select seq).ToList();
       }
       else {
         sequences = (from lst in counts.Values
-                     let smap = GetTopContig(lst.Take(Math.Min(lst.Count, topNumber * 100)).ToList(), minOverlapRate)
+                     let smap = GetTopContig(lst.Take(Math.Min(lst.Count, topNumber)).ToList(), minOverlapRate, maxExtensionBase)
                      from seq in smap
                      select seq).ToList();
       }
@@ -144,7 +174,7 @@ namespace CQS.Genome.SmallRNA
         progress.SetMessage("Total sequence = {0}", sequences.Count);
       }
 
-      var result = GetTopContig(sequences, minOverlapRate);
+      var result = GetTopContig(sequences, minOverlapRate, maxExtensionBase);
       result.Sort((m1, m2) => m2.ContigCount.CompareTo(m1.ContigCount));
       result = result.Take(topNumber).ToList();
       result.ForEach(m => m.Sequences.Clear());
@@ -209,7 +239,11 @@ namespace CQS.Genome.SmallRNA
       {
         foreach (var count in map)
         {
-          resultMap[count.Sequence].Sequences.Add(count);
+          SmallRNASequenceContig contig;
+          if (resultMap.TryGetValue(count.Sequence, out contig))
+          {
+            contig.Sequences.Add(count);
+          }
         }
       }
 

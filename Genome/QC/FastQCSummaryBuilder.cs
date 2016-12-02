@@ -110,7 +110,7 @@ namespace CQS.Genome.QC
         sw.WriteLine("Sample\tReads");
         foreach (var qc in qcitems)
         {
-          sw.WriteLine("{0}\t{1}", qc.Sample, qc.Data.First());
+          sw.WriteLine("{0}\t{1}", qc.Sample, qc.Data.Distinct().Sum());
         }
       }
 

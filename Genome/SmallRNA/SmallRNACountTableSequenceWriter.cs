@@ -12,10 +12,12 @@ namespace CQS.Genome.SmallRNA
   {
     private int topNumber;
     private double minOverlapRate;
-    public SmallRNACountTableSequenceWriter(int topNumber = 100, double minOverlapRate = 0.8)
+    private int maxExtensionBase;
+    public SmallRNACountTableSequenceWriter(int topNumber = 100, double minOverlapRate = SmallRNASequenceCountTableBuilderOptions.DEFAULT_MinimumOverlapRate, int maxExtensionBase = SmallRNASequenceCountTableBuilderOptions.DEFAULT_MaximumExtensionBase)
     {
       this.topNumber = topNumber;
       this.minOverlapRate = minOverlapRate;
+      this.maxExtensionBase = maxExtensionBase;
     }
 
     public virtual IEnumerable<string> WriteToFile(string outputFile, List<FeatureItemGroup> features, string removeNamePrefix)
@@ -59,7 +61,7 @@ namespace CQS.Genome.SmallRNA
       var counts = sequences.ToDictionary(m => m.Key, m => m.Value.Values.ToList());
       var samples = sequences.Keys.OrderBy(m => m).ToArray();
 
-      List<SmallRNASequenceContig> mergedSequences = SmallRNASequenceUtils.BuildContigByIdenticalSimilarity(counts, topNumber, minOverlapRate);
+      List<SmallRNASequenceContig> mergedSequences = SmallRNASequenceUtils.BuildContigByIdenticalSimilarity(counts, minOverlapRate, maxExtensionBase, topNumber);
       new SmallRNASequenceContigFormat().WriteToFile(outputFile, mergedSequences);
       new SmallRNASequenceContigDetailFormat().WriteToFile(outputFile + ".details", mergedSequences);
 

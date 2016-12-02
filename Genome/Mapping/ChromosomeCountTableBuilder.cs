@@ -36,7 +36,7 @@ namespace CQS.Genome.Mapping
 
         var curcounts = format.ReadFromFile(file.File);
 
-        if (string.IsNullOrEmpty(curcounts[0].Queries[0].Sequence))
+        if (curcounts.Count > 0 && string.IsNullOrEmpty(curcounts[0].Queries[0].Sequence))
         {
           Console.WriteLine("Didn't read in the sequence of query " + curcounts[0].Queries[0].Qname);
         }
@@ -116,7 +116,7 @@ namespace CQS.Genome.Mapping
         if (options.OutputReadContigTable)
         {
           Progress.SetMessage("Building sequence contig by similarity ...");
-          var contigs = SmallRNASequenceUtils.BuildContigByIdenticalSimilarity(reads, int.MaxValue, progress: Progress);
+          var contigs = SmallRNASequenceUtils.BuildContigByIdenticalSimilarity(reads, options.MinimumOverlapRate, options.MaximumExtensionBase,  progress: Progress);
 
           Progress.SetMessage("Contig number = {0}", contigs.Count);
 

@@ -1,4 +1,5 @@
 ﻿using CommandLine;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -8,14 +9,17 @@ namespace CQS.Genome.SmallRNA
   {
     private const int DEFAULT_TOP_NUMBER = 100;
     private const int DEFAULT_ExportFastaNumber = 100;
-    private const double DEFAULT_MIN_OVERLAP = 0.9;
+
+    public const double DEFAULT_MinimumOverlapRate = 0.9;
+    public const int DEFAULT_MaximumExtensionBase = 0;
 
     public SmallRNASequenceCountTableBuilderOptions()
     {
       this.TopNumber = DEFAULT_TOP_NUMBER;
       this.ExportFasta = false;
       this.ExportFastaNumber = DEFAULT_ExportFastaNumber;
-      this.MinimumOverlapRate = DEFAULT_MIN_OVERLAP;
+      this.MinimumOverlapRate = DEFAULT_MinimumOverlapRate;
+      this.MaximumExtensionBase = DEFAULT_MaximumExtensionBase;
     }
 
     [Option('n', "number", DefaultValue = DEFAULT_TOP_NUMBER, MetaValue = "INT", HelpText = "Select top X reads in each file")]
@@ -27,8 +31,14 @@ namespace CQS.Genome.SmallRNA
     [Option("exportFastaNumber", DefaultValue = DEFAULT_ExportFastaNumber, MetaValue = "INT", HelpText = "The total number of reads to be exported as fasta")]
     public int ExportFastaNumber { get; set; }
 
-    [Option("minOverlap", DefaultValue = DEFAULT_MIN_OVERLAP, MetaValue = "DOUBLE", HelpText = "Minimum overlap percentage to merge two reads")]
+    [Option("minOverlap", DefaultValue = DEFAULT_MinimumOverlapRate, MetaValue = "DOUBLE", HelpText = "Minimum overlap percentage to merge two reads")]
     public double MinimumOverlapRate { get; set; }
+
+    [Option("maxExtensionBase", DefaultValue = DEFAULT_MaximumExtensionBase, MetaValue = "INT", HelpText = "Maximum number of base extension each iteration for merge two reads. (0 means no limitation)")]
+    public int MaximumExtensionBase { get; set; }
+
+    [OptionList("sequences", MetaValue = "STRNG", Separator =',', HelpText = "Specific sequences only, seperated by ','")]
+    public IList<string> Sequences { get; set; }
 
     protected override void ValidateListFile()
     {

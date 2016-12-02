@@ -64,10 +64,18 @@ namespace CQS.Genome.SmallRNA
                      select seq.Sample).Distinct().OrderBy(m => m).ToList();
 
       using (var sw = new StreamWriter(fileName))
+      using (var swDepth = new StreamWriter(fileName + ".depth"))
       {
         sw.WriteLine("ContigSequence\tSequence\t{0}", samples.Merge("\t"));
+        swDepth.WriteLine("ContigSequence\tSample\tPosition\tDepth");
         foreach (var sc in items)
         {
+          var coverage = new Dictionary<string, int[]>();
+          foreach (var sample in samples)
+          {
+            coverage[sample] = new int[sc.ContigSequence.Length];
+          }
+
           var uniqseqs = (from s in sc.Sequences
                           select s.Sequence).Distinct().OrderBy(m => sc.ContigSequence.IndexOf(m)).ThenBy(m => m.Length).ToArray();
           foreach (var uniqseq in uniqseqs)
@@ -77,6 +85,27 @@ namespace CQS.Genome.SmallRNA
             sw.WriteLine("{0}\t{1}\t{2}", sc.ContigSequence, curseq, (from sample in samples
                                                                       select (from seq in sc.Sequences.Where(l => l.Sample.Equals(sample) && l.Sequence.Equals(uniqseq))
                                                                               select seq.Count).Sum().ToString()).Merge("\t"));
+            foreach (var sample in samples)
+            {
+              var seq = sc.Sequences.Where(l => l.Sample.Equals(sample) && l.Sequence.Equals(uniqseq)).FirstOrDefault();
+              if (seq != null)
+              {
+                var sampleCoverage = coverage[sample];
+                for (int i = index; i < index + uniqseq.Length; i++)
+                {
+                  sampleCoverage[i] += seq.Count;
+                }
+              }
+            }
+          }
+
+          foreach (var sample in samples)
+          {
+            var sampleCoverage = coverage[sample];
+            for (int i = 0; i < sampleCoverage.Length; i++)
+            {
+              swDepth.WriteLine("{0}\t{1}\t{2}\t{3}", sc.ContigSequence, sample, i + 1, sampleCoverage[i]);
+            }
           }
         }
       }

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using RCPA;
 
 namespace CQS.Genome.SmallRNA
 {
@@ -12,7 +13,6 @@ namespace CQS.Genome.SmallRNA
   {
     public virtual IEnumerable<string> WriteToFile(string outputFile, List<FeatureItemGroup> features, List<string> samples, string removeNamePrefix)
     {
-      List<string> result = new List<string>();
       using (StreamWriter sw = new StreamWriter(outputFile))
       {
         //sw.NewLine = Environment.NewLine;
@@ -22,8 +22,10 @@ namespace CQS.Genome.SmallRNA
           OutputCount(sw, feature, samples, MirnaConsts.NO_OFFSET, false, "", removeNamePrefix);
         }
       }
-      result.Add(outputFile);
-      return result;
+
+      string readFile = WriteReadCountTable(outputFile, features, samples);
+
+      return new[] { outputFile, readFile };
     }
 
     protected void OutputCount(StreamWriter sw, FeatureItemGroup feature, List<string> samples, int offset, bool hasNTA, string indexSuffix, string removeNamePrefix)
@@ -71,6 +73,43 @@ namespace CQS.Genome.SmallRNA
           }
         }
       }
+    }
+
+    protected static string WriteReadCountTable(string outputFile, List<FeatureItemGroup> features, List<string> samples)
+    {
+      var readFile = Path.ChangeExtension(outputFile, ".read.count");
+      using (var sw = new StreamWriter(readFile))
+      {
+        var reads = (from feature in features
+                     from a in feature.GetAlignedLocations()
+                     select a.Parent).Distinct().ToGroupDictionary(l => l.Sequence);
+
+        var sequences = (from read in reads
+                         orderby read.Value.Sum(l => l.QueryCount) descending
+                         select read.Key).ToArray();
+
+        sw.WriteLine("Sequence\t" + samples.Merge("\t"));
+        foreach (var seq in sequences)
+        {
+          sw.Write(seq);
+          var dic = reads[seq];
+          foreach (var sample in samples)
+          {
+            var sampleSam = dic.FirstOrDefault(l => l.Sample.Equals(sample));
+            if (sampleSam == null)
+            {
+              sw.Write("\t");
+            }
+            else
+            {
+              sw.Write("\t" + sampleSam.QueryCount.ToString());
+            }
+          }
+          sw.WriteLine();
+        }
+      }
+
+      return readFile;
     }
   }
 }

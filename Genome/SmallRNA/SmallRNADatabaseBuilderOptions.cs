@@ -40,6 +40,9 @@ namespace CQS.Genome.SmallRNA
     [Option('e', "ensembl", Required = false, MetaValue = "FILE", HelpText = "Input Ensembl GTF file")]
     public string EnsemblGtfFile { get; set; }
 
+    [Option('r', "rrna", Required = false, MetaValue = "FILE", HelpText = "rRNA fasta file")]
+    public string RRNAFile { get; set; }
+
     [Option('g', "genome", Required = false, MetaValue = "FILE", HelpText = "Input genome sequence file in fasta format")]
     public string FastaFile { get; set; }
 
@@ -57,6 +60,7 @@ namespace CQS.Genome.SmallRNA
         Console.WriteLine("param:mirbase_key=" + op.MiRBaseKey);
         Console.WriteLine("param:ensembl=" + op.EnsemblGtfFile);
         Console.WriteLine("param:trna=" + op.UcscTrnaFile);
+        Console.WriteLine("param:rrna=" + op.RRNAFile);
         Console.WriteLine("param:genome=" + op.FastaFile);
         Console.WriteLine("param:output=" + op.OutputFile);
 
@@ -73,6 +77,11 @@ namespace CQS.Genome.SmallRNA
         if (string.IsNullOrEmpty(this.UcscTrnaFile))
         {
           this.UcscTrnaFile = op.UcscTrnaFile;
+        }
+
+        if (string.IsNullOrEmpty(this.RRNAFile))
+        {
+          this.RRNAFile = op.RRNAFile;
         }
 
         if (string.IsNullOrEmpty(this.EnsemblGtfFile))
@@ -101,6 +110,11 @@ namespace CQS.Genome.SmallRNA
         ParsingErrors.Add(string.Format("Input tRNA file not exists {0}.", this.UcscTrnaFile));
       }
 
+      if (!string.IsNullOrEmpty(this.RRNAFile) && !File.Exists(this.RRNAFile))
+      {
+        ParsingErrors.Add(string.Format("Input rRNA file not exists {0}.", this.RRNAFile));
+      }
+
       if (!string.IsNullOrEmpty(this.EnsemblGtfFile) && !File.Exists(this.EnsemblGtfFile))
       {
         ParsingErrors.Add(string.Format("Input ensembl GTF file not exists {0}.", this.EnsemblGtfFile));
@@ -120,6 +134,7 @@ namespace CQS.Genome.SmallRNA
         new XElement("param", new XAttribute("name", "miRNAFile"), new XAttribute("value", MiRBaseFile)),
         new XElement("param", new XAttribute("name", "miRNAKey"), new XAttribute("value", MiRBaseKey)),
         new XElement("param", new XAttribute("name", "tRNAFile"), new XAttribute("value", UcscTrnaFile)),
+        new XElement("param", new XAttribute("name", "rRNAFile"), new XAttribute("value", RRNAFile)),
         new XElement("param", new XAttribute("name", "ensemblFile"), new XAttribute("value", EnsemblGtfFile)),
         new XElement("param", new XAttribute("name", "fastaFile"), new XAttribute("value", FastaFile)),
         new XElement("param", new XAttribute("name", "outputFile"), new XAttribute("value",OutputFile))
@@ -137,6 +152,7 @@ namespace CQS.Genome.SmallRNA
       MiRBaseFile = ParseParameter(parentNode, "miRNAFile");
       MiRBaseKey = ParseParameter(parentNode, "miRNAKey");
       UcscTrnaFile = ParseParameter(parentNode, "tRNAFile");
+      RRNAFile = ParseParameter(parentNode, "rRNAFile");
       EnsemblGtfFile = ParseParameter(parentNode, "ensemblFile");
       FastaFile = ParseParameter(parentNode, "fastaFile");
       OutputFile = ParseParameter(parentNode, "outputFile");
