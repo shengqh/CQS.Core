@@ -11,10 +11,10 @@ namespace CQS.Genome.Cuffdiff
 {
   public class CuffdiffSignificantFileMergerOptions : AbstractOptions
   {
-    [OptionList('i', "inputFiles", Required = true, MetaValue = "FILES",  Separator = ',', HelpText = "Cuffdiff significant files")]
+    [OptionList('i', "inputFiles", Required = true, MetaValue = "FILES", Separator = ',', HelpText = "Cuffdiff significant files")]
     public IList<string> InputFiles { get; set; }
 
-    [Option('a', "affyAnnoationFile", Required=false, MetaValue="FILE", HelpText = "Affymetrix annotation file used to mapping gene symbol with gene description")]
+    [Option('a', "affyAnnoationFile", Required = false, MetaValue = "FILE", HelpText = "Affymetrix annotation file used to mapping gene symbol with gene description")]
     public string AffyAnnotationFile { get; set; }
 
     [Option('o', "outputFile", Required = false, MetaValue = "FILE", HelpText = "Combined cuffdiff significant file")]
@@ -31,7 +31,7 @@ namespace CQS.Genome.Cuffdiff
         }
       }
 
-      if (! string.IsNullOrEmpty(this.AffyAnnotationFile) && !File.Exists(this.AffyAnnotationFile))
+      if (!string.IsNullOrEmpty(this.AffyAnnotationFile) && !File.Exists(this.AffyAnnotationFile))
       {
         ParsingErrors.Add(string.Format("Affymetrix annotation file not exists {0}.", this.AffyAnnotationFile));
         return false;
@@ -59,35 +59,20 @@ namespace CQS.Genome.Cuffdiff
 
     public bool Process(string[] args)
     {
-      CuffdiffSignificantFileMergerOptions options;
-      bool result = true;
-      try
+      var options = new CuffdiffSignificantFileMergerOptions();
+      var result = Parser.Default.ParseArguments(args, options);
+      if (result)
       {
-        options = CommandLine.Parser.Default.ParseArguments<CuffdiffSignificantFileMergerOptions>(args,
-          () =>
-          {
-            result = false;
-          }
-        );
-
-        if (result)
+        if (!options.PrepareOptions())
         {
-          if (!options.PrepareOptions())
-          {
-            Console.Out.WriteLine(options.GetUsage());
-            result = false;
-          }
-          else
-          {
-            var files = new CuffdiffSignificantFileMerger(options.AffyAnnotationFile, options.InputFiles).Process(options.OutputFile);
-            Console.WriteLine("File saved to :\n" + files.Merge("\n"));
-          }
+          Console.Out.WriteLine(options.GetUsage());
+          result = false;
         }
-      }
-      catch (Exception ex)
-      {
-        Console.Error.WriteLine(ex.Message);
-        result = false;
+        else
+        {
+          var files = new CuffdiffSignificantFileMerger(options.AffyAnnotationFile, options.InputFiles).Process(options.OutputFile);
+          Console.WriteLine("File saved to :\n" + files.Merge("\n"));
+        }
       }
 
       return result;

@@ -163,6 +163,13 @@ namespace CQS.Genome
       return result;
     }
 
+    /// <summary>
+    /// Get 1-based coordinate from file. Bed format will be automatically translated.
+    /// </summary>
+    /// <param name="coordinateFile">source file</param>
+    /// <param name="gtfFeature">if it's gtf format, which feature name will be used as gene_id</param>
+    /// <param name="bedAsGtf">if bed already be 1-based</param>
+    /// <returns></returns>
     public static List<GtfItem> GetSequenceRegions(string coordinateFile, string gtfFeature = "", bool bedAsGtf = false)
     {
       bool isBedFormat = IsBedFormat(coordinateFile);

@@ -178,7 +178,7 @@ namespace CQS.Genome.SomaticMutation
         {
           var item = new FilterItem();
           item.Chr = mutation.Chr;
-          item.Start = mutation.Pos;
+          item.Start = mutation.Pos.ToString();
           item.End = item.Start;
           item.FisherNormal = string.Empty;
           item.BrglmConverged = string.Empty;

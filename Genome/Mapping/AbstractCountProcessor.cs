@@ -41,7 +41,7 @@ namespace CQS.Genome.Mapping
       this.options = options;
     }
 
-    protected virtual List<SAMAlignedItem> ParseCandidates(string fileName, string outputFile,  out List<string> queryNames)
+    protected virtual List<SAMAlignedItem> ParseCandidates(string fileName, string outputFile, out List<string> queryNames)
     {
       return ParseCandidates(new string[] { fileName }.ToList(), outputFile, out queryNames);
     }
@@ -87,6 +87,17 @@ namespace CQS.Genome.Mapping
       {
         result.ForEach(l => l.OriginalQname = l.Qname.StringBefore(SmallRNAConsts.NTA_TAG));
       }
+
+      result.ForEach(l =>
+      {
+        foreach (var loc in l.Locations)
+        {
+          if (loc.Seqname.StartsWith("chr"))
+          {
+            loc.Seqname = loc.Seqname.StringAfter("chr");
+          }
+        }
+      });
     }
 
     protected virtual ICandidateBuilder GetCandidateBuilder()

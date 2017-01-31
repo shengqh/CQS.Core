@@ -10,7 +10,7 @@ namespace CQS.Genome.SomaticMutation
   public class ValidationItem
   {
     public string Chr { get; set; }
-    public string Pos { get; set; }
+    public int Pos { get; set; }
     public string Line { get; set; }
   }
 
@@ -33,7 +33,7 @@ namespace CQS.Genome.SomaticMutation
                       let parts = line.Split('\t')
                       let chr = parts[0]
                       let pos = parts[1]
-                      select new ValidationItem() { Chr = chr, Pos = pos, Line = line }).ToArray();
+                      select new ValidationItem() { Chr = chr, Pos = int.Parse(pos), Line = line }).ToArray();
       }
       else //assume it's bed format
       {
@@ -56,7 +56,7 @@ namespace CQS.Genome.SomaticMutation
                       let parts = line.Split('\t')
                       let chr = parts[0]
                       let pos = parts[1]
-                      select new ValidationItem() { Chr = chr, Pos = pos, Line = line }).ToArray();
+                      select new ValidationItem() { Chr = chr, Pos = int.Parse(pos) + 1, Line = line }).ToArray();
       }
 
       return this;
@@ -66,7 +66,7 @@ namespace CQS.Genome.SomaticMutation
     {
       using (var sw = new StreamWriter(filename))
       {
-        this.Items.ForEach(m => sw.WriteLine("{0}\t{1}\t{2}", m.Chr, Math.Max(int.Parse(m.Pos) - extension, 1), int.Parse(m.Pos) + extension));
+        this.Items.ForEach(m => sw.WriteLine("{0}\t{1}\t{2}", m.Chr, Math.Max(m.Pos - extension, 1), m.Pos + extension));
       }
     }
   }

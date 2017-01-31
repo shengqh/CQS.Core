@@ -56,6 +56,7 @@ namespace CQS.Genome.Fastq
           sr.ReadLine();
           sr.ReadLine();
           sr.ReadLine();
+          Console.WriteLine("ignored " + result.Name);
           continue;
         }
 

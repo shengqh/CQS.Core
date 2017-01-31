@@ -35,7 +35,7 @@ namespace CQS.Genome.Bed
 
       var srMap = srItems.ToGroupDictionary(m => m.Seqname);
 
-      var ff = new FastaFormat();
+      var ff = new FastaFormat(int.MaxValue);
       using (StreamWriter sw = new StreamWriter(options.OutputFile))
       {
         using (StreamReader sr = new StreamReader(options.GenomeFastaFile))

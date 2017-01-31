@@ -9,17 +9,21 @@ namespace CQS.Genome.SmallRNA
 {
   public static class SmallRNAUtils
   {
-    public static void AssignOriginalName(this IEnumerable<SAMAlignedItem> items)
+    public static void InitializeSmallRnaNTA(IEnumerable<SAMAlignedItem> reads)
     {
-      foreach (var item in items)
+      foreach (var m in reads)
       {
-        item.OriginalQname = item.Qname.StringBefore(SmallRNAConsts.NTA_TAG);
+        if (m.Qname.Contains(SmallRNAConsts.NTA_TAG))
+        {
+          m.OriginalQname = m.Qname.StringBefore(SmallRNAConsts.NTA_TAG);
+          m.NTA = m.Qname.StringAfter(SmallRNAConsts.NTA_TAG);
+        }
       }
     }
 
     private static Regex tRNACodeRegex1 = new Regex(@"\-([A-Za-z]{3,})[\-]{0,1}([A-Za-z]{3})(-|\z)");
     private static Regex tRNACodeRegex2 = new Regex(@"tRNA[0-9]*\-(.+)", RegexOptions.IgnoreCase);
-    public static string GetTRNACode(string name)
+    public static string GetTrnaAnticodon(string name)
     {
       var m = tRNACodeRegex1.Match(name);
       if (!m.Success)
@@ -41,9 +45,9 @@ namespace CQS.Genome.SmallRNA
       }
     }
 
-    public static string GetTRNACode(FeatureItem item)
+    public static string GetTrnaAnticodon(FeatureItem item)
     {
-      return GetTRNACode(item.Name);
+      return GetTrnaAnticodon(item.Name);
     }
 
     private static Regex tRNAAminoacidRegex1 = new Regex(@"\-([A-Za-z()]{3,})[\-]{0,1}[?A-Za-z]{3}(-|\z)");
@@ -70,7 +74,7 @@ namespace CQS.Genome.SmallRNA
       }
     }
 
-    public static string GetTRNAAminoacid(FeatureItem item)
+    public static string GetTrnaAminoacid(FeatureItem item)
     {
       return GetTRNAAminoacid(item.Name);
     }
@@ -82,7 +86,7 @@ namespace CQS.Genome.SmallRNA
       {
         var newmap = (from fig in d.Value
                       from fi in fig.Value
-                      select fi).GroupByFunction(GetTRNACode, updateGroupName).ToDictionary(m => m.DisplayName);
+                      select fi).GroupByFunction(GetTrnaAnticodon, updateGroupName).ToDictionary(m => m.DisplayName);
         result[d.Key] = newmap;
       }
       return result;
@@ -142,6 +146,75 @@ namespace CQS.Genome.SmallRNA
       }
 
       return result;
+    }
+
+    public static void SelectBestMatchedNTA(List<FeatureLocation> smallRNAs)
+    {
+      var mappedReads = (from m in smallRNAs
+                         from l in m.SamLocations
+                         let loc = l.SamLocation
+                         select new { Loc = loc, Qname = loc.Parent.Qname.StringBefore(SmallRNAConsts.NTA_TAG), NTA_Length = loc.Parent.Qname.StringAfter(SmallRNAConsts.NTA_TAG).Length }).ToList();
+
+      var map = mappedReads.GroupBy(m => m.Qname);
+
+      var sals = new HashSet<SAMAlignedLocation>();
+      foreach (var locs in map)
+      {
+        //get smallest number of mismatch, then get shortest NTA
+        var ntas = locs.GroupBy(m => m.Loc.NumberOfMismatch).OrderBy(m => m.Key).First().GroupBy(m => m.NTA_Length).OrderBy(m => m.Key).First();
+        foreach (var nta in ntas)
+        {
+          sals.Add(nta.Loc);
+        }
+      }
+
+      foreach (var m in smallRNAs)
+      {
+        foreach (var l in new List<FeatureSamLocation>(m.SamLocations))
+        {
+          if (!sals.Contains(l.SamLocation))
+          {
+            m.SamLocations.Remove(l);
+            l.SamLocation.Features.Remove(l.FeatureLocation);
+          }
+        }
+      }
+    }
+
+    public static HashSet<SAMAlignedItem> GetMappedReads(List<FeatureLocation> features)
+    {
+      return new HashSet<SAMAlignedItem>(from m in features
+                                         from l in m.SamLocations
+                                         select l.SamLocation.Parent);
+    }
+
+    public static void RemoveReadsFromMap(Dictionary<string, Dictionary<char, List<SAMAlignedLocation>>> chrStrandMatchedMap, HashSet<SAMAlignedItem> mappedReads)
+    {
+      var qnames = new HashSet<string>(from r in mappedReads select r.OriginalQname);
+
+      foreach (var chr in chrStrandMatchedMap.Keys)
+      {
+        var strandMap = chrStrandMatchedMap[chr];
+        foreach (var strand in strandMap.Keys)
+        {
+          var locs = strandMap[strand];
+          locs.RemoveAll(m => qnames.Contains(m.Parent.OriginalQname));
+        }
+      }
+    }
+
+
+    public static string[] GetOutputBiotypes(bool exportYRNA)
+    {
+      var result = new List<string>();
+      if (exportYRNA)
+      {
+        result.Add(SmallRNABiotype.yRNA.ToString());
+      }
+      result.Add(SmallRNABiotype.snRNA.ToString());
+      result.Add(SmallRNABiotype.snoRNA.ToString());
+      result.Add(SmallRNABiotype.rRNA.ToString());
+      return result.ToArray();
     }
   }
 }

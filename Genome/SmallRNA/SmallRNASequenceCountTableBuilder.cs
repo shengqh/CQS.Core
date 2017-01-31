@@ -133,7 +133,7 @@ namespace CQS.Genome.SmallRNA
         result.Add(fastaFile);
 
         var miniContigFastaFile = miniContigFile + ".fasta";
-        Progress.SetMessage("Saving " + fastaFile + " ...");
+        Progress.SetMessage("Saving " + miniContigFastaFile + " ...");
         new SmallRNASequenceContigFastaFormat(options.TopNumber).WriteToFile(miniContigFastaFile, miniContig);
         result.Add(miniContigFastaFile);
       }

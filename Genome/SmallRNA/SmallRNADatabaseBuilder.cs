@@ -21,13 +21,21 @@ namespace CQS.Genome.SmallRNA
       this.options = options;
     }
 
+    private string GetTRNAName(string oldName)
+    {
+      var result = oldName;
+      while (result.Contains("_"))
+      {
+        result = result.StringAfter("_");
+      }
+
+      return "tRNA:" + result;
+    }
+
     public override IEnumerable<string> Process()
     {
       var paramFile = options.OutputFile + ".param";
-      if (string.IsNullOrEmpty(options.ParamFile) || !Path.GetFullPath(options.ParamFile).Equals(Path.GetFullPath(paramFile)))
-      {
-        options.SaveToFile(options.OutputFile + ".param");
-      }
+      options.SaveToFile(options.OutputFile + ".param");
 
       var bedfile = new BedItemFile<BedItem>(6);
 
@@ -64,7 +72,7 @@ namespace CQS.Genome.SmallRNA
           }
         }
 
-        Progress.SetMessage("{0} miRNA read.", mirnas.Count);
+        Progress.SetMessage("{0} miRNA readed.", mirnas.Count);
       }
 
       List<BedItem> trnas = new List<BedItem>();
@@ -81,9 +89,27 @@ namespace CQS.Genome.SmallRNA
         //mitocondrom tRNA will be extracted from ensembl gtf file
         trnas.RemoveAll(m => m.Seqname.Equals("M") || m.Seqname.Equals("MT"));
 
-        trnas.ForEach(m => m.Name = SmallRNAConsts.tRNA + ":" + m.Name);
+        trnas.ForEach(m => m.Name = GetTRNAName(m.Name));
 
-        Progress.SetMessage("{0} tRNA from ucsc read.", trnas.Count);
+        Progress.SetMessage("{0} tRNA from ucsc readed.", trnas.Count);
+
+        if (File.Exists(options.UcscMatureTrnaFastaFile))
+        {
+          var seqs = SequenceUtils.Read(options.UcscMatureTrnaFastaFile);
+          foreach (var seq in seqs)
+          {
+            var tRNAName = GetTRNAName(seq.Name);
+            trnas.Add(new BedItem()
+            {
+              Seqname = seq.Name,
+              Start = 0,
+              End = seq.SeqString.Length,
+              Strand = '+',
+              Name = tRNAName,
+              Sequence = seq.SeqString
+            });
+          }
+        }
       }
 
       var others = new List<BedItem>();
@@ -155,6 +181,16 @@ namespace CQS.Genome.SmallRNA
               }
 
               var gene_name = item.Attributes.StringAfter("gene_name \"").StringBefore("\"");
+              var lowGeneName = gene_name.ToLower();
+              if (lowGeneName.StartsWith("rny") || lowGeneName.Equals("y_rna"))
+              {
+                biotype = "yRNA";
+              }
+
+              if (lowGeneName.EndsWith("_rrna"))
+              {
+                biotype = "rRNA";
+              }
 
               BedItem loc = new BedItem();
               loc.Seqname = seqName;
@@ -177,7 +213,7 @@ namespace CQS.Genome.SmallRNA
       if (File.Exists(options.RRNAFile))
       {
         var seqs = SequenceUtils.Read(options.RRNAFile);
-        foreach(var seq in seqs)
+        foreach (var seq in seqs)
         {
           all.Add(new BedItem()
           {
@@ -185,7 +221,7 @@ namespace CQS.Genome.SmallRNA
             Start = 0,
             End = seq.SeqString.Length,
             Strand = '+',
-            Name = "rRNA:" + seq.Name
+            Name = "rRNA:" + SmallRNAConsts.rRNADB_KEY +  seq.Name
           });
         }
       }
@@ -196,6 +232,7 @@ namespace CQS.Genome.SmallRNA
         foreach (var pir in SmallRNAConsts.Biotypes)
         {
           var locs = all.Where(m => m.Name.StartsWith(pir)).ToList();
+          Progress.SetMessage("{0} : {1}", pir, locs.Count);
 
           GenomeUtils.SortChromosome(locs, m => m.Seqname, m => (int)m.Start);
 
@@ -206,19 +243,6 @@ namespace CQS.Genome.SmallRNA
         }
       }
 
-      Progress.SetMessage("Extracting sequence from " + options.FastaFile + "...");
-      new Bed2FastaProcessor(new Bed2FastaProcessorOptions()
-      {
-        GenomeFastaFile = options.FastaFile,
-        InputFile = options.OutputFile,
-        OutputFile = options.OutputFile + ".fa",
-        KeepChrInName = false,
-        AcceptName = m => m.StartsWith(SmallRNAConsts.miRNA) || m.StartsWith(SmallRNAConsts.tRNA),
-      })
-      {
-        Progress = this.Progress
-      }.Process();
-
       var summaryFile = options.OutputFile + ".info";
       Progress.SetMessage("Writing summary to " + summaryFile + "...");
       using (var sw = new StreamWriter(summaryFile))
@@ -228,7 +252,79 @@ namespace CQS.Genome.SmallRNA
         all.ConvertAll(m => m.Name).Distinct().GroupBy(m => m.StringBefore(":")).OrderByDescending(m => m.Count()).ToList().ForEach(m => sw.WriteLine("{0}\t{1}", m.Key, m.Count()));
       }
 
-      return new string[] { options.OutputFile };
+      var result = new List<string>(new[] { options.OutputFile });
+
+      var fasta = Path.ChangeExtension(options.OutputFile, ".fasta");
+      if ((File.Exists(options.UcscTrnaFile) && File.Exists(options.UcscMatureTrnaFastaFile)) || File.Exists(options.RRNAFile))
+      {
+        result.Add(fasta);
+        using (var sw = new StreamWriter(fasta))
+        {
+          string line;
+          using (var sr = new StreamReader(options.FastaFile))
+          {
+            while ((line = sr.ReadLine()) != null)
+            {
+              sw.WriteLine(line);
+            }
+          }
+
+          if (File.Exists(options.UcscTrnaFile) && File.Exists(options.UcscMatureTrnaFastaFile))
+          {
+            using (var sr = new StreamReader(options.UcscMatureTrnaFastaFile))
+            {
+              while ((line = sr.ReadLine()) != null)
+              {
+                sw.WriteLine(line);
+              }
+            }
+          }
+
+          if (File.Exists(options.RRNAFile))
+          {
+            using (var sr = new StreamReader(options.RRNAFile))
+            {
+              while ((line = sr.ReadLine()) != null)
+              {
+                sw.WriteLine(line);
+              }
+            }
+          }
+        }
+      }
+
+      var faFile = options.OutputFile + ".fa";
+      Progress.SetMessage("Extracting sequence from " + options.FastaFile + "...");
+      new Bed2FastaProcessor(new Bed2FastaProcessorOptions()
+      {
+        GenomeFastaFile = options.FastaFile,
+        InputFile = options.OutputFile,
+        OutputFile = faFile,
+        KeepChrInName = false,
+        AcceptName = m => m.StartsWith(SmallRNAConsts.miRNA) || m.StartsWith(SmallRNAConsts.tRNA + ":chrMT"),
+      })
+      {
+        Progress = this.Progress
+      }.Process();
+
+      if (File.Exists(options.UcscMatureTrnaFastaFile))
+      {
+        Progress.SetMessage("Extracting sequence from " + options.UcscMatureTrnaFastaFile + " ...");
+
+        using (var sw = new StreamWriter(faFile, true))
+        {
+          foreach (var tRNA in trnas)
+          {
+            if (!string.IsNullOrEmpty(tRNA.Sequence))
+            {
+              sw.WriteLine(">{0}", tRNA.Name);
+              sw.WriteLine("{0}", tRNA.Sequence);
+            }
+          }
+        }
+      }
+
+      return result;
     }
   }
 }

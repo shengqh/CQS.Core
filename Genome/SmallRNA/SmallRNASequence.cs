@@ -26,7 +26,7 @@ namespace CQS.Genome.SmallRNA
       Sequences = new List<SmallRNASequence>();
     }
     public string ContigSequence { get; set; }
-    public int ContigCount { get; set; }
+    public double ContigCount { get; set; }
     public List<SmallRNASequence> Sequences { get; private set; }
     public override string ToString()
     {

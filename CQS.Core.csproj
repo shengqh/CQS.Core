@@ -58,9 +58,9 @@
     <Reference Include="Bio">
       <HintPath>..\SQH.Lib\Bio.dll</HintPath>
     </Reference>
-    <Reference Include="CommandLine, Version=1.9.8.1, Culture=neutral, PublicKeyToken=de6f01bd326f8c32, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\SQH.Lib\CommandLine.dll</HintPath>
+    <Reference Include="CommandLine, Version=1.9.71.2, Culture=neutral, PublicKeyToken=de6f01bd326f8c32, processorArchitecture=MSIL">
+      <HintPath>..\packages\CommandLineParser.1.9.71\lib\net45\CommandLine.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="DigitalRune.Windows.Docking">
       <HintPath>..\SQH.Lib\DigitalRune.Windows.Docking.dll</HintPath>
@@ -79,8 +79,8 @@
     <Reference Include="LumenWorks.Framework.IO">
       <HintPath>..\SQH.Lib\LumenWorks.Framework.IO.dll</HintPath>
     </Reference>
-    <Reference Include="MathNet.Numerics, Version=3.12.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MathNet.Numerics.3.12.0\lib\net40\MathNet.Numerics.dll</HintPath>
+    <Reference Include="MathNet.Numerics, Version=3.13.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MathNet.Numerics.3.13.1\lib\net40\MathNet.Numerics.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Meta.Numerics, Version=3.0.0.0, Culture=neutral, PublicKeyToken=67d25c65a6631347, processorArchitecture=MSIL">
@@ -93,16 +93,16 @@
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Data.SQLite, Version=1.0.101.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Data.SQLite.Core.1.0.101.0\lib\net45\System.Data.SQLite.dll</HintPath>
+    <Reference Include="System.Data.SQLite, Version=1.0.103.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Data.SQLite.Core.1.0.103\lib\net45\System.Data.SQLite.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="System.Data.SQLite.EF6, Version=1.0.101.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Data.SQLite.EF6.1.0.101.0\lib\net45\System.Data.SQLite.EF6.dll</HintPath>
+    <Reference Include="System.Data.SQLite.EF6, Version=1.0.103.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Data.SQLite.EF6.1.0.103\lib\net45\System.Data.SQLite.EF6.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="System.Data.SQLite.Linq, Version=1.0.101.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Data.SQLite.Linq.1.0.101.0\lib\net45\System.Data.SQLite.Linq.dll</HintPath>
+    <Reference Include="System.Data.SQLite.Linq, Version=1.0.103.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Data.SQLite.Linq.1.0.103\lib\net45\System.Data.SQLite.Linq.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Drawing" />
@@ -166,14 +166,8 @@
     <Compile Include="Genome\Fastq\FastqDemultiplexProcessorOptions.cs" />
     <Compile Include="Genome\Fastq\ValidFastqExtractor.cs" />
     <Compile Include="Genome\Fastq\ValidFastqExtractorCommand.cs" />
-    <Compile Include="Genome\Fastq\FastqTrimmerCommand.cs" />
-    <Compile Include="Genome\Fastq\FastqTrimmer.cs" />
     <Compile Include="Genome\Fastq\ValidFastqExtractorOptions.cs" />
-    <Compile Include="Genome\Fastq\FastqTrimmerOptions.cs" />
     <Compile Include="Genome\Fastq\FastqItemSAMParser.cs" />
-    <Compile Include="Genome\Fastq\RestoreCCABuilder.cs" />
-    <Compile Include="Genome\Fastq\RestoreCCABuilderCommand.cs" />
-    <Compile Include="Genome\Fastq\RestoreCCABuilderOptions.cs" />
     <Compile Include="Genome\Fastq\IFastqItemParser.cs" />
     <Compile Include="Genome\Fastq\Sam2FastqProcessor.cs" />
     <Compile Include="Genome\Fastq\Bam2SingleFastqProcessor.cs" />
@@ -280,8 +274,22 @@
     <Compile Include="Genome\Sam\SAMAlignedItemBAMParser.cs" />
     <Compile Include="Genome\Sam\SAMAlignedItemUtils.cs" />
     <Compile Include="Genome\Sam\SAMAlignedSequenceBAMParser.cs" />
+    <Compile Include="Genome\SmallRNA\ISmallRNACountProcessorOptions.cs" />
     <Compile Include="Genome\SmallRNA\AbstractSmallRNACountProcessorOptions.cs" />
     <Compile Include="Genome\SmallRNA\AbstractSmallRNACountProcessor.cs" />
+    <Compile Include="Genome\SmallRNA\AcceptResult.cs" />
+    <Compile Include="Genome\SmallRNA\IReadMapper.cs" />
+    <Compile Include="Genome\SmallRNA\SmallRNAPositionWriter.cs" />
+    <Compile Include="Genome\SmallRNA\SmallRNAMapperLongRNA.cs" />
+    <Compile Include="Genome\SmallRNA\SmallRNAMapperRRNADB.cs" />
+    <Compile Include="Genome\SmallRNA\SmallRNAMapperNTAFilter.cs" />
+    <Compile Include="Genome\SmallRNA\SmallRNAMapperLincRNA.cs" />
+    <Compile Include="Genome\SmallRNA\SmallRNAMapperBiotype.cs" />
+    <Compile Include="Genome\SmallRNA\SmallRNAMapperTRNA.cs" />
+    <Compile Include="Genome\SmallRNA\SmallRNAMapper.cs" />
+    <Compile Include="Genome\SmallRNA\SmallRNAMapperMicroRNA.cs" />
+    <Compile Include="Genome\SmallRNA\NTACountTableUtils.cs" />
+    <Compile Include="Genome\SmallRNA\TrnaNTACountTableWriter.cs" />
     <Compile Include="Genome\SmallRNA\MirnaNTACountTableWriter.cs" />
     <Compile Include="Genome\SmallRNA\SmallRNACountMap.cs" />
     <Compile Include="Genome\SmallRNA\SmallRNABamInfoFixer.cs" />
@@ -983,12 +991,12 @@
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
-  <Import Project="..\packages\System.Data.SQLite.Core.1.0.101.0\build\net45\System.Data.SQLite.Core.targets" Condition="Exists('..\packages\System.Data.SQLite.Core.1.0.101.0\build\net45\System.Data.SQLite.Core.targets')" />
+  <Import Project="..\packages\System.Data.SQLite.Core.1.0.103\build\net45\System.Data.SQLite.Core.targets" Condition="Exists('..\packages\System.Data.SQLite.Core.1.0.103\build\net45\System.Data.SQLite.Core.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\System.Data.SQLite.Core.1.0.101.0\build\net45\System.Data.SQLite.Core.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\System.Data.SQLite.Core.1.0.101.0\build\net45\System.Data.SQLite.Core.targets'))" />
+    <Error Condition="!Exists('..\packages\System.Data.SQLite.Core.1.0.103\build\net45\System.Data.SQLite.Core.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\System.Data.SQLite.Core.1.0.103\build\net45\System.Data.SQLite.Core.targets'))" />
   </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

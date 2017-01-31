@@ -1,8 +1,6 @@
-﻿using CQS.Genome.Sam;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace CQS.Genome.Feature
 {
@@ -10,7 +8,9 @@ namespace CQS.Genome.Feature
   {
     public FeatureLocation()
     {
-      this.SamLocations = new List<FeatureSamLocation>();
+      SamLocations = new List<FeatureSamLocation>();
+      Category = string.Empty;
+      Name = string.Empty;
     }
 
     public FeatureLocation(ISequenceRegion source)
@@ -66,6 +66,7 @@ namespace CQS.Genome.Feature
       {
         var mi = new FeatureItem();
         mi.Name = curregions.Key;
+        mi.Category = curregions.First().Category;
         mi.Locations.AddRange(curregions);
         result.Add(mi);
       }

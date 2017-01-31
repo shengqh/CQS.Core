@@ -175,8 +175,16 @@ namespace CQS.Genome.SmallRNA
       }
 
       var result = GetTopContig(sequences, minOverlapRate, maxExtensionBase);
+
+      //normalize the contig count by sample size
+      Dictionary<string, int> totalCounts = GetSampleCountMap(counts);
+
+      CalculateNormalizedContigCount(result, totalCounts);
+
       result.Sort((m1, m2) => m2.ContigCount.CompareTo(m1.ContigCount));
+
       result = result.Take(topNumber).ToList();
+
       result.ForEach(m => m.Sequences.Clear());
 
       //get all contained sequences
@@ -195,13 +203,23 @@ namespace CQS.Genome.SmallRNA
         }
       }
 
-      foreach (var seq in result)
-      {
-        seq.ContigCount = seq.Sequences.Sum(l => l.Count);
-      }
+      CalculateNormalizedContigCount(result, totalCounts);
+
       result.Sort((m1, m2) => m2.ContigCount.CompareTo(m1.ContigCount));
 
       return result;
+    }
+
+    private static Dictionary<string, int> GetSampleCountMap(Dictionary<string, List<SmallRNASequence>> counts)
+    {
+      return (from sample in counts.Keys
+              let lst = counts[sample]
+              select new { Sample = sample, Count = lst.Sum(l => l.Count) }).ToDictionary(l => l.Sample, l => l.Count);
+    }
+
+    private static void CalculateNormalizedContigCount(List<SmallRNASequenceContig> result, Dictionary<string, int> totalCounts)
+    {
+      result.ForEach(l => l.ContigCount = l.Sequences.Sum(s => s.Count * 1.0 / totalCounts[s.Sample]));
     }
 
     public static List<SmallRNASequenceContig> BuildContigByIdenticalSequence(Dictionary<string, List<SmallRNASequence>> counts, int topNumber = int.MaxValue)
@@ -248,10 +266,8 @@ namespace CQS.Genome.SmallRNA
       }
 
       //Initialize config count
-      foreach (var seq in resultMap.Values)
-      {
-        seq.ContigCount = seq.Sequences.Sum(l => l.Count);
-      }
+      Dictionary<string, int> totalCounts = GetSampleCountMap(counts);
+      CalculateNormalizedContigCount(resultMap.Values.ToList(), totalCounts);
 
       return (from v in resultMap.Values
               orderby v.ContigCount descending

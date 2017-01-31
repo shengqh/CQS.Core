@@ -85,42 +85,37 @@ namespace CQS.Genome.SmallRNA
       Progress.SetMessage("Writing microRNA ...");
       var miRNAFile = Path.ChangeExtension(options.OutputFile, SmallRNAConsts.miRNA + ".count");
       result.AddRange(new MirnaNTACountTableWriter().WriteToFile(miRNAFile, miRNAGroup, samples, SmallRNAConsts.miRNA + ":"));
+      new SmallRNAPositionWriter().WriteToFile(miRNAFile + ".position", miRNAGroup);
       allGroups.AddRange(miRNAGroup);
 
       //output tRNA
-      Progress.SetMessage("Grouping tRNA by amino acid code ...");
+      Progress.SetMessage("Grouping tRNA by anticodon ...");
       var tRNAs = features.Where(m => m.Name.StartsWith(SmallRNAConsts.tRNA)).ToList();
-      var tRNAGroup = tRNAs.GroupByFunction(SmallRNAUtils.GetTRNACode).OrderByDescending(m => m.GetEstimatedCount()).ThenBy(m => m.Name).ToList();
+      var tRNAGroup = tRNAs.GroupByFunction(SmallRNAUtils.GetTrnaAnticodon).OrderByDescending(m => m.GetEstimatedCount()).ThenBy(m => m.Name).ToList();
       var tRNAFile = Path.ChangeExtension(options.OutputFile, SmallRNAConsts.tRNA + ".count");
-      Progress.SetMessage("Writing tRNA ...");
-      result.AddRange(new SmallRNACountTableWriter().WriteToFile(tRNAFile, tRNAGroup, samples, SmallRNAConsts.tRNA + ":"));
+      Progress.SetMessage("Writing tRNA anticodon ...");
+      result.AddRange(new TrnaNTACountTableWriter().WriteToFile(tRNAFile, tRNAGroup, samples, SmallRNAConsts.tRNA + ":"));
+      Progress.SetMessage("Writing tRNA anticodon position ...");
+      new SmallRNAPositionWriter(m => SmallRNAUtils.GetTrnaAnticodon(m[0]), positionByPercentage: true).WriteToFile(tRNAFile + ".position", tRNAGroup);
       allGroups.AddRange(tRNAGroup);
 
-      //output tRNA
+      //output tRNA aminoacid 
       Progress.SetMessage("Grouping tRNA by amino acid ...");
-      tRNAGroup = tRNAs.GroupByFunction(SmallRNAUtils.GetTRNAAminoacid, true).OrderByDescending(m => m.GetEstimatedCount()).ThenBy(m => m.Name).ToList();
+      tRNAGroup = tRNAs.GroupByFunction(SmallRNAUtils.GetTrnaAminoacid, true).OrderByDescending(m => m.GetEstimatedCount()).ThenBy(m => m.Name).ToList();
       tRNAFile = Path.ChangeExtension(options.OutputFile, SmallRNAConsts.tRNA + ".aminoacid.count");
-      Progress.SetMessage("Writing tRNA aminoacid...");
+      Progress.SetMessage("Writing tRNA amino acid ...");
       result.AddRange(new SmallRNACountTableWriter().WriteToFile(tRNAFile, tRNAGroup, samples, SmallRNAConsts.tRNA + ":"));
+      Progress.SetMessage("Writing tRNA aminoacid position ...");
+      new SmallRNAPositionWriter(m => SmallRNAUtils.GetTrnaAminoacid(m[0]), positionByPercentage: true).WriteToFile(tRNAFile + ".position", tRNAGroup);
 
-      //Progress.SetMessage("Grouping tRNA by identical query ...");
-      //var tRNAGroup2 = tRNAs.GroupByIdenticalQuery().OrderByDescending(m => m.GetEstimateCount()).ThenBy(m => m.Name).ToList();
-      //var tRNAFile2 = Path.ChangeExtension(options.OutputFile, SmallRNAConsts.tRNA + ".byquery.count");
-      //Progress.SetMessage("Writing tRNA ...");
-      //result.AddRange(new SmallRNACountTableWriter().WriteToFile(tRNAFile2, tRNAGroup2, samples, SmallRNAConsts.tRNA + ":"));
+      var exportBiotypes = SmallRNAUtils.GetOutputBiotypes(options.ExportYRNA);
+      foreach (var biotype in exportBiotypes)
+      {
+        OutputBiotype(samples, features, allGroups, result, biotype, m => m.StartsWith(biotype), !biotype.Equals(SmallRNABiotype.rRNA.ToString()), !biotype.Equals(SmallRNABiotype.rRNA.ToString()));
+      }
 
-      //output other smallRNA
-      Progress.SetMessage("Grouping other smallRNA by identical query ...");
-      var otherGroups = features.Where(m => !m.Name.StartsWith(SmallRNAConsts.miRNA) && !m.Name.StartsWith(SmallRNAConsts.tRNA)).GroupByIdenticalQuery().OrderByDescending(m => m.GetEstimatedCount()).ThenBy(m => m.Name).ToList();
-      var otherFile = Path.ChangeExtension(options.OutputFile, ".other.count");
-      Progress.SetMessage("Writing other smallRNA ...");
-      result.AddRange(new SmallRNACountTableWriter().WriteToFile(otherFile, otherGroups, samples, ""));
-
-      var otherSequenceFile = Path.ChangeExtension(options.OutputFile, ".other.sequence.count");
-      result.AddRange(new SmallRNACountTableSequenceWriter().WriteToFile(otherSequenceFile, otherGroups, ""));
-      allGroups.AddRange(otherGroups);
-
-      //new FeatureItemGroupXmlFormat().WriteToFile(options.OutputFile + ".other.xml", miRNAGroup);
+      var biotypes = new[] { SmallRNAConsts.miRNA, SmallRNAConsts.tRNA }.Union(exportBiotypes).ToList();
+      OutputBiotype(samples, features, allGroups, result, "", m => !biotypes.Any(l => m.StartsWith(l)), false, false);
 
       //output all smallRNA
       Progress.SetMessage("Writing all smallRNA ...");
@@ -128,6 +123,32 @@ namespace CQS.Genome.SmallRNA
 
       Progress.SetMessage("Done ...");
       return result;
+    }
+
+    private void OutputBiotype(List<string> samples, List<FeatureItem> features, List<FeatureItemGroup> allGroups, List<string> result, string biotype, Func<string, bool> acceptName, bool exportPosition, bool exportSequence)
+    {
+      //output other smallRNA
+      Progress.SetMessage("Grouping {0} by identical query ...", biotype);
+      var groups = features.Where(m => acceptName(m.Name)).GroupByIdenticalQuery().OrderByDescending(m => m.GetEstimatedCount()).ThenBy(m => m.Name).ToList();
+      allGroups.AddRange(groups);
+
+      var name = string.IsNullOrEmpty(biotype) ? "other" : biotype;
+      var prefix = string.IsNullOrEmpty(biotype) ? "" : biotype + ":";
+      var file = Path.ChangeExtension(options.OutputFile, "." + name + ".count");
+      Progress.SetMessage("Writing {0} ...", biotype);
+      result.AddRange(new SmallRNACountTableWriter().WriteToFile(file, groups, samples, prefix));
+
+      if (exportPosition)
+      {
+        Progress.SetMessage("Writing {0} position ...", biotype);
+        new SmallRNAPositionWriter(positionByPercentage: true).WriteToFile(file + ".position", groups);
+      }
+
+      if (exportSequence)
+      {
+        var sequenceFile = Path.ChangeExtension(options.OutputFile, "." + name + ".sequence.count");
+        result.AddRange(new SmallRNACountTableSequenceWriter().WriteToFile(sequenceFile, groups, prefix));
+      }
     }
 
     private static Dictionary<string, Dictionary<string, FeatureItemGroup>> GetSubset(Dictionary<string, Dictionary<string, FeatureItemGroup>> dic, Func<FeatureItemGroup, bool> accept)

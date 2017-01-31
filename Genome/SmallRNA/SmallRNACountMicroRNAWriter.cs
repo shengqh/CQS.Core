@@ -31,7 +31,7 @@ namespace CQS.Genome.SmallRNA
                         select (from m in mirna select m.GetEstimatedCount(l => l.Offset == p)).Sum()).ToList();
 
           sw.WriteLine("{0}\t{1}\t{2}\t{3:0.##}\t{4}",
-            (from m in mirna select m.Name.StringAfter(SmallRNAConsts.miRNA + ":")).Merge(";"),
+            mirna.DisplayNameWithoutCategory,
             mirna.DisplayLocations,
             mirna[0].Sequence, //since the mirna in the group should contains identical sequence, only one sequence will be exported.
             counts.Sum(),

@@ -15,6 +15,8 @@ namespace CQS.Genome.Feature
 
     public List<FeatureLocation> Locations { get; private set; }
 
+    public string Category { get; set; }
+
     public string Name { get; set; }
 
     public double GetEstimatedCount()

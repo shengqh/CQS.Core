@@ -55,6 +55,16 @@ namespace CQS.Genome.Feature
       set { _displayName = value; }
     }
 
+    public string DisplayNameWithoutCategory
+    {
+      get
+      {
+        return (from id in this
+                let name = string.IsNullOrEmpty(id.Category)? id.Name:id.Name.StringAfter(":")
+                select name).Merge(";");
+      }
+    }
+
     public string DisplayLocations
     {
       get

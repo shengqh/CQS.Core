@@ -474,6 +474,26 @@ namespace CQS.Genome.Sam
         _originalQname = value;
       }
     }
+
+    private string _nta;
+    public string NTA
+    {
+      get
+      {
+        if (string.IsNullOrWhiteSpace(_nta))
+        {
+          return string.Empty;
+        }
+        else
+        {
+          return _nta;
+        }
+      }
+      set
+      {
+        _nta = value;
+      }
+    }
   }
 
   public static class SAMAlignedItemExtension

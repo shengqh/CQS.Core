@@ -74,11 +74,13 @@ namespace CQS.Genome.SmallRNA
       //Parsing reads
       List<string> trnaQueries;
       var trnaReads = ParseCandidates(options.InputFiles, resultFilename, out trnaQueries);
-      trnaReads.AssignOriginalName();
+      SmallRNAUtils.InitializeSmallRnaNTA(trnaReads);
+
+      var hasNTA = trnaReads.Any(l => l.NTA.Length > 0);
 
       List<string> otherrnaQueries;
       var otherRNAReads = ParseCandidates(options.OtherFile, resultFilename + ".other", out otherrnaQueries);
-      otherRNAReads.AssignOriginalName();
+      SmallRNAUtils.InitializeSmallRnaNTA(otherRNAReads);
 
       var allmapped = new List<FeatureItemGroup>();
       var mappedfile = resultFilename + ".mapped.xml";
@@ -101,7 +103,7 @@ namespace CQS.Genome.SmallRNA
         }
 
         //Map reads to tRNA
-        MapReadToSequenceRegion(trnaLocations, trnaReads);
+        MapReadToSequenceRegion(trnaLocations, trnaReads, hasNTA);
 
         var trnaMapped = trnaLocations.GroupByName();
         trnaMapped.RemoveAll(m => m.GetEstimatedCount() == 0);
@@ -121,7 +123,7 @@ namespace CQS.Genome.SmallRNA
         }
 
         //Get all queries mapped to tRNA
-        var tRNAreads = new HashSet<string>(from read in GetMappedReads(trnaLocations)
+        var tRNAreads = new HashSet<string>(from read in SmallRNAUtils.GetMappedReads(trnaLocations)
                                             select read.OriginalQname);
 
         //Remove all reads mapped to tRNA
@@ -136,7 +138,7 @@ namespace CQS.Genome.SmallRNA
         }
 
         //Map reads to not tRNA
-        MapReadToSequenceRegion(notTrnaLocations, otherRNAReads);
+        MapReadToSequenceRegion(notTrnaLocations, otherRNAReads, hasNTA);
 
         var notTrnaMapped = notTrnaLocations.GroupByName();
         notTrnaMapped.RemoveAll(m => m.GetEstimatedCount() == 0);
@@ -188,68 +190,29 @@ namespace CQS.Genome.SmallRNA
       return result;
     }
 
-    protected void MapReadToSequenceRegion(List<FeatureLocation> mapped, List<SAMAlignedItem> reads)
+    protected void MapReadToSequenceRegion(List<FeatureLocation> mapped, List<SAMAlignedItem> reads, bool hasNTA)
     {
       var chrStrandMatchedMap = BuildStrandMap(reads);
 
-      //First of all, mapping to tRNA 
-      var tRNAs = mapped.Where(m => m.Category.Equals(SmallRNAConsts.tRNA)).ToList();
-      if (tRNAs.Count > 0)
+      List<IReadMapper> mappers = new List<IReadMapper>();
+      mappers.Add(new SmallRNAMapperTRNA(options, false, null) { Progress = this.Progress });
+      mappers.Add(new SmallRNAMapperNTAFilter(hasNTA, false, true, null));
+
+      mappers.Add(new SmallRNAMapperMicroRNA(options, hasNTA) { Progress = this.Progress });
+      mappers.Add(new SmallRNAMapperNTAFilter(hasNTA, false, false, null));
+
+      mappers.Add(new SmallRNAMapper("otherSmallRNA", options, feature =>
+        !feature.Category.Equals(SmallRNABiotype.miRNA.ToString()) &&
+        !feature.Category.Equals(SmallRNABiotype.tRNA.ToString()) &&
+        !feature.Category.Equals(SmallRNABiotype.lincRNA.ToString()) &&
+        !feature.Name.Contains("SILVA_"))
+      { Progress = this.Progress });
+
+      mappers.Add(new SmallRNAMapperLincRNA(options) { Progress = this.Progress });
+
+      foreach (var mapper in mappers)
       {
-        Progress.SetMessage("Mapping reads to {0} tRNA entries.", tRNAs.Count);
-
-        MapReadsToSmallRNA(tRNAs, chrStrandMatchedMap);
-
-        var mappedReads = GetMappedReads(tRNAs);
-        Progress.SetMessage("There are {0} SAM entries mapped to tRNA entries.", mappedReads.Count);
-
-        //remove reads mapped to tRNA
-        RemoveReadsFromMap(chrStrandMatchedMap, mappedReads);
-      }
-
-      //Second of all, mapping to miRNA
-      var miRNAs = mapped.Where(m => m.Category.Equals(SmallRNAConsts.miRNA)).ToList();
-      if (miRNAs.Count > 0)
-      {
-        Progress.SetMessage("Mapping reads to {0} miRNA entries.", miRNAs.Count);
-
-        MapReadsToMiRNA(miRNAs, chrStrandMatchedMap);
-
-        var mappedReads = GetMappedReads(miRNAs);
-        Progress.SetMessage("There are {0} SAM entries mapped to miRNA entries.", mappedReads.Count);
-
-        //remove reads mapped to miRNA
-        RemoveReadsFromMap(chrStrandMatchedMap, mappedReads);
-      }
-
-      //mapping to other smallRNA
-      var otherRNAs = mapped.Where(m => !m.Category.Equals(SmallRNAConsts.miRNA) && !m.Category.Equals(SmallRNAConsts.tRNA) && !m.Category.Equals(SmallRNAConsts.lincRNA)).ToList();
-      if (otherRNAs.Count > 0)
-      {
-        Progress.SetMessage("Mapping reads to {0} other smallRNA entries.", otherRNAs.Count);
-
-        MapReadsToSmallRNA(otherRNAs, chrStrandMatchedMap);
-
-        var otherReads = GetMappedReads(otherRNAs);
-        Progress.SetMessage("There are {0} SAM entries mapped to other smallRNA entries.", otherReads.Count);
-
-        //remove reads mapped to tRNA
-        RemoveReadsFromMap(chrStrandMatchedMap, otherReads);
-      }
-
-      //mapping to lincRNA
-      var lincRNAs = mapped.Where(m => m.Category.Equals(SmallRNAConsts.lincRNA)).ToList();
-      if (lincRNAs.Count > 0)
-      {
-        Progress.SetMessage("Mapping reads to {0} lincRNA entries.", lincRNAs.Count);
-
-        MapReadsToLincRNA(lincRNAs, chrStrandMatchedMap);
-
-        var lincReads = GetMappedReads(lincRNAs);
-        Progress.SetMessage("There are {0} SAM entries mapped to lincRNA entries.", lincReads.Count);
-
-        //remove reads mapped to tRNA
-        RemoveReadsFromMap(chrStrandMatchedMap, lincReads);
+        mapper.MapReadToFeatureAndRemoveFromMap(mapped, chrStrandMatchedMap);
       }
     }
 

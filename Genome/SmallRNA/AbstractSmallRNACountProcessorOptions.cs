@@ -1,35 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using RCPA.Commandline;
-using CommandLine;
-using System.IO;
-using CQS.Genome.Sam;
-using CQS.Genome.Gtf;
-using RCPA.Seq;
+﻿using CommandLine;
 using CQS.Genome.Feature;
 using CQS.Genome.Mapping;
-using CQS.Genome.Gsnap;
-using CQS.Genome.Mirna;
+using RCPA.Seq;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace CQS.Genome.SmallRNA
 {
-  public abstract class AbstractSmallRNACountProcessorOptions : AbstractCountProcessorOptions
+  public abstract class AbstractSmallRNACountProcessorOptions : AbstractCountProcessorOptions, ISmallRNACountProcessorOptions
   {
-    public const double DEFAULT_MinimumOverlapPercentage = 0.5;
+    public const double DEFAULT_MinimumOverlapPercentage = 0.9;
     public const int DEFAULT_MaxMismatchForLincRNA = 0;
     public const int DEFAULT_MinReadLengthForLincRNA = 20;
 
-    public static readonly long[] DEFAULT_Offsets = new long[] { 0, 1, 2 };
+    public static readonly string[] DEFAULT_Offsets = new string[] { "0", "1", "2" };
 
     public AbstractSmallRNACountProcessorOptions()
     {
       this.MinimumOverlapPercentage = DEFAULT_MinimumOverlapPercentage;
-      this.MaximumMismatchForLincRNA = DEFAULT_MaxMismatchForLincRNA;
-      this.MinimumReadLengthForLincRNA = DEFAULT_MinReadLengthForLincRNA;
+      this.MaximumMismatchForLongRNA = DEFAULT_MaxMismatchForLincRNA;
+      this.MinimumReadLengthForLongRNA = DEFAULT_MinReadLengthForLincRNA;
       this.MaximumNoPenaltyMutationCount = DEFAULT_MaximumNoPenaltyMutationCount;
-      this.Offsets = DEFAULT_Offsets.ToList();
+      this.OffsetStrings = DEFAULT_Offsets.ToList();
     }
 
     [OptionList('i', "inputFile", Required = true, MetaValue = "FILE", Separator = ',', HelpText = "Alignment sam/bam files")]
@@ -45,16 +39,25 @@ namespace CQS.Genome.SmallRNA
     public string FastqFile { get; set; }
 
     [OptionList("offsets", Required = false, Separator = ',', HelpText = "Allowed (prilority ordered) offsets from miRNA locus, default: 0,1,2")]
-    public List<long> Offsets { get; set; }
+    public List<string> OffsetStrings { get; set; }
+
+    public List<long> Offsets
+    {
+      get
+      {
+        return (from s in OffsetStrings
+                select long.Parse(s)).ToList();
+      }
+    }
 
     [Option("min_overlap", DefaultValue = DEFAULT_MinimumOverlapPercentage, HelpText = "Minimum overlap percentage between region and read (0.0 indicates at least 1 base overlap)")]
     public double MinimumOverlapPercentage { get; set; }
 
-    [Option("max_linc_mismatch", DefaultValue = DEFAULT_MaxMismatchForLincRNA, HelpText = "Maximum mismatch allowed for read mapped to lincRNA")]
-    public int MaximumMismatchForLincRNA { get; set; }
+    [Option("max_longrna_mismatch", DefaultValue = DEFAULT_MaxMismatchForLincRNA, HelpText = "Maximum mismatch allowed for read mapped to longRNA (lincRNA and rRNA from ncbi)")]
+    public int MaximumMismatchForLongRNA { get; set; }
 
-    [Option("min_linc_read_length", DefaultValue = DEFAULT_MinReadLengthForLincRNA, HelpText = "Minimum sequence length allowed for read mapped to lincRNA")]
-    public int MinimumReadLengthForLincRNA { get; set; }
+    [Option("min_longrna_read_length", DefaultValue = DEFAULT_MinReadLengthForLincRNA, HelpText = "Minimum sequence length allowed for read mapped to longRNA (lincRNA and rRNA from ncbi)")]
+    public int MinimumReadLengthForLongRNA { get; set; }
 
     [Option("not_overwrite", DefaultValue = false, HelpText = "Don't overwrite existing result files")]
     public bool NotOverwrite { get; set; }
@@ -62,6 +65,12 @@ namespace CQS.Genome.SmallRNA
     public override bool PrepareOptions()
     {
       var result = base.PrepareOptions();
+
+      long value;
+      if (OffsetStrings.Any(l => !long.TryParse(l, out value)))
+      {
+        ParsingErrors.Add(string.Format("Offsets error {0}.", OffsetStrings.Merge(",")));
+      }
 
       foreach (var file in this.InputFiles)
       {
@@ -86,9 +95,9 @@ namespace CQS.Genome.SmallRNA
         ParsingErrors.Add(string.Format("Fastq file not exists {0}.", this.FastqFile));
       }
 
-      if (this.Offsets == null || this.Offsets.Count == 0)
+      if (this.OffsetStrings == null || this.OffsetStrings.Count == 0)
       {
-        this.Offsets = DEFAULT_Offsets.ToList();
+        this.OffsetStrings = DEFAULT_Offsets.ToList();
       }
 
       return result && ParsingErrors.Count == 0;
@@ -150,7 +159,16 @@ namespace CQS.Genome.SmallRNA
       }
 
       var result = items.ConvertAll(m => new FeatureLocation(m)).ToList();
-      result.ForEach(m => m.Category = m.Name.StringBefore(":"));
+      result.ForEach(m =>
+      {
+        foreach (var categoryName in SmallRNAConsts.Biotypes)
+        {
+          if (m.Name.StartsWith(categoryName))
+          {
+            m.Category = categoryName;
+          }
+        }
+      });
       return result;
     }
   }

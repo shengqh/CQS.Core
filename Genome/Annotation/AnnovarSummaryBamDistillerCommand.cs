@@ -74,34 +74,20 @@ namespace CQS.Genome.Annotation
 
     public bool Process(string[] args)
     {
-      AnnovarSummaryBamDistillerOptions options;
-      bool result = true;
-      try
+      var options = new AnnovarSummaryBamDistillerOptions();
+      bool result = CommandLine.Parser.Default.ParseArguments(args, options);
+      if (result)
       {
-        options = CommandLine.Parser.Default.ParseArguments<AnnovarSummaryBamDistillerOptions>(args,
-          () =>
-          {
-            result = false;
-          }
-        );
-        if (result)
+        if (!options.PrepareOptions())
         {
-          if (!options.PrepareOptions())
-          {
-            Console.Out.WriteLine(options.GetUsage());
-            result = false;
-          }
-          else
-          {
-            var files = new AnnovarSummaryBamDistiller(options.AffyAnnotationFile, options.BamFile, options.TargetDir, options.Suffix).Process(options.AnnovarFile);
-            Console.WriteLine("Run shell file to extract bam files:\n" + files.Merge("\n"));
-          }
+          Console.Out.WriteLine(options.GetUsage());
+          result = false;
         }
-      }
-      catch (Exception ex)
-      {
-        Console.Error.WriteLine(ex.ToString());
-        result = false;
+        else
+        {
+          var files = new AnnovarSummaryBamDistiller(options.AffyAnnotationFile, options.BamFile, options.TargetDir, options.Suffix).Process(options.AnnovarFile);
+          Console.WriteLine("Run shell file to extract bam files:\n" + files.Merge("\n"));
+        }
       }
 
       return result;

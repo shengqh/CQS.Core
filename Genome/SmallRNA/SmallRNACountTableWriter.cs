@@ -23,6 +23,7 @@ namespace CQS.Genome.SmallRNA
         }
       }
 
+      Progress.SetMessage("Writing read count file ...");
       string readFile = WriteReadCountTable(outputFile, features, samples);
 
       return new[] { outputFile, readFile };
@@ -95,14 +96,14 @@ namespace CQS.Genome.SmallRNA
           var dic = reads[seq];
           foreach (var sample in samples)
           {
-            var sampleSam = dic.FirstOrDefault(l => l.Sample.Equals(sample));
-            if (sampleSam == null)
+            var sampleSam = dic.Where(l => l.Sample.Equals(sample)).ToList();
+            if (sampleSam.Count == 0)
             {
-              sw.Write("\t");
+              sw.Write("\t0");
             }
             else
             {
-              sw.Write("\t" + sampleSam.QueryCount.ToString());
+              sw.Write("\t" + sampleSam.Sum(l => l.QueryCount).ToString());
             }
           }
           sw.WriteLine();

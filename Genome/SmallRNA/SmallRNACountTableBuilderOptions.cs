@@ -10,6 +10,9 @@ namespace CQS.Genome.SmallRNA
 {
   public class SmallRNACountTableBuilderOptions : SimpleDataTableBuilderOptions
   {
+    [Option("exportYRNA", HelpText = "Export yRNA individually")]
+    public bool ExportYRNA { get; set; }
+
     public SmallRNACountTableBuilderOptions()
     { }
 

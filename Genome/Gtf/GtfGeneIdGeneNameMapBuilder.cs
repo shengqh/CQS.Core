@@ -66,6 +66,7 @@ namespace CQS.Genome.Gtf
                   select key).ToList();
 
       using (StreamWriter sw = new StreamWriter(options.OutputFile))
+      using (StreamWriter swBed = new StreamWriter(options.OutputFile + ".bed"))
       {
         bool bHasGeneName = map.Values.Any(l => l.Any(m => m.Attributes.Contains("gene_name")));
         if (!bHasGeneName  && !File.Exists(options.MapFile))
@@ -76,11 +77,11 @@ namespace CQS.Genome.Gtf
         bool bHasGeneBiotype = map.Values.Any(l => l.Any(m => m.Attributes.Contains("gene_biotype")));
         if (bHasGeneBiotype)
         {
-          sw.WriteLine("gene_id\tgene_name\tlength\tgene_biotype");
+          sw.WriteLine("gene_id\tgene_name\tlength\tchr\tstart\tend\tgene_biotype");
         }
         else
         {
-          sw.WriteLine("gene_id\tgene_name\tlength");
+          sw.WriteLine("gene_id\tgene_name\tlength\tchr\tstart\tend");
         }
 
         foreach (var key in keys)
@@ -106,12 +107,13 @@ namespace CQS.Genome.Gtf
 
           if (bHasGeneBiotype)
           {
-            sw.WriteLine("{0}\t{1}\t{2}\t{3}", key, name, gtfs.Sum(m => m.Length), biotype);
+            sw.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}", key, name, gtfs.Sum(m => m.Length), gtfs.First().Seqname, gtfs.Min(l => l.Start), gtfs.Max(l => l.End), biotype);
           }
           else
           {
-            sw.WriteLine("{0}\t{1}\t{2}", key, name, gtfs.Sum(m => m.Length));
+            sw.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}\t{5}", key, name, gtfs.Sum(m => m.Length), gtfs.First().Seqname, gtfs.Min(l => l.Start), gtfs.Max(l => l.End));
           }
+          swBed.WriteLine("{0}\t{1}\t{2}\t{3}_{4}", gtfs.First().Seqname, gtfs.Min(l => l.Start), gtfs.Max(l => l.End), key.StringBefore("."), name);
         }
       }
 

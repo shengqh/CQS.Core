@@ -7,7 +7,7 @@ using System.Text;
 namespace CQS.Genome.SmallRNA
 {
   //The feature name of smallRNA in ensembl gff file
-  public enum SmallRNABiotype { miRNA, tRNA, lincRNA, snoRNA, snRNA, rRNA, misc_RNA };
+  public enum SmallRNABiotype { miRNA, tRNA, yRNA, snoRNA, snRNA, rRNA, misc_RNA, lincRNA };
 
   public static class SmallRNAConsts
   {
@@ -26,6 +26,8 @@ namespace CQS.Genome.SmallRNA
     public static readonly string rRNA = SmallRNABiotype.rRNA.ToString();
 
     public const string NTA_TAG = ":CLIP_";
+
+    public const string rRNADB_KEY = "rRNADB_";
 
     public static string[] Biotypes;
 
