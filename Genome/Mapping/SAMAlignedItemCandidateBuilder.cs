@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Bio.IO.SAM;
 using CQS.Genome.Sam;
-using System.Threading;
-using RCPA.Gui;
 using RCPA;
 using RCPA.Seq;
-using Bio.IO.SAM;
+using System;
+using System.Collections.Generic;
 
 namespace CQS.Genome.Mapping
 {
@@ -24,6 +20,11 @@ namespace CQS.Genome.Mapping
     public SAMAlignedItemCandidateBuilder(ISAMAlignedItemParserOptions options)
       : base(options)
     { }
+
+    protected virtual bool AcceptQueryName(string qname)
+    {
+      return true;
+    }
 
     protected override List<T> DoBuild<T>(string fileName, out HashSet<string> totalQueryNames)
     {
@@ -54,13 +55,17 @@ namespace CQS.Genome.Mapping
           }
 
           count++;
+          var qname = line.StringBefore("\t");
+          totalQueryNames.Add(qname);
+
+          if (!AcceptQueryName(qname))
+          {
+            continue;
+          }
 
           var parts = line.Split('\t');
 
-          var qname = parts[SAMFormatConst.QNAME_INDEX];
           var seq = parts[SAMFormatConst.SEQ_INDEX];
-
-          totalQueryNames.Add(qname);
 
           //too short
           if (seq.Length < _options.MinimumReadLength)
