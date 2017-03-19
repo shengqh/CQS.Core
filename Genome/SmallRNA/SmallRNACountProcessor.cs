@@ -155,7 +155,7 @@ namespace CQS.Genome.SmallRNA
         trnaCodeGroups.Clear();
 
         var otherFeatures = featureMapped.Where(m => !m.Name.StartsWith(SmallRNAConsts.miRNA) && !m.Name.StartsWith(SmallRNAConsts.tRNA)).ToList();
-        var exportBiotypes = SmallRNAUtils.GetOutputBiotypes(options.ExportYRNA);
+        var exportBiotypes = SmallRNAUtils.GetOutputBiotypes(options);
         foreach (var biotype in exportBiotypes)
         {
           WriteGroups(result, resultFilename, allmapped, otherFeatures, biotype);
