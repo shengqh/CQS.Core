@@ -13,6 +13,9 @@ namespace CQS.Genome.Gtf
     [Option('i', "InputFile", Required = true, MetaValue = "FILE", HelpText = "Input gtf file")]
     public string InputFile { get; set; }
 
+    [Option('n', "ByName", MetaValue = "BOOLEAN", HelpText = "Extract by name (default is by gene_id)")]
+    public bool ByName { get; set; }
+
     [Option('o', "OutputPrefix", Required = true, MetaValue = "FILE", HelpText = "output map file")]
     public string OutputFile { get; set; }
 

@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using CQS.Genome.Bed;
 using RCPA;
+using System.Collections.Generic;
 using System.IO;
-using RCPA.Commandline;
-using CommandLine;
-using CQS.Genome.Bed;
+using System.Linq;
+using System;
 
 namespace CQS.Genome.Gtf
 {
@@ -32,7 +29,7 @@ namespace CQS.Genome.Gtf
         foreach (var key in keys)
         {
           var bed = map[key];
-          sw.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}\t{5}", 
+          sw.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}\t{5}",
             bed.Seqname,
             bed.Start,
             bed.End,
@@ -62,19 +59,37 @@ namespace CQS.Genome.Gtf
           }
 
           BedItem loc;
-          if (!map.TryGetValue(item.GeneId, out loc))
+          string name;
+          if (options.ByName)
+          {
+            name = item.Name;
+            if (string.IsNullOrWhiteSpace(name)) //maybe in gff3 format
+            {
+              //Console.WriteLine(item.Attributes);
+              name = item.Attributes.StringAfter("Name=").StringBefore(";");
+            }
+          }
+          else {
+            name = item.GeneId;
+            if (string.IsNullOrWhiteSpace(name)) //maybe in gff3 format
+            {
+              name = item.Attributes.StringAfter("ID=").StringBefore(";");
+            }
+          }
+
+          if (!map.TryGetValue(name, out loc))
           {
             loc = new BedItem();
-            loc.Name = item.GeneId;
+            loc.Name = name;
             loc.Seqname = item.Seqname;
             loc.Start = item.Start;
             loc.End = item.End;
             loc.Strand = item.Strand;
-            map[item.GeneId] = loc;
+            map[name] = loc;
             continue;
           }
 
-          map[item.GeneId].UnionWith(item);
+          map[name].UnionWith(item);
         }
       }
 
