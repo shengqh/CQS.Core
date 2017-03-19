@@ -22,7 +22,7 @@ namespace CQS.Genome.Sam
       formats[5] = () => new StarFormat();
     }
 
-    public static ISAMFile GetReader(string filename, bool skipHeaders = false)
+    public static ISAMFile GetReader(string filename, bool skipHeaders = false, string rangeInBedFile = null)
     {
       ISAMFile result = null;
       if (SAMUtils.IsBAMFile(filename) && !SystemUtils.IsLinux)
@@ -31,7 +31,7 @@ namespace CQS.Genome.Sam
       }
       else
       {
-        result = new SAMLinuxReader("samtools", filename);
+        result = new SAMLinuxReader("samtools", filename, rangeInBedFile);
       }
 
       if (skipHeaders)

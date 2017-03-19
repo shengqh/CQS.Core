@@ -11,13 +11,16 @@ namespace CQS.Genome.Sam
 {
   public class SAMLinuxReader : AbstractProcessReader, ISAMFile
   {
+    private string rangeInBedFile;
+
     public SAMLinuxReader(string samtools)
       : base(samtools)
     { }
 
-    public SAMLinuxReader(string samtools, string filename)
+    public SAMLinuxReader(string samtools, string filename, string rangeInBedFile = null)
       : this(samtools)
     {
+      this.rangeInBedFile = rangeInBedFile;
       OpenWithException(filename);
     }
 
@@ -28,7 +31,14 @@ namespace CQS.Genome.Sam
 
     protected override string GetProcessArguments(string filename)
     {
-      return string.Format("view -h {0}", filename);
+      if (string.IsNullOrEmpty(this.rangeInBedFile))
+      {
+        return string.Format("view -h {0}", filename);
+      }
+      else
+      {
+        return string.Format("view -h {0} -L {1}", filename, this.rangeInBedFile);
+      }
     }
 
     public List<string> ReadHeaders()
