@@ -25,6 +25,10 @@ namespace CQS.Genome.SmallRNA
     private static Regex tRNACodeRegex2 = new Regex(@"tRNA[0-9]*\-(.+)", RegexOptions.IgnoreCase);
     public static string GetTrnaAnticodon(string name)
     {
+      if (name.Contains("nmt-"))
+      {
+        name = name.StringAfter("nmt-");
+      }
       var m = tRNACodeRegex1.Match(name);
       if (!m.Success)
       {
@@ -52,8 +56,12 @@ namespace CQS.Genome.SmallRNA
 
     private static Regex tRNAAminoacidRegex1 = new Regex(@"\-([A-Za-z()]{3,})[\-]{0,1}[?A-Za-z]{3}(-|\z)");
     private static Regex tRNAAminoacidRegex2 = new Regex(@"tRNA[0-9]*\-(.+)", RegexOptions.IgnoreCase);
-    public static string GetTRNAAminoacid(string name)
+    public static string GetTrnaAminoacid(string name)
     {
+      if (name.Contains("nmt-"))
+      {
+        name = name.StringAfter("nmt-");
+      }
       var m = tRNAAminoacidRegex1.Match(name);
       if (!m.Success)
       {
@@ -76,7 +84,7 @@ namespace CQS.Genome.SmallRNA
 
     public static string GetTrnaAminoacid(FeatureItem item)
     {
-      return GetTRNAAminoacid(item.Name);
+      return GetTrnaAminoacid(item.Name);
     }
 
     public static Dictionary<string, Dictionary<string, FeatureItemGroup>> GroupByTRNACode(Dictionary<string, Dictionary<string, FeatureItemGroup>> dic, bool updateGroupName = false)
@@ -204,15 +212,21 @@ namespace CQS.Genome.SmallRNA
     }
 
 
-    public static string[] GetOutputBiotypes(bool exportYRNA)
+    public static string[] GetOutputBiotypes(ISmallRNAExport options)
     {
       var result = new List<string>();
-      if (exportYRNA)
+      if (options.ExportYRNA)
       {
         result.Add(SmallRNABiotype.yRNA.ToString());
       }
-      result.Add(SmallRNABiotype.snRNA.ToString());
-      result.Add(SmallRNABiotype.snoRNA.ToString());
+      if (options.ExportSnRNA)
+      {
+        result.Add(SmallRNABiotype.snRNA.ToString());
+      }
+      if (options.ExportSnoRNA)
+      {
+        result.Add(SmallRNABiotype.snoRNA.ToString());
+      }
       result.Add(SmallRNABiotype.rRNA.ToString());
       return result.ToArray();
     }
