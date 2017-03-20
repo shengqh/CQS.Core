@@ -25,6 +25,9 @@ namespace CQS.Genome.SmallRNA
     [Option('n', "number", DefaultValue = DEFAULT_TOP_NUMBER, MetaValue = "INT", HelpText = "Select top X reads in each file")]
     public int TopNumber { get; set; }
 
+    [Option("exportContigDetails", MetaValue = "BOOLEAN", HelpText = "Export contig details")]
+    public bool ExportContigDetails { get; set; }
+
     [Option("exportFasta", MetaValue = "BOOLEAN", HelpText = "Export reads as fasta format for blast")]
     public bool ExportFasta { get; set; }
 

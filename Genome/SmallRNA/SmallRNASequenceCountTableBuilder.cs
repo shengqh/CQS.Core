@@ -107,23 +107,27 @@ namespace CQS.Genome.SmallRNA
 
       Progress.SetMessage("Saving sequence contig...");
       new SmallRNASequenceContigFormat().WriteToFile(options.OutputFile, mergedSequences);
+      result.Add(options.OutputFile);
 
-      Progress.SetMessage("Saving sequence contig details...");
-      new SmallRNASequenceContigDetailFormat().WriteToFile(options.OutputFile + ".details", mergedSequences);
+      if (options.ExportContigDetails)
+      {
+        Progress.SetMessage("Saving sequence contig details...");
+        new SmallRNASequenceContigDetailFormat().WriteToFile(options.OutputFile + ".details", mergedSequences);
+        result.Add(options.OutputFile + ".details");
+      }
 
       var miniContigFile = Path.ChangeExtension(options.OutputFile, ".minicontig.count");
       Progress.SetMessage("Saving mini sequence contig...");
       var miniContig = SmallRNASequenceUtils.BuildMiniContig(mergedSequences, options.TopNumber);
       new SmallRNASequenceContigFormat().WriteToFile(miniContigFile, miniContig);
-
-      Progress.SetMessage("Saving mini sequence contig details...");
-      new SmallRNASequenceContigDetailFormat().WriteToFile(miniContigFile + ".details", miniContig);
-
-      result.Add(options.OutputFile);
-      result.Add(options.OutputFile + ".details");
-
       result.Add(miniContigFile);
-      result.Add(miniContigFile + ".details");
+
+      if (options.ExportContigDetails)
+      {
+        Progress.SetMessage("Saving mini sequence contig details...");
+        new SmallRNASequenceContigDetailFormat().WriteToFile(miniContigFile + ".details", miniContig);
+        result.Add(miniContigFile + ".details");
+      }
 
       if (options.ExportFasta)
       {
