@@ -39,6 +39,19 @@ namespace CQS.Genome.SmallRNA
 
       var bedfile = new BedItemFile<BedItem>(6);
 
+      Dictionary<string, string> chrNameMap = new Dictionary<string, string>();
+      var ff = new FastaFormat(int.MaxValue);
+      using (StreamReader sr = new StreamReader(options.FastaFile))
+      {
+        Sequence seq;
+        while ((seq = ff.ReadSequence(sr)) != null)
+        {
+          var name = seq.Name;
+          chrNameMap[name] = name;
+          chrNameMap[name.StringAfter("chr")] = seq.Name;
+        }
+      }
+
       var mirnas = new List<BedItem>();
       if (File.Exists(options.MiRBaseFile))
       {
@@ -209,6 +222,14 @@ namespace CQS.Genome.SmallRNA
       all.AddRange(mirnas);
       all.AddRange(trnas);
       all.AddRange(others);
+
+      foreach(var bi in all)
+      {
+        if (chrNameMap.ContainsKey(bi.Seqname))
+        {
+          bi.Seqname = chrNameMap[bi.Seqname];
+        }
+      }
 
       if (File.Exists(options.RRNAFile))
       {
