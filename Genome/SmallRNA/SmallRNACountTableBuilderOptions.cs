@@ -8,10 +8,16 @@ using System.IO;
 
 namespace CQS.Genome.SmallRNA
 {
-  public class SmallRNACountTableBuilderOptions : SimpleDataTableBuilderOptions
+  public class SmallRNACountTableBuilderOptions : SimpleDataTableBuilderOptions, ISmallRNAExport
   {
     [Option("exportYRNA", HelpText = "Export yRNA individually")]
     public bool ExportYRNA { get; set; }
+
+    [Option("exportSnRNA", HelpText = "Export snRNA individually")]
+    public bool ExportSnRNA { get; set; }
+
+    [Option("exportSnoRNA", HelpText = "Export snoRNA individually")]
+    public bool ExportSnoRNA { get; set; }
 
     public SmallRNACountTableBuilderOptions()
     { }

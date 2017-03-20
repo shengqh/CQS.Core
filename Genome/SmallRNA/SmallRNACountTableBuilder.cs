@@ -108,7 +108,7 @@ namespace CQS.Genome.SmallRNA
       Progress.SetMessage("Writing tRNA aminoacid position ...");
       new SmallRNAPositionWriter(m => SmallRNAUtils.GetTrnaAminoacid(m[0]), positionByPercentage: true).WriteToFile(tRNAFile + ".position", tRNAGroup);
 
-      var exportBiotypes = SmallRNAUtils.GetOutputBiotypes(options.ExportYRNA);
+      var exportBiotypes = SmallRNAUtils.GetOutputBiotypes(options);
       foreach (var biotype in exportBiotypes)
       {
         OutputBiotype(samples, features, allGroups, result, biotype, m => m.StartsWith(biotype), !biotype.Equals(SmallRNABiotype.rRNA.ToString()), !biotype.Equals(SmallRNABiotype.rRNA.ToString()));
