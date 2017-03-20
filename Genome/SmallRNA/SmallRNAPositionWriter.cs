@@ -93,6 +93,8 @@ namespace CQS.Genome.SmallRNA
             }
 
             var groupName = getName(group);
+            //Console.WriteLine("{0} => {1}", group.Name, groupName);
+
             var allcount = group.GetEstimatedCount(l => l.SamLocation.Parent.Sample.Equals(sample));
             var keys = positionCount.Keys.ToList();
             keys.Sort();
