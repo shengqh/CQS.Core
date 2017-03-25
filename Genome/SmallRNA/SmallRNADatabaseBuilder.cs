@@ -223,7 +223,7 @@ namespace CQS.Genome.SmallRNA
       all.AddRange(trnas);
       all.AddRange(others);
 
-      foreach(var bi in all)
+      foreach (var bi in all)
       {
         if (chrNameMap.ContainsKey(bi.Seqname))
         {
@@ -242,7 +242,7 @@ namespace CQS.Genome.SmallRNA
             Start = 0,
             End = seq.SeqString.Length,
             Strand = '+',
-            Name = "rRNA:" + SmallRNAConsts.rRNADB_KEY +  seq.Name
+            Name = "rRNA:" + SmallRNAConsts.rRNADB_KEY + seq.Name
           });
         }
       }
@@ -253,6 +253,55 @@ namespace CQS.Genome.SmallRNA
         foreach (var pir in SmallRNAConsts.Biotypes)
         {
           var locs = all.Where(m => m.Name.StartsWith(pir)).ToList();
+          Progress.SetMessage("{0} : {1}", pir, locs.Count);
+
+          GenomeUtils.SortChromosome(locs, m => m.Seqname, m => (int)m.Start);
+
+          foreach (var loc in locs)
+          {
+            sw.WriteLine(bedfile.GetValue(loc));
+          }
+        }
+      }
+
+      Progress.SetMessage("Saving smallRNA miss1 coordinates to " + options.OutputFile + ".miss1 ...");
+      using (var sw = new StreamWriter(options.OutputFile + ".miss1"))
+      {
+        foreach (var pir in SmallRNAConsts.Biotypes)
+        {
+          if (pir == SmallRNABiotype.lincRNA.ToString())
+          {
+            continue;
+          }
+          var locs = all.Where(m => m.Name.StartsWith(pir)).ToList();
+          locs.RemoveAll(l => l.Name.Contains(SmallRNAConsts.rRNADB_KEY));
+
+          Progress.SetMessage("{0} : {1}", pir, locs.Count);
+
+          GenomeUtils.SortChromosome(locs, m => m.Seqname, m => (int)m.Start);
+
+          foreach (var loc in locs)
+          {
+            sw.WriteLine(bedfile.GetValue(loc));
+          }
+        }
+      }
+
+      Progress.SetMessage("Saving smallRNA miss1 coordinates to " + options.OutputFile + ".miss0 ...");
+      using (var sw = new StreamWriter(options.OutputFile + ".miss0"))
+      {
+        foreach (var pir in SmallRNAConsts.Biotypes)
+        {
+          if (pir != SmallRNABiotype.lincRNA.ToString() && pir != SmallRNABiotype.rRNA.ToString())
+          {
+            continue;
+          }
+          var locs = all.Where(m => m.Name.StartsWith(pir)).ToList();
+          if (pir == SmallRNABiotype.rRNA.ToString())
+          {
+            locs.RemoveAll(l => !l.Name.Contains(SmallRNAConsts.rRNADB_KEY));
+          }
+
           Progress.SetMessage("{0} : {1}", pir, locs.Count);
 
           GenomeUtils.SortChromosome(locs, m => m.Seqname, m => (int)m.Start);

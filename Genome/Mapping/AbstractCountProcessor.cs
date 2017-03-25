@@ -1,19 +1,10 @@
-﻿using System;
+﻿using CQS.Genome.Mirna;
+using CQS.Genome.Sam;
+using CQS.Genome.SmallRNA;
+using RCPA;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using RCPA;
-using System.IO;
-using CQS.Genome.Sam;
-using CQS.Genome.Gtf;
-using Bio.IO.SAM;
-using CQS.Genome.Bed;
-using CQS.Genome.Fastq;
-using System.Collections.Concurrent;
-using System.Threading;
-using RCPA.Seq;
-using CQS.Genome.Mirna;
-using CQS.Genome.SmallRNA;
 
 namespace CQS.Genome.Mapping
 {
@@ -83,10 +74,7 @@ namespace CQS.Genome.Mapping
 
     protected virtual void FilterAlignedItems(List<SAMAlignedItem> result)
     {
-      if (result.Any(l => l.Qname.Contains(SmallRNAConsts.NTA_TAG)))
-      {
-        result.ForEach(l => l.OriginalQname = l.Qname.StringBefore(SmallRNAConsts.NTA_TAG));
-      }
+      SmallRNAUtils.InitializeSmallRnaNTA(result);
 
       result.ForEach(l =>
       {

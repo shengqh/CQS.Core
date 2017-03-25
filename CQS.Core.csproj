@@ -541,7 +541,6 @@
     <Compile Include="Genome\Mapping\MappedCountItem.cs" />
     <Compile Include="Genome\Mapping\MappedPositionBuilderCommand.cs" />
     <Compile Include="Genome\Mapping\MappedPositionBuilder.cs" />
-    <Compile Include="Genome\Mirna\SmallRNAUtils.cs" />
     <Compile Include="Genome\Pileup\PileupCountBuilderOptions.cs" />
     <Compile Include="ILineFile.cs" />
     <Compile Include="InputFileLineReader.cs" />
