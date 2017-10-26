@@ -25,11 +25,11 @@ namespace CQS.Genome.Mapping
     [Option('c', "countFile", Required = false, MetaValue = "FILE", HelpText = "Sequence/count file")]
     public string CountFile { get; set; }
 
-    [Option('n', "perfectNameFile", Required = false, MetaValue = "FILE", HelpText = "Perfect matched query names (depercated)")]
-    public string PerfectNameFile { get; set; }
-
     [Option('m', "mergeChromosomesByReads", Required = false, MetaValue = "BOOLEAN", HelpText = "Merge chromosomes by mapped reads")]
     public bool MergeChromosomesByReads { get; set; }
+
+    [Option("chromosomePattern", Required = false, DefaultValue ="", MetaValue = "String", HelpText = "Only count chromosome with pattern")]
+    public string ChromosomePattern { get; set; }
 
     [Option("keepChrInName", Required = false, MetaValue = "BOOLEAN", HelpText = "Keep 'chr' in chromosome name")]
     public bool KeepChrInName { get; set; }

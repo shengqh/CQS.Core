@@ -36,7 +36,7 @@ namespace CQS.Genome.Sam
 
     public virtual string GetMismatchPositions(string[] parts)
     {
-      return GetOptionValue(parts, "MD:Z:");
+      return GetOptionValue(parts, "MD:Z:", false);
     }
 
     public virtual int GetNumberOfMismatch(string[] parts)
@@ -162,7 +162,7 @@ namespace CQS.Genome.Sam
 
   public class StarFormat : SAMFormat
   {
-    public StarFormat() : base("Star", false, "NM", "AS") { }
+    public StarFormat() : base("Star", false, "nM", "AS") { }
 
     public override int CompareScore(double score1, double score2)
     {

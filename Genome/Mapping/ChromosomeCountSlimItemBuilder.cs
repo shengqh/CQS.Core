@@ -67,6 +67,18 @@ namespace CQS.Genome.Mapping
       var queries = new Dictionary<string, SAMChromosomeItem>();
       var chromosomes = new Dictionary<string, ChromosomeCountSlimItem>();
 
+      Regex chromosomeRegex = null;
+      Func<string, bool> acceptChromosome;
+      if (string.IsNullOrEmpty(options.ChromosomePattern))
+      {
+        acceptChromosome = m => true;
+      }
+      else
+      {
+        chromosomeRegex = new Regex(options.ChromosomePattern);
+        acceptChromosome = m => chromosomeRegex.Match(m).Success;
+      }
+
       Progress.SetMessage("Parsing alignment file " + fileName + " ...");
       using (var sr = SAMFactory.GetReader(fileName, true))
       {
@@ -100,6 +112,12 @@ namespace CQS.Genome.Mapping
             continue;
           }
 
+          var seqname = GetName(parts[SAMFormatConst.RNAME_INDEX]);
+          if (!acceptChromosome(seqname))
+          {
+            continue;
+          }
+
           var qname = parts[SAMFormatConst.QNAME_INDEX];
           SAMChromosomeItem query;
           if (!queries.TryGetValue(qname, out query))
@@ -118,7 +136,6 @@ namespace CQS.Genome.Mapping
             }
           }
 
-          var seqname = GetName(parts[SAMFormatConst.RNAME_INDEX]);
           query.Chromosomes.Add(seqname);
 
           ChromosomeCountSlimItem item;
