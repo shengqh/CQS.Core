@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using CommandLine;
 using RCPA.Commandline;
-using CommandLine;
 using System.IO;
-using System.Text.RegularExpressions;
 
 namespace CQS
 {
@@ -39,6 +34,9 @@ namespace CQS
 
     [Option('m', "mapFile", Required = false, MetaValue = "FILE", HelpText = "key/name map file, the first two columns are key and name. The key should be equals to the name extract from file")]
     public string MapFile { get; set; }
+
+    [Option('o', "outputFile", Required = false, MetaValue = "FILE", HelpText = "outputFile")]
+    public string OutputFile { get; set; }
 
     public override bool PrepareOptions()
     {

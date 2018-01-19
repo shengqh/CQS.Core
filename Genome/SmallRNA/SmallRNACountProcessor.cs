@@ -1,13 +1,11 @@
-﻿using System;
+﻿using CQS.Genome.Feature;
+using CQS.Genome.Mapping;
+using CQS.Genome.Sam;
+using RCPA.Utils;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using CQS.Genome.Fastq;
-using CQS.Genome.Sam;
-using CQS.Genome.Mirna;
-using CQS.Genome.Feature;
-using CQS.Genome.Mapping;
-using RCPA.Utils;
 
 namespace CQS.Genome.SmallRNA
 {
@@ -21,6 +19,7 @@ namespace CQS.Genome.SmallRNA
       noPaneltyMutations['C'] = 'T';
       noPaneltyMutations['G'] = 'A';
     }
+
 
     public override IEnumerable<string> Process()
     {
@@ -48,7 +47,7 @@ namespace CQS.Genome.SmallRNA
       }
 
       //parsing reads
-      List<string> totalQueries;
+      List<QueryInfo> totalQueries;
       var reads = ParseCandidates(options.InputFiles, resultFilename, out totalQueries);
       if (reads.Count == 0)
       {
@@ -58,28 +57,6 @@ namespace CQS.Genome.SmallRNA
       var hasMicroRnaNTA = reads.Any(l => l.NTA.Length > 0);
 
       var hasTrnaNTA = hasMicroRnaNTA && File.Exists(options.CCAFile);
-
-      int totalQueryCount;
-      int totalMappedCount;
-
-      if (File.Exists(options.CountFile))
-      {
-        totalQueryCount = Counts.GetTotalCount();
-        var queryInCount = (from q in Counts.Counts.Keys select q.StringBefore(SmallRNAConsts.NTA_TAG)).Distinct().Count();
-        if (queryInCount == totalQueries.Count)
-        {
-          totalMappedCount = (from q in reads select q.Qname.StringBefore(SmallRNAConsts.NTA_TAG)).Distinct().Sum(m => Counts.GetCount(m));
-        }
-        else
-        {
-          totalMappedCount = (from q in totalQueries select q.StringBefore(SmallRNAConsts.NTA_TAG)).Distinct().Sum(m => Counts.GetCount(m));
-        }
-      }
-      else
-      {
-        totalQueryCount = totalQueries.Count;
-        totalMappedCount = (from q in reads select q.Qname.StringBefore(SmallRNAConsts.NTA_TAG)).Distinct().Count();
-      }
 
       if (!options.NoCategory)
       {
@@ -93,93 +70,87 @@ namespace CQS.Genome.SmallRNA
         }
       }
 
-      var allmapped = new List<FeatureItemGroup>();
+      var featureGroups = new List<FeatureItemGroup>();
       var mappedfile = resultFilename + ".mapped.xml";
       if (File.Exists(mappedfile) && options.NotOverwrite)
       {
         Progress.SetMessage("Reading mapped feature items...");
-        allmapped = new FeatureItemGroupXmlFormat().ReadFromFile(mappedfile);
-
-        WriteInfoFile(result, resultFilename, totalMappedCount, totalQueryCount, allmapped);
-        result.Add(mappedfile);
-        Progress.End();
-
-        return result;
-      }
-
-      Progress.SetMessage("Mapping feature items...");
-
-      //mapping reads to features based on miRNA, tRNA and other smallRNA priority
-      MapReadToSequenceRegion(featureLocations, reads, cca, hasMicroRnaNTA, hasTrnaNTA);
-
-      var featureMapped = featureLocations.GroupByName();
-      featureMapped.RemoveAll(m => m.GetEstimatedCount() == 0);
-      featureMapped.ForEach(m => m.CombineLocations());
-
-      if (options.NoCategory)
-      {
-        allmapped = featureMapped.GroupByIdenticalQuery();
+        featureGroups = new FeatureItemGroupXmlFormat().ReadFromFile(mappedfile);
       }
       else
       {
-        var mirnaGroups = featureMapped.Where(m => m.Name.StartsWith(SmallRNAConsts.miRNA)).GroupBySequence();
-        if (mirnaGroups.Count > 0)
+        Progress.SetMessage("Mapping feature items...");
+
+        //mapping reads to features based on miRNA, tRNA and other smallRNA priority
+        MapReadToSequenceRegion(featureLocations, reads, cca, hasMicroRnaNTA, hasTrnaNTA);
+
+        var featureMapped = featureLocations.GroupByName();
+        featureMapped.RemoveAll(m => m.GetEstimatedCount() == 0);
+        featureMapped.ForEach(m => m.CombineLocations());
+
+        if (options.NoCategory)
         {
-          OrderFeatureItemGroup(mirnaGroups);
-
-          Progress.SetMessage("writing miRNA count ...");
-
-          var mirnaCountFile = Path.ChangeExtension(resultFilename, "." + SmallRNAConsts.miRNA + ".count");
-          new SmallRNACountMicroRNAWriter(options.Offsets).WriteToFile(mirnaCountFile, mirnaGroups);
-          result.Add(mirnaCountFile);
-          allmapped.AddRange(mirnaGroups);
-
-          var positionFile = Path.ChangeExtension(options.OutputFile, SmallRNAConsts.miRNA + ".position");
-          SmallRNAMappedPositionBuilder.Build(mirnaGroups, Path.GetFileNameWithoutExtension(options.OutputFile), positionFile, m => m[0].Name.StringAfter(":"));
+          featureGroups = featureMapped.GroupByIdenticalQuery();
         }
-        mirnaGroups.Clear();
-
-        var trnaCodeGroups = featureMapped.Where(m => m.Name.StartsWith(SmallRNAConsts.tRNA)).GroupByFunction(SmallRNAUtils.GetTrnaAnticodon, false);
-        if (trnaCodeGroups.Count > 0)
+        else
         {
-          OrderFeatureItemGroup(trnaCodeGroups);
+          var mirnaGroups = featureMapped.Where(m => m.Name.StartsWith(SmallRNAConsts.miRNA)).GroupBySequence();
+          if (mirnaGroups.Count > 0)
+          {
+            OrderFeatureItemGroup(mirnaGroups);
 
-          Progress.SetMessage("writing tRNA code count ...");
-          var trnaCodeCountFile = Path.ChangeExtension(resultFilename, "." + SmallRNAConsts.tRNA + ".count");
+            Progress.SetMessage("writing miRNA count ...");
 
-          new FeatureItemGroupCountWriter(m => m.DisplayNameWithoutCategory).WriteToFile(trnaCodeCountFile, trnaCodeGroups);
-          result.Add(trnaCodeCountFile);
+            var mirnaCountFile = Path.ChangeExtension(resultFilename, "." + SmallRNAConsts.miRNA + ".count");
+            new SmallRNACountMicroRNAWriter(options.Offsets).WriteToFile(mirnaCountFile, mirnaGroups);
+            result.Add(mirnaCountFile);
+            featureGroups.AddRange(mirnaGroups);
 
-          allmapped.AddRange(trnaCodeGroups);
+            var positionFile = Path.ChangeExtension(options.OutputFile, SmallRNAConsts.miRNA + ".position");
+            SmallRNAMappedPositionBuilder.Build(mirnaGroups, Path.GetFileNameWithoutExtension(options.OutputFile), positionFile, m => m[0].Name.StringAfter(":"));
+          }
+          mirnaGroups.Clear();
 
-          var positionFile = Path.ChangeExtension(options.OutputFile, SmallRNAConsts.tRNA + ".position");
-          SmallRNAMappedPositionBuilder.Build(trnaCodeGroups, Path.GetFileName(options.OutputFile), positionFile, m => m[0].Name.StringAfter(":"));
+          var trnaCodeGroups = featureMapped.Where(m => m.Name.StartsWith(SmallRNAConsts.tRNA)).GroupByFunction(SmallRNAUtils.GetTrnaAnticodon, false);
+          if (trnaCodeGroups.Count > 0)
+          {
+            OrderFeatureItemGroup(trnaCodeGroups);
+
+            Progress.SetMessage("writing tRNA code count ...");
+            var trnaCodeCountFile = Path.ChangeExtension(resultFilename, "." + SmallRNAConsts.tRNA + ".count");
+
+            new FeatureItemGroupCountWriter(m => m.DisplayNameWithoutCategory).WriteToFile(trnaCodeCountFile, trnaCodeGroups);
+            result.Add(trnaCodeCountFile);
+
+            featureGroups.AddRange(trnaCodeGroups);
+
+            var positionFile = Path.ChangeExtension(options.OutputFile, SmallRNAConsts.tRNA + ".position");
+            SmallRNAMappedPositionBuilder.Build(trnaCodeGroups, Path.GetFileName(options.OutputFile), positionFile, m => m[0].Name.StringAfter(":"));
+          }
+          trnaCodeGroups.Clear();
+
+          var otherFeatures = featureMapped.Where(m => !m.Name.StartsWith(SmallRNAConsts.miRNA) && !m.Name.StartsWith(SmallRNAConsts.tRNA)).ToList();
+          var exportBiotypes = SmallRNAUtils.GetOutputBiotypes(options);
+          foreach (var biotype in exportBiotypes)
+          {
+            WriteGroups(result, resultFilename, featureGroups, otherFeatures, biotype);
+          }
+
+          var leftFeatures = otherFeatures.Where(l => !exportBiotypes.Any(b => l.Name.StartsWith(b))).ToList();
+          WriteGroups(result, resultFilename, featureGroups, leftFeatures, null);
         }
-        trnaCodeGroups.Clear();
 
-        var otherFeatures = featureMapped.Where(m => !m.Name.StartsWith(SmallRNAConsts.miRNA) && !m.Name.StartsWith(SmallRNAConsts.tRNA)).ToList();
-        var exportBiotypes = SmallRNAUtils.GetOutputBiotypes(options);
-        foreach (var biotype in exportBiotypes)
-        {
-          WriteGroups(result, resultFilename, allmapped, otherFeatures, biotype);
-        }
+        Progress.SetMessage("writing all smallRNA count ...");
+        new FeatureItemGroupCountWriter().WriteToFile(resultFilename, featureGroups);
+        result.Add(resultFilename);
 
-        var leftFeatures = otherFeatures.Where(l => !exportBiotypes.Any(b => l.Name.StartsWith(b))).ToList();
-        WriteGroups(result, resultFilename, allmapped, leftFeatures, null);
+        Progress.SetMessage("writing mapping details...");
+        new FeatureItemGroupXmlFormatHand().WriteToFile(mappedfile, featureGroups);
       }
 
-      Progress.SetMessage("writing all smallRNA count ...");
-      new FeatureItemGroupCountWriter().WriteToFile(resultFilename, allmapped);
-      result.Add(resultFilename);
-
-      WriteInfoFile(result, resultFilename, totalMappedCount, totalQueryCount, allmapped);
-
-      Progress.SetMessage("writing mapping details...");
-      new FeatureItemGroupXmlFormatHand().WriteToFile(mappedfile, allmapped);
-      Progress.SetMessage("writing mapping details done.");
-
+      var readSummary = GetReadSummary(featureGroups, reads, totalQueries);
+      WriteInfoFile(result, resultFilename, readSummary, featureGroups);
       result.Add(mappedfile);
-
       Progress.End();
 
       return result;
@@ -223,10 +194,10 @@ namespace CQS.Genome.SmallRNA
       groups.Clear();
     }
 
-    private void WriteInfoFile(List<string> result, string resultFilename, int totalMappedCount, int totalQueryCount, List<FeatureItemGroup> allmapped)
+    private void WriteInfoFile(List<string> result, string resultFilename, ReadSummary readSummary, List<FeatureItemGroup> allmapped)
     {
       var infoFile = Path.ChangeExtension(resultFilename, ".info");
-      WriteSummaryFile(allmapped, totalQueryCount, totalMappedCount, infoFile);
+      WriteSummaryFile(infoFile, readSummary, allmapped);
       result.Add(infoFile);
     }
 
@@ -285,6 +256,25 @@ namespace CQS.Genome.SmallRNA
       {
         mapper.MapReadToFeatureAndRemoveFromMap(mapped, chrStrandMatchedMap);
       }
+    }
+
+    protected override void WriteOptions(StreamWriter sw)
+    {
+      base.WriteOptions(sw);
+      if (!string.IsNullOrEmpty(options.CCAFile))
+      {
+        sw.WriteLine("#ccaFile\t{0}", options.CCAFile);
+      }
+      if (!string.IsNullOrEmpty(options.CountFile))
+      {
+        sw.WriteLine("#countFile\t{0}", options.CountFile);
+      }
+
+      sw.WriteLine("#noCategory\t{0}", options.NoCategory);
+      sw.WriteLine("#exportYRNA\t{0}", options.ExportYRNA);
+      sw.WriteLine("#exportSnRNA\t{0}", options.ExportSnRNA);
+      sw.WriteLine("#exportSnoRNA\t{0}", options.ExportSnoRNA);
+      sw.WriteLine("#newMethod\t{0}", options.NewMethod);
     }
   }
 }

@@ -39,9 +39,10 @@ namespace CQS.Genome.Mapping
       result.Add(resultFilename);
 
       //parsing reads
-      var totalQueries = new List<string>();
+      List<QueryInfo> totalQueries;
       var reads = ParseCandidates(options.InputFile, resultFilename, out totalQueries);
-      int totalReadCount = totalQueries.Sum(l => Counts.GetCount(l));
+      int totalReadCount = (from q in totalQueries
+                            select q.Name.StringBefore(SmallRNAConsts.NTA_TAG)).Distinct().Sum(l => Counts.GetCount(l));
 
       if (reads.Count > 0 && reads[0].Qname.Contains(SmallRNAConsts.NTA_TAG))
       {

@@ -99,48 +99,85 @@ namespace CQS
                  select k).ToList();
       }
 
-      var result = new List<string> { "files => {" };
-      foreach (var name in names)
+      if (!string.IsNullOrEmpty(_options.OutputFile))
       {
-        result.Add(string.Format("  \"{0}\" => [{1}],", name, (from l in map[name] select '"' + Path.GetFullPath(l) + '"').Merge(", ")));
-      }
-      result.Add("},");
+        Progress.SetMessage("Output to file {0}", _options.OutputFile);
+        using (var sw = new StreamWriter(_options.OutputFile))
+        {
+          sw.Write("Name\tFile");
+          if (!string.IsNullOrEmpty(_options.GroupPattern))
+          {
+            sw.Write("\tGroup");
+          }
+          sw.WriteLine();
 
-      if (string.IsNullOrEmpty(_options.GroupPattern))
+          foreach (var name in names)
+          {
+            sw.Write("{0}\t{1}", name, (from l in map[name] select Path.GetFullPath(l)).Merge(","));
+            if (!string.IsNullOrEmpty(_options.GroupPattern))
+            {
+              var match = Regex.Match(name, _options.GroupPattern);
+              if (!match.Success)
+              {
+                throw new Exception(string.Format("Cannot find pattern {0} in file {1}", _options.NamePattern, name));
+              }
+
+              var values = new List<string>();
+              for (var i = 1; i < match.Groups.Count; i++)
+              {
+                values.Add(match.Groups[i].Value);
+              }
+              sw.Write("\t{0}", values.Merge(""));
+            }
+            sw.WriteLine();
+          }
+        }
+        return new[] { _options.OutputFile };
+      }
+      else {
+        var result = new List<string> { "files => {" };
+
+        foreach (var name in names)
+        {
+          result.Add(string.Format("  \"{0}\" => [{1}],", name, (from l in map[name] select '"' + Path.GetFullPath(l) + '"').Merge(", ")));
+        }
+        result.Add("},");
+
+        if (string.IsNullOrEmpty(_options.GroupPattern))
+          return result;
+
+        var groupmap = names.GroupBy(n =>
+        {
+          var match = Regex.Match(n, _options.GroupPattern);
+          if (!match.Success)
+          {
+            throw new Exception(string.Format("Cannot find pattern {0} in file {1}", _options.NamePattern, n));
+          }
+
+          var values = new List<string>();
+          for (var i = 1; i < match.Groups.Count; i++)
+          {
+            values.Add(match.Groups[i].Value);
+          }
+          return values.Merge("");
+
+        });
+
+        var gnames = (from k in groupmap
+                      orderby k.Key
+                      select k).ToList();
+
+        result.Add("groups => {");
+        foreach (var name in gnames)
+        {
+          result.Add(string.Format("  \"{0}\" => [{1}],", name.Key, (from l in name
+                                                                     orderby l
+                                                                     select '"' + l + '"').Merge(", ")));
+        }
+        result.Add("},");
+
         return result;
-
-      var groupmap = names.GroupBy(n =>
-      {
-        var match = Regex.Match(n, _options.GroupPattern);
-        if (!match.Success)
-        {
-          throw new Exception(string.Format("Cannot find pattern {0} in file {1}", _options.NamePattern, n));
-        }
-
-
-        var values = new List<string>();
-        for (var i = 1; i < match.Groups.Count; i++)
-        {
-          values.Add(match.Groups[i].Value);
-        }
-        return values.Merge("");
-
-      });
-
-      var gnames = (from k in groupmap
-                    orderby k.Key
-                    select k).ToList();
-
-      result.Add("groups => {");
-      foreach (var name in gnames)
-      {
-        result.Add(string.Format("  \"{0}\" => [{1}],", name.Key, (from l in name
-                                                                   orderby l
-                                                                   select '"' + l + '"').Merge(", ")));
       }
-      result.Add("},");
-
-      return result;
     }
 
     private void DoGetFiles(string directory, List<string> files)

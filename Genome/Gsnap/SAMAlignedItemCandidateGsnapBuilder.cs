@@ -52,11 +52,11 @@ namespace CQS.Genome.Gsnap
     }
 
     private static Regex locReg = new Regex(@"([+-])(.+):(\d+)\.\.(\d+)");
-    protected override List<T> DoBuild<T>(string fileName, out HashSet<string> totalQueryNames)
+    protected override List<T> DoBuild<T>(string fileName, out List<QueryInfo> totalQueries)
     {
       var result = new List<T>();
 
-      totalQueryNames = new HashSet<string>();
+      totalQueries = new List<QueryInfo>();
 
       using (var sr = StreamUtils.GetReader(fileName))
       {
@@ -93,7 +93,9 @@ namespace CQS.Genome.Gsnap
 
           var parts = line.Split('\t');
           var qname = parts[3];
-          totalQueryNames.Add(qname);
+          var qi = new QueryInfo(qname);
+
+          totalQueries.Add(qi);
 
           int matchCount = int.Parse(parts[1]);
           if (matchCount == 0)
@@ -102,6 +104,8 @@ namespace CQS.Genome.Gsnap
           }
 
           var seq = parts[0].Substring(1);
+          qi.Length = seq.Length;
+
           //too short
           if (seq.Length < _options.MinimumReadLength)
           {
@@ -139,6 +143,7 @@ namespace CQS.Genome.Gsnap
             }
 
             var mismatch = matchgenome.Count(m => Char.IsLower(m));
+            qi.Mismatch = mismatch;
             if (mismatch > _options.MaximumMismatch)
             {
               continue;

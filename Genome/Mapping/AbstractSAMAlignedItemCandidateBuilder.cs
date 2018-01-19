@@ -36,14 +36,14 @@ namespace CQS.Genome.Mapping
       this._options = options;
     }
 
-    public virtual List<T> Build<T>(string fileName, out HashSet<string> totalQueryNames) where T : SAMAlignedItem, new()
+    public virtual List<T> Build<T>(string fileName, out List<QueryInfo> totalQueries) where T : SAMAlignedItem, new()
     {
-      var samlist = DoBuild<T>(fileName, out totalQueryNames);
+      var samlist = DoBuild<T>(fileName, out totalQueries);
 
       return DoAddCompleted(samlist);
     }
 
-    protected abstract List<T> DoBuild<T>(string fileName, out HashSet<string> totalQueryNames) where T : SAMAlignedItem, new();
+    protected abstract List<T> DoBuild<T>(string fileName, out List<QueryInfo> totalQueries) where T : SAMAlignedItem, new();
 
     protected virtual List<T> DoAddCompleted<T>(List<T> samlist) where T : SAMAlignedItem, new()
     {

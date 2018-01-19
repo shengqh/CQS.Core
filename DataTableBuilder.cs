@@ -173,28 +173,61 @@ namespace CQS
         if (File.Exists(_options.MapFile))
         {
           bool hasLength = false;
+          Dictionary<string,string> geneTypeMap = new Dictionary<string, string>();
           using (var sr = new StreamReader(_options.MapFile))
           {
             var line = sr.ReadLine();
             if (line != null)
             {
               hasLength = line.Contains("length");
+              var geneTypeIndex = Array.IndexOf(line.Split('\t'), "gene_biotype");
+              if(geneTypeIndex != -1)
+              {
+                while((line=sr.ReadLine()) != null)
+                {
+                  var parts = line.Split('\t');
+                  geneTypeMap[parts[0]] = parts[geneTypeIndex];
+                }
+              }
             }
           }
 
           if (hasLength)
           {
             Progress.SetMessage("Calculating FPKM values...");
+            var outputFile = Path.ChangeExtension(_options.OutputFile, ".fpkm.tsv");
             new HTSeqCountToFPKMCalculator(new HTSeqCountToFPKMCalculatorOptions()
             {
               InputFile = _options.OutputFile,
               GeneLengthFile = _options.MapFile,
               KeyRegex = _options.KeyRegex,
-              OutputFile = Path.ChangeExtension(_options.OutputFile, ".fpkm.tsv")
+              OutputFile = outputFile
             })
             {
               Progress = this.Progress
             }.Process();
+
+            if(geneTypeMap.Count > 0)
+            {
+              var proteinCodingFile = Path.ChangeExtension(outputFile, ".proteincoding.tsv");
+              using(var sr = new StreamReader(outputFile))
+              {
+                using(var sw = new StreamWriter(proteinCodingFile))
+                {
+                  string line = sr.ReadLine();
+                  sw.WriteLine(line);
+                  while ((line = sr.ReadLine()) != null)
+                  {
+                    var geneid = line.StringBefore("\t");
+                    string geneType;
+                    if (geneTypeMap.TryGetValue(geneid, out geneType) && geneType.Equals("protein_coding"))
+                    {
+                      sw.WriteLine(line);
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }

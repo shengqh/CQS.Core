@@ -26,13 +26,13 @@ namespace CQS.Genome.Mapping
       return true;
     }
 
-    protected override List<T> DoBuild<T>(string fileName, out HashSet<string> totalQueryNames)
+    protected override List<T> DoBuild<T>(string fileName, out List<QueryInfo> totalQueries)
     {
       var result = new List<T>();
 
       _format = _options.GetSAMFormat();
 
-      totalQueryNames = new HashSet<string>();
+      totalQueries = new List<QueryInfo>();
 
       using (var sr = SAMFactory.GetReader(fileName, true))
       {
@@ -56,16 +56,36 @@ namespace CQS.Genome.Mapping
 
           count++;
           var qname = line.StringBefore("\t");
-          totalQueryNames.Add(qname);
+          //Console.WriteLine("line = {0}", line);
+          //Console.WriteLine("query = {0}", qname);
+
+          var qi = new QueryInfo(qname);
+          totalQueries.Add(qi);
+
+          var parts = line.Split('\t');
+          SAMFlags flag = (SAMFlags)int.Parse(parts[SAMFormatConst.FLAG_INDEX]);
+          //unmatched
+          if (flag.HasFlag(SAMFlags.UnmappedQuery))
+          {
+            continue;
+          }
+
+          //too many mismatchs
+          var mismatchCount = _format.GetNumberOfMismatch(parts);
+          var seq = parts[SAMFormatConst.SEQ_INDEX];
+
+          qi.Mismatch = mismatchCount;
+          qi.Length = seq.Length;
+
+          if (mismatchCount > _options.MaximumMismatch)
+          {
+            continue;
+          }
 
           if (!AcceptQueryName(qname))
           {
             continue;
           }
-
-          var parts = line.Split('\t');
-
-          var seq = parts[SAMFormatConst.SEQ_INDEX];
 
           //too short
           if (seq.Length < _options.MinimumReadLength)
@@ -79,26 +99,12 @@ namespace CQS.Genome.Mapping
             continue;
           }
 
-          SAMFlags flag = (SAMFlags)int.Parse(parts[SAMFormatConst.FLAG_INDEX]);
-          //unmatched
-          if (flag.HasFlag(SAMFlags.UnmappedQuery))
-          {
-            continue;
-          }
-
           var cigar = parts[SAMFormatConst.CIGAR_INDEX];
           ////insertion/deletion
           //if (cigar.Any(m => m == 'I' || m == 'D'))
           //{
           //  continue;
           //}
-
-          //too many mismatchs
-          var mismatchCount = _format.GetNumberOfMismatch(parts);
-          if (mismatchCount > _options.MaximumMismatch)
-          {
-            continue;
-          }
 
           bool isReversed = flag.HasFlag(SAMFlags.QueryOnReverseStrand);
           char strand;

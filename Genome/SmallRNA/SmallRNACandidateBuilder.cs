@@ -21,7 +21,7 @@ namespace CQS.Genome.SmallRNA
       return rangeQueries.Contains(qname);
     }
 
-    protected override List<T> DoBuild<T>(string fileName, out HashSet<string> totalQueryNames)
+    protected override List<T> DoBuild<T>(string fileName, out List<QueryInfo> totalQueries)
     {
       Progress.SetMessage("Find queries overlapped with coordinates...");
       rangeQueries = new HashSet<string>();
@@ -87,7 +87,7 @@ namespace CQS.Genome.SmallRNA
       }
       Progress.SetMessage("{0} queries overlaped with coordinates.", rangeQueries.Count);
 
-      return base.DoBuild<T>(fileName, out totalQueryNames);
+      return base.DoBuild<T>(fileName, out totalQueries);
     }
   }
 }

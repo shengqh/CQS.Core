@@ -6,19 +6,46 @@ using System.IO;
 
 namespace CQS.Genome.SmallRNA
 {
-  public class SmallRNACountMap :CountMap
+  public class SmallRNACountItem
   {
-    public SmallRNACountMap() {}
+    public string Qname { get; set; }
+    public int SequenceLength { get; set; }
+    public int Count { get; set; }
+  }
 
-    public SmallRNACountMap(string countFile):base(countFile){}
+  public class SmallRNACountMap : CountMap
+  {
+    public Dictionary<string, SmallRNACountItem> ItemMap { get; private set; }
+
+    public SmallRNACountMap() { }
+
+    public SmallRNACountMap(string countFile) : base(countFile) { }
 
     protected override void ReadCountFile(string countFile)
     {
-      base.ReadCountFile(countFile);
-      var list = Counts.ToList();
+      this.ItemMap = new Dictionary<string, SmallRNACountItem>();
+      var list = new List<SmallRNACountItem>();
+      using (var sr = new StreamReader(countFile))
+      {
+        string line = sr.ReadLine();
+        while ((line = sr.ReadLine()) != null)
+        {
+          var parts = line.Split('\t');
+          list.Add(new SmallRNACountItem()
+          {
+            Qname = parts[0],
+            Count = int.Parse(parts[1]),
+            SequenceLength = parts[2].Length
+          });
+        }
+      }
+
       foreach (var l in list)
       {
-        Counts[l.Key.StringBefore(SmallRNAConsts.NTA_TAG)] = l.Value;
+        var originalQueryName = l.Qname.StringBefore(SmallRNAConsts.NTA_TAG);
+        Counts[l.Qname] = l.Count;
+        Counts[originalQueryName] = l.Count;
+        ItemMap[originalQueryName] = l;
       }
     }
 

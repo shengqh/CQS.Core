@@ -32,13 +32,13 @@ namespace CQS.Genome.Mapping
       this._filter = filter;
     }
 
-    protected override List<T> DoBuild<T>(string fileName, out HashSet<string> totalQueryNames) 
+    protected override List<T> DoBuild<T>(string fileName, out List<QueryInfo> totalQueries) 
     {
       var result = new List<T>();
 
       _format = _options.GetSAMFormat();
 
-      totalQueryNames = new HashSet<string>();
+      totalQueries = new List<QueryInfo>();
 
       using (var sr = SAMFactory.GetReader(fileName, true))
       {
@@ -60,12 +60,8 @@ namespace CQS.Genome.Mapping
           var parts = line.Split('\t');
 
           var qname = parts[SAMFormatConst.QNAME_INDEX];
-          totalQueryNames.Add(qname);
-
-          if (!_filter.AcceptQueryName(qname))
-          {
-            continue;
-          }
+          var qi = new QueryInfo(qname);
+          totalQueries.Add(qi);
 
           SAMFlags flag = (SAMFlags)int.Parse(parts[SAMFormatConst.FLAG_INDEX]);
           if (!_filter.AcceptFlags(flag))
@@ -73,7 +69,23 @@ namespace CQS.Genome.Mapping
             continue;
           }
 
+          var mismatchCount = _format.GetNumberOfMismatch(parts);
           var seq = parts[SAMFormatConst.SEQ_INDEX];
+
+          qi.Mismatch = mismatchCount;
+          qi.Length = seq.Length;
+
+          //too many mismatchs
+          if (!_filter.AcceptMismatch(mismatchCount))
+          {
+            continue;
+          }
+
+          if (!_filter.AcceptQueryName(qname))
+          {
+            continue;
+          }
+
           if (!_filter.AcceptLength(seq.Length))
           {
             continue;
@@ -81,13 +93,6 @@ namespace CQS.Genome.Mapping
 
           var cigar = parts[SAMFormatConst.CIGAR_INDEX];
           if (!_filter.AcceptCigar(cigar))
-          {
-            continue;
-          }
-
-          //too many mismatchs
-          var mismatchCount = _format.GetNumberOfMismatch(parts);
-          if (!_filter.AcceptLength(mismatchCount))
           {
             continue;
           }

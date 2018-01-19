@@ -14,6 +14,7 @@ namespace CQS.Genome.SmallRNA
     public const double DEFAULT_MinimumOverlapPercentage = 0.9;
     public const int DEFAULT_MaxMismatchForLincRNA = 0;
     public const int DEFAULT_MinReadLengthForLincRNA = 20;
+    public const int DEFAULT_TooShortReadLength = 20;
 
     public static readonly string[] DEFAULT_Offsets = new string[] { "0", "1", "2" };
 
@@ -23,6 +24,7 @@ namespace CQS.Genome.SmallRNA
       this.MaximumMismatchForLongRNA = DEFAULT_MaxMismatchForLincRNA;
       this.MinimumReadLengthForLongRNA = DEFAULT_MinReadLengthForLincRNA;
       this.MaximumNoPenaltyMutationCount = DEFAULT_MaximumNoPenaltyMutationCount;
+      this.TooShortReadLength = DEFAULT_TooShortReadLength;
       this.OffsetStrings = DEFAULT_Offsets.ToList();
     }
 
@@ -61,6 +63,9 @@ namespace CQS.Genome.SmallRNA
 
     [Option("not_overwrite", DefaultValue = false, HelpText = "Don't overwrite existing result files")]
     public bool NotOverwrite { get; set; }
+
+    [Option("too_short_read_length", DefaultValue = DEFAULT_TooShortReadLength, HelpText = "The reads less than this number will be treated as too short if it's not mapped to smallRNA")]
+    public int TooShortReadLength { get; set; }
 
     public override bool PrepareOptions()
     {

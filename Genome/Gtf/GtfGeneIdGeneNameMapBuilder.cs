@@ -74,15 +74,14 @@ namespace CQS.Genome.Gtf
           throw new Exception(string.Format("No gene_name found in {0} and no id/name map file defined.", options.InputFile));
         }
 
+        sw.Write("gene_id\tgene_name\tlength\tchr\tstart\tend");
         bool bHasGeneBiotype = map.Values.Any(l => l.Any(m => m.Attributes.Contains("gene_biotype")));
-        if (bHasGeneBiotype)
+        bool bHasGeneType = map.Values.Any(l => l.Any(m => m.Attributes.Contains("gene_type")));
+        if (bHasGeneBiotype || bHasGeneType)
         {
-          sw.WriteLine("gene_id\tgene_name\tlength\tchr\tstart\tend\tgene_biotype");
+          sw.Write("\tgene_biotype");
         }
-        else
-        {
-          sw.WriteLine("gene_id\tgene_name\tlength\tchr\tstart\tend");
-        }
+        sw.WriteLine();
 
         foreach (var key in keys)
         {
@@ -105,14 +104,12 @@ namespace CQS.Genome.Gtf
             name = gtf.Attributes.StringAfter("gene_name \"").StringBefore("\"");
           }
 
-          if (bHasGeneBiotype)
+          sw.Write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}", key, name, gtfs.Sum(m => m.Length), gtfs.First().Seqname, gtfs.Min(l => l.Start), gtfs.Max(l => l.End));
+          if (bHasGeneBiotype || bHasGeneType)
           {
-            sw.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}", key, name, gtfs.Sum(m => m.Length), gtfs.First().Seqname, gtfs.Min(l => l.Start), gtfs.Max(l => l.End), biotype);
+            sw.Write("\t{0}", biotype);
           }
-          else
-          {
-            sw.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}\t{5}", key, name, gtfs.Sum(m => m.Length), gtfs.First().Seqname, gtfs.Min(l => l.Start), gtfs.Max(l => l.End));
-          }
+          sw.WriteLine();
           swBed.WriteLine("{0}\t{1}\t{2}\t{3}_{4}", gtfs.First().Seqname, gtfs.Min(l => l.Start), gtfs.Max(l => l.End), key.StringBefore("."), name);
         }
       }

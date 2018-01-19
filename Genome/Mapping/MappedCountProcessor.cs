@@ -38,17 +38,17 @@ namespace CQS.Genome.Mapping
       result.Add(resultFilename);
 
       //parsing reads
-      var totalQueries = new List<string>();
+      List<QueryInfo> totalQueries;
       var reads = ParseCandidates(options.InputFile, resultFilename, out totalQueries);
 
       int totalQueryCount;
-      if (reads.Count == totalQueries.Count && File.Exists(options.CountFile))
+      if (reads.Count == totalQueries.Count && File.Exists(options.CountFile)) //only mapped reads in bam file.
       {
         totalQueryCount = Counts.GetTotalCount();
       }
       else
       {
-        totalQueryCount = (from q in totalQueries select q.StringBefore(SmallRNAConsts.NTA_TAG)).Distinct().Sum(m => Counts.GetCount(m));
+        totalQueryCount = (from q in totalQueries select q.Name.StringBefore(SmallRNAConsts.NTA_TAG)).Distinct().Sum(m => Counts.GetCount(m));
       }
 
       if (reads.Count > 0 && reads[0].Qname.Contains(SmallRNAConsts.NTA_TAG))

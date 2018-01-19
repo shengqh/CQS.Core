@@ -162,6 +162,14 @@ namespace CQS.Genome.Sam
       }
     }
 
+    public int NumberOfMismatch
+    {
+      get
+      {
+        return Locations[0].NumberOfMismatch;
+      }
+    }
+
     public int QueryCount { get; set; }
 
     public int GetFeatureCount()

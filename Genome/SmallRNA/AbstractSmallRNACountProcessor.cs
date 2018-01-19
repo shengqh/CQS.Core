@@ -1,16 +1,24 @@
-﻿using System;
+﻿using CQS.Genome.Feature;
+using CQS.Genome.Mapping;
+using CQS.Genome.Sam;
+using RCPA.Utils;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using CQS.Genome.Fastq;
-using CQS.Genome.Sam;
-using CQS.Genome.Mirna;
-using CQS.Genome.Feature;
-using CQS.Genome.Mapping;
-using RCPA.Utils;
 
 namespace CQS.Genome.SmallRNA
 {
+  public class ReadSummary
+  {
+    public int TotalRead { get; set; }
+    public int FeatureRead { get; set; }
+    public int GenomeRead { get; set; }
+    public int TooShortRead { get; set; }
+    public int MappedRead { get { return FeatureRead + GenomeRead; } }
+    public int UnannotatedRead { get { return TotalRead - FeatureRead - GenomeRead - TooShortRead; } }
+  }
+
   public abstract class AbstractSmallRNACountProcessor<T> : AbstractCountProcessor<T> where T : AbstractSmallRNACountProcessorOptions
   {
     public AbstractSmallRNACountProcessor(T options)
@@ -97,7 +105,40 @@ namespace CQS.Genome.SmallRNA
       return chrStrandMatchedMap;
     }
 
-    protected void WriteSummaryFile(List<FeatureItemGroup> allmapped, int totalQueryCount, int totalMappedCount, string infoFile)
+    protected ReadSummary GetReadSummary(List<FeatureItemGroup> allmapped, List<SAMAlignedItem> reads, List<QueryInfo> totalQueries)
+    {
+      var result = new ReadSummary();
+
+      if (File.Exists(options.CountFile))
+      {
+        result.TotalRead = Counts.GetTotalCount();
+      }
+      else
+      {
+        result.TotalRead = totalQueries.Count;
+      }
+
+      var featureQueries = new HashSet<string>(from fig in allmapped
+                                               from fi in fig
+                                               from loc in fi.Locations
+                                               from sl in loc.SamLocations
+                                               select sl.SamLocation.Parent.OriginalQname);
+      result.FeatureRead = featureQueries.Sum(l => Counts.GetCount(l));
+
+      result.GenomeRead = (from query in totalQueries
+                           where (!query.Name.Contains(SmallRNAConsts.NTA_TAG) || query.Name.EndsWith(SmallRNAConsts.NTA_TAG))
+                           let originalQname = query.Name.StringBefore(SmallRNAConsts.NTA_TAG)
+                           where !featureQueries.Contains(originalQname) && query.Mismatch == 0 && query.Length >= options.TooShortReadLength
+                           select originalQname).Distinct().Sum(m => Counts.GetCount(m));
+
+      result.TooShortRead = (from read in Counts.ItemMap.Values
+                             where !featureQueries.Contains(read.Qname) && read.SequenceLength < 20
+                             select read.Count).Sum();
+
+      return result;
+    }
+
+    protected void WriteSummaryFile(string infoFile, ReadSummary readSummary, List<FeatureItemGroup> allmapped)
     {
       if (!File.Exists(infoFile) || !options.NotOverwrite)
       {
@@ -111,15 +152,12 @@ namespace CQS.Genome.SmallRNA
             sw.WriteLine("#countFile\t{0}", options.CountFile);
           }
 
-          sw.WriteLine("TotalReads\t{0}", totalQueryCount);
-
-          //The mapped reads is the union of tRNA and otherRNA alignment result
-          sw.WriteLine("MappedReads\t{0}", totalMappedCount);
-
-          var featureReadCount = (from feature in allmapped
-                                  from item in feature.GetAlignedLocations()
-                                  select item.Parent.OriginalQname).Distinct().Sum(l => Counts.GetCount(l));
-          sw.WriteLine("FeatureReads\t{0}", featureReadCount);
+          sw.WriteLine("TotalReads\t{0}", readSummary.TotalRead);
+          sw.WriteLine("MappedReads\t{0}", readSummary.MappedRead);
+          sw.WriteLine("FeatureReads\t{0}", readSummary.FeatureRead);
+          sw.WriteLine("GenomeReads\t{0}", readSummary.GenomeRead);
+          sw.WriteLine("TooShortReads\t{0}", readSummary.TooShortRead);
+          sw.WriteLine("UnannotatedReads\t{0}", readSummary.UnannotatedRead);
 
           //Output individual category
           foreach (var cat in SmallRNAConsts.Biotypes)
@@ -141,8 +179,12 @@ namespace CQS.Genome.SmallRNA
     {
       sw.WriteLine("#file\t{0}", options.InputFiles.Merge(","));
       sw.WriteLine("#coordinate\t{0}", options.CoordinateFile);
+      sw.WriteLine("#offsets\t{0}", options.OffsetStrings);
       sw.WriteLine("#minLength\t{0}", options.MinimumReadLength);
+      sw.WriteLine("#minimumReadLengthForLongRNA\t{0}", options.MinimumReadLengthForLongRNA);
       sw.WriteLine("#maxMismatchCount\t{0}", options.MaximumMismatch);
+      sw.WriteLine("#minimumOverlapPercentage\t{0}", options.MinimumOverlapPercentage);
+      sw.WriteLine("#tooShortReadLength\t{0}", options.TooShortReadLength);
     }
   }
 }
