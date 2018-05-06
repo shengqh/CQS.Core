@@ -40,7 +40,7 @@ namespace CQS.Genome.SmallRNA
 
     [Option("mature_trna", Required = false, MetaValue = "FILE", HelpText = "mature tRNA fasta file")]
     public string UcscMatureTrnaFastaFile { get; set; }
-    
+
     [Option('e', "ensembl", Required = false, MetaValue = "FILE", HelpText = "Input Ensembl GTF file")]
     public string EnsemblGtfFile { get; set; }
 
@@ -143,25 +143,30 @@ namespace CQS.Genome.SmallRNA
       return ParsingErrors.Count == 0;
     }
 
+    private XAttribute GetAttributeValue(string value)
+    {
+      return new XAttribute("value", string.IsNullOrEmpty(value) ? "" : value);
+    }
+
     public void Save(XElement parentNode)
     {
       Console.WriteLine("Saving parameters ...");
       parentNode.Add(
-        new XElement("param", new XAttribute("name", "miRNAFile"), new XAttribute("value", MiRBaseFile)),
-        new XElement("param", new XAttribute("name", "miRNAKey"), new XAttribute("value", MiRBaseKey)),
-        new XElement("param", new XAttribute("name", "tRNAFile"), new XAttribute("value", UcscTrnaFile)),
-        new XElement("param", new XAttribute("name", "matureTRNAFile"), new XAttribute("value", UcscMatureTrnaFastaFile)),
-        new XElement("param", new XAttribute("name", "rRNAFile"), new XAttribute("value", RRNAFile)),
-        new XElement("param", new XAttribute("name", "ensemblFile"), new XAttribute("value", EnsemblGtfFile)),
-        new XElement("param", new XAttribute("name", "fastaFile"), new XAttribute("value", FastaFile)),
-        new XElement("param", new XAttribute("name", "outputFile"), new XAttribute("value",OutputFile))
+        new XElement("param", new XAttribute("name", "miRNAFile"), GetAttributeValue(MiRBaseFile)),
+        new XElement("param", new XAttribute("name", "miRNAKey"), GetAttributeValue(MiRBaseKey)),
+        new XElement("param", new XAttribute("name", "tRNAFile"), GetAttributeValue(UcscTrnaFile)),
+        new XElement("param", new XAttribute("name", "matureTRNAFile"), GetAttributeValue(UcscMatureTrnaFastaFile)),
+        new XElement("param", new XAttribute("name", "rRNAFile"), GetAttributeValue(RRNAFile)),
+        new XElement("param", new XAttribute("name", "ensemblFile"), GetAttributeValue(EnsemblGtfFile)),
+        new XElement("param", new XAttribute("name", "fastaFile"), GetAttributeValue(FastaFile)),
+        new XElement("param", new XAttribute("name", "outputFile"), GetAttributeValue(OutputFile))
       );
     }
 
-    private string ParseParameter(XElement parentNode, string name, bool canBeEmpty=false)
+    private string ParseParameter(XElement parentNode, string name, bool canBeEmpty = false)
     {
       var ele = parentNode.FindFirstDescendant("param", "name", name);
-      if(ele == null)
+      if (ele == null)
       {
         if (canBeEmpty)
         {

@@ -48,7 +48,7 @@ namespace CQS.Genome.SmallRNA
         {
           var name = seq.Name;
           chrNameMap[name] = name;
-          chrNameMap[name.StringAfter("chr")] = seq.Name;
+          chrNameMap[name.StringAfter("chr")] = name;
         }
       }
 
@@ -96,11 +96,15 @@ namespace CQS.Genome.SmallRNA
         trnas = bedfile.ReadFromFile(options.UcscTrnaFile);
         trnas.ForEach(m => m.Seqname = m.Seqname.StringAfter("chr"));
 
-        //remove the tRNA not from 1-22, X and Y
-        trnas.RemoveAll(m => (m.Seqname.Length > 1) && !m.Seqname.All(n => char.IsDigit(n)));
+        var removed = trnas.Where(m => (m.Seqname.Length > 1) && !m.Seqname.All(n => char.IsDigit(n))).ToList();
+        if (removed.Count != trnas.Count)
+        {
+          //remove the tRNA not from 1-22, X and Y
+          trnas.RemoveAll(m => (m.Seqname.Length > 1) && !m.Seqname.All(n => char.IsDigit(n)));
 
-        //mitocondrom tRNA will be extracted from ensembl gtf file
-        trnas.RemoveAll(m => m.Seqname.Equals("M") || m.Seqname.Equals("MT"));
+          //mitocondrom tRNA will be extracted from ensembl gtf file
+          trnas.RemoveAll(m => m.Seqname.Equals("M") || m.Seqname.Equals("MT"));
+        }
 
         trnas.ForEach(m => m.Name = GetTRNAName(m.Name));
 
