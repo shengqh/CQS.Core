@@ -38,6 +38,9 @@ namespace CQS
     [Option('o', "outputFile", Required = false, MetaValue = "FILE", HelpText = "outputFile")]
     public string OutputFile { get; set; }
 
+    [Option('v', "verbose", HelpText = "Show debug information")]
+    public bool Verbose { get; set; }
+
     public override bool PrepareOptions()
     {
       if (!Directory.Exists(this.InputDir))
