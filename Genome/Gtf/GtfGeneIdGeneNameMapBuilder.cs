@@ -38,9 +38,12 @@ namespace CQS.Genome.Gtf
             Progress.SetMessage("{0} gtf item processed", count);
           }
           List<GtfItem> oldItems;
-          if (!map.TryGetValue(item.GeneId, out oldItems))
+
+          var id = string.IsNullOrEmpty(options.Key) ? item.GeneId : item.GetAttribute(options.Key);
+
+          if (!map.TryGetValue(id, out oldItems))
           {
-            map[item.GeneId] = new[] { item }.ToList();
+            map[id] = new[] { item }.ToList();
           }
           else
           {
@@ -69,7 +72,7 @@ namespace CQS.Genome.Gtf
       using (StreamWriter swBed = new StreamWriter(options.OutputFile + ".bed"))
       {
         bool bHasGeneName = map.Values.Any(l => l.Any(m => m.Attributes.Contains("gene_name")));
-        if (!bHasGeneName  && !File.Exists(options.MapFile))
+        if (!bHasGeneName && !File.Exists(options.MapFile))
         {
           throw new Exception(string.Format("No gene_name found in {0} and no id/name map file defined.", options.InputFile));
         }

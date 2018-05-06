@@ -16,6 +16,9 @@ namespace CQS.Genome.Gtf
     [Option('o', "OutputPrefix", Required = true, MetaValue = "FILE", HelpText = "Output map file")]
     public string OutputFile { get; set; }
 
+    [Option('k', "Key", MetaValue = "STRING", HelpText = "Use specific key (such like gene_name or transcript_id) instead of gene_id")]
+    public string Key { get; set; }
+
     [Option('m', "MapFile", Required = false, MetaValue = "FILE", HelpText = "Additional id/name map file")]
     public string MapFile { get; set; }
 

@@ -25,6 +25,7 @@ namespace CQS.Genome.Gtf
     private static Regex geneNameReg = new Regex("gene_name\\s\"(.+?)\"");
     private static Regex geneBiotypeReg = new Regex("gene_biotype\\s\"(.+?)\"");
     private static Regex geneTypeReg = new Regex("gene_type\\s\"(.+?)\"");
+    private static Dictionary<string, Regex> regMap = new Dictionary<string, Regex>();
 
     /// <summary>
     /// The name of the sequence. Commonly, this is the chromosome ID or contig ID. 
@@ -151,6 +152,18 @@ namespace CQS.Genome.Gtf
         ExonNumber = int.Parse(GetRegexValue(exonNumberReg, value, "0"));
         Name = GetRegexValue(geneNameReg, value);
       }
+    }
+
+    public string GetAttribute(string key)
+    {
+      Regex keyReg;
+      if (!regMap.TryGetValue(key, out keyReg))
+      {
+        keyReg = new Regex(key + "\\s\"(.+?)\"");
+        regMap[key] = keyReg;
+      }
+
+      return GetRegexValue(keyReg, Attributes);
     }
 
     public GtfItem()
