@@ -178,7 +178,7 @@ namespace CQS.Genome.SmallRNA
         result.Add(mappedfile);
       }
 
-      var readSummary = GetReadSummary(featureGroups, trnaReads.Union(otherRNAReads).ToList(), trnaQueries.Union(otherrnaQueries).ToList());
+      var readSummary = GetReadSummary(featureGroups, new HashSet<string>(), trnaReads.Union(otherRNAReads).ToList(), trnaQueries.Union(otherrnaQueries).ToList());
 
       var totalQueryCount = (from q in trnaQueries.Union(otherrnaQueries) select q.Name.StringBefore(SmallRNAConsts.NTA_TAG)).Distinct().Sum(m => Counts.GetCount(m));
       var totalMappedCount = (from q in trnaReads select q.OriginalQname).Union(from q in otherRNAReads select q.OriginalQname).Distinct().Sum(m => Counts.GetCount(m));

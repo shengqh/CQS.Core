@@ -5,6 +5,7 @@ using System.Xml.Linq;
 using CQS.Genome.Sam;
 using RCPA;
 using RCPA.Utils;
+using CQS.Genome.SmallRNA;
 
 namespace CQS.Genome.Mapping
 {
@@ -15,6 +16,17 @@ namespace CQS.Genome.Mapping
     public MappedItemGroupXmlFileFormat(bool exportPValue = false)
     {
       this.exportPValue = exportPValue;
+    }
+
+    public static List<string> ReadQueries(string fileName)
+    {
+      List<string> result = new List<string>();
+      XElement root = XElement.Load(fileName);
+      foreach (var queryEle in root.Element("queries").Elements("query"))
+      {
+        result.Add(queryEle.Attribute("name").Value);
+      }
+      return result;
     }
 
     public List<MappedItemGroup> ReadFromFile(string fileName)

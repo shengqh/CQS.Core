@@ -12,11 +12,12 @@ namespace CQS.Genome.SmallRNA
   public class ReadSummary
   {
     public int TotalRead { get; set; }
+    public int ExcludeRead { get; set; }
     public int FeatureRead { get; set; }
     public int GenomeRead { get; set; }
     public int TooShortRead { get; set; }
     public int MappedRead { get { return FeatureRead + GenomeRead; } }
-    public int UnannotatedRead { get { return TotalRead - FeatureRead - GenomeRead - TooShortRead; } }
+    public int UnannotatedRead { get { return TotalRead - ExcludeRead - FeatureRead - GenomeRead - TooShortRead; } }
   }
 
   public abstract class AbstractSmallRNACountProcessor<T> : AbstractCountProcessor<T> where T : AbstractSmallRNACountProcessorOptions
@@ -105,7 +106,7 @@ namespace CQS.Genome.SmallRNA
       return chrStrandMatchedMap;
     }
 
-    protected ReadSummary GetReadSummary(List<FeatureItemGroup> allmapped, List<SAMAlignedItem> reads, List<QueryInfo> totalQueries)
+    protected ReadSummary GetReadSummary(List<FeatureItemGroup> allmapped, HashSet<string> excludeQueries, List<SAMAlignedItem> reads, List<QueryInfo> totalQueries)
     {
       var result = new ReadSummary();
 
@@ -124,6 +125,8 @@ namespace CQS.Genome.SmallRNA
                                                from sl in loc.SamLocations
                                                select sl.SamLocation.Parent.OriginalQname);
       result.FeatureRead = featureQueries.Sum(l => Counts.GetCount(l));
+
+      result.ExcludeRead = excludeQueries.Sum(l => Counts.GetCount(l));
 
       result.GenomeRead = (from query in totalQueries
                            where (!query.Name.Contains(SmallRNAConsts.NTA_TAG) || query.Name.EndsWith(SmallRNAConsts.NTA_TAG))
@@ -153,6 +156,10 @@ namespace CQS.Genome.SmallRNA
           }
 
           sw.WriteLine("TotalReads\t{0}", readSummary.TotalRead);
+          if (readSummary.ExcludeRead > 0)
+          {
+            sw.WriteLine("ExcludedReads\t{0}", readSummary.ExcludeRead);
+          }
           sw.WriteLine("MappedReads\t{0}", readSummary.MappedRead);
           sw.WriteLine("FeatureReads\t{0}", readSummary.FeatureRead);
           sw.WriteLine("GenomeReads\t{0}", readSummary.GenomeRead);

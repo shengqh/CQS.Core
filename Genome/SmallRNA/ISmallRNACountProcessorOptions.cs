@@ -22,5 +22,7 @@ namespace CQS.Genome.SmallRNA
     int MinimumReadLengthForLongRNA { get; set; }
 
     bool NotOverwrite { get; set; }
+
+    string ExcludeXml { get; set; }
   }
 }

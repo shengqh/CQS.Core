@@ -54,6 +54,16 @@ namespace CQS.Genome.SmallRNA
         throw new ArgumentException("No read found in file " + options.InputFiles.Merge(","));
       }
 
+      HashSet<string> excludeQueries = new HashSet<string>();
+      if (!string.IsNullOrEmpty(options.ExcludeXml))
+      {
+        Progress.SetMessage("Excluding queries in {0} ...", options.ExcludeXml);
+        excludeQueries = new HashSet<string>(from q in MappedItemGroupXmlFileFormat.ReadQueries(options.ExcludeXml)
+                                          select q.StringBefore(SmallRNAConsts.NTA_TAG));
+        reads.RemoveAll(m => excludeQueries.Contains(m.Locations.First().Parent.Qname.StringBefore(SmallRNAConsts.NTA_TAG)));
+        Progress.SetMessage("Total candidate {0} for mapping ...", reads.Count);
+      }
+
       var hasMicroRnaNTA = reads.Any(l => l.NTA.Length > 0);
 
       var hasTrnaNTA = hasMicroRnaNTA && File.Exists(options.CCAFile);
@@ -148,7 +158,7 @@ namespace CQS.Genome.SmallRNA
         new FeatureItemGroupXmlFormatHand().WriteToFile(mappedfile, featureGroups);
       }
 
-      var readSummary = GetReadSummary(featureGroups, reads, totalQueries);
+      var readSummary = GetReadSummary(featureGroups, excludeQueries, reads, totalQueries);
       WriteInfoFile(result, resultFilename, readSummary, featureGroups);
       result.Add(mappedfile);
       Progress.End();

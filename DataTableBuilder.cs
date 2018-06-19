@@ -168,71 +168,59 @@ namespace CQS
         }
       }
 
+      //output proteincoding count table
+      bool hasProteinCoding = namemap != null && namemap.InfoNames.Count > 0 && namemap.InfoNames.Contains("gene_biotype");
+      if (hasProteinCoding)
+      {
+        WriteProteincodingFile(_options.OutputFile, ".count");
+      }
+
       if (!_options.NoFPKM)
       {
-        if (File.Exists(_options.MapFile))
+        bool hasLength = namemap != null && namemap.InfoNames.Count > 0 && namemap.InfoNames.Contains("length");
+        if (hasLength)
         {
-          bool hasLength = false;
-          Dictionary<string,string> geneTypeMap = new Dictionary<string, string>();
-          using (var sr = new StreamReader(_options.MapFile))
+          Progress.SetMessage("Calculating FPKM values...");
+          var outputFile = Path.ChangeExtension(_options.OutputFile, ".fpkm.tsv");
+          new HTSeqCountToFPKMCalculator(new HTSeqCountToFPKMCalculatorOptions()
           {
-            var line = sr.ReadLine();
-            if (line != null)
-            {
-              hasLength = line.Contains("length");
-              var geneTypeIndex = Array.IndexOf(line.Split('\t'), "gene_biotype");
-              if(geneTypeIndex != -1)
-              {
-                while((line=sr.ReadLine()) != null)
-                {
-                  var parts = line.Split('\t');
-                  geneTypeMap[parts[0]] = parts[geneTypeIndex];
-                }
-              }
-            }
-          }
-
-          if (hasLength)
+            InputFile = _options.OutputFile,
+            GeneLengthFile = _options.MapFile,
+            KeyRegex = _options.KeyRegex,
+            OutputFile = outputFile
+          })
           {
-            Progress.SetMessage("Calculating FPKM values...");
-            var outputFile = Path.ChangeExtension(_options.OutputFile, ".fpkm.tsv");
-            new HTSeqCountToFPKMCalculator(new HTSeqCountToFPKMCalculatorOptions()
-            {
-              InputFile = _options.OutputFile,
-              GeneLengthFile = _options.MapFile,
-              KeyRegex = _options.KeyRegex,
-              OutputFile = outputFile
-            })
-            {
-              Progress = this.Progress
-            }.Process();
+            Progress = this.Progress
+          }.Process();
 
-            if(geneTypeMap.Count > 0)
-            {
-              var proteinCodingFile = Path.ChangeExtension(outputFile, ".proteincoding.tsv");
-              using(var sr = new StreamReader(outputFile))
-              {
-                using(var sw = new StreamWriter(proteinCodingFile))
-                {
-                  string line = sr.ReadLine();
-                  sw.WriteLine(line);
-                  while ((line = sr.ReadLine()) != null)
-                  {
-                    var geneid = line.StringBefore("\t");
-                    string geneType;
-                    if (geneTypeMap.TryGetValue(geneid, out geneType) && geneType.Equals("protein_coding"))
-                    {
-                      sw.WriteLine(line);
-                    }
-                  }
-                }
-              }
-            }
+          if (hasProteinCoding)
+          {
+            WriteProteincodingFile(outputFile, ".tsv");
           }
         }
       }
 
       return new[] { Path.GetFullPath(_options.OutputFile) };
+    }
+
+    private static void WriteProteincodingFile(string inputFile, string extension)
+    {
+      var proteinCodingFile = Path.ChangeExtension(inputFile, ".proteincoding" + extension);
+      using (var sr = new StreamReader(inputFile))
+      {
+        using (var sw = new StreamWriter(proteinCodingFile))
+        {
+          string line = sr.ReadLine();
+          sw.WriteLine(line);
+          while ((line = sr.ReadLine()) != null)
+          {
+            if (line.Contains("protein_coding"))
+            {
+              sw.WriteLine(line);
+            }
+          }
+        }
+      }
     }
   }
 }

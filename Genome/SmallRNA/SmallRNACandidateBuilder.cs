@@ -3,6 +3,7 @@ using CQS.Genome.Sam;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace CQS.Genome.SmallRNA
 {
@@ -85,6 +86,7 @@ namespace CQS.Genome.SmallRNA
           }
         }
       }
+
       Progress.SetMessage("{0} queries overlaped with coordinates.", rangeQueries.Count);
 
       return base.DoBuild<T>(fileName, out totalQueries);

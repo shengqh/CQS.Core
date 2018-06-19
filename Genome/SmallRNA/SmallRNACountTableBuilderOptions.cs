@@ -10,6 +10,9 @@ namespace CQS.Genome.SmallRNA
 {
   public class SmallRNACountTableBuilderOptions : SimpleDataTableBuilderOptions, ISmallRNAExport
   {
+    [Option("noCategory", HelpText = "No category specified")]
+    public bool NoCategory { get; set; }
+
     [Option("exportYRNA", HelpText = "Export yRNA individually")]
     public bool ExportYRNA { get; set; }
 

@@ -67,6 +67,9 @@ namespace CQS.Genome.SmallRNA
     [Option("too_short_read_length", DefaultValue = DEFAULT_TooShortReadLength, HelpText = "The reads less than this number will be treated as too short if it's not mapped to smallRNA")]
     public int TooShortReadLength { get; set; }
 
+    [Option("excludeXml", HelpText = "Exclude query in count xml file")]
+    public string ExcludeXml { get; set; }
+
     public override bool PrepareOptions()
     {
       var result = base.PrepareOptions();
@@ -93,6 +96,11 @@ namespace CQS.Genome.SmallRNA
       if (!string.IsNullOrEmpty(this.FastaFile) && !File.Exists(this.FastaFile))
       {
         ParsingErrors.Add(string.Format("Fasta file not exists {0}.", this.FastaFile));
+      }
+
+      if (!string.IsNullOrEmpty(this.ExcludeXml) && !File.Exists(this.ExcludeXml))
+      {
+        ParsingErrors.Add(string.Format("Exclude xml file not exists {0}.", this.ExcludeXml));
       }
 
       if (!string.IsNullOrEmpty(this.FastqFile) && !File.Exists(this.FastqFile))
