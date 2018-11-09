@@ -11,6 +11,7 @@ using Bio.IO.SAM;
 using CQS.Genome.Mapping;
 using System.IO;
 using System.Text.RegularExpressions;
+using CQS.Genome.SmallRNA;
 
 namespace CQS.Genome.Gsnap
 {
@@ -93,6 +94,15 @@ namespace CQS.Genome.Gsnap
 
           var parts = line.Split('\t');
           var qname = parts[3];
+
+          if (_options.IgnoreNTA)
+          {
+            if (qname.HasNTA()) 
+            {
+              continue;
+            }
+          }
+
           var qi = new QueryInfo(qname);
 
           totalQueries.Add(qi);
@@ -105,6 +115,12 @@ namespace CQS.Genome.Gsnap
 
           var seq = parts[0].Substring(1);
           qi.Length = seq.Length;
+
+          //contains 'N'
+          if (seq.Contains('N'))
+          {
+            continue;
+          }
 
           //too short
           if (seq.Length < _options.MinimumReadLength)
@@ -138,6 +154,11 @@ namespace CQS.Genome.Gsnap
             var matchgenome = matchparts[0].Trim();
 
             if (matchgenome.Contains('-'))//insertion or deletion, not allowed now
+            {
+              continue;
+            }
+
+            if (matchgenome.Contains('*'))//soft clip, not allowed now
             {
               continue;
             }
