@@ -15,9 +15,47 @@ namespace CQS.Genome.Parclip
 {
   public static class ParclipUtils
   {
-    public static List<CoverageRegion> GetSmallRNACoverageRegion(string mappedFeatureXmlFile, string[] includeSmallRNATags = null, string[] excudeSmallRNATags = null)
+    public const int DEFAULT_COVERAGE = 1000;
+
+    public static List<CoverageRegion> GetSmallRNACoverageRegion(string featureFile, string[] includeSmallRNATags = null, string[] excudeSmallRNATags = null)
     {
-      var smallRNAGroups = new FeatureItemGroupXmlFormat().ReadFromFile(mappedFeatureXmlFile);
+      if (featureFile.ToLower().EndsWith(".fasta") || featureFile.ToLower().EndsWith(".fa"))
+      {
+        return GetSmallRNACoverageRegionFromFasta(featureFile);
+      }
+      else
+      {
+        return GetSmallRNACoverageRegionFromXml(featureFile, includeSmallRNATags, excudeSmallRNATags);
+      }
+    }
+
+    public static List<CoverageRegion> GetSmallRNACoverageRegionFromFasta(string featureFile)
+    {
+      var sequences = SequenceUtils.Read(featureFile);
+      var result = new List<CoverageRegion>();
+      foreach (var smallRNA in sequences)
+      {
+        //coverage in all position will be set as same as total query count
+        var rg = new CoverageRegion();
+        rg.Name = smallRNA.Name;
+        rg.Seqname = "Unknown";
+        rg.Start = -1;
+        rg.End = -1;
+        rg.Strand = '*';
+        rg.Sequence = smallRNA.SeqString;
+
+        for (int i = 0; i < smallRNA.SeqString.Length; i++)
+        {
+          rg.Coverages.Add(new CoverageSite(DEFAULT_COVERAGE));
+        }
+        result.Add(rg);
+      }
+      return result;
+    }
+
+    public static List<CoverageRegion> GetSmallRNACoverageRegionFromXml(string featureFile, string[] includeSmallRNATags = null, string[] excudeSmallRNATags = null)
+    {
+      var smallRNAGroups = new FeatureItemGroupXmlFormat().ReadFromFile(featureFile);
 
       if (includeSmallRNATags != null && includeSmallRNATags.Length > 0)
       {
@@ -54,10 +92,11 @@ namespace CQS.Genome.Parclip
         rg.Sequence = loc.Sequence;
 
         var coverage = (from sloc in loc.SamLocations select sloc.SamLocation.Parent.QueryCount).Sum();
+        var uniqueRead = (from sloc in loc.SamLocations select sloc.SamLocation.Parent.Qname).Distinct().ToList();
 
         for (int i = 0; i < loc.Length; i++)
         {
-          rg.Coverages.Add(coverage);
+          rg.Coverages.Add(new CoverageSite(coverage, uniqueRead));
         }
         result.Add(rg);
       }
@@ -71,7 +110,8 @@ namespace CQS.Genome.Parclip
         return null;
       }
 
-      var coverage = cr.Coverages.Skip(offset).Take(seedLength).Average();
+      var coverages = cr.Coverages.Skip(offset).Take(seedLength).ToList();
+      var coverage = coverages.Average(l => l.Coverage);
       if (coverage < minCoverage)
       {
         return null;
@@ -178,19 +218,20 @@ namespace CQS.Genome.Parclip
 
         foreach (var loc in utr.Locations)
         {
-          var map = new Dictionary<long, int>();
+          var map = new Dictionary<long, CoverageSite>();
           foreach (var sloc in loc.SamLocations)
           {
             for (long i = sloc.SamLocation.Start; i <= sloc.SamLocation.End; i++)
             {
-              int count;
+              CoverageSite count;
               if (map.TryGetValue(i, out count))
               {
-                map[i] = count + sloc.SamLocation.Parent.QueryCount;
+                count.Coverage = count.Coverage + sloc.SamLocation.Parent.QueryCount;
+                count.UniqueRead.Add(sloc.SamLocation.Parent.Qname);
               }
               else
               {
-                map[i] = sloc.SamLocation.Parent.QueryCount;
+                map[i] = new CoverageSite(sloc.SamLocation.Parent.QueryCount, sloc.SamLocation.Parent.Qname );
               }
             }
           }
@@ -259,7 +300,7 @@ namespace CQS.Genome.Parclip
         rg.Strand = utr.Strand;
         for (var i = rg.Start; i < rg.End; i++)
         {
-          rg.Coverages.Add(1000);
+          rg.Coverages.Add(new CoverageSite(DEFAULT_COVERAGE));
         }
         result.Add(rg);
       }
@@ -370,7 +411,7 @@ namespace CQS.Genome.Parclip
         //check the coverage in smallRNA
         if (t2c != null)
         {
-          var extendCoverage = t2c.Coverages.Skip(offset).Take(extendSeedLength).Average();
+          var extendCoverage = t2c.Coverages.Skip(offset).Take(extendSeedLength).Average(l => l.Coverage);
           if (extendCoverage < minimumCoverage)
           {
             break;
