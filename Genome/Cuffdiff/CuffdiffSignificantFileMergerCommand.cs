@@ -57,6 +57,8 @@ namespace CQS.Genome.Cuffdiff
 
     public string SoftwareVersion { get; set; }
 
+    public bool LinuxSupported { get { return true; } }
+
     public bool Process(string[] args)
     {
       var options = new CuffdiffSignificantFileMergerOptions();
