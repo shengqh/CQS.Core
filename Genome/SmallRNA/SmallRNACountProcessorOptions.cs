@@ -22,7 +22,7 @@ namespace CQS.Genome.SmallRNA
     [Option("exportSnoRNA", HelpText = "Export snoRNA individually")]
     public bool ExportSnoRNA { get; set; }
 
-    [Option("newMethod", HelpText = "Using fast method to parse result")]
+    [Option("newMethod", HelpText = "Using fast method to parse result (Deprecated)")]
     public bool NewMethod { get; set; }
 
     public SmallRNACountProcessorOptions()
@@ -31,12 +31,14 @@ namespace CQS.Genome.SmallRNA
 
     public override ICandidateBuilder GetCandidateBuilder()
     {
-      if (this.NewMethod)
+      if (this.EngineType != 4) //not gsnap
       {
         return new SmallRNACandidateBuilder(this);
       }
-
-      return base.GetCandidateBuilder();
+      else
+      {
+        return base.GetCandidateBuilder();
+      }
     }
   }
 }
