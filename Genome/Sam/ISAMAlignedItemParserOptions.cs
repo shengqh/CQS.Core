@@ -30,5 +30,7 @@ namespace CQS.Genome.Sam
     ISAMFormat GetSAMFormat();
 
     bool BestScore { get; set; }
+
+    bool IgnoreNTA { get; set; }
   }
 }

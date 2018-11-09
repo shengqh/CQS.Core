@@ -19,6 +19,7 @@ namespace CQS.Genome.Mapping
       this.MaximumReadLength = int.MaxValue;
       this.MaximumMismatch = DEFAULT_MaximumMismatchCount;
       this.MaximumNoPenaltyMutationCount = DEFAULT_MaximumNoPenaltyMutationCount;
+      this.IgnoreNTA = false;
     }
 
     [Option('e', "engineType", DefaultValue = DEFAULT_EngineType, MetaValue = "INT", HelpText = "Engine type (1:bowtie1, 2:bowtie2, 3:bwa, 4:gsnap, 5:star)")]
@@ -38,6 +39,9 @@ namespace CQS.Genome.Mapping
 
     [Option('s', "bestScore", HelpText = "Consider score difference between matches from same query")]
     public bool BestScore { get; set; }
+
+    [Option("ignoreNTA", HelpText = "Ignore NTA reads when parsing")]
+    public bool IgnoreNTA { get; set; }
 
     public virtual ISAMFormat GetSAMFormat()
     {
