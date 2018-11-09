@@ -256,6 +256,7 @@ namespace CQS.Genome.SmallRNA
       }
       else
       {
+        mappers.Add(new SmallRNAMapperNTAFilter(true, false, false, cca));
         mappers.Add(new SmallRNAMapper("otherSmallRNA", options, feature => true)
         {
           Progress = this.Progress
