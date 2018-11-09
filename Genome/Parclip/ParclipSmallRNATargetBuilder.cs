@@ -18,11 +18,11 @@ namespace CQS.Genome.Parclip
 
     public override IEnumerable<string> Process()
     {
-      Progress.SetMessage("Reading T2C smallRNA...");
+      Progress.SetMessage("Reading smallRNA...");
 
       //exclude lincRNA
       var mappedSmallRNA = ParclipUtils.GetSmallRNACoverageRegion(options.InputFile, null, new[] { SmallRNAConsts.lincRNA });
-      mappedSmallRNA.Sort((m1, m2) => m2.Coverages.Average().CompareTo(m1.Coverages.Average()));
+      mappedSmallRNA.Sort((m1, m2) => m2.Coverages.Average(l => l.Coverage).CompareTo(m1.Coverages.Average(l => l.Coverage)));
 
       Progress.SetMessage("Build target {0} mers...", options.MinimumSeedLength);
       var targetSeedMap = ParclipUtils.BuildTargetSeedMap(options, m => true, progress: this.Progress);
@@ -30,7 +30,7 @@ namespace CQS.Genome.Parclip
       Progress.SetMessage("Finding target...");
       using (var sw = new StreamWriter(options.OutputFile))
       {
-        sw.WriteLine("SmallRNA\tChr\tStart\tEnd\tStrand\tSeed\tSeedOffset\tSeedLength\tSeedCoverage\tTarget\tTargetCoverage\tTargetGeneSymbol\tTargetName");
+        sw.WriteLine("SmallRNA\tChr\tStart\tEnd\tStrand\tSeed\tSeedOffset\tSeedLength\tSeedCoverage\tTarget\tTargetCoverage\tTargetGeneSymbol\tTargetName\tTargetSeedOffset\tTargetSeedUniqueRead");
 
         foreach (var t2c in mappedSmallRNA)
         {
@@ -47,7 +47,7 @@ namespace CQS.Genome.Parclip
             }
 
             var seed = seq.Substring(offset, options.MinimumSeedLength);
-            var coverage = t2c.Coverages.Skip(offset).Take(options.MinimumSeedLength).Average();
+            var coverage = t2c.Coverages.Skip(offset).Take(options.MinimumSeedLength).Average(l => l.Coverage);
             if (coverage < options.MinimumCoverage)
             {
               continue;
@@ -70,14 +70,20 @@ namespace CQS.Genome.Parclip
 
                 sw.Write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}", t2c.Name, t2c.Seqname, t2c.Start, t2c.End, t2c.Strand, finalSeed, offset, finalSeed.Length, Math.Round(coverage));
 
-                sw.WriteLine("\t{0}:{1}-{2}:{3}\t{4}\t{5}\t{6}",
+                var uniqueReadCount = (from c in t.Source.Coverages.Skip(t.SourceOffset).Take(finalSeed.Length)
+                                       from q in c.UniqueRead
+                                       select q).Distinct().Count();
+
+                sw.WriteLine("\t{0}:{1}-{2}:{3}\t{4}\t{5}\t{6}\t{7}\t{8}",
                   t.Seqname,
                   t.Start,
                   t.End,
                   t.Strand,
                   t.Coverage,
                   t.GeneSymbol,
-                  t.Name);
+                  t.Name,
+                  t.SourceOffset,
+                  t.GetSeedUniqueReadCount(finalSeed.Length));
               }
             }
           }
