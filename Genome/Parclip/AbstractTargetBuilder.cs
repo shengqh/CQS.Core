@@ -16,16 +16,39 @@ using System.Text.RegularExpressions;
 
 namespace CQS.Genome.Parclip
 {
+  public class CoverageSite
+  {
+    public int Coverage { get; set; }
+    public HashSet<string> UniqueRead { get; set; }
+    public CoverageSite(int coverage, string uniqueRead)
+    {
+      Coverage = coverage;
+      UniqueRead = new HashSet<string>(new[] { uniqueRead });
+    }
+
+    public CoverageSite(int coverage, IList<string> uniqueRead)
+    {
+      Coverage = coverage;
+      UniqueRead = new HashSet<string>(uniqueRead);
+    }
+
+    public CoverageSite(int coverage)
+    {
+      Coverage = coverage;
+      UniqueRead = new HashSet<string>();
+    }
+  }
+
   public class CoverageRegion : SequenceRegion
   {
     public CoverageRegion()
     {
-      this.Coverages = new List<int>();
+      this.Coverages = new List<CoverageSite>();
     }
 
     public string GeneSymbol { get; set; }
 
-    public List<int> Coverages { get; private set; }
+    public List<CoverageSite> Coverages { get; private set; }
 
     public string ReverseComplementedSequence { get; set; }
   }
@@ -41,6 +64,13 @@ namespace CQS.Genome.Parclip
     public CoverageRegion Source { get; set; }
 
     public int SourceOffset { get; set; }
+
+    public int GetSeedUniqueReadCount(int finalSeedLength)
+    {
+      return (from c in this.Source.Coverages.Skip(this.SourceOffset).Take(finalSeedLength)
+              from q in c.UniqueRead
+              select q).Distinct().Count();
+    }
   }
 
   public abstract class AbstractTargetBuilder : AbstractThreadProcessor
