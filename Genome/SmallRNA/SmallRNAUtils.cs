@@ -9,6 +9,11 @@ namespace CQS.Genome.SmallRNA
 {
   public static class SmallRNAUtils
   {
+    public static bool HasNTA(this string queryName)
+    {
+      return queryName.Contains(SmallRNAConsts.NTA_TAG) && queryName.StringAfter(SmallRNAConsts.NTA_TAG).Length > 0;
+    }
+
     public static void InitializeSmallRnaNTA(IEnumerable<SAMAlignedItem> reads)
     {
       foreach (var m in reads)

@@ -93,7 +93,7 @@ namespace CQS.Genome.SmallRNA
           {
             foreach (var locList in strandMap.Values)
             {
-              locList.RemoveAll(k => k.Parent.Qname.StringAfter(SmallRNAConsts.NTA_TAG).Length > 0);
+              locList.RemoveAll(k => k.Parent.Qname.HasNTA());
             }
           }
         }
