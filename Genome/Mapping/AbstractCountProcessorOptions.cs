@@ -17,7 +17,9 @@ namespace CQS.Genome.Mapping
   public class AbstractCountProcessorOptions : SAMAlignedItemParserOptions, ICountProcessorOptions
   {
     public AbstractCountProcessorOptions()
-    { }
+    {
+      IgnoreNTA = false;
+    }
 
     [Option('o', "outputFile", Required = true, MetaValue = "FILE", HelpText = "Output count file")]
     public string OutputFile { get; set; }
