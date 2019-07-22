@@ -150,20 +150,19 @@ namespace CQS.Genome.SmallRNA
 
     public static List<SmallRNASequenceContig> BuildContigByIdenticalSimilarity(Dictionary<string, List<SmallRNASequence>> counts, double minOverlapRate, int maxExtensionBase, int topNumber = int.MaxValue, IProgressCallback progress = null)
     {
-      List<SmallRNASequenceContig> sequences;
+      Func<List<SmallRNASequence>, List<SmallRNASequenceContig>> getTopConfigFunc;
       if (topNumber == int.MaxValue)
       {
-        sequences = (from lst in counts.Values
-                     let smap = GetTopContig(lst, minOverlapRate, maxExtensionBase)
-                     from seq in smap
-                     select seq).ToList();
+        getTopConfigFunc = (m) => GetTopContig(m, minOverlapRate, maxExtensionBase);
       }
-      else {
-        sequences = (from lst in counts.Values
-                     let smap = GetTopContig(lst.Take(Math.Min(lst.Count, topNumber)).ToList(), minOverlapRate, maxExtensionBase)
-                     from seq in smap
-                     select seq).ToList();
+      else
+      {
+        getTopConfigFunc = (m) => GetTopContig(m.Take(Math.Min(m.Count, topNumber)).ToList(), minOverlapRate, maxExtensionBase);
       }
+      List<SmallRNASequenceContig> sequences = (from lst in counts.Values
+                                                let smap = getTopConfigFunc(lst)
+                                                from seq in smap
+                                                select seq).ToList();
 
       if (progress == null)
       {

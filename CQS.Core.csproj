@@ -281,6 +281,7 @@
     <Compile Include="Genome\SmallRNA\IReadMapper.cs" />
     <Compile Include="Genome\SmallRNA\ISmallRNAExport.cs" />
     <Compile Include="Genome\SmallRNA\SmallRNACandidateBuilder.cs" />
+    <Compile Include="Genome\SmallRNA\SmallRNAStartPositionWriter.cs" />
     <Compile Include="Genome\SmallRNA\SmallRNAPositionWriter.cs" />
     <Compile Include="Genome\SmallRNA\SmallRNAMapperLongRNA.cs" />
     <Compile Include="Genome\SmallRNA\SmallRNAMapperRRNADB.cs" />

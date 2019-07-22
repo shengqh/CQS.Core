@@ -9,9 +9,14 @@ namespace CQS.Genome.SmallRNA
 {
   public static class SmallRNAUtils
   {
+    public static bool HasNTATag(this string queryName)
+    {
+      return queryName.Contains(SmallRNAConsts.NTA_TAG);
+    }
+
     public static bool HasNTA(this string queryName)
     {
-      return queryName.Contains(SmallRNAConsts.NTA_TAG) && queryName.StringAfter(SmallRNAConsts.NTA_TAG).Length > 0;
+      return queryName.HasNTATag() && queryName.StringAfter(SmallRNAConsts.NTA_TAG).Length > 0;
     }
 
     public static void InitializeSmallRnaNTA(IEnumerable<SAMAlignedItem> reads)
@@ -173,8 +178,10 @@ namespace CQS.Genome.SmallRNA
       var sals = new HashSet<SAMAlignedLocation>();
       foreach (var locs in map)
       {
-        //get smallest number of mismatch, then get shortest NTA
-        var ntas = locs.GroupBy(m => m.Loc.NumberOfMismatch).OrderBy(m => m.Key).First().GroupBy(m => m.NTA_Length).OrderBy(m => m.Key).First();
+        //get smallest number of mismatch, get smallest number of non-penanlty mismatch, then get shortest NTA
+        var ntas = locs.GroupBy(m => m.Loc.NumberOfMismatch).OrderBy(m => m.Key).First().
+          GroupBy(m => m.Loc.NumberOfNoPenaltyMutation).OrderBy(m => m.Key).First().
+          GroupBy(m => m.NTA_Length).OrderBy(m => m.Key).First();
         foreach (var nta in ntas)
         {
           sals.Add(nta.Loc);
@@ -232,6 +239,7 @@ namespace CQS.Genome.SmallRNA
       {
         result.Add(SmallRNABiotype.snoRNA.ToString());
       }
+      result.Add(SmallRNABiotype.mt_tRNA.ToString());
       result.Add(SmallRNABiotype.rRNA.ToString());
       return result.ToArray();
     }

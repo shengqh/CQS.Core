@@ -66,7 +66,7 @@ namespace CQS.Genome.SmallRNA
 
       var hasMicroRnaNTA = reads.Any(l => l.NTA.Length > 0);
 
-      var hasTrnaNTA = hasMicroRnaNTA && File.Exists(options.CCAFile);
+      var hasTrnaNTA = hasMicroRnaNTA || File.Exists(options.CCAFile);
 
       if (!options.NoCategory)
       {
@@ -91,7 +91,7 @@ namespace CQS.Genome.SmallRNA
       {
         Progress.SetMessage("Mapping feature items...");
 
-        //mapping reads to features based on miRNA, tRNA and other smallRNA priority
+        //mapping reads to features based on miRNA, tRNA, mt_tRNA and other smallRNA priority
         MapReadToSequenceRegion(featureLocations, reads, cca, hasMicroRnaNTA, hasTrnaNTA);
 
         var featureMapped = featureLocations.GroupByName();

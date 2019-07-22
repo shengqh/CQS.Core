@@ -23,6 +23,8 @@ namespace CQS.Genome.Sam
 
     int MaximumMismatch { get; set; }
 
+    bool T2cAsNoPenaltyMutation { get; set; }
+
     int MaximumNoPenaltyMutationCount { get; set; }
 
     int EngineType { get; set; }
@@ -32,5 +34,7 @@ namespace CQS.Genome.Sam
     bool BestScore { get; set; }
 
     bool IgnoreNTA { get; set; }
+
+    bool IgnoreNTAAndNoPenaltyMutation { get; set; }
   }
 }

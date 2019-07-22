@@ -11,7 +11,7 @@ namespace CQS.Genome.SmallRNA
 
     public override AcceptResult AcceptLocationPair(FeatureLocation floc, SAMAlignedLocation sloc)
     {
-      if (sloc.Parent.Sequence.Length < options.MinimumReadLengthForLongRNA)
+      if (sloc.Parent.Sequence.Length < Options.MinimumReadLengthForLongRNA)
       {
         return new AcceptResult()
         {
@@ -19,7 +19,7 @@ namespace CQS.Genome.SmallRNA
         };
       }
 
-      if (sloc.NumberOfMismatch > options.MaximumMismatchForLongRNA)
+      if (sloc.NumberOfMismatch > Options.MaximumMismatchForLongRNA)
       {
         return new AcceptResult()
         {

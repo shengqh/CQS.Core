@@ -30,7 +30,7 @@ namespace CQS.Genome.SmallRNA
       var miss1file = options.CoordinateFile + ".miss1";
       var miss0file = options.CoordinateFile + ".miss0";
 
-      if (File.Exists(miss1file) && File.Exists(miss0file))
+      if (File.Exists(miss1file) && File.Exists(miss0file) && !options.T2cAsNoPenaltyMutation)
       {
         var miss1Queries = new HashSet<string>();
         using (var sr = SAMFactory.GetReader(fileName, true, miss1file))

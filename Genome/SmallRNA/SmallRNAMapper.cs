@@ -9,25 +9,24 @@ namespace CQS.Genome.SmallRNA
 {
   public class SmallRNAMapper : ProgressClass, IReadMapper
   {
-    private string mapperName;
+    public Func<FeatureLocation, bool> Accept { get; set; }
 
-    private Func<FeatureLocation, bool> accept;
+    public ISmallRNACountProcessorOptions Options { get; }
 
-    protected ISmallRNACountProcessorOptions options;
+    public string MapperName { get; set; }
 
-    public string MapperName
+    public SmallRNAMapper(ISmallRNACountProcessorOptions options)
     {
-      get
-      {
-        return mapperName;
-      }
+      this.MapperName = "Unknown";
+      this.Options = options;
+      this.Accept = m => true;
     }
 
     public SmallRNAMapper(string mapperName, ISmallRNACountProcessorOptions options, Func<FeatureLocation, bool> accept)
     {
-      this.mapperName = mapperName;
-      this.accept = accept;
-      this.options = options;
+      this.MapperName = mapperName;
+      this.Options = options;
+      this.Accept = accept;
     }
 
     private AcceptResult CheckNoPenaltyMutation(FeatureLocation floc, SAMAlignedLocation sloc)
@@ -46,7 +45,7 @@ namespace CQS.Genome.SmallRNA
         }
 
         var nnpm = sloc.NumberOfMismatch + sloc.NumberOfNoPenaltyMutation - mismatch;
-        if (mismatch > options.MaximumMismatch || nnpm > options.MaximumNoPenaltyMutationCount)
+        if (mismatch > Options.MaximumMismatch || nnpm > Options.MaximumNoPenaltyMutationCount)
         {
           return new AcceptResult()
           {
@@ -61,7 +60,7 @@ namespace CQS.Genome.SmallRNA
           NumberOfNoPenaltyMutation = sloc.NumberOfMismatch + sloc.NumberOfNoPenaltyMutation - mismatch
         };
       }
-      else if (sloc.NumberOfMismatch > options.MaximumMismatch)
+      else if (sloc.NumberOfMismatch > Options.MaximumMismatch)
       {
         return new AcceptResult()
         {
@@ -88,7 +87,7 @@ namespace CQS.Genome.SmallRNA
       }
 
       result.OverlapPercentage = floc.OverlapPercentage(sloc);
-      result.Accepted = result.OverlapPercentage > 0 && result.OverlapPercentage >= options.MinimumOverlapPercentage;
+      result.Accepted = result.OverlapPercentage > 0 && result.OverlapPercentage >= Options.MinimumOverlapPercentage;
 
       return result;
     }
@@ -131,7 +130,7 @@ namespace CQS.Genome.SmallRNA
 
     public virtual void MapReadToFeatureAndRemoveFromMap(List<FeatureLocation> allFeatures, Dictionary<string, Dictionary<char, List<SAMAlignedLocation>>> chrStrandReadMap)
     {
-      var features = allFeatures.Where(l => accept(l)).ToList();
+      var features = allFeatures.Where(l => Accept(l)).ToList();
 
       Progress.SetMessage("Mapping reads to {0} {1} entries.", features.Count, MapperName);
       if (features.Count > 0)
@@ -139,13 +138,13 @@ namespace CQS.Genome.SmallRNA
         MapReadToFeature(features, chrStrandReadMap);
 
         var reads = SmallRNAUtils.GetMappedReads(features);
-        Progress.SetMessage("There are {0} SAM entries mapped to {1} entries.", reads.Count, mapperName);
+        Progress.SetMessage("There are {0} SAM entries mapped to {1} entries.", reads.Count, MapperName);
 
         SmallRNAUtils.RemoveReadsFromMap(chrStrandReadMap, reads);
       }
       else
       {
-        Progress.SetMessage("There are 0 SAM entries mapped to {0} entries.", mapperName);
+        Progress.SetMessage("There are 0 SAM entries mapped to {0} entries.", MapperName);
       }
     }
   }

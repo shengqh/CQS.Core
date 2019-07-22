@@ -134,9 +134,16 @@ namespace CQS.Genome.SmallRNA
                            where !featureQueries.Contains(originalQname) && query.Mismatch == 0 && query.Length >= options.TooShortReadLength
                            select originalQname).Distinct().Sum(m => Counts.GetCount(m));
 
-      result.TooShortRead = (from read in Counts.ItemMap.Values
-                             where !featureQueries.Contains(read.Qname) && read.SequenceLength < 20
-                             select read.Count).Sum();
+      if (Counts.ItemMap != null)
+      {
+        result.TooShortRead = (from read in Counts.ItemMap.Values
+                               where !featureQueries.Contains(read.Qname) && read.SequenceLength < 20
+                               select read.Count).Sum();
+      }
+      else
+      {
+        result.TooShortRead = 0;
+      }
 
       return result;
     }

@@ -17,28 +17,14 @@ namespace CQS.Genome.Gsnap
 {
   public class SAMAlignedItemCandidateGsnapBuilder : AbstractSAMAlignedItemCandidateBuilder
   {
-    private int maxMutation = 100;
     private Dictionary<char, char> mutations;
+    private HashSet<char> validMutations;
 
     /// <summary>
     /// Constructor of SAMAlignedItemCandidateBuilder
     /// </summary>
-    /// <param name="engineType">1:bowtie1, 2:bowtie2, 3:bwa, 4:gsnap</param>
-    public SAMAlignedItemCandidateGsnapBuilder(int maxMutation = 100, Dictionary<char, char> mutations = null)
-      : base(4)
-    {
-      this.maxMutation = maxMutation;
-      SetMutations(mutations);
-    }
-
-    public SAMAlignedItemCandidateGsnapBuilder(ISAMAlignedItemParserOptions options, Dictionary<char, char> mutations = null)
+    public SAMAlignedItemCandidateGsnapBuilder(ISAMAlignedItemParserOptions options, Dictionary<char, char> mutations = null, char[] validMutations = null)
       : base(options)
-    {
-      this.maxMutation = options.MaximumNoPenaltyMutationCount;
-      SetMutations(mutations);
-    }
-
-    private void SetMutations(Dictionary<char, char> mutations)
     {
       if (mutations == null)
       {
@@ -49,6 +35,22 @@ namespace CQS.Genome.Gsnap
       else
       {
         this.mutations = mutations;
+      }
+      
+      if(validMutations == null)
+      {
+        if(mutations == null)
+        {
+          this.validMutations = new HashSet<char>(new char[] { 'C' });
+        }
+        else
+        {
+          this.validMutations = new HashSet<char>(mutations.Keys);
+        }
+      }
+      else
+      {
+        this.validMutations = new HashSet<char>(validMutations);
       }
     }
 
@@ -94,10 +96,12 @@ namespace CQS.Genome.Gsnap
 
           var parts = line.Split('\t');
           var qname = parts[3];
+          bool hasNTATag = qname.HasNTATag();
+          bool hasNTA = qname.HasNTA();
 
           if (_options.IgnoreNTA)
           {
-            if (qname.HasNTA()) 
+            if (hasNTA)
             {
               continue;
             }
@@ -163,17 +167,39 @@ namespace CQS.Genome.Gsnap
               continue;
             }
 
-            var mismatch = matchgenome.Count(m => Char.IsLower(m));
+            string mismatchPosition = string.Empty;
+            string cigar = string.Empty;
+            int mismatch;
+            int mutation;
+            GetMismatchPositions(seq, matchgenome, ref mismatchPosition, ref cigar, out mutation, out mismatch);
             qi.Mismatch = mismatch;
             if (mismatch > _options.MaximumMismatch)
             {
               continue;
             }
-
-            var mutation = matchgenome.Count(m => m == '.');
-            if (mutation > this.maxMutation)
+            if (mutation > _options.MaximumNoPenaltyMutationCount)
             {
               continue;
+            }
+
+            if (_options.IgnoreNTAAndNoPenaltyMutation)
+            {
+              if (mutation > 0)
+              {
+                if (hasNTA)
+                {
+                  continue;
+                }
+
+                if (hasNTATag)
+                {
+                  var pos = cigar.LastIndexOf('.');
+                  if (pos >= cigar.Length - 3)
+                  {
+                    continue;
+                  }
+                }
+              }
             }
 
             var match = locReg.Match(matchparts[2]);
@@ -181,7 +207,6 @@ namespace CQS.Genome.Gsnap
             var chr = match.Groups[2].Value;
             var start = int.Parse(match.Groups[3].Value);
             var end = int.Parse(match.Groups[4].Value);
-            string mismatchPosition = GetMismatchPositions(seq, matchgenome);
 
             var loc = new SAMAlignedLocation(sam)
             {
@@ -191,7 +216,7 @@ namespace CQS.Genome.Gsnap
               Strand = strand,
               NumberOfMismatch = mismatch,
               NumberOfNoPenaltyMutation = mutation,
-              Cigar = matchgenome,
+              Cigar = cigar,
               MismatchPositions = mismatchPosition
             };
 
@@ -217,27 +242,52 @@ namespace CQS.Genome.Gsnap
       return result;
     }
 
-    public string GetMismatchPositions(string seq, string matchgenome)
+    public void GetMismatchPositions(string seq, string matchgenome, ref string mismatchPosition, ref string cigar, out int nnmpCount, out int mismatchCount)
     {
+      var cigarStr = new StringBuilder();
       var misp = new StringBuilder();
+
+      nnmpCount = 0;
+      mismatchCount = 0;
+
       int match = 0;
       for (int i = 0; i < seq.Length; i++)
       {
         if (matchgenome[i] == seq[i])
         {
           match++;
+          cigarStr.Append(seq[i]);
           continue;
         }
         else
         {
-          char mismatch = ' ';
+          char mutation = ' ';
           if (matchgenome[i] == '.')
           {
-            mismatch = this.mutations[seq[i]];
+            if (this.mutations.ContainsKey(seq[i]))
+            {
+              mutation = this.mutations[seq[i]];
+            }
+            else
+            {
+              throw new Exception(string.Format("Failed to parse {0} in {1} position of {2}", matchgenome[i], i, matchgenome));
+            }
+
+            if (this.validMutations.Contains(seq[i]))
+            {
+              cigarStr.Append('.');
+              nnmpCount++;
+            }
+            else
+            {
+              cigarStr.Append(Char.ToLower(seq[i]));
+              mismatchCount++;
+            }
           }
           else if (char.IsLower(matchgenome[i]))
           {
-            mismatch = Char.ToUpper(matchgenome[i]);
+            cigarStr.Append(matchgenome[i]);
+            mutation = Char.ToUpper(matchgenome[i]);
           }
           else
           {
@@ -248,7 +298,7 @@ namespace CQS.Genome.Gsnap
             misp.Append(match);
           }
           match = 0;
-          misp.Append(mismatch);
+          misp.Append(mutation);
         }
       }
 
@@ -257,7 +307,8 @@ namespace CQS.Genome.Gsnap
         misp.Append(match);
       }
 
-      return misp.ToString();
+      mismatchPosition = misp.ToString();
+      cigar = cigarStr.ToString();
     }
   }
 }

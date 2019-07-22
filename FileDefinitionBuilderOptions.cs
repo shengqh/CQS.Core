@@ -43,7 +43,7 @@ namespace CQS
 
     public override bool PrepareOptions()
     {
-      if (!Directory.Exists(this.InputDir))
+      if (!this.InputDir.StartsWith("gs://") && !Directory.Exists(this.InputDir))
       {
         ParsingErrors.Add(string.Format("Directory not exists {0}.", this.InputDir));
       }

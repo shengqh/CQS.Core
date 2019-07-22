@@ -10,7 +10,7 @@ namespace CQS.Genome.Mapping
     private const int DEFAULT_EngineType = 1;
     private const int DEFAULT_MinimumReadLength = 16;
     private const int DEFAULT_MaximumMismatchCount = 1;
-    public const int DEFAULT_MaximumNoPenaltyMutationCount = 3;
+    public const int DEFAULT_MaximumNoPenaltyMutationCount = 1;
 
     public SAMAlignedItemParserOptions()
     {
@@ -20,6 +20,7 @@ namespace CQS.Genome.Mapping
       this.MaximumMismatch = DEFAULT_MaximumMismatchCount;
       this.MaximumNoPenaltyMutationCount = DEFAULT_MaximumNoPenaltyMutationCount;
       this.IgnoreNTA = false;
+      this.IgnoreNTAAndNoPenaltyMutation = false;
     }
 
     [Option('e', "engineType", DefaultValue = DEFAULT_EngineType, MetaValue = "INT", HelpText = "Engine type (1:bowtie1, 2:bowtie2, 3:bwa, 4:gsnap, 5:star)")]
@@ -34,6 +35,9 @@ namespace CQS.Genome.Mapping
     [Option('m', "maxMismatch", MetaValue = "INT", DefaultValue = DEFAULT_MaximumMismatchCount, HelpText = "Maximum mismatch count")]
     public virtual int MaximumMismatch { get; set; }
 
+    [Option("t2cAsNoPenaltyMutation", MetaValue = "INT", DefaultValue = false, HelpText = "Consider T2C as no penalty mutation")]
+    public virtual bool T2cAsNoPenaltyMutation { get; set; }
+
     [Option("maxNoPenaltyMutation", MetaValue = "INT", DefaultValue = DEFAULT_MaximumNoPenaltyMutationCount, HelpText = "Maximum no penalty mutation count (such as T2C for Parclip, gsnap only)")]
     public virtual int MaximumNoPenaltyMutationCount { get; set; }
 
@@ -42,6 +46,9 @@ namespace CQS.Genome.Mapping
 
     [Option("ignoreNTA", HelpText = "Ignore NTA reads when parsing")]
     public bool IgnoreNTA { get; set; }
+
+    [Option("ignoreNTAAndNoPenaltyMutation", HelpText = "Ignore reads with both NTA and NoPenaltyMutation when parsing")]
+    public bool IgnoreNTAAndNoPenaltyMutation { get; set; }
 
     public virtual ISAMFormat GetSAMFormat()
     {

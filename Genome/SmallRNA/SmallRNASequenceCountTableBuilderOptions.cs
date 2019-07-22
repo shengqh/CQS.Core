@@ -13,6 +13,8 @@ namespace CQS.Genome.SmallRNA
     public const double DEFAULT_MinimumOverlapRate = 0.9;
     public const int DEFAULT_MaximumExtensionBase = 0;
 
+    public const int DEFAULT_MinimumCount = 10;
+
     public SmallRNASequenceCountTableBuilderOptions()
     {
       this.TopNumber = DEFAULT_TOP_NUMBER;
@@ -20,6 +22,7 @@ namespace CQS.Genome.SmallRNA
       this.ExportFastaNumber = DEFAULT_ExportFastaNumber;
       this.MinimumOverlapRate = DEFAULT_MinimumOverlapRate;
       this.MaximumExtensionBase = DEFAULT_MaximumExtensionBase;
+      this.MinimumCount = DEFAULT_MinimumCount;
     }
 
     [Option('n', "number", DefaultValue = DEFAULT_TOP_NUMBER, MetaValue = "INT", HelpText = "Select top X reads in each file")]
@@ -36,6 +39,9 @@ namespace CQS.Genome.SmallRNA
 
     [Option("minOverlap", DefaultValue = DEFAULT_MinimumOverlapRate, MetaValue = "DOUBLE", HelpText = "Minimum overlap percentage to merge two reads")]
     public double MinimumOverlapRate { get; set; }
+
+    [Option("minCount", DefaultValue = DEFAULT_MinimumCount, MetaValue = "INT", HelpText = "Minimum read count for analysis")]
+    public int MinimumCount { get; set; }
 
     [Option("maxExtensionBase", DefaultValue = DEFAULT_MaximumExtensionBase, MetaValue = "INT", HelpText = "Maximum number of base extension each iteration for merge two reads. (0 means no limitation)")]
     public int MaximumExtensionBase { get; set; }

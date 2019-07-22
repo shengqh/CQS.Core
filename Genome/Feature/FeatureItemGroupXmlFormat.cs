@@ -22,6 +22,7 @@ namespace CQS.Genome.Feature
       Progress.SetMessage("Creating xml writer ... ");
       using (XmlTextWriter xw = new XmlTextWriter(fileName, utf8))
       {
+        xw.Formatting = Formatting.Indented;
         Progress.SetMessage("Start writing ... ");
         xw.WriteStartDocument();
 

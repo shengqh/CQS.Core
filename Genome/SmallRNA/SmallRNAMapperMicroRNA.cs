@@ -25,7 +25,7 @@ namespace CQS.Genome.SmallRNA
       }
 
       var offset = sloc.Offset(floc);
-      result.Accepted = options.Offsets.Contains(offset);
+      result.Accepted = Options.Offsets.Contains(offset);
 
       return result;
     }
@@ -47,10 +47,10 @@ namespace CQS.Genome.SmallRNA
           continue;
         }
 
-        var bestOffset = fsl.Min(m => options.Offsets.IndexOf(m.Offset));
+        var bestOffset = fsl.Min(m => Options.Offsets.IndexOf(m.Offset));
         foreach (var f in fsl)
         {
-          if (options.Offsets.IndexOf(f.Offset) != bestOffset)
+          if (Options.Offsets.IndexOf(f.Offset) != bestOffset)
           {
             f.FeatureLocation.SamLocations.Remove(f);
             f.SamLocation.Features.Remove(f.FeatureLocation);

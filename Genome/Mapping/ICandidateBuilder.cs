@@ -14,11 +14,13 @@ namespace CQS.Genome.Mapping
       Name = name;
       Mismatch = -1;
       Length = -1;
+      NoPenaltyMutation = 0;
     }
 
     public string Name { get; set; }
     public int Length { get; set; }
     public int Mismatch { get; set; }
+    public int NoPenaltyMutation { get; set; }
   }
 
   public interface ICandidateBuilder : IProgress

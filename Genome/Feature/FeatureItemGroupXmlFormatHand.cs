@@ -36,6 +36,8 @@ namespace CQS.Genome.Feature
 
         Progress.SetMessage("Writing {0} queries ...", queries.Count);
         xw.WriteLine("  <queries>");
+
+        queries.Sort((l1, l2) => l2.QueryCount.CompareTo(l1.QueryCount));
         foreach (var query in queries)
         {
           xw.WriteLine(@"    <query name=""{0}"" sequence=""{1}"" count=""{2}"">", query.Qname, query.Sequence, query.QueryCount);
@@ -79,6 +81,7 @@ namespace CQS.Genome.Feature
                 xw.Write(" pvalue=\"{0}\"", region.PValue);
               }
               xw.WriteLine(" size=\"{0}\">", region.Length);
+              region.SamLocations.Sort((l1, l2) => l2.SamLocation.Parent.QueryCount.CompareTo(l1.SamLocation.Parent.QueryCount));
               foreach (var sl in region.SamLocations)
               {
                 var loc = sl.SamLocation;

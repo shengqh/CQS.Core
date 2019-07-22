@@ -76,6 +76,12 @@ namespace CQS.Genome.Mapping
 
           qi.Mismatch = mismatchCount;
           qi.Length = seq.Length;
+          qi.NoPenaltyMutation = 0;
+
+          if (_options.T2cAsNoPenaltyMutation)
+          {
+
+          }
 
           if (mismatchCount > _options.MaximumMismatch)
           {
@@ -132,7 +138,7 @@ namespace CQS.Genome.Mapping
             Seqname = seqname,
             Start = int.Parse(parts[SAMFormatConst.POS_INDEX]),
             Strand = strand,
-            Cigar = parts[SAMFormatConst.CIGAR_INDEX],
+            Cigar = cigar,
             NumberOfMismatch = mismatchCount,
             AlignmentScore = score,
             MismatchPositions = _format.GetMismatchPositions(parts)

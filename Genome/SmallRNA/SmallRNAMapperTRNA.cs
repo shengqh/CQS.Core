@@ -5,13 +5,14 @@ using System.Collections.Generic;
 
 namespace CQS.Genome.SmallRNA
 {
-  public class SmallRNAMapperTRNA : SmallRNAMapperBiotype
+  public class SmallRNAMapperTRNA : SmallRNAMapperBiotypes
   {
     private bool allowNTA;
     private HashSet<string> allowedNTAs = new HashSet<string>(new[] { "CC", "CCA", "CCAA" });
     private HashSet<string> cca;
 
-    public SmallRNAMapperTRNA(ISmallRNACountProcessorOptions options, bool allowNTA, HashSet<string> cca) : base(SmallRNABiotype.tRNA, options)
+    public SmallRNAMapperTRNA(ISmallRNACountProcessorOptions options, bool allowNTA, HashSet<string> cca) :
+      base(new SmallRNABiotype[] { SmallRNABiotype.tRNA, SmallRNABiotype.mt_tRNA }, options)
     {
       this.allowNTA = allowNTA;
       this.cca = cca;

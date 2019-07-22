@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace CQS.Genome.SmallRNA
 {
@@ -21,15 +22,30 @@ namespace CQS.Genome.SmallRNA
       this.options = options;
     }
 
-    private string GetTRNAName(string oldName)
+    public static string GetTRNAName(string oldName)
     {
       var result = oldName;
       while (result.Contains("_"))
       {
-        result = result.StringAfter("_");
+        var substring = result.StringAfter("_");
+        if (substring.ToLower().Contains("trna"))
+        {
+          result = substring;
+        }
+        else
+        {
+          break;
+        }
       }
 
-      return "tRNA:" + result;
+      //result = Regex.Replace(result, "\\(.+?\\)", ""); 
+
+      result = "tRNA:" + result;
+      if (result.Contains("chrM"))
+      {
+        result = "mt_" + result;
+      }
+      return (result);
     }
 
     public override IEnumerable<string> Process()
@@ -39,18 +55,73 @@ namespace CQS.Genome.SmallRNA
 
       var bedfile = new BedItemFile<BedItem>(6);
 
+      Progress.SetMessage("building chromosome name map ...");
+
+      var mitoName = "M";
       Dictionary<string, string> chrNameMap = new Dictionary<string, string>();
       var ff = new FastaFormat(int.MaxValue);
-      using (StreamReader sr = new StreamReader(options.FastaFile))
+
+      var faiFile = options.FastaFile + ".fai";
+      if (File.Exists(faiFile))
       {
-        Sequence seq;
-        while ((seq = ff.ReadSequence(sr)) != null)
+        using (StreamReader sr = new StreamReader(faiFile))
         {
-          var name = seq.Name;
-          chrNameMap[name] = name;
-          chrNameMap[name.StringAfter("chr")] = name;
+          string line;
+          while ((line = sr.ReadLine()) != null)
+          {
+            var name = line.Split('\t')[0];
+            chrNameMap[name] = name;
+            if (name.StartsWith("chr"))
+            {
+              chrNameMap[name.StringAfter("chr")] = name;
+            }
+            if (!name.StartsWith("chr"))
+            {
+              chrNameMap["chr" + name] = name;
+            }
+
+            if (name.Equals("chrMT") || name.Equals("MT"))
+            {
+              mitoName = "MT";
+            }
+            if (name.Equals("chrM") || name.Equals("M"))
+            {
+              mitoName = "M";
+            }
+          }
         }
       }
+      else
+      {
+        using (StreamReader sr = new StreamReader(options.FastaFile))
+        {
+          Sequence seq;
+          while ((seq = ff.ReadSequence(sr)) != null)
+          {
+            var name = seq.Name;
+            chrNameMap[name] = name;
+            if (name.StartsWith("chr"))
+            {
+              chrNameMap[name.StringAfter("chr")] = name;
+            }
+            if (!name.StartsWith("chr"))
+            {
+              chrNameMap["chr" + name] = name;
+            }
+
+            if (name.Equals("chrMT") || name.Equals("MT"))
+            {
+              mitoName = "MT";
+            }
+            if (name.Equals("chrM") || name.Equals("M"))
+            {
+              mitoName = "M";
+            }
+          }
+        }
+      }
+      var longMitoName = chrNameMap[mitoName];
+      Progress.SetMessage("mitochondral chromosome name = {0}", longMitoName);
 
       var mirnas = new List<BedItem>();
       if (File.Exists(options.MiRBaseFile))
@@ -167,10 +238,10 @@ namespace CQS.Genome.SmallRNA
               count++;
               var gene_name = item.Attributes.Contains("gene_name") ? item.Attributes.StringAfter("gene_name \"").StringBefore("\"") : item.GeneId;
               BedItem loc = new BedItem();
-              loc.Seqname = "MT";
+              loc.Seqname = mitoName;
               loc.Start = item.Start - 1;
               loc.End = item.End;
-              loc.Name = string.Format(SmallRNAConsts.tRNA + ":chrMT.tRNA{0}-{1}", count, gene_name.StringAfter("-"));
+              loc.Name = string.Format(SmallRNAConsts.mt_tRNA + ":" + longMitoName + ".tRNA{0}-{1}", count, gene_name.StringAfter("-"));
               loc.Score = 1000;
               loc.Strand = item.Strand;
               trnas.Add(loc);
@@ -186,16 +257,16 @@ namespace CQS.Genome.SmallRNA
               {
                 seqName = item.Seqname;
               }
-              if (seqName.Equals("M"))
+              if (seqName.Equals("M") || seqName.Equals("MT"))
               {
-                seqName = "MT";
+                seqName = mitoName;
               }
 
               //ignore all smallRNA coordinates on scaffold or contig.
-              if (seqName.Length > 5)
-              {
-                continue;
-              }
+              //if (seqName.Length > 5)
+              //{
+              //  continue;
+              //}
 
               var gene_name = item.Attributes.StringAfter("gene_name \"").StringBefore("\"");
               var lowGeneName = gene_name.ToLower();
@@ -265,6 +336,22 @@ namespace CQS.Genome.SmallRNA
           {
             sw.WriteLine(bedfile.GetValue(loc));
           }
+        }
+      }
+
+      var miRNA_bed = FileUtils.ChangeExtension(options.OutputFile, ".miRNA.bed");
+      Progress.SetMessage("Saving miRNA coordinates to " + miRNA_bed + "...");
+      using (var sw = new StreamWriter(miRNA_bed))
+      {
+        var pir = SmallRNAConsts.miRNA;
+        var locs = all.Where(m => m.Name.StartsWith(pir)).ToList();
+        Progress.SetMessage("{0} : {1}", pir, locs.Count);
+
+        GenomeUtils.SortChromosome(locs, m => m.Seqname, m => (int)m.Start);
+
+        foreach (var loc in locs)
+        {
+          sw.WriteLine(bedfile.GetValue(loc));
         }
       }
 
@@ -369,14 +456,24 @@ namespace CQS.Genome.SmallRNA
 
       var faFile = options.OutputFile + ".fa";
       Progress.SetMessage("Extracting sequence from " + options.FastaFile + "...");
-      new Bed2FastaProcessor(new Bed2FastaProcessorOptions()
+      var b2foptions = new Bed2FastaProcessorOptions()
       {
         GenomeFastaFile = options.FastaFile,
         InputFile = options.OutputFile,
         OutputFile = faFile,
         KeepChrInName = false,
-        AcceptName = m => m.StartsWith(SmallRNAConsts.miRNA) || m.StartsWith(SmallRNAConsts.tRNA + ":chrMT"),
-      })
+      };
+
+      if (!File.Exists(options.UcscMatureTrnaFastaFile))
+      {
+        b2foptions.AcceptName = m => m.StartsWith(SmallRNAConsts.miRNA) || m.StartsWith(SmallRNAConsts.mt_tRNA) || m.StartsWith(SmallRNAConsts.tRNA);
+      }
+      else
+      {
+        b2foptions.AcceptName = m => m.StartsWith(SmallRNAConsts.miRNA) || m.StartsWith(SmallRNAConsts.mt_tRNA);
+      }
+
+      new Bed2FastaProcessor(b2foptions)
       {
         Progress = this.Progress
       }.Process();

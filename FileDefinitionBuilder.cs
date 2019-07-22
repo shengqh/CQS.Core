@@ -5,6 +5,7 @@ using System.Text;
 using RCPA;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Diagnostics;
 
 namespace CQS
 {
@@ -34,7 +35,7 @@ namespace CQS
     private List<FileItem> GetFileItems()
     {
       var files = GetFiles(_options.InputDir);
-      if(files.Length == 0)
+      if (files.Length == 0)
       {
         throw new Exception("No file found in folder " + _options.InputDir);
       }
@@ -75,6 +76,11 @@ namespace CQS
 
       var result = files.GroupBy(m =>
       {
+        if (_options.InputDir.StartsWith("gs://"))
+        {
+          m = m.Replace("gs:/", "");
+        }
+
         if (_options.Recursion && _options.UseDirName)
         {
           return nameFunc(Path.GetFileName(Path.GetDirectoryName(m)));
@@ -179,8 +185,15 @@ namespace CQS
 
       foreach (var file in result)
       {
-        file.FileNames = (from f in file.FileNames
-                          select Path.GetFullPath(f)).ToList();
+        if (_options.InputDir.StartsWith("gs://"))
+        {
+          file.FileNames = (from f in file.FileNames
+                            select f).ToList();
+        }
+        else {
+          file.FileNames = (from f in file.FileNames
+                            select Path.GetFullPath(f)).ToList();
+        }
       }
 
       result.Sort((m1, m2) => m1.SampleName.CompareTo(m2.SampleName));
@@ -267,9 +280,49 @@ namespace CQS
 
     private string[] GetFiles(string directory)
     {
-      var result = new List<string>();
-      DoGetFiles(directory, result);
-      return result.ToArray();
+      if (directory.StartsWith("gs://"))
+      {
+        var proc = new Process
+        {
+          StartInfo = new ProcessStartInfo
+          {
+            FileName = "gsutil",
+            Arguments = "ls " + directory,
+            UseShellExecute = false,
+            RedirectStandardOutput = true,
+            CreateNoWindow = true
+          }
+        };
+
+        Console.Out.WriteLine("running command : " + proc.StartInfo.FileName + " " + proc.StartInfo.Arguments);
+        try
+        {
+          if (!proc.Start())
+          {
+            Console.Out.WriteLine("Cannot start {0} command!", proc);
+            return null;
+          }
+        }
+        catch (Exception ex)
+        {
+          Console.Out.WriteLine("Cannot start {0} command : {1}", proc, ex.Message);
+          return null;
+        }
+
+        string line;
+        var result = new List<string>();
+        while ((line = proc.StandardOutput.ReadLine()) != null)
+        {
+          result.Add(line);
+        }
+        return result.ToArray();
+      }
+      else
+      {
+        var result = new List<string>();
+        DoGetFiles(directory, result);
+        return result.ToArray();
+      }
     }
   }
 }

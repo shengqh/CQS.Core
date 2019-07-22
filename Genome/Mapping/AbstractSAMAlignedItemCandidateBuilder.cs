@@ -85,7 +85,7 @@ namespace CQS.Genome.Mapping
       return result;
     }
 
-    protected static void KeepUniqueLocation<T>(List<T> result) where T : SAMAlignedItem, new()
+    protected virtual void KeepUniqueLocation<T>(List<T> result) where T : SAMAlignedItem, new()
     {
       foreach (var sam in result)
       {
