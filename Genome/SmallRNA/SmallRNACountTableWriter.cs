@@ -89,11 +89,67 @@ namespace CQS.Genome.SmallRNA
                          orderby read.Value.Sum(l => l.QueryCount) descending
                          select read.Key).ToArray();
 
-        sw.WriteLine("Sequence\t" + samples.Merge("\t"));
+        var orderedFeatureNames = (from featureGroups in features
+                                   from fg in featureGroups
+                                   select fg.Name.StringAfter(":")).ToList();
+
+        //if (readFile.EndsWith(".tRNA.read.count"))
+        //{
+        //  Console.WriteLine("Ordered feature names");
+        //  foreach (var of in orderedFeatureNames)
+        //  {
+        //    Console.WriteLine(of);
+        //  }
+        //}
+
+        var bTopFeatureOutput = false;
+        sw.WriteLine("Sequence\tFeatures\tTopFeature\t" + samples.Merge("\t"));
         foreach (var seq in sequences)
         {
           sw.Write(seq);
           var dic = reads[seq];
+          var featureNames = new HashSet<string>();
+          foreach (var sai in dic)
+          {
+            if (!dic[0].Sample.Equals(sai.Sample))
+            {
+              continue;
+            }
+
+            foreach (var loc in sai.Locations)
+            {
+              foreach (var feature in loc.Features)
+              {
+                featureNames.Add(feature.Name.StringAfter(":"));
+              }
+            }
+          }
+          string topFeature = string.Empty;
+          foreach (var f in orderedFeatureNames)
+          {
+            if (featureNames.Contains(f))
+            {
+              topFeature = f;
+              break;
+            }
+          }
+
+          var sortedFeatureNames = featureNames.OrderBy(m => m).ToArray();
+          if (topFeature.Equals(string.Empty))
+          {
+            throw new Exception("Cannot find topfeature in " + sortedFeatureNames.Merge("/"));
+            //if (readFile.EndsWith(".tRNA.read.count"))
+            //{
+            //  if (!bTopFeatureOutput)
+            //  {
+            //    Console.WriteLine("Cannot find topfeature in " + sortedFeatureNames.Merge("/"));
+            //    bTopFeatureOutput = true;
+            //  }
+            //}
+            //topFeature = sortedFeatureNames[0];
+          }
+          sw.Write("\t" + sortedFeatureNames.Merge("/") + "\t" + topFeature);
+
           foreach (var sample in samples)
           {
             var sampleSam = dic.Where(l => l.Sample.Equals(sample)).ToList();
