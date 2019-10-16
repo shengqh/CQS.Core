@@ -195,11 +195,11 @@ namespace CQS.Genome.SmallRNA
 
         allmapped.AddRange(groups);
 
-        if (!string.IsNullOrEmpty(biotype))
-        {
+        //if (!string.IsNullOrEmpty(biotype))
+        //{
           var positionFile = Path.ChangeExtension(options.OutputFile, displayBiotype + ".position");
           SmallRNAMappedPositionBuilder.Build(groups, Path.GetFileNameWithoutExtension(options.OutputFile), positionFile, m => m[0].Name.StringAfter(":"), true);
-        }
+        //}
       }
       groups.Clear();
     }
