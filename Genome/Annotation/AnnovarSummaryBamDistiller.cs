@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using CQS.Genome.Affymetrix;
 using RCPA;
-using LumenWorks.Framework.IO.Csv;
+using System;
+using System.Collections.Generic;
 using System.IO;
-using CQS.Genome.Affymetrix;
-using System.Drawing;
-using System.Security.Policy;
+using System.Linq;
 
 namespace CQS.Genome.Annotation
 {

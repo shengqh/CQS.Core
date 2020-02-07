@@ -207,10 +207,12 @@ namespace CQS.Genome.SmallRNA
         !feature.Category.Equals(SmallRNABiotype.miRNA.ToString()) &&
         !feature.Category.Equals(SmallRNABiotype.tRNA.ToString()) &&
         !feature.Category.Equals(SmallRNABiotype.lincRNA.ToString()) &&
+        !feature.Category.Equals(SmallRNABiotype.lncRNA.ToString()) &&
         !feature.Name.Contains("SILVA_"))
       { Progress = this.Progress });
 
-      mappers.Add(new SmallRNAMapperLincRNA(options) { Progress = this.Progress });
+      mappers.Add(new SmallRNAMapperLincRNA(SmallRNABiotype.lincRNA.ToString(), options) { Progress = this.Progress });
+      mappers.Add(new SmallRNAMapperLincRNA(SmallRNABiotype.lncRNA.ToString(), options) { Progress = this.Progress });
 
       foreach (var mapper in mappers)
       {

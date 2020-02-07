@@ -197,8 +197,10 @@ namespace CQS.Genome.SmallRNA
 
         //if (!string.IsNullOrEmpty(biotype))
         //{
-          var positionFile = Path.ChangeExtension(options.OutputFile, displayBiotype + ".position");
-          SmallRNAMappedPositionBuilder.Build(groups, Path.GetFileNameWithoutExtension(options.OutputFile), positionFile, m => m[0].Name.StringAfter(":"), true);
+        var positionFile = Path.ChangeExtension(options.OutputFile, displayBiotype + ".position");
+        SmallRNAMappedPositionBuilder.Build(groups, Path.GetFileNameWithoutExtension(options.OutputFile), positionFile, m => m[0].Name.StringAfter(":"), true);
+        var absolutePositionFile = Path.ChangeExtension(options.OutputFile, displayBiotype + ".absolutePosition");
+        SmallRNAMappedPositionBuilder.Build(groups, Path.GetFileNameWithoutExtension(options.OutputFile), absolutePositionFile, m => m[0].Name.StringAfter(":"), false);
         //}
       }
       groups.Clear();
@@ -248,11 +250,13 @@ namespace CQS.Genome.SmallRNA
           !feature.Category.Equals(SmallRNABiotype.snoRNA.ToString()) &&
           !feature.Category.Equals(SmallRNABiotype.rRNA.ToString()) &&
           !feature.Name.Contains("SILVA_") && !feature.Name.Contains(SmallRNAConsts.rRNADB_KEY) &&
-          !feature.Category.Equals(SmallRNABiotype.lincRNA.ToString()))
+          !feature.Category.Equals(SmallRNABiotype.lincRNA.ToString()) && 
+          !feature.Category.Equals(SmallRNABiotype.lncRNA.ToString()))
         { Progress = this.Progress });
 
-        //lincRNA
-        mappers.Add(new SmallRNAMapperLincRNA(options) { Progress = this.Progress });
+        //lncRNA
+        mappers.Add(new SmallRNAMapperLincRNA(SmallRNABiotype.lincRNA.ToString(), options) { Progress = this.Progress });
+        mappers.Add(new SmallRNAMapperLincRNA(SmallRNABiotype.lncRNA.ToString(), options) { Progress = this.Progress });
       }
       else
       {

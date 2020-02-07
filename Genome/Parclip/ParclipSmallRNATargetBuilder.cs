@@ -21,7 +21,7 @@ namespace CQS.Genome.Parclip
       Progress.SetMessage("Reading smallRNA...");
 
       //exclude lincRNA
-      var mappedSmallRNA = ParclipUtils.GetSmallRNACoverageRegion(options.InputFile, null, new[] { SmallRNAConsts.lincRNA });
+      var mappedSmallRNA = ParclipUtils.GetSmallRNACoverageRegion(options.InputFile, includeSmallRNATags: null, excudeSmallRNATags: SmallRNAConsts.lncRNA);
       mappedSmallRNA.Sort((m1, m2) => m2.Coverages.Average(l => l.Coverage).CompareTo(m1.Coverages.Average(l => l.Coverage)));
 
       Progress.SetMessage("Build target {0} mers...", options.MinimumSeedLength);

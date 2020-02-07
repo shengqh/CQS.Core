@@ -360,7 +360,7 @@ namespace CQS.Genome.SmallRNA
       {
         foreach (var pir in SmallRNAConsts.Biotypes)
         {
-          if (pir == SmallRNABiotype.lincRNA.ToString())
+          if (pir == SmallRNABiotype.lincRNA.ToString() || pir == SmallRNABiotype.lncRNA.ToString())
           {
             continue;
           }
@@ -383,7 +383,7 @@ namespace CQS.Genome.SmallRNA
       {
         foreach (var pir in SmallRNAConsts.Biotypes)
         {
-          if (pir != SmallRNABiotype.lincRNA.ToString() && pir != SmallRNABiotype.rRNA.ToString())
+          if (pir != SmallRNABiotype.lincRNA.ToString() && pir != SmallRNABiotype.lncRNA.ToString() && pir != SmallRNABiotype.rRNA.ToString())
           {
             continue;
           }

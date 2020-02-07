@@ -1,5 +1,4 @@
-﻿using System.Text.RegularExpressions;
-using CQS.Genome.SomaticMutation;
+﻿using CQS.Genome.SomaticMutation;
 using RCPA;
 using System;
 using System.Collections.Generic;

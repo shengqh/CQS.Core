@@ -8,7 +8,7 @@ namespace CQS.Genome.SmallRNA
 {
   public class SmallRNAMapperLincRNA : SmallRNAMapperLongRNA
   {
-    public SmallRNAMapperLincRNA(ISmallRNACountProcessorOptions options) : base("lincRNA", options, feature => feature.Category.Equals(SmallRNAConsts.lincRNA))
+    public SmallRNAMapperLincRNA(string mapperName, ISmallRNACountProcessorOptions options) : base(mapperName, options, feature => feature.Category.Equals(SmallRNAConsts.lncRNA))
     { }
 
     public override void MapReadToFeature(List<FeatureLocation> features, Dictionary<string, Dictionary<char, List<SAMAlignedLocation>>> chrStrandReadMap)

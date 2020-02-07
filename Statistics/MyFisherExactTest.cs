@@ -32,7 +32,7 @@ namespace CQS.Statistics
         mat = new[,] { { failOfSampleB, successOfSampleB }, { failOfSampleA, successOfSampleA } };
       }
 
-      return new BinaryContingencyTable(mat).FisherExactTest().Statistic;
+      return new ContingencyTable(mat).Binary.FisherExactTest().Statistic;
     }
   }
 }

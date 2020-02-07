@@ -1,22 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using RCPA;
-using LumenWorks.Framework.IO.Csv;
-using System.IO;
-using CQS.Genome.Affymetrix;
-using System.Drawing;
-using System.Security.Policy;
-using NPOI.SS.UserModel;
-using NPOI.HSSF.Util;
-using NPOI.HSSF.UserModel;
-using NPOI.HPSF;
-using System.Text.RegularExpressions;
-using RCPA.Commandline;
-using CommandLine;
-using CQS.Genome.Statistics;
+﻿using CQS.Genome.Affymetrix;
 using CQS.Genome.SomaticMutation;
+using CQS.Genome.Statistics;
+using NPOI.HSSF.UserModel;
+using NPOI.HSSF.Util;
+using NPOI.SS.UserModel;
+using RCPA;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace CQS.Genome.Annotation
 {
