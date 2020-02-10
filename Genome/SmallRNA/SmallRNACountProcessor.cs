@@ -31,7 +31,13 @@ namespace CQS.Genome.SmallRNA
       Progress.SetMessage("There are {0} coordinate entries", featureLocations.Count);
       if (featureLocations.Count == 0)
       {
-        throw new Exception(string.Format("No coordinate found in file {1}", options.CoordinateFile));
+        throw new Exception(string.Format("No coordinate found in file {0}", options.CoordinateFile));
+      }
+
+      var fGroups = featureLocations.GroupBy(l => l.Category).OrderByDescending(l => l.Count()).ToList();
+      foreach(var fg in fGroups)
+      {
+        Console.WriteLine("{0} = {1}", fg.Key, fg.Count());
       }
 
       var featureChroms = new HashSet<string>(from feature in featureLocations
