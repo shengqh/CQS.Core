@@ -275,18 +275,20 @@ namespace CQS.Genome.SmallRNA
                 biotype = "yRNA";
               }
 
-              if (lowGeneName.EndsWith("_rrna"))
-              {
-                biotype = "rRNA";
-              }
-
               BedItem loc = new BedItem();
               loc.Seqname = seqName;
               loc.Start = item.Start - 1;
               loc.End = item.End;
+
+              //if (lowGeneName.EndsWith("_rrna") && loc.Length < 200)
+              //{
+              //  biotype = "rRNA";
+              //}
+
               loc.Name = biotype + ":" + gene_name + ":" + item.GeneId;
               loc.Score = 1000;
               loc.Strand = item.Strand;
+
               others.Add(loc);
             }
           }
