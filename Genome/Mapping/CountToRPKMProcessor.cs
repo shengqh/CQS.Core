@@ -1,13 +1,10 @@
 ﻿using RCPA;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CQS.Genome.Mapping
 {
-  public class CountToRPKMProcessor:AbstractThreadProcessor
+  public class CountToRPKMProcessor : AbstractThreadProcessor
   {
     private CountToRPKMProcessorOptions options;
 

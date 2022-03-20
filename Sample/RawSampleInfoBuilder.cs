@@ -36,7 +36,8 @@ namespace CQS.Sample
         sw.WriteLine("Sample\t{0}", columns.Merge("\t"));
         foreach (var sample in samples)
         {
-          if (!data.ContainsKey(sample)){
+          if (!data.ContainsKey(sample))
+          {
             var error = string.Format("Cannot find {0} in {1}", sample, options.InputDirectory);
             swErr.WriteLine(error);
             Progress.SetMessage(error);

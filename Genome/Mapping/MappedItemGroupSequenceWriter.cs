@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using CQS.Genome.Sam;
+﻿using CQS.Genome.Sam;
 using RCPA;
 using RCPA.Seq;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace CQS.Genome.Mapping
 {
@@ -25,16 +25,16 @@ namespace CQS.Genome.Mapping
           var gstrand = g.GetAlignedLocations().First().Strand;
 
           var reads = (from l in g.GetAlignedLocations()
-            select l.Parent).Distinct().ToList();
+                       select l.Parent).Distinct().ToList();
 
           var list = reads.GroupBy(m => GetSequence(gstrand, m)).ToList().ConvertAll(m =>
           {
             var loc = (from item in g
-              from mr in item.MappedRegions
-              from l in mr.AlignedLocations
-              where GetSequence(gstrand, l.Parent).Equals(m.Key)
-              select l).First();
-            return new {Item = m, Location = loc};
+                       from mr in item.MappedRegions
+                       from l in mr.AlignedLocations
+                       where GetSequence(gstrand, l.Parent).Equals(m.Key)
+                       select l).First();
+            return new { Item = m, Location = loc };
           }).OrderBy(m => m.Location.Start).ToList();
 
           foreach (var read in list)

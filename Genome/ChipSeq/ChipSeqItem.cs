@@ -7,7 +7,7 @@ namespace CQS.Genome.ChipSeq
     public string Filename { get; set; }
 
     public string Chromosome { get; set; }
-    
+
     public int Start { get; set; }
 
     public int End { get; set; }

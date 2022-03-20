@@ -1,8 +1,6 @@
 ﻿using CQS.Genome.Sam;
 using RCPA;
 using RCPA.Gui;
-using RCPA.Utils;
-using System;
 using System.Collections.Generic;
 using System.Xml;
 

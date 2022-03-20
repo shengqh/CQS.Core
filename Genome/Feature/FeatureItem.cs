@@ -1,5 +1,4 @@
-﻿using CQS.Genome.Sam;
-using CQS.Genome.SmallRNA;
+﻿using CQS.Genome.SmallRNA;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -127,9 +126,9 @@ namespace CQS.Genome.Feature
   {
     public static void RemoveNTAReads(this List<FeatureItem> items)
     {
-      foreach(var item in items)
+      foreach (var item in items)
       {
-        foreach(var location in item.Locations)
+        foreach (var location in item.Locations)
         {
           location.SamLocations.RemoveAll(l => l.SamLocation.Parent.Qname.HasNTA());
         }

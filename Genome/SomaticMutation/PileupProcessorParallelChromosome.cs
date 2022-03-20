@@ -1,15 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
-using CQS.Genome.Pileup;
-using CQS.Genome.Statistics;
-using RCPA.Seq;
-using CQS.Genome.Samtools;
 
 namespace CQS.Genome.SomaticMutation
 {

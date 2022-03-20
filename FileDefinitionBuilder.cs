@@ -1,11 +1,10 @@
-﻿using System;
+﻿using RCPA;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using RCPA;
-using System.IO;
-using System.Text.RegularExpressions;
 using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace CQS
 {
@@ -190,7 +189,8 @@ namespace CQS
           file.FileNames = (from f in file.FileNames
                             select f).ToList();
         }
-        else {
+        else
+        {
           file.FileNames = (from f in file.FileNames
                             select Path.GetFullPath(f)).ToList();
         }

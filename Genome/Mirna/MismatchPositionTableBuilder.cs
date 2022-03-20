@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
+﻿using CommandLine;
+using CQS.Genome.Sam;
 using RCPA;
 using RCPA.Commandline;
-using CommandLine;
+using System;
+using System.Collections.Generic;
 using System.IO;
-using CQS.Genome.Sam;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace CQS.Genome.Mirna
 {
@@ -56,7 +55,8 @@ namespace CQS.Genome.Mirna
         {
           var items = res.GetAlignedLocations();
 
-          if(res.DisplayName.Equals("hsa-mir-486-5p:TCCTGTACTGAGCTGCCCCGAG")){
+          if (res.DisplayName.Equals("hsa-mir-486-5p:TCCTGTACTGAGCTGCCCCGAG"))
+          {
             items.ForEach(m => Console.WriteLine(m.Parent.Qname + "\t" + m.Strand + "\t" + m.MismatchPositions));
           }
           var pmcount = items.Count(m => m.NumberOfMismatch == 0);

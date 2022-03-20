@@ -1,12 +1,6 @@
-﻿using System;
+﻿using RCPA;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
-using CQS.Genome.Sam;
-using RCPA.Gui;
-using Bio.IO.SAM;
-using RCPA;
 
 namespace CQS.Genome.Fastq
 {

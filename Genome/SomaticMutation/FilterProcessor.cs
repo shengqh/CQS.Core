@@ -1,11 +1,9 @@
 ﻿using RCPA;
-using RCPA.Gui;
 using RCPA.R;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 
 namespace CQS.Genome.SomaticMutation
 {

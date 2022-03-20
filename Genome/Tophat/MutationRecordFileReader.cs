@@ -1,8 +1,5 @@
-﻿using System;
+﻿using RCPA;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using RCPA;
 using System.IO;
 
 namespace CQS.Genome.Tophat
@@ -23,12 +20,12 @@ namespace CQS.Genome.Tophat
         var parts = line.Split('\t');
 
         result.Add(new MutationItem()
-              {
-                Line = line,
-                Name = parts[3],
-                Chr = parts[4],
-                Position = int.Parse(parts[5])
-              });
+        {
+          Line = line,
+          Name = parts[3],
+          Chr = parts[4],
+          Position = int.Parse(parts[5])
+        });
       }
       return result;
     }

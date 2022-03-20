@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-using System.Data.SQLite;
-using Microsoft.Office.Interop.Excel;
+﻿using Microsoft.Office.Interop.Excel;
 using RCPA;
+using System.Collections.Generic;
+using System.Data.SQLite;
+using System.IO;
 
 namespace CQS.Ncbi.Geo
 {

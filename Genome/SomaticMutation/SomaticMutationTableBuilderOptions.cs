@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using CommandLine;
-using CQS.Genome.Pileup;
-using RCPA.Seq;
-using System.Windows.Forms;
-using CQS.Genome.Samtools;
+﻿using CommandLine;
 using RCPA.Commandline;
+using System;
+using System.IO;
 
 namespace CQS.Genome.SomaticMutation
 {

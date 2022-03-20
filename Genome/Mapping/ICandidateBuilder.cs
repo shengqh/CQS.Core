@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using CQS.Genome.Sam;
+﻿using CQS.Genome.Sam;
 using RCPA.Gui;
+using System.Collections.Generic;
 
 namespace CQS.Genome.Mapping
 {

@@ -1,10 +1,6 @@
-﻿using System.Collections.Generic;
-using Bio.Util;
-using CommandLine;
+﻿using CommandLine;
 using RCPA.Commandline;
-using System;
 using System.IO;
-using System.Linq;
 
 namespace CQS.Genome.Vcf
 {
@@ -32,8 +28,8 @@ namespace CQS.Genome.Vcf
       if (!File.Exists(this.DictFile))
       {
         ParsingErrors.Add(string.Format("Geome dict file not exists {0}.", this.DictFile));
-      } 
-      
+      }
+
       return ParsingErrors.Count == 0;
     }
   }

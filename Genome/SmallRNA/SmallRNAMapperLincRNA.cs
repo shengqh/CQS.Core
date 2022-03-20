@@ -1,8 +1,7 @@
 ﻿using CQS.Genome.Feature;
 using CQS.Genome.Sam;
-using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace CQS.Genome.SmallRNA
 {

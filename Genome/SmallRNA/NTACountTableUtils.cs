@@ -1,10 +1,5 @@
-﻿using CQS.Genome.Feature;
-using CQS.Genome.Mirna;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using RCPA;
 
 namespace CQS.Genome.SmallRNA
 {

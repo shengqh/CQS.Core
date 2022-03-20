@@ -1,8 +1,4 @@
-﻿using CQS.Genome.Sam;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 
 namespace CQS.Genome.Mapping
 {

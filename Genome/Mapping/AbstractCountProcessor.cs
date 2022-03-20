@@ -1,5 +1,4 @@
-﻿using CQS.Genome.Mirna;
-using CQS.Genome.Sam;
+﻿using CQS.Genome.Sam;
 using CQS.Genome.SmallRNA;
 using RCPA;
 using System;

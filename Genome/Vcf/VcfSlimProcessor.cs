@@ -1,5 +1,4 @@
-﻿using CQS.Genome.Gtf;
-using RCPA;
+﻿using RCPA;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -67,7 +66,8 @@ namespace CQS.Genome.Vcf
             }
 
             var export = chrHash.Contains(parts[0]);
-            if(!export){
+            if (!export)
+            {
               if (dbHasChr)
               {
                 if (!parts[0].StartsWith("chr"))

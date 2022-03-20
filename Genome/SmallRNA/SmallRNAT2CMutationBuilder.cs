@@ -1,12 +1,8 @@
 ﻿using CQS.Genome.Feature;
-using CQS.Genome.Mapping;
 using CQS.Genome.Statistics;
-using Meta.Numerics.Statistics;
 using RCPA.Gui;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace CQS.Genome.SmallRNA
 {

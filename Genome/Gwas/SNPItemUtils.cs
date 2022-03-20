@@ -1,13 +1,10 @@
 ﻿using RCPA;
-using RCPA.Gui;
 using RCPA.Seq;
 using RCPA.Utils;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CQS.Genome.Gwas
 {
@@ -91,7 +88,7 @@ namespace CQS.Genome.Gwas
 
       if (progress == null)
       {
-        progress = new  EmptyProgressCallback();
+        progress = new EmptyProgressCallback();
       }
 
       var dic = snpItems.ToDoubleDictionary(m => m.Chrom, m => m.Position);

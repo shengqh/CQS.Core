@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-using CQS.Genome.Cuffdiff;
-using LumenWorks.Framework.IO.Csv;
-using CQS.Genome.Affymetrix;
+﻿using CQS.Genome.Affymetrix;
 using RCPA;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace CQS.Genome.Cuffdiff
 {

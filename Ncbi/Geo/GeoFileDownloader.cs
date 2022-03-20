@@ -1,14 +1,11 @@
 ﻿using CQS.Microarray;
-using CQS.Sample;
 using RCPA;
 using RCPA.Utils;
 using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
-using System.Text;
 
 namespace CQS.Ncbi.Geo
 {

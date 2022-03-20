@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using RCPA;
 using RCPA.Converter;
-using RCPA;
 
 namespace CQS.Genome.GroSeq
 {

@@ -1,11 +1,7 @@
 ﻿using CQS.Genome.Feature;
-using CQS.Genome.Mirna;
 using CQS.Genome.Sam;
 using CQS.Genome.SmallRNA;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace CQS.Genome.Mapping
 {

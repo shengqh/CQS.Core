@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using CQS.Genome.SmallRNA;
 using RCPA;
+using System;
+using System.Collections.Generic;
 using System.IO;
-using CQS.Genome.Sam;
-using CQS.Genome.SmallRNA;
+using System.Linq;
 
 namespace CQS.Genome.Mapping
 {
@@ -71,33 +70,46 @@ namespace CQS.Genome.Mapping
 
       if (File.Exists(options.CategoryMapFile))
       {
-        Progress.SetMessage("Reading category map ...");
-        var categoryMap = new MapItemReader(0, 1).ReadFromFile(options.CategoryMapFile);
-        var queries = new HashSet<SAMChromosomeItem>(from c in counts
-                                                     from q in c.Queries
-                                                     select q);
-
-        var dic = new Dictionary<string, ChromosomeCountSlimItem>();
-        foreach (var q in queries)
+        String[] columns;
+        using (var sr = new StreamReader(options.CategoryMapFile))
         {
-          q.Chromosomes = (from chrom in q.Chromosomes
-                           select categoryMap[chrom].Value).Distinct().OrderBy(m => m).ToList();
-          foreach (var chrom in q.Chromosomes)
-          {
-            ChromosomeCountSlimItem item;
-            if (!dic.TryGetValue(chrom, out item))
-            {
-              item = new ChromosomeCountSlimItem();
-              item.Names.Add(chrom);
-              dic[chrom] = item;
-            }
-            item.Queries.Add(q);
-          }
+          var line = sr.ReadLine();
+          columns = line.Split('\t');
         }
 
-        var catFile = Path.ChangeExtension(options.OutputFile, ".category" + Path.GetExtension(options.OutputFile));
-        WriteOutput(catFile, countFiles, format, dic.Values.ToList());
-        result.Add(catFile);
+        for (int i = 1; i < columns.Length; i++)
+        {
+          var categoryName = columns[i];
+          var curcounts = counts.Copy();
+
+          Progress.SetMessage("Reading category map for " + categoryName + " ...");
+          var categoryMap = new MapItemReader(0, i).ReadFromFile(options.CategoryMapFile);
+          var queries = new HashSet<SAMChromosomeItem>(from c in curcounts
+                                                       from q in c.Queries
+                                                       select q);
+
+          var dic = new Dictionary<string, ChromosomeCountSlimItem>();
+          foreach (var q in queries)
+          {
+            q.Chromosomes = (from chrom in q.Chromosomes
+                             select categoryMap[chrom].Value).Distinct().OrderBy(m => m).ToList();
+            foreach (var chrom in q.Chromosomes)
+            {
+              ChromosomeCountSlimItem item;
+              if (!dic.TryGetValue(chrom, out item))
+              {
+                item = new ChromosomeCountSlimItem();
+                item.Names.Add(chrom);
+                dic[chrom] = item;
+              }
+              item.Queries.Add(q);
+            }
+          }
+
+          var catFile = Path.ChangeExtension(options.OutputFile, "." + categoryName + Path.GetExtension(options.OutputFile));
+          WriteOutput(catFile, countFiles, format, dic.Values.ToList());
+          result.Add(catFile);
+        }
       }
 
       if (options.OutputReadTable || options.OutputReadContigTable)
@@ -116,7 +128,7 @@ namespace CQS.Genome.Mapping
         if (options.OutputReadContigTable)
         {
           Progress.SetMessage("Building sequence contig by similarity ...");
-          var contigs = SmallRNASequenceUtils.BuildContigByIdenticalSimilarity(reads, options.MinimumOverlapRate, options.MaximumExtensionBase,  progress: Progress);
+          var contigs = SmallRNASequenceUtils.BuildContigByIdenticalSimilarity(reads, options.MinimumOverlapRate, options.MaximumExtensionBase, progress: Progress);
 
           Progress.SetMessage("Contig number = {0}", contigs.Count);
 

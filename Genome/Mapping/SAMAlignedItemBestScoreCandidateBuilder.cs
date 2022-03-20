@@ -1,12 +1,5 @@
-﻿using System;
+﻿using CQS.Genome.Sam;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using CQS.Genome.Sam;
-using System.Threading;
-using RCPA.Gui;
-using Bio.IO.SAM;
-using RCPA;
 
 namespace CQS.Genome.Mapping
 {
@@ -25,7 +18,7 @@ namespace CQS.Genome.Mapping
       samlist.SortByNameAndScore(_options.GetSAMFormat());
 
       Progress.SetMessage("Merge reads from same query...");
-      var result = new List<T> {samlist[0]};
+      var result = new List<T> { samlist[0] };
       var last = samlist[0];
 
       for (var i = 1; i < samlist.Count; i++)

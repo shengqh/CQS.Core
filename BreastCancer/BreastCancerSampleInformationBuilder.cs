@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using RCPA;
-using CQS.BreastCancer.parser;
-using System.IO;
+﻿using CQS.BreastCancer.parser;
 using CQS.Sample;
+using RCPA;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace CQS.BreastCancer
 {

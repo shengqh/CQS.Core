@@ -1,12 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using CQS.Genome.Bed;
-using CQS.Genome.Tophat;
-using RCPA;
-using CQS.Genome.Gtf;
 using System.IO;
+using System.Linq;
 
 namespace CQS.Genome.Annotation
 {

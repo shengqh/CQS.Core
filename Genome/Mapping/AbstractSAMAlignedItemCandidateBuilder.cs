@@ -1,13 +1,7 @@
-﻿using System;
+﻿using CQS.Genome.Sam;
+using RCPA.Gui;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using CQS.Genome.Sam;
-using System.Threading;
-using RCPA.Gui;
-using RCPA;
-using RCPA.Seq;
-using Bio.IO.SAM;
 
 namespace CQS.Genome.Mapping
 {
@@ -99,7 +93,7 @@ namespace CQS.Genome.Mapping
             sam.RemoveLocation(loc);
           }
         }
-        
+
         //Keep only one read with same start location
         var grp = sam.Locations.GroupBy(m => m.GetKey()).Where(m => m.Count() > 1).ToArray();
         if (grp.Length > 0)

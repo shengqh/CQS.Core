@@ -1,11 +1,9 @@
-﻿using System;
+﻿using CQS.Genome.Sam;
+using RCPA;
+using RCPA.Utils;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
-using CQS.Genome.Sam;
-using RCPA;
-using RCPA.Utils;
-using CQS.Genome.SmallRNA;
 
 namespace CQS.Genome.Mapping
 {

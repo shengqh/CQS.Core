@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using RCPA;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using RCPA;
-using System;
 
 namespace CQS.Genome.Feature
 {

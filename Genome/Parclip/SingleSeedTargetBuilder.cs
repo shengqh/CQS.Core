@@ -35,7 +35,7 @@ namespace CQS.Genome.Parclip
         {
           foreach (var offset in offsets)
           {
-            if(seq.Length < offset + options.MinimumSeedLength)
+            if (seq.Length < offset + options.MinimumSeedLength)
             {
               break;
             }

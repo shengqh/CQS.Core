@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
+﻿using Bio.IO.SAM;
 using CQS.Genome.Sam;
-using RCPA.Gui;
-using Bio.IO.SAM;
-using RCPA;
-using CQS.Genome.Mirna;
 using CQS.Genome.SmallRNA;
+using RCPA;
+using RCPA.Gui;
+using System;
+using System.Collections.Generic;
+using System.IO;
 
 namespace CQS.Genome.Fastq
 {

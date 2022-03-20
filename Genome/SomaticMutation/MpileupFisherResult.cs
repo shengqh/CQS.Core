@@ -1,9 +1,5 @@
 ﻿using CQS.Genome.Pileup;
 using CQS.Genome.Statistics;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace CQS.Genome.SomaticMutation
 {

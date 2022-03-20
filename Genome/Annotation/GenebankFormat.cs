@@ -29,7 +29,8 @@ namespace CQS.Genome.Annotation
                 GenebankFeature feature = null;
                 while ((line = sr.ReadLine()) != null)
                 {
-                  if(line[0] != ' '){
+                  if (line[0] != ' ')
+                  {
                     break;
                   }
 

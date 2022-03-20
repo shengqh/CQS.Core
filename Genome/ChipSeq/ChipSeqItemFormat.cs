@@ -1,8 +1,6 @@
-﻿using System;
+﻿using RCPA;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using RCPA;
 using System.IO;
 
 namespace CQS.Genome.ChipSeq
@@ -15,24 +13,25 @@ namespace CQS.Genome.ChipSeq
 
       var fn = Path.GetFileNameWithoutExtension(fileName);
 
-      using (StreamReader sr = new StreamReader(fileName) )
+      using (StreamReader sr = new StreamReader(fileName))
       {
         string line;
 
         //ignore the comment lines
         while ((line = sr.ReadLine()) != null)
         {
-          if(!line.StartsWith("#"))
+          if (!line.StartsWith("#"))
           {
             break;
           }
         }
-        
+
         //ignore the header line and read data
         while ((line = sr.ReadLine()) != null)
         {
           var parts = line.Split('\t');
-          if(parts.Length < 11){
+          if (parts.Length < 11)
+          {
             Console.WriteLine("File = {0}\nLine = {1}", fileName, line);
             break;
           }

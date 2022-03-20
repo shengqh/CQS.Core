@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using CQS.Genome.Statistics;
 
 namespace CQS.Genome.Pileup
 {
@@ -97,14 +94,14 @@ namespace CQS.Genome.Pileup
       if (orderByCount)
       {
         _eventCountList = (from ec in map.Values
-                               orderby ec.Count descending
-                               select ec).ToList();
+                           orderby ec.Count descending
+                           select ec).ToList();
       }
       else
       {
         _eventCountList = (from ec in map.Values
-                               orderby ec.Event
-                               select ec).ToList();
+                           orderby ec.Event
+                           select ec).ToList();
       }
     }
 
@@ -133,14 +130,14 @@ namespace CQS.Genome.Pileup
       if (orderByCount)
       {
         _eventCountList = (from ec in map.Values
-                               orderby ec.Count descending
-                               select ec).ToList();
+                           orderby ec.Count descending
+                           select ec).ToList();
       }
       else
       {
         _eventCountList = (from ec in map.Values
-                               orderby ec.Event
-                               select ec).ToList();
+                           orderby ec.Event
+                           select ec).ToList();
       }
     }
   }

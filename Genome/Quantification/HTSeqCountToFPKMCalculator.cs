@@ -1,12 +1,9 @@
-﻿using System;
+﻿using RCPA;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using RCPA;
 using System.IO;
-using CQS.Genome.Fastq;
+using System.Linq;
 using System.Text.RegularExpressions;
-using CQS.Genome.Mapping;
 
 namespace CQS.Genome.Quantification
 {
@@ -110,7 +107,7 @@ namespace CQS.Genome.Quantification
       }
 
       sampleCounts = (from sample in counts.Samples
-                          select sampleReads[sample]).ToArray();
+                      select sampleReads[sample]).ToArray();
 
       geneLengths = (from geneValues in counts.GeneValues
                      select geneLengthMap[geneValues[0]]).ToArray();

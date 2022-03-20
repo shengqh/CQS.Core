@@ -1,8 +1,6 @@
-﻿using System;
+﻿using CQS.Genome.Gtf;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using CQS.Genome.Gtf;
 
 namespace CQS.Genome.Mirna
 {

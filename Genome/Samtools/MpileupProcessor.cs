@@ -1,13 +1,8 @@
-﻿using CQS.Genome.Pileup;
-using RCPA;
-using RCPA.Gui;
+﻿using RCPA.Gui;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
 
 namespace CQS.Genome.Samtools
 {

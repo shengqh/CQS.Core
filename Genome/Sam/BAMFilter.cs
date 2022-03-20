@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using RCPA;
+﻿using Bio.IO.SAM;
 using Bio.Util;
-using Bio.IO.SAM;
+using RCPA;
 
 namespace CQS.Genome.Sam
 {
   public interface IBAMFilter : IFilter<byte[]>
-  {  }
+  { }
 
   public class BAMAccept : IBAMFilter
   {

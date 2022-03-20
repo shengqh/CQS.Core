@@ -1,11 +1,9 @@
-﻿using System;
+﻿using Bio.IO.SAM;
+using RCPA.Seq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Xml.Linq;
-using Bio.IO.SAM;
 using System.Text.RegularExpressions;
-using RCPA.Seq;
 
 namespace CQS.Genome.Sam
 {

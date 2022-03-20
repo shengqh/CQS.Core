@@ -1,23 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-using RCPA.Utils;
-using CQS.Microarray;
+﻿using CQS.BreastCancer;
 using CQS.Microarray.Affymatrix;
+using CQS.Ncbi.Geo;
 using CQS.Sample;
 using Microsoft.Office.Interop.Excel;
-using CQS.TCGA;
-using System.Security.Cryptography;
-using System.Net;
 using RCPA;
-using System.Text.RegularExpressions;
-using CQS.BreastCancer.parser;
-using CQS.Ncbi.Geo;
-using CQS.BreastCancer;
-using RCPA.R;
 using RCPA.Gui;
+using RCPA.R;
+using RCPA.Utils;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Text.RegularExpressions;
 
 namespace CQS.Microarray
 {
@@ -381,7 +376,7 @@ namespace CQS.Microarray
     public string[] GetDatasetDirectories()
     {
       var subdirs = Directory.GetDirectories(DataDir);
-      Array.Sort(subdirs, delegate(string name1, string name2)
+      Array.Sort(subdirs, delegate (string name1, string name2)
       {
         var n1 = new FileInfo(name1).Name;
         var n2 = new FileInfo(name2).Name;
@@ -752,7 +747,7 @@ namespace CQS.Microarray
     /// <returns></returns>
     public string Normalization(string root, string outputFile)
     {
-      var cels = CelFile.GetCelFiles(root);  
+      var cels = CelFile.GetCelFiles(root);
 
       if (cels.Count == 0)
       {

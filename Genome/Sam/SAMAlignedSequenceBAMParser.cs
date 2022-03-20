@@ -1,16 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.IO.Compression;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using Bio.Algorithms.Alignment;
+﻿using Bio;
 using Bio.IO.SAM;
 using Bio.Util;
-using Bio.IO.BAM;
-using Bio;
+using System;
+using System.Globalization;
+using System.Text;
 
 namespace CQS.Genome.Sam
 {
@@ -224,7 +217,7 @@ namespace CQS.Genome.Sam
       startIndex += readLen;
       if (alignmentBlock.Length > startIndex + 4 && alignmentBlock[startIndex] != 0x0 && alignmentBlock[startIndex + 1] != 0x0)
       {
-        for (index = startIndex; index < alignmentBlock.Length; )
+        for (index = startIndex; index < alignmentBlock.Length;)
         {
           SAMOptionalField optionalField = new SAMOptionalField();
           optionalField.Tag = System.Text.ASCIIEncoding.ASCII.GetString(alignmentBlock, index, 2);

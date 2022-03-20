@@ -1,10 +1,4 @@
-﻿using RCPA.Commandline;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace CQS.Genome.Sam
+﻿namespace CQS.Genome.Sam
 {
   public static class EngineType
   {

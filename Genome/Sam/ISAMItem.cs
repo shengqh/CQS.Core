@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace CQS.Genome.Sam
+﻿namespace CQS.Genome.Sam
 {
   public interface ISAMItem
   {
@@ -26,7 +21,7 @@ namespace CQS.Genome.Sam
     /// An `=' denotes the base is identical to the reference base. No assumptions can be made on the
     /// letter cases.
     /// </summary>
-    string Sequence { get;  }
+    string Sequence { get; }
 
     /// <summary>
     /// ASCII of base QUALity plus 33 (same as the quality string in the Sanger FASTQ format).
@@ -34,8 +29,8 @@ namespace CQS.Genome.Sam
     /// This eld can be a `*' when quality is not stored. If not a `*', SEQ must not be a `*' and the
     /// length of the quality string ought to equal the length of SEQ.
     /// </summary>
-    string Qual { get;  }
+    string Qual { get; }
 
-    int AlignmentScore { get;  }
+    int AlignmentScore { get; }
   }
 }

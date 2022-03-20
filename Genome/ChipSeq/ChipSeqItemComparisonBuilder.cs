@@ -1,8 +1,6 @@
-﻿using System;
+﻿using RCPA;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using RCPA;
 
 namespace CQS.Genome.ChipSeq
 {
@@ -12,7 +10,7 @@ namespace CQS.Genome.ChipSeq
 
     private Dictionary<string, string> filenameMap;
 
-    public ChipSeqItemComparisonBuilder(IEnumerable<string> sourceFiles, Dictionary<string,string> filenameMap)
+    public ChipSeqItemComparisonBuilder(IEnumerable<string> sourceFiles, Dictionary<string, string> filenameMap)
     {
       this.sourceFiles = sourceFiles.ToList();
       this.filenameMap = filenameMap;

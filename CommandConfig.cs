@@ -1,10 +1,10 @@
-﻿using System;
+﻿using RCPA.Utils;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using System.Xml.Linq;
-using RCPA.Utils;
 
 namespace CQS
 {
@@ -121,19 +121,19 @@ namespace CQS
         {
           XElement root = XElement.Load(filename);
           Programs = (from pro in root.Elements("program")
-            select new ProgramConfig(pro.Attribute("name").Value, pro.Attribute("command").Value)
-            {
-              DefaultParameterSet =
-                pro.Element("defaultparameterset") == null ? string.Empty : pro.Element("defaultparameterset").Value,
-              ParameterSet = (from paramset in pro.Elements("parameterset")
-                select new ParameterConfig(paramset.Attribute("name").Value)
-                {
-                  Parameters = (from param in paramset.Elements("parameter")
-                    select
-                      new KeyValuePair<string, string>(param.Attribute("name").Value, param.Attribute("default").Value))
-                    .ToDictionary(m => m.Key, m => m.Value)
-                }).ToDictionary(m => m.Name)
-            }).ToDictionary(m => m.Name);
+                      select new ProgramConfig(pro.Attribute("name").Value, pro.Attribute("command").Value)
+                      {
+                        DefaultParameterSet =
+                          pro.Element("defaultparameterset") == null ? string.Empty : pro.Element("defaultparameterset").Value,
+                        ParameterSet = (from paramset in pro.Elements("parameterset")
+                                        select new ParameterConfig(paramset.Attribute("name").Value)
+                                        {
+                                          Parameters = (from param in paramset.Elements("parameter")
+                                                        select
+                                                          new KeyValuePair<string, string>(param.Attribute("name").Value, param.Attribute("default").Value))
+                                            .ToDictionary(m => m.Key, m => m.Value)
+                                        }).ToDictionary(m => m.Name)
+                      }).ToDictionary(m => m.Name);
         }
         else
         {

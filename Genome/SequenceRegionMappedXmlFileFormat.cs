@@ -1,12 +1,7 @@
-﻿using System;
+﻿using CQS.Genome.Sam;
+using RCPA;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using RCPA;
-using System.IO;
-using System.Text.RegularExpressions;
-using CQS.Genome.Gtf;
-using CQS.Genome.Sam;
 using System.Xml.Linq;
 
 namespace CQS.Genome

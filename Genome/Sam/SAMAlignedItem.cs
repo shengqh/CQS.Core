@@ -1,12 +1,11 @@
-﻿using System;
+﻿using CQS.Genome.Pileup;
+using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Collections.ObjectModel;
 using System.Xml.Linq;
-using CQS.Genome.Pileup;
-using System.Xml;
 
 namespace CQS.Genome.Sam
 {

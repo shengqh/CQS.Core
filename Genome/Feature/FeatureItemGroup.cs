@@ -1,9 +1,8 @@
-﻿using System;
+﻿using CQS.Genome.Sam;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using CQS.Genome.Sam;
-using MathNet.Numerics.Random;
 
 namespace CQS.Genome.Feature
 {
@@ -60,7 +59,7 @@ namespace CQS.Genome.Feature
       get
       {
         return (from id in this
-                let name = string.IsNullOrEmpty(id.Category)? id.Name:id.Name.StringAfter(":")
+                let name = string.IsNullOrEmpty(id.Category) ? id.Name : id.Name.StringAfter(":")
                 select name).Merge(";");
       }
     }

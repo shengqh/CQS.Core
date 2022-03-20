@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using MathNet.Numerics.Distributions;
-using Meta.Numerics.Statistics;
-using CQS.Genome.Statistics;
+﻿using Meta.Numerics.Statistics;
+using System;
 
 namespace CQS.Statistics
 {

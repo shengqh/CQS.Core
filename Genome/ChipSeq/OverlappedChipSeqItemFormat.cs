@@ -1,13 +1,11 @@
-﻿using System;
+﻿using RCPA;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using RCPA;
 using System.IO;
 
 namespace CQS.Genome.ChipSeq
 {
-  public class OverlappedChipSeqItemFormat:IFileFormat<List<OverlappedChipSeqItem>>
+  public class OverlappedChipSeqItemFormat : IFileFormat<List<OverlappedChipSeqItem>>
   {
     public List<OverlappedChipSeqItem> ReadFromFile(string fileName)
     {

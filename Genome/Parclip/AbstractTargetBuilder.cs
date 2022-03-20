@@ -1,18 +1,7 @@
-﻿using CQS.Genome;
-using CQS.Genome.Bed;
-using CQS.Genome.Gtf;
-using CQS.Genome.Mapping;
-using CQS.Genome.Mirna;
-using CQS.Genome.SmallRNA;
-using CQS.Genome.Feature;
-using RCPA;
-using RCPA.Seq;
+﻿using RCPA;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 
 namespace CQS.Genome.Parclip
 {

@@ -1,26 +1,14 @@
-﻿using System;
+﻿using RCPA;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using RCPA;
 using System.IO;
-using CQS.Genome.Sam;
-using CQS.Genome.Gtf;
-using Bio.IO.SAM;
-using CQS.Genome.Bed;
-using CQS.Genome.Fastq;
-using System.Collections.Concurrent;
-using System.Threading;
-using RCPA.Commandline;
-using CommandLine;
-using System.Text.RegularExpressions;
-using CQS.Genome.Mapping;
+using System.Linq;
 
 namespace CQS.Genome.Mirna
 {
   public class MirnaNTACountTableBuilder : AbstractThreadProcessor
   {
-    
+
     private MirnaCountTableBuilderOptions options;
 
     public MirnaNTACountTableBuilder(MirnaCountTableBuilderOptions options)
@@ -59,11 +47,11 @@ namespace CQS.Genome.Mirna
       {
 
         sw.WriteLine("Feature\tLocation\tSequence\t{0}", names.Merge("\t"));
-        
+
         swNTA.WriteLine("Feature\tLocation\tSequence\t{0}", names.Merge("\t"));
 
         swIso.WriteLine("Feature\tLocation\tSequence\t{0}", names.Merge("\t"));
-        
+
         swIsoNTA.WriteLine("Feature\tLocation\tSequence\t{0}", names.Merge("\t"));
 
         foreach (var feature in features)
@@ -75,7 +63,7 @@ namespace CQS.Genome.Mirna
           OutputCount(swIso, dic, feature, names, 0, false, "_+_0");
           OutputCount(swIso, dic, feature, names, 1, false, "_+_1");
           OutputCount(swIso, dic, feature, names, 2, false, "_+_2");
-          
+
           OutputCount(swIsoNTA, dic, feature, names, 0, true, "_+_0");
           OutputCount(swIsoNTA, dic, feature, names, 1, true, "_+_1");
           OutputCount(swIsoNTA, dic, feature, names, 2, true, "_+_2");

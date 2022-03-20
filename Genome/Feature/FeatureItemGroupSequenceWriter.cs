@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using CQS.Genome.Sam;
+﻿using CQS.Genome.Sam;
 using RCPA;
 using RCPA.Seq;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace CQS.Genome.Feature
 {

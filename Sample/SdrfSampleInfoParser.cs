@@ -1,11 +1,8 @@
-﻿using System;
+﻿using RCPA;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
-using RCPA;
-using CQS.Sample;
-using CQS.Ncbi.Geo;
+using System.Linq;
 
 namespace CQS.Sample
 {

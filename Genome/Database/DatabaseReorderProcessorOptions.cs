@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using CommandLine;
 using RCPA.Commandline;
-using CommandLine;
 using System.IO;
-using CQS.Genome.Sam;
 
 namespace CQS.Genome.Database
 {

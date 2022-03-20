@@ -1,7 +1,5 @@
 ﻿using CommandLine;
-using CQS.Genome.Gsnap;
 using CQS.Genome.Mapping;
-using System.Collections.Generic;
 
 namespace CQS.Genome.SmallRNA
 {

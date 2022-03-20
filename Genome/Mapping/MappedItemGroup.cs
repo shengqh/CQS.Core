@@ -1,9 +1,8 @@
-﻿using System;
+﻿using CQS.Genome.Sam;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using CQS.Genome.Sam;
-using MathNet.Numerics.Random;
 
 namespace CQS.Genome.Mapping
 {

@@ -61,7 +61,8 @@ namespace CQS.Genome.QC
             sw.WriteLine("{0}\t{1}", qc.File, qc.Passed);
           }
         }
-        else {
+        else
+        {
           sw.WriteLine("File\tQCResult\t{0}", qcitems.Where(l => !string.IsNullOrEmpty(l.Header)).First().Header);
           foreach (var qc in qcitems)
           {

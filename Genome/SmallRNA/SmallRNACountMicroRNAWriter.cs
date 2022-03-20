@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using CQS.Genome.Feature;
 using RCPA;
+using System;
+using System.Collections.Generic;
 using System.IO;
-using CQS.Genome.Feature;
+using System.Linq;
 
 namespace CQS.Genome.SmallRNA
 {
@@ -20,7 +19,7 @@ namespace CQS.Genome.SmallRNA
     public void WriteToFile(string fileName, List<FeatureItemGroup> mirnas)
     {
       var items = mirnas.OrderByDescending(m => m.GetEstimatedCount()).ToList();
-                  
+
       using (StreamWriter sw = new StreamWriter(fileName))
       {
         sw.WriteLine("miRNA\tLocation\tSequence\tTotalCount\t" + (from p in this.offsets select "Count" + p.ToString()).Merge("\t"));

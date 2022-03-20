@@ -1,12 +1,9 @@
-﻿using System;
+﻿using RCPA;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using RCPA;
 
 namespace CQS.Genome.GroSeq
 {
-  public class PeakAnnotationItem:IAnnotation
+  public class PeakAnnotationItem : IAnnotation
   {
     public string PeakId { get; set; }
 

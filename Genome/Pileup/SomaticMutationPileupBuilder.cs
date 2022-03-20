@@ -1,10 +1,7 @@
-﻿using System;
+﻿using CQS.Genome.Sam;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using CQS.Genome.Sam;
-using Bio.IO.SAM;
-using RCPA.Seq;
 
 namespace CQS.Genome.Pileup
 {

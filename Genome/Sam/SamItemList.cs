@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace CQS.Genome.Sam
 {
-  public class SAMItemList1:List<SAMItem>
+  public class SAMItemList1 : List<SAMItem>
   {
     public string QueryName { get; set; }
 

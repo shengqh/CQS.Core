@@ -1,9 +1,8 @@
-﻿using System;
+﻿using LumenWorks.Framework.IO.Csv;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
-using LumenWorks.Framework.IO.Csv;
+using System.Linq;
 
 namespace CQS.Genome.Affymetrix
 {

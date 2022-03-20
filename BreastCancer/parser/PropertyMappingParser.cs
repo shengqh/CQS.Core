@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using RCPA.Format;
-using RCPA;
-using CQS.Converter;
-using System.IO;
+﻿using CQS.Converter;
 using CQS.Ncbi.Geo;
 using CQS.Sample;
+using RCPA;
+using RCPA.Format;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace CQS.BreastCancer.parser
 {

@@ -1,11 +1,7 @@
-﻿using System;
+﻿using RCPA;
+using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using CQS.Genome.Annotation;
-using RCPA.Gui;
-using RCPA;
 
 namespace CQS.Genome.SomaticMutation
 {
@@ -21,7 +17,7 @@ namespace CQS.Genome.SomaticMutation
     public override IEnumerable<string> Process()
     {
       var optionfile = _options.OutputSuffix + ".options";
-      using(var sw = new StreamWriter(optionfile))
+      using (var sw = new StreamWriter(optionfile))
       {
         sw.WriteLine("software=" + SoftwareInfo.SoftwareName);
         sw.WriteLine("software_version=" + SoftwareInfo.SoftwareVersion);

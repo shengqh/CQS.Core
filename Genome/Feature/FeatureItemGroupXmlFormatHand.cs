@@ -1,10 +1,7 @@
-﻿using CQS.Genome.Sam;
-using RCPA.Utils;
-using System;
+﻿using RCPA.Utils;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using System.Xml;
 
 namespace CQS.Genome.Feature
 {

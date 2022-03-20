@@ -1,19 +1,7 @@
-﻿using System;
+﻿using RCPA;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using RCPA;
-using CQS.Genome.Sam;
-using Bio.IO.SAM;
-using RCPA.Commandline;
-using CommandLine;
 using System.IO;
-using CQS.Genome.Mirna;
-using RCPA.Seq;
-using CQS.Genome.Gtf;
-using CQS.Genome.Vcf;
-using CQS.Genome.SomaticMutation;
-using System.Diagnostics;
 
 namespace CQS.Genome.Depth
 {

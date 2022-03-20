@@ -55,7 +55,7 @@ namespace CQS.Genome.Statistics
 
       public double FailedPercentage
       {
-        get { return Failed*1.0/TotalCount; }
+        get { return Failed * 1.0 / TotalCount; }
       }
 
       public override string ToString()

@@ -29,7 +29,7 @@ namespace CQS.Genome.Annotation
   //public class AnnovarSummaryItemListReader : IFileReader<AnnovarSummaryItemList>
   //{
   //  private Regex head = new Regex("(.+),Chr,Start,End,Ref,Obs,Otherinfo");
-    
+
   //  private Regex value = new Regex(@"(.+),([^,]+),(\d+),(\d+),[^,]*,[^,]*,$");
 
   //  public AnnovarSummaryItemList ReadFromFile(string fileName)

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace CQS.Genome.Mirna
+﻿namespace CQS.Genome.Mirna
 {
   public static class MirnaConsts
   {

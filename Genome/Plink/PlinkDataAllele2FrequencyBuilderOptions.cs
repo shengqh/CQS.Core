@@ -1,12 +1,9 @@
 ﻿using CommandLine;
-using RCPA.Commandline;
 using CQS.Genome.Gwas;
 using RCPA;
+using RCPA.Commandline;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 
 namespace CQS.Genome.Plink
 {

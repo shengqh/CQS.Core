@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace CQS.Genome.Pileup
+﻿namespace CQS.Genome.Pileup
 {
   /// <summary>
   /// Aligned information for specific position from one read
@@ -49,7 +44,7 @@ namespace CQS.Genome.Pileup
       this.Distance = -1;
     }
 
-    public AlignedPosition(long position, AlignedEventType at, string alignEvent, char score, int distance, int eventLength=1)
+    public AlignedPosition(long position, AlignedEventType at, string alignEvent, char score, int distance, int eventLength = 1)
     {
       this.Position = position;
       this.EventType = at;

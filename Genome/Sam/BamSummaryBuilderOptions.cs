@@ -1,10 +1,6 @@
 ﻿using CommandLine;
 using RCPA.Commandline;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 
 namespace CQS.Genome.Sam
 {
@@ -19,7 +15,7 @@ namespace CQS.Genome.Sam
     [Option('o', "outputFile", Required = false, MetaValue = "FILE", HelpText = "Output file")]
     public string OutputFile { get; set; }
 
-    [Option('e', "excludeFileName", Required = false, DefaultValue=false,  HelpText = "Exclude file name in result")]
+    [Option('e', "excludeFileName", Required = false, DefaultValue = false, HelpText = "Exclude file name in result")]
     public bool ExcludeFileName { get; set; }
 
     public override bool PrepareOptions()

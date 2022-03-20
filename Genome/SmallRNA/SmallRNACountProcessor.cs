@@ -35,7 +35,7 @@ namespace CQS.Genome.SmallRNA
       }
 
       var fGroups = featureLocations.GroupBy(l => l.Category).OrderByDescending(l => l.Count()).ToList();
-      foreach(var fg in fGroups)
+      foreach (var fg in fGroups)
       {
         Console.WriteLine("{0} = {1}", fg.Key, fg.Count());
       }
@@ -65,7 +65,7 @@ namespace CQS.Genome.SmallRNA
       {
         Progress.SetMessage("Excluding queries in {0} ...", options.ExcludeXml);
         excludeQueries = new HashSet<string>(from q in MappedItemGroupXmlFileFormat.ReadQueries(options.ExcludeXml)
-                                          select q.StringBefore(SmallRNAConsts.NTA_TAG));
+                                             select q.StringBefore(SmallRNAConsts.NTA_TAG));
         reads.RemoveAll(m => excludeQueries.Contains(m.Locations.First().Parent.Qname.StringBefore(SmallRNAConsts.NTA_TAG)));
         Progress.SetMessage("Total candidate {0} for mapping ...", reads.Count);
       }
@@ -184,7 +184,8 @@ namespace CQS.Genome.SmallRNA
         groups = otherFeatures.GroupByIdenticalQuery();
         writer = new FeatureItemGroupCountWriter(m => m.DisplayName);
       }
-      else {
+      else
+      {
         displayBiotype = biotype;
         groups = otherFeatures.Where(m => m.Name.StartsWith(biotype)).GroupByIdenticalQuery();
         writer = new FeatureItemGroupCountWriter(m => m.DisplayNameWithoutCategory);
@@ -256,7 +257,7 @@ namespace CQS.Genome.SmallRNA
           !feature.Category.Equals(SmallRNABiotype.snoRNA.ToString()) &&
           !feature.Category.Equals(SmallRNABiotype.rRNA.ToString()) &&
           !feature.Name.Contains("SILVA_") && !feature.Name.Contains(SmallRNAConsts.rRNADB_KEY) &&
-          !feature.Category.Equals(SmallRNABiotype.lincRNA.ToString()) && 
+          !feature.Category.Equals(SmallRNABiotype.lincRNA.ToString()) &&
           !feature.Category.Equals(SmallRNABiotype.lncRNA.ToString()))
         { Progress = this.Progress });
 

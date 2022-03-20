@@ -1,6 +1,6 @@
-﻿using System.IO;
-using CommandLine;
+﻿using CommandLine;
 using RCPA.Commandline;
+using System.IO;
 
 namespace CQS.Genome.Fastq
 {

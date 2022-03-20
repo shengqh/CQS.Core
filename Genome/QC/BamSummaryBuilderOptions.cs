@@ -1,10 +1,8 @@
 ﻿using CommandLine;
 using RCPA.Commandline;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace CQS.Genome.QC
@@ -39,7 +37,7 @@ namespace CQS.Genome.QC
       {
         ParsingErrors.Add(string.Format("Input directory doesn't contain bam statistic files: {0}", this.InputDir));
       }
-      
+
       return ParsingErrors.Count == 0;
     }
 

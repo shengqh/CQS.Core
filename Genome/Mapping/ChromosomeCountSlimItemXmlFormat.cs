@@ -1,7 +1,6 @@
 ﻿using RCPA;
 using RCPA.Gui;
 using RCPA.Utils;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
@@ -42,7 +41,7 @@ namespace CQS.Genome.Mapping
             query.Qname = source.GetAttribute("name");
             query.QueryCount = int.Parse(source.GetAttribute("count"));
             var seqAtrr = source.GetAttribute("seq");
-            if(seqAtrr != null)
+            if (seqAtrr != null)
             {
               query.Sequence = seqAtrr;
             }

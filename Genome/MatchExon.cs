@@ -1,8 +1,8 @@
-﻿using System;
+﻿using RCPA.Seq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using RCPA.Seq;
 
 namespace CQS.Genome
 {

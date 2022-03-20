@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using RCPA;
-using CQS.Genome.Sam;
-using Bio.IO.SAM;
-using RCPA.Commandline;
-using CommandLine;
-using System.IO;
-using CQS.Genome.Mirna;
-using RCPA.Seq;
+﻿using Bio.IO.SAM;
 using CQS.Genome.Gtf;
+using CQS.Genome.Sam;
 using CQS.Genome.SmallRNA;
+using RCPA;
+using RCPA.Seq;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace CQS.Genome.Pileup
 {

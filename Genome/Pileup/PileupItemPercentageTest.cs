@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using RCPA;
-using CQS.Statistics;
-using CQS.Genome.Statistics;
+﻿using CQS.Genome.Statistics;
 
 namespace CQS.Genome.Pileup
 {
@@ -31,7 +25,7 @@ namespace CQS.Genome.Pileup
   {
     private int minReads;
     private double minPrecentage;
-   
+
     public PileupItemTumorTest(int minReads, double minPrecentage)
     {
       this.minReads = minReads;

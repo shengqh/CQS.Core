@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace CQS.Genome.Annotation
 {
-  public class AnnovarSummaryItemListReader:IFileReader<AnnovarSummaryItemList>
+  public class AnnovarSummaryItemListReader : IFileReader<AnnovarSummaryItemList>
   {
     public AnnovarSummaryItemList ReadFromFile(string fileName)
     {

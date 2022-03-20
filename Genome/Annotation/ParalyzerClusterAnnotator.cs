@@ -114,10 +114,10 @@ namespace CQS.Genome.Annotation
             }
 
 
-            sw.WriteLine("{0},{1},{2},{3}", 
-              line, 
-              (from m in mingtfs select m.Name).Merge(";"), 
-              (from m in mingtfs select m.GetLocation()).Merge(";"), 
+            sw.WriteLine("{0},{1},{2},{3}",
+              line,
+              (from m in mingtfs select m.Name).Merge(";"),
+              (from m in mingtfs select m.GetLocation()).Merge(";"),
               mindist);
           }
         }

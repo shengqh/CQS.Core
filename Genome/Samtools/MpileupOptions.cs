@@ -1,11 +1,6 @@
 ﻿using CommandLine;
-using CQS.Genome.SomaticMutation;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace CQS.Genome.Samtools

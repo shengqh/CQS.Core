@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Text;
-using Bio.IO.SAM;
+﻿using Bio.IO.SAM;
 using Bio.Util;
 using RCPA.Seq;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Text;
 
 namespace CQS.Genome.Sam
 {
@@ -60,7 +60,7 @@ namespace CQS.Genome.Sam
       var unsignedValue = Helper.GetUInt32(alignmentBlock, 8);
 
       // 8th bytes
-      var queryNameLen = (int) (unsignedValue & 0x000000FF);
+      var queryNameLen = (int)(unsignedValue & 0x000000FF);
 
       // 32-(32+readLen) bytes
       var qname = Encoding.ASCII.GetString(alignmentBlock, 32, queryNameLen - 1);
@@ -78,21 +78,21 @@ namespace CQS.Genome.Sam
       // 12 - 16 bytes
       unsignedValue = Helper.GetUInt32(alignmentBlock, 12);
       // 14-16 bytes
-      var flagValue = (int) (unsignedValue & 0xFFFF0000) >> 16;
-      var flag = (SAMFlags) flagValue;
+      var flagValue = (int)(unsignedValue & 0xFFFF0000) >> 16;
+      var flag = (SAMFlags)flagValue;
 
       // 12-14 bytes
-      var cigarLen = (int) (unsignedValue & 0x0000FFFF);
+      var cigarLen = (int)(unsignedValue & 0x0000FFFF);
 
       // 16-20 bytes
       var readLen = Helper.GetInt32(alignmentBlock, 16);
 
       // 32-(32+readLen) bytes
-      var startIndex = 32 + queryNameLen + cigarLen*4;
+      var startIndex = 32 + queryNameLen + cigarLen * 4;
 
       var sequence = new StringBuilder();
       var index = startIndex;
-      for (; index < (startIndex + (readLen + 1)/2) - 1; index++)
+      for (; index < (startIndex + (readLen + 1) / 2) - 1; index++)
       {
         // Get first 4 bit value
         value = (alignmentBlock[index] & 0xF0) >> 4;
@@ -105,7 +105,7 @@ namespace CQS.Genome.Sam
       value = (alignmentBlock[index] & 0xF0) >> 4;
       sequence.Append(GetSeqChar(value, result.Qname));
 
-      if (readLen%2 == 0)
+      if (readLen % 2 == 0)
       {
         value = alignmentBlock[index] & 0x0F;
         sequence.Append(GetSeqChar(value, result.Qname));
@@ -118,7 +118,7 @@ namespace CQS.Genome.Sam
       {
         for (var i = startIndex; i < (startIndex + readLen); i++)
         {
-          qualValues.Append((char) (alignmentBlock[i] + 33));
+          qualValues.Append((char)(alignmentBlock[i] + 33));
         }
       }
       else

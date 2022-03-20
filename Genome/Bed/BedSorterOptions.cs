@@ -1,10 +1,6 @@
-﻿using System.Collections.Generic;
-using Bio.Util;
-using CommandLine;
+﻿using CommandLine;
 using RCPA.Commandline;
-using System;
 using System.IO;
-using System.Linq;
 
 namespace CQS.Genome.Bed
 {

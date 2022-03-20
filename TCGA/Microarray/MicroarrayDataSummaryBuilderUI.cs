@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
+﻿using RCPA;
 using RCPA.Gui;
-using RCPA.Gui.FileArgument;
 using RCPA.Gui.Command;
-using RCPA;
+using RCPA.Gui.FileArgument;
 
 namespace CQS.TCGA.Microarray
 {

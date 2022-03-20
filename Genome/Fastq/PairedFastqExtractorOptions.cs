@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using CommandLine;
 using RCPA;
 using RCPA.Commandline;
-using CommandLine;
+using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace CQS.Genome.Fastq
 {

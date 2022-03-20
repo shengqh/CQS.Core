@@ -1,10 +1,7 @@
-﻿using System;
+﻿using CQS.Genome.Bed;
+using RCPA;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using RCPA;
-using System.IO;
-using CQS.Genome.Bed;
 
 namespace CQS.Genome.Tophat
 {
@@ -16,14 +13,14 @@ namespace CQS.Genome.Tophat
 
       List<JunctionItem> result = (from bed in beds
                                    select new JunctionItem()
-               {
-                 Chr = bed.Seqname,
-                 Start1 = bed.Blocks[0].ChromStart,
-                 End1 = bed.Blocks[0].ChromEnd,
-                 Start2 = bed.Blocks[1].ChromStart,
-                 End2 = bed.Blocks[1].ChromEnd,
-                 Name = bed.Name
-               }).ToList();
+                                   {
+                                     Chr = bed.Seqname,
+                                     Start1 = bed.Blocks[0].ChromStart,
+                                     End1 = bed.Blocks[0].ChromEnd,
+                                     Start2 = bed.Blocks[1].ChromStart,
+                                     End2 = bed.Blocks[1].ChromEnd,
+                                     Name = bed.Name
+                                   }).ToList();
 
       return result;
     }

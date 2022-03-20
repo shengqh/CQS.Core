@@ -1,9 +1,8 @@
-﻿using System;
+﻿using Microsoft.Office.Interop.Excel;
+using RCPA;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using RCPA;
-using Microsoft.Office.Interop.Excel;
 
 namespace CQS.BreastCancer
 {
@@ -14,7 +13,7 @@ namespace CQS.BreastCancer
       var factory = new BreastCancerSampleItemPropertyFactory();
       var headers1 = BreastCancerSampleItemFormat.DefaultHeader.Split('\t');
       var converters1 = (from header in headers1
-                        select factory.FindConverter(header)).ToArray();
+                         select factory.FindConverter(header)).ToArray();
 
       var filtered = (from index in Enumerable.Range(0, headers1.Length)
                       let oldheader = headers1[index]
@@ -34,7 +33,7 @@ namespace CQS.BreastCancer
           for (int j = 0; j < filtered.Length; j++)
           {
             workSheet.Cells[1, j + 1] = filtered[j].Header;
-            Range r = (Microsoft.Office.Interop.Excel.Range)workSheet.Cells[1,j+1];
+            Range r = (Microsoft.Office.Interop.Excel.Range)workSheet.Cells[1, j + 1];
             r.EntireColumn.NumberFormat = "@";
           }
 

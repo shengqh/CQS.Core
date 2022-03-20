@@ -1,9 +1,9 @@
 ﻿using CQS.Genome.Bed;
 using RCPA;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System;
 
 namespace CQS.Genome.Gtf
 {
@@ -69,7 +69,8 @@ namespace CQS.Genome.Gtf
               name = item.Attributes.StringAfter("Name=").StringBefore(";");
             }
           }
-          else {
+          else
+          {
             name = item.GeneId;
             if (string.IsNullOrWhiteSpace(name)) //maybe in gff3 format
             {

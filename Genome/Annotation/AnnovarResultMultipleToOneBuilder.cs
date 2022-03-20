@@ -38,7 +38,7 @@ namespace CQS.Genome.Annotation
                 {
                   while ((line = sr2.ReadLine()) != null)
                   {
-                    if (!line.StartsWith("##MuTect=")) 
+                    if (!line.StartsWith("##MuTect="))
                       continue;
 
                     sw.WriteLine(line);
@@ -122,17 +122,17 @@ namespace CQS.Genome.Annotation
 
         //get all positions
         var keys = (from d in data
-          from k in d.Data.Keys
-          select k).Distinct().ToList().ConvertAll(m =>
-          {
-            var p = m.Split('_');
-            return new
-            {
-              Key = m,
-              Chr = p[0],
-              Position = int.Parse(p[1])
-            };
-          }
+                    from k in d.Data.Keys
+                    select k).Distinct().ToList().ConvertAll(m =>
+                    {
+                      var p = m.Split('_');
+                      return new
+                      {
+                        Key = m,
+                        Chr = p[0],
+                        Position = int.Parse(p[1])
+                      };
+                    }
           );
 
         GenomeUtils.SortChromosome(keys, m => m.Chr, m => m.Position);
@@ -143,7 +143,7 @@ namespace CQS.Genome.Annotation
         foreach (var d in data)
         {
           var vcf = files[d.File];
-          if (string.IsNullOrEmpty(vcf)) 
+          if (string.IsNullOrEmpty(vcf))
             continue;
 
           var vd = d.Data;
@@ -155,7 +155,7 @@ namespace CQS.Genome.Annotation
             var tumorIndex = -1;
             while ((line = sr.ReadLine()) != null)
             {
-              if (!line.StartsWith("#CHROM")) 
+              if (!line.StartsWith("#CHROM"))
                 continue;
 
               var parts = line.Split('\t');
@@ -183,11 +183,11 @@ namespace CQS.Genome.Annotation
               }
 
               var key = parts[0] + "_" + parts[1];
-              if (!keyMap.ContainsKey(key)) 
+              if (!keyMap.ContainsKey(key))
                 continue;
 
               FileDataValue fdv;
-              if(!vd.TryGetValue(key, out fdv))
+              if (!vd.TryGetValue(key, out fdv))
               {
                 fdv = new FileDataValue()
                 {

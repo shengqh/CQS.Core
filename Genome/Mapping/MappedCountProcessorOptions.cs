@@ -1,13 +1,12 @@
 ﻿using CommandLine;
-using CQS.Genome.Gtf;
-using System.Collections.Generic;
-using System.Linq;
-using System;
+using CQS.Genome.Feature;
 using RCPA;
 using RCPA.Seq;
 using RCPA.Utils;
-using CQS.Genome.Feature;
+using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace CQS.Genome.Mapping
 {

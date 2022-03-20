@@ -6,7 +6,7 @@ namespace CQS.Genome.SmallRNA
 {
   public class SmallRNAMapperLongRNA : SmallRNAMapper
   {
-    public SmallRNAMapperLongRNA(string mapperName, ISmallRNACountProcessorOptions options, Func<FeatureLocation, bool> accept) : base(mapperName, options,  accept)
+    public SmallRNAMapperLongRNA(string mapperName, ISmallRNACountProcessorOptions options, Func<FeatureLocation, bool> accept) : base(mapperName, options, accept)
     { }
 
     public override AcceptResult AcceptLocationPair(FeatureLocation floc, SAMAlignedLocation sloc)

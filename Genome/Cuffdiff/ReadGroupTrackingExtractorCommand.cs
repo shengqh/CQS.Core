@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using RCPA.Commandline;
-using CommandLine;
-using System.IO;
-using RCPA.Gui.Command;
+﻿using CommandLine;
 using RCPA;
+using RCPA.Commandline;
+using RCPA.Gui.Command;
+using System.Collections.Generic;
+using System.IO;
 
 namespace CQS.Genome.Cuffdiff
 {

@@ -1,10 +1,8 @@
-﻿using System;
+﻿using CQS.Genome.Bed;
+using RCPA;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.IO;
-using CQS.Genome.Bed;
-using RCPA;
 
 namespace CQS.Genome.Tophat
 {

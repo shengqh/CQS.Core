@@ -1,16 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
+﻿using RCPA;
 using RCPA.Gui;
-using RCPA.Gui.FileArgument;
 using RCPA.Gui.Command;
-using RCPA;
+using RCPA.Gui.FileArgument;
 using RCPA.Utils;
+using System;
+using System.Collections.Generic;
+using System.Data;
 using System.IO;
+using System.Linq;
+using System.Windows.Forms;
 
 namespace CQS.TCGA
 {
@@ -107,7 +105,7 @@ namespace CQS.TCGA
       _lastXml = xmlFile.FullName;
       _rootNode = new SpiderTreeNodeXmlFormat().ReadFromFile(xmlFile.FullName);
       _tumors = (from node in _rootNode.Nodes
-                select node.Name as object).Distinct().ToList();
+                 select node.Name as object).Distinct().ToList();
       FillTumor();
     }
 

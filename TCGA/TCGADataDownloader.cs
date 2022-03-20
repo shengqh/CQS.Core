@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using RCPA;
-using System.IO;
+﻿using RCPA;
 using RCPA.Utils;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace CQS.TCGA
 {
@@ -124,7 +123,7 @@ namespace CQS.TCGA
             Directory.Delete(fDir);
           }
 
-          if (!File.Exists(compressed)) 
+          if (!File.Exists(compressed))
             continue;
 
           File.Delete(compressed);

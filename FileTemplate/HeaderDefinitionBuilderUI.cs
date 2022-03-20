@@ -1,21 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
-using RCPA.Format;
-using System.IO;
+﻿using RCPA;
 using RCPA.Gui.Command;
 using RCPA.Utils;
-using CQS.Converter;
-using RCPA;
-using CQS.Ncbi.Geo;
-using CQS.Sample;
-using CQS.BreastCancer.parser;
-using RCPA.Gui;
+using System;
+using System.Data;
+using System.IO;
+using System.Linq;
+using System.Windows.Forms;
 
 namespace CQS.FileTemplate
 {
@@ -99,7 +89,7 @@ namespace CQS.FileTemplate
       }
       else
       {
-        dlgSaveFormatFile.FileName = Path.Combine(lastDirectory, txtName.Text + "." + dlgSaveFormatFile.DefaultExt );
+        dlgSaveFormatFile.FileName = Path.Combine(lastDirectory, txtName.Text + "." + dlgSaveFormatFile.DefaultExt);
         dlgSaveFormatFile.InitialDirectory = lastDirectory;
       }
 

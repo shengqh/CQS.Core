@@ -1,15 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
+﻿using RCPA;
 using RCPA.Gui;
-using RCPA.Gui.FileArgument;
 using RCPA.Gui.Command;
-using RCPA;
+using RCPA.Gui.FileArgument;
 
 namespace CQS.Genome.Mirna
 {
@@ -22,7 +14,7 @@ namespace CQS.Genome.Mirna
     {
       InitializeComponent();
 
-      this.SetFileArgument("miRNAFile", new OpenFileArgument("miRNA Database", new string[] {"fa","fasta" }));
+      this.SetFileArgument("miRNAFile", new OpenFileArgument("miRNA Database", new string[] { "fa", "fasta" }));
 
       this.Text = Constants.GetSQHTitle(title, version);
     }

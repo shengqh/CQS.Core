@@ -1,10 +1,7 @@
-﻿using System;
+﻿using RCPA;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using RCPA;
 using System.IO;
-using CQS.Converter;
 
 namespace CQS.Sample
 {
@@ -86,8 +83,8 @@ body
         for (int i = 0; i < t.Count; i++)
         {
           sw.WriteLine("<tr>");
-          
-          sw.WriteLine(nolinkstr, i+1);
+
+          sw.WriteLine(nolinkstr, i + 1);
           for (int j = 0; j < converters.Length; j++)
           {
 

@@ -1,9 +1,8 @@
-﻿using System;
+﻿using CQS.Microarray.Affymatrix;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
-using CQS.Microarray.Affymatrix;
+using System.Linq;
 
 namespace CQS.Ncbi.Geo
 {
@@ -14,8 +13,10 @@ namespace CQS.Ncbi.Geo
       Console.WriteLine(directory);
       var files = CelFile.GetCelFiles(directory);
       var groups = files.GroupBy(m => GetGsmName(m));
-      foreach(var group in groups){
-        if(group.Count() > 1){
+      foreach (var group in groups)
+      {
+        if (group.Count() > 1)
+        {
           Console.WriteLine("{0} : {1}", group.Key, group.ToList().ConvertAll(m => Path.GetFileName(m)).Merge(", "));
         }
       }

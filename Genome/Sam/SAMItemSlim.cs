@@ -36,7 +36,7 @@
         {
           return Sequence.Length;
         }
-        return (int) (End - Pos + 1);
+        return (int)(End - Pos + 1);
       }
     }
 
@@ -63,7 +63,7 @@
     }
 
     public long Pos { get; set; }
-    
+
     public string Sequence { get; set; }
 
     public string Qual { get; set; }

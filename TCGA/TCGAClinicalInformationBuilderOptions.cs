@@ -1,11 +1,6 @@
 ﻿using CommandLine;
-using RCPA.Commandline;
 using RCPA;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
+using RCPA.Commandline;
 
 namespace CQS.TCGA
 {

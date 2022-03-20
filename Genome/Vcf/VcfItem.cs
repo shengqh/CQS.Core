@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace CQS.Genome.Vcf
+﻿namespace CQS.Genome.Vcf
 {
   /// <summary>
   /// Vcf format, 1 based, close boundary

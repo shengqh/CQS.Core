@@ -1,11 +1,9 @@
-﻿using CQS.Genome.Gtf;
-using CQS.Statistics;
+﻿using CQS.Statistics;
 using RCPA;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace CQS.Genome.Vcf
 {

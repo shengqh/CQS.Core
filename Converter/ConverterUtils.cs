@@ -1,14 +1,13 @@
-﻿using System;
+﻿using CQS.BreastCancer;
+using CQS.Sample;
+using RCPA;
+using RCPA.Converter;
+using RCPA.Format;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using RCPA;
 using System.Reflection;
-using RCPA.Converter;
 using System.Xml.Linq;
-using RCPA.Format;
-using CQS.Sample;
-using CQS.BreastCancer;
 
 namespace CQS.Converter
 {

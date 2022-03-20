@@ -1,7 +1,7 @@
-﻿using System;
+﻿using CQS.Genome.Statistics;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using CQS.Genome.Statistics;
 
 namespace CQS.Genome.Pileup
 {

@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using Bio.IO.SAM;
+﻿using Bio.IO.SAM;
 using CQS.Genome.Sam;
 using RCPA.Seq;
+using System.Collections.Generic;
 
 namespace CQS.Genome.Pileup
 {
@@ -32,7 +32,7 @@ namespace CQS.Genome.Pileup
         var qname = parts[SAMFormatConst.QNAME_INDEX];
         var seq = parts[SAMFormatConst.SEQ_INDEX];
 
-        var flag = (SAMFlags) int.Parse(parts[SAMFormatConst.FLAG_INDEX]);
+        var flag = (SAMFlags)int.Parse(parts[SAMFormatConst.FLAG_INDEX]);
         //unmatched
         if (flag.HasFlag(SAMFlags.UnmappedQuery))
         {

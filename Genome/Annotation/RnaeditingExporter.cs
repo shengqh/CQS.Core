@@ -1,9 +1,8 @@
-﻿using System;
+﻿using CQS.Genome.Rnaediting;
+using RCPA;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using CQS.Genome.Rnaediting;
-using RCPA;
 
 namespace CQS.Genome.Annotation
 {
@@ -59,7 +58,7 @@ namespace CQS.Genome.Annotation
     private string GetValue(List<RnaeditItem> items, Func<RnaeditItem, string> func)
     {
       var strs = (from item in items
-                  select func(item).Trim().Replace('\t',' ')).ToList();
+                  select func(item).Trim().Replace('\t', ' ')).ToList();
 
       if (strs.All(m => string.IsNullOrEmpty(m)))
       {

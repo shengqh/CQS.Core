@@ -1,8 +1,8 @@
-﻿using System.IO;
-using RCPA;
+﻿using RCPA;
 using RCPA.Gui;
 using RCPA.Gui.Command;
 using RCPA.Gui.FileArgument;
+using System.IO;
 
 namespace CQS.Genome.Fastq
 {

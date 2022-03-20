@@ -1,17 +1,13 @@
-﻿using System;
+﻿using CQS.Genome.Mapping;
+using CQS.Genome.Sam;
+using CQS.Genome.SmallRNA;
+using RCPA;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
-using CQS.Genome.Sam;
-using System.Threading;
-using RCPA.Gui;
-using RCPA;
-using RCPA.Seq;
-using Bio.IO.SAM;
-using CQS.Genome.Mapping;
-using System.IO;
 using System.Text.RegularExpressions;
-using CQS.Genome.SmallRNA;
 
 namespace CQS.Genome.Gsnap
 {
@@ -36,10 +32,10 @@ namespace CQS.Genome.Gsnap
       {
         this.mutations = mutations;
       }
-      
-      if(validMutations == null)
+
+      if (validMutations == null)
       {
-        if(mutations == null)
+        if (mutations == null)
         {
           this.validMutations = new HashSet<char>(new char[] { 'C' });
         }

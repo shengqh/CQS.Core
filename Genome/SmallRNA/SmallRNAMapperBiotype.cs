@@ -1,6 +1,4 @@
-﻿using CQS.Genome.Feature;
-using CQS.Genome.Sam;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 

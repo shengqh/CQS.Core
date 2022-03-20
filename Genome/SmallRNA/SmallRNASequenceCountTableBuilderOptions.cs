@@ -46,7 +46,7 @@ namespace CQS.Genome.SmallRNA
     [Option("maxExtensionBase", DefaultValue = DEFAULT_MaximumExtensionBase, MetaValue = "INT", HelpText = "Maximum number of base extension each iteration for merge two reads. (0 means no limitation)")]
     public int MaximumExtensionBase { get; set; }
 
-    [OptionList("sequences", MetaValue = "STRNG", Separator =',', HelpText = "Specific sequences only, seperated by ','")]
+    [OptionList("sequences", MetaValue = "STRNG", Separator = ',', HelpText = "Specific sequences only, seperated by ','")]
     public IList<string> Sequences { get; set; }
 
     protected override void ValidateListFile()

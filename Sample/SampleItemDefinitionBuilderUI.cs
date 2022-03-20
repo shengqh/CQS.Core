@@ -1,23 +1,17 @@
-﻿using System;
+﻿using CQS.Microarray.Affymatrix;
+using CQS.Ncbi.Geo;
+using RCPA.Format;
+using RCPA.Gui;
+using RCPA.Gui.Command;
+using RCPA.Gui.FileArgument;
+using RCPA.Utils;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
-using RCPA.Format;
 using System.IO;
-using RCPA.Gui.Command;
-using RCPA.Utils;
-using CQS.Converter;
-using RCPA;
-using CQS.Ncbi.Geo;
-using CQS.Sample;
-using CQS.BreastCancer.parser;
-using RCPA.Gui;
-using RCPA.Gui.FileArgument;
-using CQS.Microarray.Affymatrix;
+using System.Linq;
+using System.Windows.Forms;
 
 
 namespace CQS.Sample

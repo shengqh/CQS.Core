@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using CQS.Genome.Statistics;
-using CQS.Statistics;
+﻿using CQS.Genome.Statistics;
 
 namespace CQS.Genome.Pileup
 {

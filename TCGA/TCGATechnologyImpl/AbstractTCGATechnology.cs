@@ -1,9 +1,8 @@
-﻿using System;
+﻿using RCPA;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using RCPA;
 using System.IO;
+using System.Linq;
 
 namespace CQS.TCGA.TCGATechnologyImpl
 {
@@ -105,9 +104,9 @@ namespace CQS.TCGA.TCGATechnologyImpl
               let finder = new DefaultParticipantFinder(GetFinder(tumordir, platformDir), string.Empty)
               //for each data directory
               from dataDir in Directory.GetDirectories(platformDir)
-              //get files
+                //get files
               from file in Directory.GetFiles(dataDir)
-              //filter files
+                //filter files
               where fileFilter(Path.GetFileName(file)) && !File.Exists(file + ".bad")
               //parse barcode
               let barcode = finder.FindParticipant(Path.GetFileName(file))
@@ -115,9 +114,9 @@ namespace CQS.TCGA.TCGATechnologyImpl
               where barcode != string.Empty
               //group by filename since there may be duplicated files in different data directory
               select new BarInfo(barcode, file, platform)).GroupBy(m => Path.GetFileName(m.FileName)).ToList().
-        //keep the last one
+                   //keep the last one
                    ConvertAll(m => m.Last()).OrderBy(m => m.BarCode).ToList().
-        //there may be multiple samples from same barcode sample
+                   //there may be multiple samples from same barcode sample
                    GroupBy(m => m.BarCode).ToDictionary(m => m.Key, m => m.ToList());
     }
 

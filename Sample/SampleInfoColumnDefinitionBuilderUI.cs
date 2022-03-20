@@ -1,13 +1,7 @@
 ﻿using RCPA.Gui;
 using RCPA.Gui.Command;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace CQS.Sample
@@ -16,7 +10,7 @@ namespace CQS.Sample
   {
     public static string Title = "GEO Sample Info Column Definition Builder";
 
-    public static string Version  ="1.0.0"    ;
+    public static string Version = "1.0.0";
 
     public SampleInfoColumnDefinitionBuilderUI()
     {

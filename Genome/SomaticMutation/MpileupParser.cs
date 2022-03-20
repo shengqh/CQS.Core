@@ -1,12 +1,10 @@
 ﻿using CQS.Genome.Bed;
 using CQS.Genome.Pileup;
-using CQS.Genome.Statistics;
-using RCPA.Gui;
 using RCPA;
-using System;
-using System.Linq;
+using RCPA.Gui;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace CQS.Genome.SomaticMutation
 {

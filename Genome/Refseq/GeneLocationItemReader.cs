@@ -1,19 +1,17 @@
-﻿using System;
+﻿using RCPA;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using RCPA;
 using System.IO;
 using System.Text.RegularExpressions;
 
 namespace CQS.Genome.Refseq
 {
-  public class GeneLocationItemReader:IFileReader<List<GeneLocationItem>>
+  public class GeneLocationItemReader : IFileReader<List<GeneLocationItem>>
   {
     private Regex reg = new Regex("gene_id\\s\"(\\S+?)\"; transcript_id\\s\"(\\S+?)\"");
 
     private Func<GeneLocationItem, bool> filter;
-    public GeneLocationItemReader(Func<GeneLocationItem, bool> filter=null)
+    public GeneLocationItemReader(Func<GeneLocationItem, bool> filter = null)
     {
       this.filter = filter;
     }

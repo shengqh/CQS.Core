@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using CQS.Genome.Gtf;
 using RCPA;
+using System;
+using System.Collections.Generic;
 using System.IO;
-using RCPA.Commandline;
-using CommandLine;
-using CQS.Genome.Bed;
-using CQS.Genome.Gtf;
+using System.Linq;
 
 namespace CQS.Genome.Bacteria
 {

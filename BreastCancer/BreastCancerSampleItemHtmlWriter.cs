@@ -1,10 +1,7 @@
-﻿using System;
+﻿using RCPA;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using RCPA;
 using System.IO;
-using CQS.Converter;
+using System.Linq;
 
 namespace CQS.BreastCancer
 {
@@ -18,7 +15,7 @@ namespace CQS.BreastCancer
       var headers = BreastCancerSampleItemFormat.DefaultHeader.Split('\t');
       var factory = new BreastCancerSampleItemPropertyFactory();
       var converters = (from header in headers
-                       select factory.FindConverter(header)).ToArray();
+                        select factory.FindConverter(header)).ToArray();
       using (StreamWriter sw = new StreamWriter(fileName))
       {
         sw.WriteLine("<table border=\"1\">");
@@ -33,8 +30,8 @@ namespace CQS.BreastCancer
         for (int i = 0; i < t.Count; i++)
         {
           sw.WriteLine("<tr>");
-          
-          sw.WriteLine(nolinkstr, i+1);
+
+          sw.WriteLine(nolinkstr, i + 1);
           for (int j = 0; j < headers.Length; j++)
           {
 

@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using CQS.Genome.Gtf;
 using RCPA;
-using RCPA.Commandline;
-using CQS.Genome.Gtf;
 using RCPA.Seq;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace CQS.Genome.Mirna
 {

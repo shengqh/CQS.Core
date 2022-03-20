@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using CQS.Genome.Pileup;
-
-namespace CQS.Genome.Rnaediting
+﻿namespace CQS.Genome.Rnaediting
 {
   public class RnaeditItem
   {

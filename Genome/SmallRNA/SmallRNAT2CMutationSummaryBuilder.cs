@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-using CQS.Genome.Feature;
-using CQS.Genome.Sam;
-using RCPA;
+﻿using CQS.Genome.Feature;
 using CQS.Genome.Parclip;
+using RCPA;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace CQS.Genome.SmallRNA
 {
@@ -117,7 +115,7 @@ namespace CQS.Genome.SmallRNA
                 ave_t2c_perread_allreads);
 
               swUnfiltered.WriteLine(value);
-              if(!ParclipSmallRNAT2CBuilder.Accept(pvalue, totalCount, totalT2CCount, options.Pvalue, options.MinimumCount, options.ExpectRate))
+              if (!ParclipSmallRNAT2CBuilder.Accept(pvalue, totalCount, totalT2CCount, options.Pvalue, options.MinimumCount, options.ExpectRate))
               {
                 continue;
               }

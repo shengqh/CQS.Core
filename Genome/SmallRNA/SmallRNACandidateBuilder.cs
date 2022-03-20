@@ -3,7 +3,6 @@ using CQS.Genome.Sam;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 namespace CQS.Genome.SmallRNA
 {
@@ -71,7 +70,8 @@ namespace CQS.Genome.SmallRNA
         miss1Queries.Clear();
         miss0Queries.Clear();
       }
-      else {
+      else
+      {
         using (var sr = SAMFactory.GetReader(fileName, true, options.CoordinateFile))
         {
           string line;

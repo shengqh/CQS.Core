@@ -1,16 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Net;
-using System.IO;
-using HtmlAgilityPack;
-using RCPA;
-using System.Xml.Linq;
-using System.Text.RegularExpressions;
+﻿using HtmlAgilityPack;
 using RCPA.Utils;
-using System.ComponentModel;
-using System.Threading;
+using System;
+using System.Collections.Generic;
+using System.IO;
 
 namespace CQS.TCGA
 {

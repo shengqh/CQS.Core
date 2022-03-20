@@ -1,22 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using RCPA;
-using System.IO;
-using CQS.Genome.Sam;
-using CQS.Genome.Gtf;
-using Bio.IO.SAM;
-using CQS.Genome.Bed;
-using CQS.Genome.Fastq;
-using System.Collections.Concurrent;
-using System.Threading;
-using RCPA.Commandline;
-using CommandLine;
-using System.Text.RegularExpressions;
-using CQS.Genome.Mapping;
-using CQS.Genome.Mirna;
+﻿using RCPA;
 using RCPA.Utils;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace CQS.Genome.Mapping
 {

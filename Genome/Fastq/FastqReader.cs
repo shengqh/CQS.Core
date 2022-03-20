@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
 
 namespace CQS.Genome.Fastq
@@ -17,7 +14,7 @@ namespace CQS.Genome.Fastq
       this.AcceptName = m => true;
     }
 
-    public Func<string, bool> AcceptName {get;set;}
+    public Func<string, bool> AcceptName { get; set; }
     #region Methods
 
     /// <summary>

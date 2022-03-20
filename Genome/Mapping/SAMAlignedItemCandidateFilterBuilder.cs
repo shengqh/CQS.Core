@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Bio.IO.SAM;
 using CQS.Genome.Sam;
-using System.Threading;
-using RCPA.Gui;
 using RCPA;
 using RCPA.Seq;
-using Bio.IO.SAM;
-using System.Text.RegularExpressions;
+using System;
+using System.Collections.Generic;
 
 namespace CQS.Genome.Mapping
 {
@@ -32,7 +27,7 @@ namespace CQS.Genome.Mapping
       this._filter = filter;
     }
 
-    protected override List<T> DoBuild<T>(string fileName, out List<QueryInfo> totalQueries) 
+    protected override List<T> DoBuild<T>(string fileName, out List<QueryInfo> totalQueries)
     {
       var result = new List<T>();
 

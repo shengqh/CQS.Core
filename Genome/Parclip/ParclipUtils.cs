@@ -1,6 +1,5 @@
 ﻿using CQS.Genome.Bed;
 using CQS.Genome.Feature;
-using CQS.Genome.SmallRNA;
 using RCPA;
 using RCPA.Seq;
 using RCPA.Utils;
@@ -8,8 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CQS.Genome.Parclip
 {
@@ -169,7 +166,7 @@ namespace CQS.Genome.Parclip
             foreach (var l in lst)
             {
               l.Sequence = seq.SeqString.Substring((int)(l.Start - 1), (int)l.Length);
-              if(l.Strand == '+')
+              if (l.Strand == '+')
               {
                 l.ReverseComplementedSequence = SequenceUtils.GetReverseComplementedSequence(l.Sequence);
               }
@@ -231,7 +228,7 @@ namespace CQS.Genome.Parclip
               }
               else
               {
-                map[i] = new CoverageSite(sloc.SamLocation.Parent.QueryCount, sloc.SamLocation.Parent.Qname );
+                map[i] = new CoverageSite(sloc.SamLocation.Parent.QueryCount, sloc.SamLocation.Parent.Qname);
               }
             }
           }
@@ -467,9 +464,9 @@ namespace CQS.Genome.Parclip
 
       //For each gene, only the longest one will be kept
       var individualGenes = (from cs in individualSeeds.GroupBy(m => m.GeneSymbol)
-                let csitem = cs.GroupBy(l => l.Length).OrderByDescending(k => k.Key).First()
-                from ls in csitem
-                select ls).OrderByDescending(l => l.Length).ToList();
+                             let csitem = cs.GroupBy(l => l.Length).OrderByDescending(k => k.Key).First()
+                             from ls in csitem
+                             select ls).OrderByDescending(l => l.Length).ToList();
 
       //Merge the seeds with same gene symbol, same location but different name
       var final = new List<SeedItem>();

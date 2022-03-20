@@ -1,5 +1,5 @@
-﻿using System;
-using Bio.IO.SAM;
+﻿using Bio.IO.SAM;
+using System;
 
 namespace CQS.Genome.Fastq
 {

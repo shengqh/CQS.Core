@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace CQS.Genome.Mapping
 {
@@ -15,7 +14,7 @@ namespace CQS.Genome.Mapping
     public static CountMappingSummaryBuilderConfiguration Read(string fileName)
     {
       var result = new CountMappingSummaryBuilderConfiguration();
-      
+
       var lines = File.ReadAllLines(fileName).Where(m => !string.IsNullOrWhiteSpace(m)).ToArray();
 
       result.SearchTypes = lines[0].Split('\t').Skip(1).ToList();

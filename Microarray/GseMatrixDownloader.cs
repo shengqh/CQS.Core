@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using RCPA;
-using System.IO;
-using CQS.Genome.Fastq;
-using System.Text.RegularExpressions;
-using System.Net;
+﻿using RCPA;
 using RCPA.Utils;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net;
 
 namespace CQS.Microarray
 {

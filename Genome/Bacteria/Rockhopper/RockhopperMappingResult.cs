@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace CQS.Genome.Bacteria.Rockhopper
+﻿namespace CQS.Genome.Bacteria.Rockhopper
 {
   public class RockhopperMappingResult
   {

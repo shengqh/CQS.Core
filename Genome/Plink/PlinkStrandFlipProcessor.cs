@@ -1,15 +1,9 @@
-﻿using CQS.Genome.Bed;
-using CQS.Genome.Gwas;
-using CQS.Genome.Plink;
+﻿using CQS.Genome.Gwas;
 using RCPA;
-using RCPA.Seq;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CQS.Genome.Plink
 {
@@ -89,7 +83,7 @@ namespace CQS.Genome.Plink
       }
 
       Dictionary<string, StrandAction> actionMap = new Dictionary<string, StrandAction>();
-      
+
       var statFile = options.OutputPrefix + ".stat";
       result.Add(statFile);
       using (var sw = new StreamWriter(statFile))

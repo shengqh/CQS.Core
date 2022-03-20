@@ -28,7 +28,7 @@ namespace CQS.Genome.Mapping
     [Option('m', "mergeChromosomesByReads", Required = false, MetaValue = "BOOLEAN", HelpText = "Merge chromosomes by mapped reads")]
     public bool MergeChromosomesByReads { get; set; }
 
-    [Option("chromosomePattern", Required = false, DefaultValue ="", MetaValue = "String", HelpText = "Only count chromosome with pattern")]
+    [Option("chromosomePattern", Required = false, DefaultValue = "", MetaValue = "String", HelpText = "Only count chromosome with pattern")]
     public string ChromosomePattern { get; set; }
 
     [Option("keepChrInName", Required = false, MetaValue = "BOOLEAN", HelpText = "Keep 'chr' in chromosome name")]

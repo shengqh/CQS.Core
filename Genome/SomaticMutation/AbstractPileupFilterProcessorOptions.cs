@@ -1,7 +1,5 @@
-﻿using System.IO;
-using CommandLine;
-using RCPA.Utils;
-using System;
+﻿using CommandLine;
+using System.IO;
 
 namespace CQS.Genome.SomaticMutation
 {

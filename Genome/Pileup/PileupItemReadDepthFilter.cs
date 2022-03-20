@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using RCPA;
 using System.Linq;
-using System.Text;
-using RCPA;
-using CQS.Statistics;
-using CQS.Genome.Statistics;
 
 namespace CQS.Genome.Pileup
 {

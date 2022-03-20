@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using RCPA;
-using System.IO;
-using CQS.Genome.Fastq;
+﻿using CQS.Genome.Fastq;
 using CQS.Genome.SmallRNA;
+using RCPA;
+using System.Collections.Generic;
+using System.IO;
 
 namespace CQS.Genome.Mirna
 {
@@ -45,7 +42,7 @@ namespace CQS.Genome.Mirna
         using (var sw = StreamUtils.GetWriter(options.OutputFile, gzipped))
         {
           FastqSequence seq;
-          while((seq = parser.Parse(sr)) != null)
+          while ((seq = parser.Parse(sr)) != null)
           {
             readcount++;
             if (readcount % 100000 == 0)

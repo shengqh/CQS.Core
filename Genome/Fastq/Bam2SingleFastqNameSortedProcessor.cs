@@ -1,7 +1,7 @@
-﻿using System;
+﻿using RCPA;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using RCPA;
 
 namespace CQS.Genome.Fastq
 {

@@ -15,7 +15,7 @@ namespace CQS.Genome.Annotation
       InitializeComponent();
 
       this.annFile.FileArgument = new OpenFileArgument("Annovar Gene Summary", "tsv");
-      this.affyFile.FileArgument = new OpenFileArgument("Affymetrix Annotation","csv");
+      this.affyFile.FileArgument = new OpenFileArgument("Affymetrix Annotation", "csv");
 
       this.Text = Constants.GetSQHTitle(title, version);
     }
@@ -31,5 +31,5 @@ namespace CQS.Genome.Annotation
 
       return new AnnovarGenomeSummaryRefinedResultTsvBuilder(options);
     }
-   }
+  }
 }

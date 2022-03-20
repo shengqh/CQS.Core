@@ -1,8 +1,7 @@
-﻿using System;
+﻿using CQS.TCGA.TCGATechnologyImpl;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using CQS.TCGA.TCGATechnologyImpl;
 
 namespace CQS.TCGA
 {

@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace CQS.Genome.Gwas
 {
@@ -39,7 +38,7 @@ namespace CQS.Genome.Gwas
             {
               string[] parts = line.Take(delimiter, 3);
               bool isImputed = parts[0].Equals("---");
-              if(isImputed)
+              if (isImputed)
               {
                 if (locusMap.TryGetValue(parts[2], out item))
                 {

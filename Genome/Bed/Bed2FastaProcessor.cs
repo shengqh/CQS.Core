@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using CQS.Genome.Gtf;
 using RCPA;
-using Bio.IO.SAM;
-using System.IO;
-using CQS.Genome.Sam;
 using RCPA.Seq;
-using CQS.Genome.Gtf;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace CQS.Genome.Bed
 {
@@ -81,7 +78,7 @@ namespace CQS.Genome.Bed
               Progress.SetMessage("  there are {0} entries in {1} ...", items.Count, name);
               foreach (var item in items)
               {
-                if(item.Start - 1 + item.Length >= seq.SeqString.Length)
+                if (item.Start - 1 + item.Length >= seq.SeqString.Length)
                 {
                   throw new Exception(string.Format("{0} exceed chromosome {1} length {2}", item, name, seq.SeqString.Length));
                 }

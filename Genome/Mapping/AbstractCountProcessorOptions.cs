@@ -1,16 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using RCPA.Commandline;
-using CommandLine;
-using System.IO;
-using CQS.Genome.Sam;
-using CQS.Genome.Gtf;
-using RCPA.Seq;
-using CQS.Genome.Feature;
+﻿using CommandLine;
 using CQS.Genome.Gsnap;
 using CQS.Genome.SmallRNA;
+using System.IO;
 
 namespace CQS.Genome.Mapping
 {

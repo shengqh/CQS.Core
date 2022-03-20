@@ -1,14 +1,9 @@
-﻿using System;
+﻿using RCPA;
+using RCPA.Utils;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using CQS.Genome.Fastq;
-using CQS.Genome.Sam;
-using CQS.Genome.Mirna;
-using CQS.Genome.Feature;
-using CQS.Genome.Mapping;
-using RCPA.Utils;
-using RCPA;
 
 namespace CQS.Genome.SmallRNA
 {

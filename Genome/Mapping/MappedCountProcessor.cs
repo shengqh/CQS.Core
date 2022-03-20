@@ -1,12 +1,11 @@
-﻿using System;
+﻿using CQS.Genome.Fastq;
+using CQS.Genome.Feature;
+using CQS.Genome.Sam;
+using CQS.Genome.SmallRNA;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using CQS.Genome.Fastq;
-using CQS.Genome.Sam;
-using CQS.Genome.Mirna;
-using CQS.Genome.Feature;
-using CQS.Genome.SmallRNA;
 
 namespace CQS.Genome.Mapping
 {

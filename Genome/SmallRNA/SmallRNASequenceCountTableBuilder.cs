@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace CQS.Genome.SmallRNA
 {
@@ -86,7 +85,8 @@ namespace CQS.Genome.SmallRNA
           }
         }
       }
-      else {
+      else
+      {
         OutputGroup(result, counts, samples);
         var readOutput = Path.ChangeExtension(options.OutputFile, ".read.count");
         var readFormat = new SmallRNASequenceFormat(options.TopNumber, options.ExportFasta);

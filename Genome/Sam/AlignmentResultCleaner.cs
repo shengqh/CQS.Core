@@ -1,8 +1,8 @@
-﻿using System;
+﻿using RCPA;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using RCPA;
 
 namespace CQS.Genome.Sam
 {

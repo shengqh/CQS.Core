@@ -1,9 +1,7 @@
-﻿using System;
+﻿using CQS.Ncbi.Geo;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
-using CQS.Ncbi.Geo;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace CQS.BreastCancer.parser

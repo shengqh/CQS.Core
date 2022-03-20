@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Net;
-using System.IO;
-using System.Security.Cryptography.X509Certificates;
-using System.Net.Security;
-using RCPA.Utils;
-using System.Threading;
+﻿using RCPA.Utils;
+using System;
 using System.ComponentModel;
+using System.IO;
+using System.Net;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
+using System.Threading;
 
 namespace CQS
 {
@@ -96,7 +93,7 @@ namespace CQS
         Console.WriteLine("        " + Path.GetFileName(uri) + " ...");
         webClient.DownloadFileAsync(new Uri(uri), tempFile);
 
-        while(webClient.IsBusy)
+        while (webClient.IsBusy)
         {
           if (callback != null && callback.IsCancellationPending())
           {

@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace CQS.Ncbi.Geo
 {
@@ -28,7 +27,7 @@ namespace CQS.Ncbi.Geo
 
     public Dictionary<string, Func<GsmRecord, bool>> AcceptMap { get; set; }
 
-    public Dictionary<string, Func<Dictionary<string,List<string>>, bool>> AcceptDescriptionMap { get; set; }
+    public Dictionary<string, Func<Dictionary<string, List<string>>, bool>> AcceptDescriptionMap { get; set; }
 
     public GeoFileDownloaderOptions()
     {

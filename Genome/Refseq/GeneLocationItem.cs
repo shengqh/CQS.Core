@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace CQS.Genome.Refseq
+﻿namespace CQS.Genome.Refseq
 {
   public class GeneLocationItem
   {
     public string Chromosome { get; set; }
-    
+
     public string Database { get; set; }
 
     public string ItemType { get; set; }

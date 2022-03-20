@@ -1,13 +1,4 @@
-﻿using CQS.TCGA;
-using RCPA.Seq;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using RCPA;
-
-namespace CQS.TCGA
+﻿namespace CQS.TCGA
 {
   public class DataBuilder
   {

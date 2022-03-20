@@ -1,8 +1,8 @@
-﻿using System.Linq;
-using System.Collections.Generic;
+﻿using RCPA;
 using System;
+using System.Collections.Generic;
 using System.IO;
-using RCPA;
+using System.Linq;
 
 namespace CQS.Genome.SmallRNA
 {

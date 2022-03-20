@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-using System.Diagnostics;
-using Bio.IO.BAM;
-using Bio.IO.SAM;
+﻿using System.Collections.Generic;
 
 namespace CQS.Genome.Sam
 {

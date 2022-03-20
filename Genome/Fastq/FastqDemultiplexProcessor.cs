@@ -1,10 +1,8 @@
-﻿using System;
+﻿using RCPA;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using RCPA;
 using System.IO;
-using CQS.Genome.Fastq;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace CQS.Genome.Fastq
@@ -66,7 +64,7 @@ namespace CQS.Genome.Fastq
         using (var sr = StreamUtils.GetReader(options.InputFile))
         {
           FastqSequence seq;
-          while((seq = parser.Parse(sr)) != null)
+          while ((seq = parser.Parse(sr)) != null)
           {
             //Console.WriteLine("seq = " + seq.Reference);
 

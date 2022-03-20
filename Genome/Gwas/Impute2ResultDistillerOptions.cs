@@ -1,17 +1,13 @@
 ﻿using CommandLine;
 using RCPA.Commandline;
-using RCPA;
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 
 namespace CQS.Genome.Gwas
 {
   public class Impute2ResultDistillerOptions : AbstractOptions
   {
-    [OptionList('i', "inputFiles", Required = true, Separator=',', MetaValue = "FILE LIST", HelpText = "Input impute2 files, separate by ','")]
+    [OptionList('i', "inputFiles", Required = true, Separator = ',', MetaValue = "FILE LIST", HelpText = "Input impute2 files, separate by ','")]
     public IList<string> InputFiles { get; set; }
 
     [Option('t', "targetSnpFile", Required = true, MetaValue = "FILE", HelpText = "Target snp file")]

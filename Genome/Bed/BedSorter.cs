@@ -1,5 +1,4 @@
-﻿using CQS.Genome.Gtf;
-using RCPA;
+﻿using RCPA;
 using System;
 using System.Collections.Generic;
 using System.IO;

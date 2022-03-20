@@ -1,14 +1,10 @@
 ﻿using CommandLine;
 using RCPA.Commandline;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 
 namespace CQS.Genome.Plink
 {
-  public class PlinkMinorAlleleFrequencyBuilderOptions:AbstractOptions
+  public class PlinkMinorAlleleFrequencyBuilderOptions : AbstractOptions
   {
     [Option('i', "inputFile", Required = true, MetaValue = "FILE", HelpText = "Plink bed file")]
     public string InputFile { get; set; }

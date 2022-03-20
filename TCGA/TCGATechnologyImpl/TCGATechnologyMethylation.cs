@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using RCPA;
-using CQS.TCGA.Microarray;
+﻿using RCPA;
+using System;
 
 namespace CQS.TCGA.TCGATechnologyImpl
 {

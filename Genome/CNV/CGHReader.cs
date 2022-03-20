@@ -1,8 +1,6 @@
-﻿using System;
+﻿using RCPA;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using RCPA;
 using System.IO;
 
 namespace CQS.Genome.CNV
@@ -36,7 +34,7 @@ namespace CQS.Genome.CNV
       };
       headerMap["pval"] = CNVItemUtils.FuncPValue;
       headerMap["Gene Names"] = CNVItemUtils.FuncAnnotation;
-      
+
     }
 
     public List<CNVItem> ReadFromFile(string fileName)

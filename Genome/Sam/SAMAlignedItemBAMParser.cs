@@ -1,10 +1,9 @@
-﻿using System;
+﻿using Bio.IO.SAM;
+using Bio.Util;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text;
-using Bio.IO.SAM;
-using Bio.Util;
 
 namespace CQS.Genome.Sam
 {
@@ -163,7 +162,7 @@ namespace CQS.Genome.Sam
             options.Add(string.Empty);
           }
 
-          for (index = startIndex; index < alignmentBlock.Length; )
+          for (index = startIndex; index < alignmentBlock.Length;)
           {
             var tag = Encoding.ASCII.GetString(alignmentBlock, index, 2);
             index += 2;

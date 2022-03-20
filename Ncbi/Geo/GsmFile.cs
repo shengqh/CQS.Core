@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using CQS.BreastCancer;
-using System.IO;
+﻿using CQS.Microarray;
 using CQS.Sample;
-using CQS.Microarray;
+using System.Collections.Generic;
+using System.IO;
 
 namespace CQS.Ncbi.Geo
 {

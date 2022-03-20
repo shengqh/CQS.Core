@@ -1,10 +1,10 @@
-﻿using System;
+﻿using CQS.Genome.Bed;
+using CQS.Genome.Gtf;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using CQS.Genome.Bed;
-using CQS.Genome.Gtf;
 using System.Xml.Linq;
 
 namespace CQS.Genome

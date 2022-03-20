@@ -1,6 +1,4 @@
-﻿using CQS.Genome.Sam;
-using CQS.Genome.SmallRNA;
-using RCPA;
+﻿using RCPA;
 using System;
 using System.Collections.Generic;
 using System.IO;

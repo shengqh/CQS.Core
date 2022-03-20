@@ -40,7 +40,7 @@ namespace CQS.Genome.Parclip
 
           foreach (var offset in offsets)
           {
-            if(offset + options.MinimumSeedLength >= seq.Length)
+            if (offset + options.MinimumSeedLength >= seq.Length)
             {
               Console.Error.WriteLine("t2c={0}/{1}, seq={2}, offset={3}, minseed={4}", t2c.Name, t2c.GeneSymbol, seq, offset, options.MinimumSeedLength);
               continue;

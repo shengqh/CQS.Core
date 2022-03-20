@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
+﻿using CQS.Microarray.Affymatrix;
 using RCPA;
-using CQS.Microarray.Affymatrix;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace CQS.BreastCancer.parser
 {

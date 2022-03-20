@@ -1,7 +1,7 @@
-﻿using System;
+﻿using RCPA;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using RCPA;
 
 namespace CQS.Genome.Fastq
 {
@@ -66,7 +66,7 @@ namespace CQS.Genome.Fastq
                 sr.IgnoreQuery.Add(ss.Qname);
                 sr.IgnoreQuery.Add(paired.Qname);
                 map.Remove(ss.PairName);
-                outputCount ++;
+                outputCount++;
                 if (outputCount % 100000 == 0)
                 {
                   var temp = new Dictionary<string, FastqItem>(map);

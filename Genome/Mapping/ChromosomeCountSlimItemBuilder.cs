@@ -32,7 +32,7 @@ namespace CQS.Genome.Mapping
         {
           return sourceName;
         }
-        
+
         if (sourceName.Length >= 4 && sourceName.StartsWith("chr") && char.IsLetterOrDigit(sourceName[3]))
         {
           return sourceName.StringAfter("chr");

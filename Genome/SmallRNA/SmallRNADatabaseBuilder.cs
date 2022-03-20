@@ -1,14 +1,11 @@
 ﻿using CQS.Genome.Bed;
 using CQS.Genome.Gtf;
-using LumenWorks.Framework.IO.Csv;
 using RCPA;
 using RCPA.Seq;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 
 namespace CQS.Genome.SmallRNA
 {

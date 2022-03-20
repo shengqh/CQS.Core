@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using CQS.Ncbi.Geo;
-
-namespace CQS.Sample
+﻿namespace CQS.Sample
 {
   public static class DataLinkUtils
   {

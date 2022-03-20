@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using RCPA;
-using System.IO;
-using RCPA.Converter;
-using CQS.Converter;
+﻿using CQS.Converter;
 using CQS.Sample;
+using RCPA;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace CQS.BreastCancer
 {
@@ -19,8 +17,8 @@ namespace CQS.BreastCancer
         var headers = ConverterUtils.GetItems<BreastCancerSampleItem, SampleInfoAttribute>();
 
         var propertyNames = (from h in headers
-                         orderby h.PropertyName
-                         select h.PropertyName).ToList();
+                             orderby h.PropertyName
+                             select h.PropertyName).ToList();
 
         propertyNames.Insert(0, "Sample");
         propertyNames.Insert(0, "Dataset");

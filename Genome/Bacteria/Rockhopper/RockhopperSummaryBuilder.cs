@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace CQS.Genome.Bacteria.Rockhopper
 {
@@ -76,7 +75,8 @@ namespace CQS.Genome.Bacteria.Rockhopper
       }
     }
 
-    private double GetLogFoldChange(double rpkm1, double rpkm2){
+    private double GetLogFoldChange(double rpkm1, double rpkm2)
+    {
       if (rpkm1 == 0 && rpkm2 == 0)
       {
         return 0;

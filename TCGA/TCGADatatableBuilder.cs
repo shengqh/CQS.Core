@@ -1,9 +1,9 @@
-﻿using System;
+﻿using CQS.FileTemplate;
+using RCPA;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using CQS.FileTemplate;
-using RCPA;
 
 namespace CQS.TCGA
 {

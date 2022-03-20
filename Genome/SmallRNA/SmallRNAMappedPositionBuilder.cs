@@ -1,5 +1,4 @@
 ﻿using CQS.Genome.Feature;
-using RCPA;
 using RCPA.Utils;
 using System;
 using System.Collections.Generic;
@@ -10,7 +9,7 @@ namespace CQS.Genome.SmallRNA
 {
   public class SmallRNAMappedPositionBuilder
   {
-    public static void Build(List<FeatureItemGroup> features, string title, string outputFile, Func<FeatureItemGroup, string> getName, bool positionByPercentage=false, int minimumReadCount = 5)
+    public static void Build(List<FeatureItemGroup> features, string title, string outputFile, Func<FeatureItemGroup, string> getName, bool positionByPercentage = false, int minimumReadCount = 5)
     {
       //var format = new MappedItemGroupXmlFileFormat();
 

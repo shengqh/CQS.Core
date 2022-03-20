@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-
-namespace CQS.Genome.SomaticMutation
+﻿namespace CQS.Genome.SomaticMutation
 {
   public class SomaticItem : RCPA.Annotation
   {
