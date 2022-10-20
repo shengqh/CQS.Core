@@ -74,17 +74,20 @@ namespace CQS.Genome.SmallRNA
 
       var hasTrnaNTA = hasMicroRnaNTA || File.Exists(options.CCAFile);
 
-      if (!options.NoCategory)
-      {
-        //First of all, draw candidate mapping position graph
-        var miRNAPositionFile = Path.ChangeExtension(options.OutputFile, SmallRNAConsts.miRNA + ".candidates.position");
-        if (!options.NotOverwrite || !File.Exists(miRNAPositionFile))
-        {
-          Progress.SetMessage("Drawing microRNA candidates position pictures...");
-          var notNTAreads = hasMicroRnaNTA ? reads.Where(m => m.NTA.Length == 0).ToList() : reads;
-          DrawPositionImage(notNTAreads, featureLocations.Where(m => m.Category.Equals(SmallRNAConsts.miRNA)).ToList(), SmallRNABiotype.miRNA.ToString(), miRNAPositionFile);
-        }
-      }
+      //var categories = new HashSet<string>(from fl in featureLocations select fl.Category);
+      //Progress.SetMessage("Those categories were detected: {0}", string.Join(",", categories.ToArray()));
+
+      //if (!options.NoCategory)
+      //{
+      //  //First of all, draw candidate mapping position graph
+      //  var miRNAPositionFile = Path.ChangeExtension(options.OutputFile, SmallRNAConsts.miRNA + ".candidates.position");
+      //  if (!options.NotOverwrite || !File.Exists(miRNAPositionFile))
+      //  {
+      //    Progress.SetMessage("Drawing microRNA candidates position pictures...");
+      //    var notNTAreads = hasMicroRnaNTA ? reads.Where(m => m.NTA.Length == 0).ToList() : reads;
+      //    DrawPositionImage(notNTAreads, featureLocations.Where(m => m.Category.Equals(SmallRNAConsts.miRNA)).ToList(), SmallRNABiotype.miRNA.ToString(), miRNAPositionFile);
+      //  }
+      //}
 
       var featureGroups = new List<FeatureItemGroup>();
       var mappedfile = resultFilename + ".mapped.xml";
