@@ -174,6 +174,7 @@ namespace CQS.Genome.SmallRNA
       var result = items.ConvertAll(m => new FeatureLocation(m)).ToList();
       result.ForEach(m =>
       {
+        m.Category = "";
         foreach (var categoryName in SmallRNAConsts.Biotypes)
         {
           if (m.Name.StartsWith(categoryName))
@@ -182,6 +183,13 @@ namespace CQS.Genome.SmallRNA
           }
         }
       });
+
+      if(result.All( l => l.Category.Equals("")))
+      {
+        var nocategories = result.Where(l => l.Category.Equals("")).ToList();
+        throw new Exception(string.Format("There are no category assigned to all {0} regions based on name, such as {1}, check your coordinate file {2}", nocategories.Count, nocategories[0].Name, CoordinateFile));
+      }
+
       return result;
     }
   }
