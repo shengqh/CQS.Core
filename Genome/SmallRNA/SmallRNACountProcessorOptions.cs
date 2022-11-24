@@ -20,6 +20,9 @@ namespace CQS.Genome.SmallRNA
     [Option("exportSnoRNA", HelpText = "Export snoRNA individually")]
     public bool ExportSnoRNA { get; set; }
 
+    [Option("exportERV", HelpText = "Export ERV individually")]
+    public bool ExportERV { get; set; }
+
     [Option("newMethod", HelpText = "Using fast method to parse result (Deprecated)")]
     public bool NewMethod { get; set; }
 

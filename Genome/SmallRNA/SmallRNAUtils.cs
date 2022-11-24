@@ -241,6 +241,10 @@ namespace CQS.Genome.SmallRNA
       }
       result.Add(SmallRNABiotype.mt_tRNA.ToString());
       result.Add(SmallRNABiotype.rRNA.ToString());
+      if (options.ExportERV)
+      {
+        result.Add(SmallRNABiotype.ERV.ToString());
+      }
       return result.ToArray();
     }
 

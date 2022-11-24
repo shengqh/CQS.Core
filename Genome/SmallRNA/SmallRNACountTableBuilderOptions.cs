@@ -17,6 +17,9 @@ namespace CQS.Genome.SmallRNA
     [Option("exportSnoRNA", HelpText = "Export snoRNA individually")]
     public bool ExportSnoRNA { get; set; }
 
+    [Option("exportERV", HelpText = "Export ERV individually")]
+    public bool ExportERV { get; set; }
+
     public SmallRNACountTableBuilderOptions()
     { }
 

@@ -261,12 +261,16 @@ namespace CQS.Genome.SmallRNA
           !feature.Category.Equals(SmallRNABiotype.rRNA.ToString()) &&
           !feature.Name.Contains("SILVA_") && !feature.Name.Contains(SmallRNAConsts.rRNADB_KEY) &&
           !feature.Category.Equals(SmallRNABiotype.lincRNA.ToString()) &&
-          !feature.Category.Equals(SmallRNABiotype.lncRNA.ToString()))
+          !feature.Category.Equals(SmallRNABiotype.lncRNA.ToString()) &&
+          !feature.Category.Equals(SmallRNABiotype.ERV.ToString()))
         { Progress = this.Progress });
 
         //lncRNA
         mappers.Add(new SmallRNAMapperLincRNA(SmallRNABiotype.lincRNA.ToString(), options) { Progress = this.Progress });
         mappers.Add(new SmallRNAMapperLincRNA(SmallRNABiotype.lncRNA.ToString(), options) { Progress = this.Progress });
+
+        //ERV
+        mappers.Add(new SmallRNAMapperLincRNA(SmallRNABiotype.ERV.ToString(), options) { Progress = this.Progress });
       }
       else
       {
@@ -299,6 +303,7 @@ namespace CQS.Genome.SmallRNA
       sw.WriteLine("#exportYRNA\t{0}", options.ExportYRNA);
       sw.WriteLine("#exportSnRNA\t{0}", options.ExportSnRNA);
       sw.WriteLine("#exportSnoRNA\t{0}", options.ExportSnoRNA);
+      sw.WriteLine("#exportERV\t{0}", options.ExportERV);
       sw.WriteLine("#newMethod\t{0}", options.NewMethod);
     }
   }

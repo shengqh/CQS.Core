@@ -3,7 +3,7 @@
 namespace CQS.Genome.SmallRNA
 {
   //The feature name of smallRNA in ensembl gff file
-  public enum SmallRNABiotype { miRNA, tRNA, mt_tRNA, yRNA, snoRNA, snRNA, rRNA, misc_RNA, lincRNA, lncRNA };
+  public enum SmallRNABiotype { miRNA, tRNA, mt_tRNA, yRNA, snoRNA, snRNA, rRNA, misc_RNA, lincRNA, lncRNA, ERV };
 
   public static class SmallRNAConsts
   {
