@@ -104,6 +104,7 @@ namespace CQS.Genome.SmallRNA
         result.AddRange(new TrnaNTACountTableWriter().WriteToFile(tRNAFile, tRNAGroup, samples, SmallRNAConsts.tRNA + ":"));
         Progress.SetMessage("Writing tRNA anticodon position ...");
         new SmallRNAPositionWriter(m => SmallRNAUtils.GetTrnaAnticodon(m[0]), positionByPercentage: true).WriteToFile(tRNAFile + ".position", tRNAGroup);
+        new SmallRNAPositionWriter(m => SmallRNAUtils.GetTrnaAnticodon(m[0]), positionByPercentage: false).WriteToFile(tRNAFile + ".abs.position", tRNAGroup);
         new SmallRNAStartPositionWriter(m => SmallRNAUtils.GetTrnaAnticodon(m[0])).WriteToFile(tRNAFile + ".startpos", tRNAGroup);
         allGroups.AddRange(tRNAGroup);
 
@@ -115,6 +116,7 @@ namespace CQS.Genome.SmallRNA
         result.AddRange(new SmallRNACountTableWriter().WriteToFile(tRNAFile, tRNAGroup, samples, SmallRNAConsts.tRNA + ":"));
         Progress.SetMessage("Writing tRNA aminoacid position ...");
         new SmallRNAPositionWriter(m => SmallRNAUtils.GetTrnaAminoacid(m[0]), positionByPercentage: true).WriteToFile(tRNAFile + ".position", tRNAGroup);
+        new SmallRNAPositionWriter(m => SmallRNAUtils.GetTrnaAminoacid(m[0]), positionByPercentage: false).WriteToFile(tRNAFile + ".abs.position", tRNAGroup);
 
         if (!allTRNA)
         {
@@ -159,6 +161,7 @@ namespace CQS.Genome.SmallRNA
       {
         Progress.SetMessage("Writing {0} position ...", biotype);
         new SmallRNAPositionWriter(positionByPercentage: true).WriteToFile(file + ".position", groups);
+        new SmallRNAPositionWriter(positionByPercentage: false).WriteToFile(file + ".abs.position", groups);
       }
 
       if (exportSequence)
