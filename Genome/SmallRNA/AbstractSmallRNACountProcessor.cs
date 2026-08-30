@@ -85,7 +85,8 @@ namespace CQS.Genome.SmallRNA
     public Dictionary<string, Dictionary<char, List<SAMAlignedLocation>>> BuildStrandMap(List<SAMAlignedItem> reads)
     {
       //build chr/strand/samlist map
-      Progress.SetMessage("building chr/strand/samlist map ...");
+      System.Diagnostics.Process p1 = System.Diagnostics.Process.GetCurrentProcess();
+      Progress.SetMessage("Before building chr/strand/samlist map: {p1.WorkingSet64 / 1024.0 / 1024 / 1024:F2} GB...");
 
       var chrStrandMatchedMap = new Dictionary<string, Dictionary<char, List<SAMAlignedLocation>>>();
       foreach (var read in reads)
@@ -103,6 +104,10 @@ namespace CQS.Genome.SmallRNA
           map[loc.Strand].Add(loc);
         }
       }
+
+      System.Diagnostics.Process p2 = System.Diagnostics.Process.GetCurrentProcess();
+      Progress.SetMessage("After building chr/strand/samlist map: {p2.WorkingSet64 / 1024.0 / 1024 / 1024:F2} GB...");
+
       return chrStrandMatchedMap;
     }
 

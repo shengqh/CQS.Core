@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Diagnostics;
 
 namespace CQS.Genome.SmallRNA
 {
@@ -20,6 +21,56 @@ namespace CQS.Genome.SmallRNA
       noPaneltyMutations['G'] = 'A';
     }
 
+    protected override void FillReadCount(List<SAMAlignedItem> result)
+    { 
+      Progress.SetMessage("Reading count file ...");
+      int nline = 0;
+      using (var sr = new StreamReader(options.CountFile))
+      {
+        string line = sr.ReadLine();
+        while ((line = sr.ReadLine()) != null)
+        {
+          nline++;
+        }
+      }
+
+      Dictionary<string, int> count_map = new Dictionary<string, int>(nline);
+      using (var sr = new StreamReader(options.CountFile))
+      {
+        string line = sr.ReadLine();
+        while ((line = sr.ReadLine()) != null)
+        {
+          var parts = line.Split('\t');
+          count_map[parts[0]] = int.Parse(parts[1]);
+        }
+      }
+
+      result.ForEach(m =>
+      {
+        int count;
+        if (count_map.TryGetValue(m.OriginalQname, out count)) 
+        {
+          m.QueryCount = count;  
+        } 
+        else if (count_map.TryGetValue(m.Qname, out count)) 
+        {
+          m.QueryCount = count;
+        } 
+        else
+        {
+          throw new Exception("Cannot find query " + m.OriginalQname + " in count file " + options.CountFile);
+        }
+      });
+
+      System.Diagnostics.Process p1 = System.Diagnostics.Process.GetCurrentProcess();
+      Progress.SetMessage("Before cleaning up: {p1.WorkingSet64 / 1024.0 / 1024 / 1024:F2} GB...");
+
+      count_map.Clear();
+      GC.Collect();
+
+      System.Diagnostics.Process p2 = System.Diagnostics.Process.GetCurrentProcess();
+      Progress.SetMessage("After cleaning up: {p2.WorkingSet64 / 1024.0 / 1024 / 1024:F2} GB...");
+    }
 
     public override IEnumerable<string> Process()
     {

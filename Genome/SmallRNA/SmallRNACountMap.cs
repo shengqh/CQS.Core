@@ -22,8 +22,18 @@ namespace CQS.Genome.SmallRNA
 
     protected override void ReadCountFile(string countFile)
     {
-      this.ItemMap = new Dictionary<string, SmallRNACountItem>();
-      var list = new List<SmallRNACountItem>();
+      int nline = 0;
+      using (var sr = new StreamReader(countFile))
+      {
+        string line = sr.ReadLine();
+        while ((line = sr.ReadLine()) != null)
+        {
+          nline++;
+        }
+      }
+
+      this.ItemMap = new Dictionary<string, SmallRNACountItem>(nline);
+      var list = new List<SmallRNACountItem>(nline);
       using (var sr = new StreamReader(countFile))
       {
         string line = sr.ReadLine();
