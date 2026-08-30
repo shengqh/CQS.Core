@@ -80,7 +80,7 @@ namespace CQS.Genome.Mapping
         for (int i = 1; i < columns.Length; i++)
         {
           var categoryName = columns[i];
-          var curcounts = counts.Copy();
+          var curcounts = counts.ToList();
 
           Progress.SetMessage("Reading category map for " + categoryName + " ...");
           var categoryMap = new MapItemReader(0, i).ReadFromFile(options.CategoryMapFile);
