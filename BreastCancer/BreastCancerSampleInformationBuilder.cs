@@ -37,10 +37,7 @@ namespace CQS.BreastCancer
       var htmlFile = rootDirectory + "\\" + Path.GetFileNameWithoutExtension(rootDirectory) + "_SampleInformation.html";
       new BreastCancerSampleItemHtmlWriter().WriteToFile(htmlFile, total);
 
-      var excelFile = Path.ChangeExtension(htmlFile, ".xls");
-      new BreastCancerSampleItemExcelWriter().WriteToFile(excelFile, total);
-
-      return new string[] { htmlFile, excelFile };
+      return new string[] { htmlFile };
     }
   }
 }

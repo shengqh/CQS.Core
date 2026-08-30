@@ -46,10 +46,7 @@ namespace CQS.Sample
       var htmlFile = Path.ChangeExtension(options.OutputFile, ".html");
       new SampleItemHtmlWriter(properties).WriteToFile(htmlFile, total);
 
-      var excelFile = Path.ChangeExtension(htmlFile, ".xls");
-      new SampleItemExcelWriter(properties).WriteToFile(excelFile, total);
-
-      return new string[] { options.OutputFile, htmlFile, excelFile };
+      return new string[] { options.OutputFile, htmlFile };
     }
   }
 }

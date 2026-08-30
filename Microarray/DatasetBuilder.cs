@@ -2,7 +2,6 @@
 using CQS.Microarray.Affymatrix;
 using CQS.Ncbi.Geo;
 using CQS.Sample;
-using Microsoft.Office.Interop.Excel;
 using RCPA;
 using RCPA.Gui;
 using RCPA.R;
@@ -399,66 +398,6 @@ namespace CQS.Microarray
         }
       });
       return subdirs;
-    }
-
-    public void Step_06_FormatExcel(string root)
-    {
-      var xlApp = new Microsoft.Office.Interop.Excel.Application();
-      try
-      {
-        Workbook workbook = xlApp.Workbooks.Open(root + "\\Step_05_CheckCelList.xlsx");
-        try
-        {
-          Worksheet workSheet = workbook.Worksheets[1];
-
-          var blankCount = 0;
-          for (int i = 2; i <= workSheet.Rows.Count; i++)
-          {
-            var position = "A" + i.ToString();
-            Range range = workSheet.Range[position];
-            var value = range.Value2;
-            if (value == null)
-            {
-              blankCount++;
-              if (blankCount > 3)
-              {
-                break;
-              }
-              else
-              {
-                continue;
-              }
-            }
-
-            string txt = value.ToString();
-            if (txt.StartsWith("GSE"))
-            {
-              var link = string.Format(@"http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc={0}", txt);
-              workSheet.Hyperlinks.Add(range, link);
-            }
-            else if (txt.StartsWith("E-"))
-            {
-              var link = string.Format(@"http://www.ebi.ac.uk/arrayexpress/experiments/{0}", txt);
-              workSheet.Hyperlinks.Add(range, link);
-            }
-            else
-            {
-              var link = string.Format(@"https://www.google.com/search?q={0}", txt);
-              workSheet.Hyperlinks.Add(range, link);
-            }
-          }
-
-          workbook.SaveAs(root + "\\Step_06_CheckCelList.xlsx");
-        }
-        finally
-        {
-          workbook.Close();
-        }
-      }
-      finally
-      {
-        xlApp.Quit();
-      }
     }
 
     public void Step_07_CelListFile(string root)

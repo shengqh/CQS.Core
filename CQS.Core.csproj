@@ -148,7 +148,6 @@
     <Compile Include="Genome\Fastq\ValidFastqExtractor.cs" />
     <Compile Include="Genome\Fastq\ValidFastqExtractorCommand.cs" />
     <Compile Include="Genome\Fastq\ValidFastqExtractorOptions.cs" />
-    <Compile Include="Genome\Fastq\FastqItemSAMParser.cs" />
     <Compile Include="Genome\Fastq\IFastqItemParser.cs" />
     <Compile Include="Genome\Fastq\Sam2FastqProcessor.cs" />
     <Compile Include="Genome\Fastq\Bam2SingleFastqProcessor.cs" />
@@ -463,8 +462,6 @@
       <DependentUpon>GseMatrixDownloaderUI.cs</DependentUpon>
     </Compile>
     <Compile Include="Ncbi\Geo\GeoFileDownloaderOptions.cs" />
-    <Compile Include="Ncbi\Geo\GeoSummaryBuilder.cs" />
-    <Compile Include="Ncbi\Geo\GeoSummaryBuilderOptions.cs" />
     <Compile Include="Microarray\DatasetBuilder.cs" />
     <Compile Include="Ncbi\Geo\GeoFileDownloader.cs" />
     <Compile Include="Ncbi\Geo\GsmRecord.cs" />
@@ -472,7 +469,6 @@
     <Compile Include="Sample\RawSampleInfoBuilderOptions.cs" />
     <Compile Include="Sample\SampleInfoBuilderOptions.cs" />
     <Compile Include="Sample\RawSampleInfoBuilderCommand.cs" />
-    <Compile Include="Sample\SampleItemExcelWriter.cs" />
     <Compile Include="Sample\SampleItemTextWriter.cs" />
     <Compile Include="Sample\SampleItemHtmlWriter.cs" />
     <Compile Include="Sample\SampleInfoBuilder.cs" />
@@ -578,7 +574,6 @@
     <Compile Include="BreastCancer\BreastCancerSampleInformationForm.Designer.cs">
       <DependentUpon>BreastCancerSampleInformationForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="BreastCancer\BreastCancerSampleItemExcelFormat.cs" />
     <Compile Include="BreastCancer\BreastCancerSampleItemHtmlWriter.cs" />
     <Compile Include="BreastCancer\IBreastCancerSampleInfoParser.cs" />
     <Compile Include="BreastCancer\parser\EBIDatasetParser.cs" />
@@ -934,35 +929,6 @@
   <ItemGroup>
     <Content Include="BreastCancer\parser\DatasetDefaultValue.txt" />
     <EmbeddedResource Include="TCGA\tcga_tumor.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <COMReference Include="Microsoft.Office.Core">
-      <Guid>{2DF8D04C-5BFA-101B-BDE5-00AA0044DE52}</Guid>
-      <VersionMajor>2</VersionMajor>
-      <VersionMinor>4</VersionMinor>
-      <Lcid>0</Lcid>
-      <WrapperTool>primary</WrapperTool>
-      <Isolated>False</Isolated>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
-    </COMReference>
-    <COMReference Include="Microsoft.Office.Interop.Excel">
-      <Guid>{00020813-0000-0000-C000-000000000046}</Guid>
-      <VersionMajor>1</VersionMajor>
-      <VersionMinor>6</VersionMinor>
-      <Lcid>0</Lcid>
-      <WrapperTool>primary</WrapperTool>
-      <Isolated>False</Isolated>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
-    </COMReference>
-    <COMReference Include="VBIDE">
-      <Guid>{0002E157-0000-0000-C000-000000000046}</Guid>
-      <VersionMajor>5</VersionMajor>
-      <VersionMinor>3</VersionMinor>
-      <Lcid>0</Lcid>
-      <WrapperTool>primary</WrapperTool>
-      <Isolated>False</Isolated>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
-    </COMReference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\RCPA.Core\RCPA.Core.csproj">
