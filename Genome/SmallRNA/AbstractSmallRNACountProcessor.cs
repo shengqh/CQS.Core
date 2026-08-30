@@ -85,29 +85,60 @@ namespace CQS.Genome.SmallRNA
     public Dictionary<string, Dictionary<char, List<SAMAlignedLocation>>> BuildStrandMap(List<SAMAlignedItem> reads)
     {
       //build chr/strand/samlist map
-      System.Diagnostics.Process p1 = System.Diagnostics.Process.GetCurrentProcess();
-      Progress.SetMessage("Before building chr/strand/samlist map: {p1.WorkingSet64 / 1024.0 / 1024 / 1024:F2} GB...");
+      Progress.ShowCurrentMemory ("Before building chr/strand/samlist map");
 
+      Dictionary<string, int> plusCounts = new Dictionary<string, int>();
+      Dictionary<string, int> minusCounts = new Dictionary<string, int>();
+
+      foreach (var read in reads)
+      {
+          foreach (var loc in read.Locations)
+          {
+              if (loc.Strand == '+')
+              {
+                  plusCounts.TryGetValue(loc.Seqname, out int n);
+                  plusCounts[loc.Seqname] = n + 1;
+              }
+              else
+              {
+                  minusCounts.TryGetValue(loc.Seqname, out int n);
+                  minusCounts[loc.Seqname] = n + 1;
+              }
+          }
+      }
+
+      int count = 0;
       var chrStrandMatchedMap = new Dictionary<string, Dictionary<char, List<SAMAlignedLocation>>>();
       foreach (var read in reads)
       {
         foreach (var loc in read.Locations)
         {
+          count ++;
+          if (count % 100000 == 0)
+          {
+            Progress.ShowCurrentMemory(string.Format("After processing {0} reads/locations", count));
+          }
+
           Dictionary<char, List<SAMAlignedLocation>> map;
           if (!chrStrandMatchedMap.TryGetValue(loc.Seqname, out map))
           {
             map = new Dictionary<char, List<SAMAlignedLocation>>();
-            map['+'] = new List<SAMAlignedLocation>();
-            map['-'] = new List<SAMAlignedLocation>();
+
+            int plus = plusCounts.TryGetValue(loc.Seqname, out int n1) ? n1 : 0;
+            Progress.ShowCurrentMemory(string.Format("Allocate {0} for {1} strand {2}", plus, loc.Seqname, '+'));
+            map['+'] = new List<SAMAlignedLocation>(plus);
+
+            int minus = minusCounts.TryGetValue(loc.Seqname, out int n2) ? n2 : 0;
+            Progress.ShowCurrentMemory(string.Format("Allocate {0} for {1} strand {2}", minus, loc.Seqname, '-'));
+            map['-'] = new List<SAMAlignedLocation>(minus);
+
             chrStrandMatchedMap[loc.Seqname] = map;
           }
           map[loc.Strand].Add(loc);
         }
       }
 
-      System.Diagnostics.Process p2 = System.Diagnostics.Process.GetCurrentProcess();
-      Progress.SetMessage("After building chr/strand/samlist map: {p2.WorkingSet64 / 1024.0 / 1024 / 1024:F2} GB...");
-
+      Progress.ShowCurrentMemory("After building chr/strand/samlist map");
       return chrStrandMatchedMap;
     }
 

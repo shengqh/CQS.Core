@@ -62,14 +62,15 @@ namespace CQS.Genome.SmallRNA
         }
       });
 
-      System.Diagnostics.Process p1 = System.Diagnostics.Process.GetCurrentProcess();
-      Progress.SetMessage("Before cleaning up: {p1.WorkingSet64 / 1024.0 / 1024 / 1024:F2} GB...");
+      Progress.ShowCurrentMemory("Before cleaning up");
 
       count_map.Clear();
+      count_map=null;
+      GC.Collect();
+      GC.WaitForPendingFinalizers();
       GC.Collect();
 
-      System.Diagnostics.Process p2 = System.Diagnostics.Process.GetCurrentProcess();
-      Progress.SetMessage("After cleaning up: {p2.WorkingSet64 / 1024.0 / 1024 / 1024:F2} GB...");
+      Progress.ShowCurrentMemory("After cleaning up");
     }
 
     public override IEnumerable<string> Process()

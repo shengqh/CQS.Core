@@ -61,17 +61,17 @@ namespace CQS.Genome.Sam
 
     public static void SortByName<T>(this List<T> list) where T : ISAMItem
     {
-      list.Sort((m1, m2) => m1.Qname.CompareTo(m2.Qname));
+      list.Sort((x, y) => StringComparer.Ordinal.Compare(x.Qname, y.Qname));
     }
 
     public static void SortByNameAndScore<T>(this List<T> list, ISAMFormat format) where T : ISAMItem
     {
-      list.Sort((m1, m2) =>
+      list.Sort((x, y) =>
       {
-        var result = m1.Qname.CompareTo(m2.Qname);
+        int result = StringComparer.Ordinal.Compare(x.Qname, y.Qname);
         if (result == 0)
         {
-          result = format.CompareScore(m1.AlignmentScore, m2.AlignmentScore);
+          result = format.CompareScore(x.AlignmentScore, y.AlignmentScore);
         }
         return result;
       });
@@ -81,24 +81,24 @@ namespace CQS.Genome.Sam
     {
       if (isLowerBetter)
       {
-        list.Sort((m1, m2) =>
+        list.Sort((x, y) =>
         {
-          var result = m1.Qname.CompareTo(m2.Qname);
+          var result = StringComparer.Ordinal.Compare(x.Qname, y.Qname);
           if (result == 0)
           {
-            result = m1.AlignmentScore.CompareTo(m2.AlignmentScore);
+            result = x.AlignmentScore.CompareTo(y.AlignmentScore);
           }
           return result;
         });
       }
       else
       {
-        list.Sort((m1, m2) =>
+        list.Sort((x, y) =>
         {
-          var result = m1.Qname.CompareTo(m2.Qname);
+          var result = StringComparer.Ordinal.Compare(x.Qname, y.Qname);
           if (result == 0)
           {
-            result = -m1.AlignmentScore.CompareTo(m2.AlignmentScore);
+            result = -x.AlignmentScore.CompareTo(y.AlignmentScore);
           }
           return result;
         });

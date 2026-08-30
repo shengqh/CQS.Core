@@ -69,7 +69,7 @@ namespace CQS.Genome.Gsnap
             continue;
           }
 
-          if (count % 1000 == 0)
+          if (count % 10000 == 0)
           {
             if (Progress.IsCancellationPending())
             {
@@ -77,7 +77,7 @@ namespace CQS.Genome.Gsnap
             }
           }
 
-          if (count % 100000 == 0 && count > 0)
+          if (count % 1000000 == 0 && count > 0)
           {
             Progress.SetMessage("{0} candidates from {1} reads", waitingcount, count);
           }

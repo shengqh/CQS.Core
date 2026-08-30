@@ -46,9 +46,9 @@ namespace CQS.Genome.Mapping
         return samlist;
       }
 
-      Progress.SetMessage("Sorting mapped reads by name...");
+      Progress.ShowCurrentMemory("Sorting mapped reads by name");
       SAMUtils.SortByName(samlist);
-      Progress.SetMessage("Merge reads from same query...");
+      Progress.ShowCurrentMemory("Merge reads from same query");
 
       var result = new List<T>();
       result.Add(samlist[0]);
@@ -74,7 +74,7 @@ namespace CQS.Genome.Mapping
 
       KeepUniqueLocation<T>(result);
 
-      Progress.SetMessage("Total {0} read(s) mapped.", result.Count);
+      Progress.ShowCurrentMemory(string.Format("Total {0} read(s) mapped", result.Count));
 
       return result;
     }

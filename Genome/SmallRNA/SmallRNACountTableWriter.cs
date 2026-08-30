@@ -102,7 +102,7 @@ namespace CQS.Genome.SmallRNA
         //  }
         //}
 
-        var bTopFeatureOutput = false;
+        //var bTopFeatureOutput = false;
         sw.WriteLine("Sequence\tFeatures\tTopFeature\t" + samples.Merge("\t"));
         foreach (var seq in sequences)
         {

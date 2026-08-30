@@ -49,9 +49,9 @@ namespace CQS.Genome.Mapping
             }
           }
 
-          if (count % 100000 == 0 && count > 0)
+          if (count % 1000000 == 0 && count > 0)
           {
-            Progress.SetMessage("{0} candidates from {1} reads", waitingcount, count);
+            Progress.ShowCurrentMemory(string.Format("{0} candidates from {1} reads", waitingcount, count));
           }
 
           count++;
@@ -157,7 +157,7 @@ namespace CQS.Genome.Mapping
           waitingcount++;
         }
 
-        Progress.SetMessage("Finally, there are {0} candidates from {1} reads", waitingcount, count);
+        Progress.ShowCurrentMemory(string.Format("Finally, there are {0} candidates from {1} reads", waitingcount, count));
       }
 
       return result;
